@@ -115,9 +115,7 @@ export function createNewsPanel({ document, layer, now = () => Date.now() }) {
         panel.classList.contains('collapsed') &&
         (preference === undefined || preference === 'default')
       )
-        panel
-          .querySelector(`[data-collapse-target="${PANEL_ID}"]`)
-          ?.click();
+        panel.querySelector(`[data-collapse-target="${PANEL_ID}"]`)?.click();
     }
     if (countEl) countEl.textContent = model.total ? String(model.total) : '';
 
@@ -140,7 +138,7 @@ export function createNewsPanel({ document, layer, now = () => Date.now() }) {
     staleNote.hidden = !model.stale;
     staleNote.textContent = model.stale;
     droppedBtn.hidden = model.droppedTotal === 0;
-    droppedBtn.textContent = `${model.droppedTotal} items filtered out`;
+    droppedBtn.textContent = `${model.droppedTotal} items left out`;
     droppedBtn.setAttribute('aria-expanded', String(droppedOpen));
     droppedList.hidden = !droppedOpen || model.droppedTotal === 0;
     droppedList.replaceChildren(

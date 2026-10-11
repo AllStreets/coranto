@@ -6,7 +6,7 @@ import {
 export const ACTION_DESCRIPTIONS = {
   fly_to_location: {
     description:
-      "Fly the God's Eye View camera to a known city, geocoded country/region/city/landmark, or explicit WGS84 coordinate. Countries/cities frame the whole place; landmarks/buildings use close framing.",
+      'Fly the Coranto camera to a known city, geocoded country/region/city/landmark, or explicit WGS84 coordinate. Countries/cities frame the whole place; landmarks/buildings use close framing.',
     $position: 1,
     parameters: {
       properties: {
@@ -86,7 +86,7 @@ export const ACTION_DESCRIPTIONS = {
   },
   set_layer_visibility: {
     description:
-      "Enable or disable one God's Eye View data layer. Every shipped layer is in the enum; never tell the user a listed layer does not exist.",
+      'Enable or disable one Coranto data layer. Every shipped layer is in the enum; never tell the user a listed layer does not exist.',
     $position: 1,
     parameters: {
       properties: {
@@ -152,7 +152,7 @@ export const ACTION_DESCRIPTIONS = {
     },
   },
   set_visual_style: {
-    description: "Set the active God's Eye View visual filter/style.",
+    description: 'Set the active Coranto visual filter/style.',
     $position: 1,
   },
   get_entity_context: {

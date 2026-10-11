@@ -36,9 +36,14 @@ import { createBhoteKoshiLocatorLayer } from '../data/bhoteKoshiLocator.js';
 /**
  * Hardware-local layers are registered like any other but never enter share
  * links or stored layer state: another browser cannot have this receiver.
+ *
+ * Coranto's news layer is listed here too. Share-link tokens are allocated
+ * from upstream's ledger, and a fork that takes one would collide with the
+ * next upstream layer; staying out of the ledger keeps upstream merges clean.
  */
 export const LOCAL_ONLY_LAYER_METADATA = Object.freeze([
   Object.freeze({ id: 'local-adsb', disposition: 'local-only' }),
+  Object.freeze({ id: 'news', disposition: 'local-only' }),
 ]);
 
 /** Serialization metadata for every layer the application catalog constructs. */

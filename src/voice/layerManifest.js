@@ -136,6 +136,12 @@ const layers = [
     },
   },
   {
+    id: 'news',
+    aliases: ['headlines', 'world news'],
+    context: false,
+    noQuery: 'read in the News panel; no voice query yet',
+  },
+  {
     id: 'earthquakes',
     aliases: ['quakes', 'seismic'],
     context: false,
@@ -372,7 +378,6 @@ const layers = [
 export const VOICE_OFF_LAYERS = Object.freeze({
   'bhote-koshi-2026': 'scene-driven event layer (control_scene)',
   'bhote-koshi-locator': 'scene-driven event layer (control_scene)',
-  news: 'read in the News panel; no voice query yet',
 });
 
 const TYPE_NAMES = Object.freeze({

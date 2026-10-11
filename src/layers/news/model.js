@@ -39,7 +39,8 @@ export function groupNewsByPlace(articles) {
     group.articles.push(article);
   }
   return [...groups.values()].sort(
-    (a, b) => b.articles.length - a.articles.length || a.key.localeCompare(b.key),
+    (a, b) =>
+      b.articles.length - a.articles.length || a.key.localeCompare(b.key),
   );
 }
 

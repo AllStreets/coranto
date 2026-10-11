@@ -4,7 +4,8 @@
  * loading them.
  */
 
-const TRACKING_PARAM = /^(?:utm_[a-z]+|at_[a-z]+|fbclid|gclid|ref|cmpid|ocid)$/i;
+const TRACKING_PARAM =
+  /^(?:utm_[a-z]+|at_[a-z]+|fbclid|gclid|ref|cmpid|ocid)$/i;
 
 /** The URL without fragment or tracking parameters, or null if not http(s). */
 export function canonicalNewsUrl(value) {

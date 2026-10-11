@@ -144,7 +144,8 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
     if (snapshot) empty = 'No current stories match these filters.';
     else if (view?.unavailable)
       empty = `No news source is reachable. Nothing to show. Retrying in ${view.unavailable.retryAfter} s.`;
-    else if (view?.error) empty = 'The news service did not answer. Nothing to show.';
+    else if (view?.error)
+      empty = 'The news service did not answer. Nothing to show.';
     else {
       const configured = sources.filter((source) => source.configured).length;
       empty = configured
