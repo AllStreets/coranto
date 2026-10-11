@@ -7,6 +7,7 @@ import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
 import { createMarketsLens } from './corantoMarkets.js';
 import { createPowerLens } from './corantoPower.js';
 import {
+  WATCH_LIMIT,
   briefingText,
   buildBriefing,
   createWatchStore,
@@ -132,6 +133,16 @@ function hazardMeta(item) {
 }
 
 /** The briefing copy button's wording before, after and on a failed copy. */
+/** What to tell the reader after SAVE THIS VIEW is pressed. */
+function saveNoteText(saved, hadCriteria, count) {
+  if (saved) return `Saved as ${saved.name}. It is listed below.`;
+  if (!hadCriteria)
+    return 'Nothing to save yet. Type a search, choose a topic or select a place on the globe, then press save.';
+  return count >= WATCH_LIMIT
+    ? `You have ${WATCH_LIMIT} watches, the most this browser keeps. Remove one to save another.`
+    : 'This view is already saved below.';
+}
+
 function briefingCopyLabel(copied) {
   if (copied === null) return 'Copy as text';
   return copied ? 'Copied' : 'Copy blocked';
@@ -456,14 +467,20 @@ export function createCorantoShell({
     title:
       'Save the current search, place and topic as a watch. Kept in this browser only.',
   });
+  const saveNote = el(document, 'p', {
+    class: 'coranto-watch-note',
+    role: 'status',
+  });
+  saveNote.hidden = true;
   const watchList = el(document, 'div', { class: 'coranto-watch-list' });
   const watchSection = el(
     document,
     'div',
     { class: 'coranto-watches' },
     el(document, 'div', { class: 'coranto-rail-heading', text: 'MY WATCHES' }),
-    watchList,
     saveBtn,
+    saveNote,
+    watchList,
   );
   const rail = el(
     document,
@@ -821,7 +838,7 @@ export function createCorantoShell({
       ? `MY BRIEFING · ${freshTotal} NEW`
       : 'MY BRIEFING';
     briefingBtn.hidden = watches.length === 0;
-    saveBtn.disabled = !hasCriteria(currentCriteria());
+    saveBtn.dataset.ready = String(hasCriteria(currentCriteria()));
   }
 
   function renderBriefing() {
@@ -901,6 +918,8 @@ export function createCorantoShell({
   let lens = 'news';
   function setLens(next) {
     if (next === lens) return;
+    // Each lens starts at the top of the rail.
+    rail.scrollTop = 0;
     // Undo what the lens being left set up.
     if (lens === 'power') {
       if (card.dataset.owner === 'power') showCard(null);
@@ -1074,7 +1093,16 @@ export function createCorantoShell({
   groupStories.addEventListener('click', () => feed?.setGrouped(true));
   groupAll.addEventListener('click', () => feed?.setGrouped(false));
   saveBtn.addEventListener('click', () => {
-    watchStore.add(currentCriteria());
+    const criteria = currentCriteria();
+    const saved = watchStore.add(criteria);
+    saveNote.hidden = false;
+    saveNote.dataset.tone = saved ? 'ok' : 'hint';
+    saveNote.textContent = saveNoteText(
+      saved,
+      hasCriteria(criteria),
+      watchStore.list().length,
+    );
+    if (!saved && !hasCriteria(criteria)) feed?.focusSearch();
     renderWatches();
   });
   briefingBtn.addEventListener('click', () => {
@@ -1180,6 +1208,10 @@ export function createCorantoShell({
   // Automated browsers get the control room: the engine's own browser gates
   // drive those panels and expect them on screen.
   const defaultMode = win.navigator?.webdriver ? 'instruments' : 'news';
+  // People get one frame: the headline ticker stays under the header in both
+  // views. Automated browsers keep the engine's own layout, which its browser
+  // gates measure.
+  body.dataset.corantoFrame = win.navigator?.webdriver ? 'classic' : 'one';
   setMode(storedMode ?? defaultMode, { remember: false });
   if (body.dataset.corantoMode === 'news') {
     // News opens straight onto the feed; the engine's mission launcher

@@ -5,7 +5,8 @@ import {
 } from '../sources/markets/records.js';
 
 /**
- * The Markets lens: exchange rates and crypto prices beside the finance news.
+ * The Markets lens: stock indices, oil, the US 10-year yield, exchange rates
+ * and crypto prices beside the finance news.
  * Every figure shows the time its source gave it and links to that source.
  * When a source is down its figures are absent and the lens names it.
  */
@@ -50,8 +51,11 @@ export function buildMarketsModel(state) {
       id: quote.id,
       label: quote.label,
       title: `${quote.meaning ?? quote.name} · ${quote.source} · ${quote.asOfText}`,
-      value: formatQuoteValue(quote.value),
-      change: formatQuoteChange(quote.change),
+      value:
+        quote.unit === '%'
+          ? `${quote.value.toFixed(2)}%`
+          : formatQuoteValue(quote.value),
+      change: formatQuoteChange(quote.change, quote.changeUnit),
       direction:
         !Number.isFinite(quote.change) || quote.change === 0
           ? 'flat'
@@ -92,13 +96,9 @@ export function createMarketsLens({
     { class: 'coranto-power coranto-markets' },
     el(document, 'p', {
       class: 'coranto-power-intro',
-      text: 'Exchange rates and crypto prices, with finance news beside them. Exchange rates are the European Central Bank’s reference rates, set once each working day. They are not live trading prices.',
+      text: 'Stock indices, oil, exchange rates and crypto, with finance news beside them. Index, oil and exchange-rate figures are official daily values, not live trading prices; each shows the day it is for.',
     }),
     body,
-    el(document, 'p', {
-      class: 'coranto-power-foot',
-      text: 'Stock indices and commodity prices are not shown: no keyless public source for them is available.',
-    }),
   );
   element.hidden = true;
 

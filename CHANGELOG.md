@@ -17,6 +17,22 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: the news view is one frame. The left rail is a docked column like
+  the feed, wide enough to read, and the globe sits between the two. The
+  headline ticker stays under the header in INSTRUMENTS as well. The map
+  credit line sits beside the rail, never under it.
+- Coranto: every scrolling area shows a scrollbar that can be seen and
+  dragged, and each lens opens at the top of the rail.
+- Coranto: SAVE THIS VIEW always responds. It names what it saved, says when a
+  view is already saved, and when there is nothing to save it says what to do
+  and puts the cursor in the search box.
+- Coranto: the Elections lens has a US campaign money tab: the fifteen
+  biggest fundraisers for the Senate and the House this cycle, from their own
+  filings with the Federal Election Commission, each linked to its FEC
+  record. `FEC_API_KEY` is optional and stays on the server.
+- Coranto: Markets adds the S&P 500, Dow Jones, Nasdaq Composite, Brent and
+  WTI oil and the US 10-year yield as daily closes from FRED, each marked
+  with the day it is for.
 - Coranto: a Markets lens shows European Central Bank reference exchange
   rates and CoinGecko crypto prices, each with its source and time, beside
   finance news. Live TV lists ten live news channels from AUSPEX's broadcaster

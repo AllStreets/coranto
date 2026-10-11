@@ -1,9 +1,11 @@
 import { readResponseTextCapped } from '../httpBody.js';
 import {
   CRYPTO_COINS,
+  FRED_SERIES,
   FX_BASE,
   FX_CURRENCIES,
   parseCrypto,
+  parseFredSeries,
   parseFx,
 } from './records.js';
 
@@ -25,7 +27,17 @@ export class MarketsUnavailableError extends Error {
 function sourcesFor(now) {
   // Ten days back is enough to hold two working days across a holiday.
   const from = new Date(now - 10 * DAY_MS).toISOString().slice(0, 10);
+  // Three weeks back holds two trading days across any holiday run.
+  const fredFrom = new Date(now - 21 * DAY_MS).toISOString().slice(0, 10);
+  const fred = FRED_SERIES.map(([seriesId]) => ({
+    id: `fred:${seriesId}`,
+    name: 'FRED (St. Louis Fed)',
+    url: `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}&cosd=${fredFrom}`,
+    text: true,
+    parse: (csv) => parseFredSeries(csv, seriesId),
+  }));
   return [
+    ...fred,
     {
       id: 'ecb',
       name: 'ECB reference rates',
@@ -61,7 +73,7 @@ export function createMarketService({
       try {
         response = await fetchImpl(source.url, {
           signal: controller.signal,
-          headers: { Accept: 'application/json', 'User-Agent': USER_AGENT },
+          headers: { Accept: '*/*', 'User-Agent': USER_AGENT },
           redirect: 'error',
         });
       } catch {
@@ -75,15 +87,12 @@ export function createMarketService({
       }
       let quotes;
       try {
-        quotes = source.parse(
-          JSON.parse(
-            await readResponseTextCapped(
-              response,
-              512 * 1024,
-              controller.signal,
-            ),
-          ),
+        const text = await readResponseTextCapped(
+          response,
+          512 * 1024,
+          controller.signal,
         );
+        quotes = source.parse(source.text ? text : JSON.parse(text));
       } catch {
         throw new Error(controller.signal.aborted ? 'timeout' : 'parse-error');
       }
@@ -100,15 +109,24 @@ export function createMarketService({
       fetchedAt: new Date(fetchedAt).toISOString(),
       stale,
       quotes: sources.flatMap((source) => state.get(source.id)?.quotes ?? []),
-      sources: sources.map((source) => {
-        const entry = state.get(source.id);
-        return {
-          id: source.id,
-          name: source.name,
-          ok: entry?.ok === true,
-          reason: entry?.ok ? null : (entry?.reason ?? null),
-        };
-      }),
+      // Several series share one provider; it counts as answering when any
+      // of its series did.
+      sources: [...new Set(sources.map((source) => source.name))].map(
+        (name) => {
+          const entries = sources
+            .filter((source) => source.name === name)
+            .map((source) => state.get(source.id));
+          const ok = entries.some((entry) => entry?.ok === true);
+          return {
+            id: name,
+            name,
+            ok,
+            reason: ok
+              ? null
+              : (entries.find((entry) => entry?.reason)?.reason ?? null),
+          };
+        },
+      ),
     };
   }
 

@@ -12,7 +12,8 @@
   --text-secondary: rgba(200, 216, 207, 0.62);
   --text-dim: rgba(159, 179, 168, 0.42);
   --font-mono: 'IBM Plex Mono', 'JetBrains Mono', 'SF Mono', monospace;
-  --font-sans: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans:
+    'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-brand: 'Syne', 'Manrope', sans-serif;
   --font-head: 'Fraunces', Georgia, serif;
   --coranto-sig: linear-gradient(90deg, #34e08a, #a3e635);
@@ -80,7 +81,11 @@
   gap: 16px;
   padding: 0 18px;
   border-bottom: 1px solid var(--coranto-line);
-  background: linear-gradient(180deg, rgba(4, 7, 11, 0.96), rgba(4, 7, 11, 0.84));
+  background: linear-gradient(
+    180deg,
+    rgba(4, 7, 11, 0.96),
+    rgba(4, 7, 11, 0.84)
+  );
   backdrop-filter: blur(18px) saturate(1.3);
   -webkit-backdrop-filter: blur(18px) saturate(1.3);
   font-family: var(--font-mono);
@@ -255,7 +260,13 @@
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 3%,
+    #000 97%,
+    transparent
+  );
 }
 .coranto-ticker-track {
   display: inline-flex;
@@ -445,7 +456,7 @@
   max-height: 46vh;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(110, 138, 255, 0.4) transparent;
+  scrollbar-color: rgba(110, 138, 255, 0.75) rgba(255, 255, 255, 0.05);
 }
 .coranto-election {
   display: grid;
@@ -642,7 +653,7 @@
   max-height: 34vh;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(192, 132, 252, 0.4) transparent;
+  scrollbar-color: rgba(192, 132, 252, 0.75) rgba(255, 255, 255, 0.05);
 }
 .coranto-power-layer,
 .coranto-power-plane {
@@ -783,10 +794,25 @@
   text-align: left;
   cursor: pointer;
 }
-.coranto-watch-save:disabled {
+.coranto-watch-save:hover,
+.coranto-watch-save:focus-visible {
+  background: rgba(52, 224, 138, 0.08);
+}
+.coranto-watch-save[data-ready='false'] {
   border-color: var(--coranto-line);
   color: var(--text-dim);
-  cursor: default;
+}
+.coranto-watch-note {
+  margin: 0;
+  padding: 7px 9px;
+  border-left: 2px solid #34e08a;
+  background: rgba(52, 224, 138, 0.07);
+  color: var(--text-primary);
+  font: 11px/1.45 var(--font-sans);
+}
+.coranto-watch-note[data-tone='hint'] {
+  border-left-color: #e0b34a;
+  background: rgba(224, 179, 74, 0.08);
 }
 
 /* Briefing */
@@ -923,7 +949,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: rgba(52, 224, 138, 0.4) transparent;
+  scrollbar-color: rgba(52, 224, 138, 0.75) rgba(255, 255, 255, 0.05);
 }
 #coranto-feed-body [hidden] {
   display: none !important;
@@ -1613,7 +1639,8 @@ body[data-coranto-mode='news'] #first-run-launcher {
   display: none !important;
 }
 /* The engine's loading and sync notices sit below the bars, over the globe. */
-body[data-coranto-mode='news'] :is(#global-loading-status, #traffic-sync-chip, #cctv-sync-chip) {
+body[data-coranto-mode='news']
+  :is(#global-loading-status, #traffic-sync-chip, #cctv-sync-chip) {
   top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 14px);
   left: calc((100% - var(--coranto-feed-w)) / 2);
   z-index: 350;
@@ -1640,7 +1667,8 @@ body[data-coranto-mode='news'] #world-overlay-root {
     var(--coranto-feed-w) 0 0;
 }
 /* Instruments: the shell keeps only its header. */
-body[data-coranto-mode='instruments'] #coranto-ticker,
+body[data-coranto-mode='instruments'][data-coranto-frame='classic']
+  #coranto-ticker,
 body[data-coranto-mode='instruments'] #coranto-rail,
 body[data-coranto-mode='instruments'] #coranto-feed {
   display: none;
@@ -1984,7 +2012,7 @@ body[data-coranto-mode='news'] #cesium-credits {
   overflow-x: hidden;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: rgba(52, 224, 138, 0.35) transparent;
+  scrollbar-color: rgba(52, 224, 138, 0.75) rgba(255, 255, 255, 0.05);
   padding-right: 4px;
 }
 #coranto-rail > * {
@@ -1997,4 +2025,207 @@ body[data-coranto-mode='news'] #cesium-credits {
 #coranto-rail .coranto-markets-body {
   max-height: none;
   overflow: visible;
+}
+
+/* Campaign money (Elections lens) */
+.coranto-money,
+.coranto-elections-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.coranto-money[hidden],
+.coranto-elections-pane[hidden] {
+  display: none;
+}
+.coranto-money-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.coranto-money-tab {
+  padding: 5px 6px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-dim);
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.coranto-money-tab[aria-pressed='true'] {
+  border-color: rgba(110, 138, 255, 0.7);
+  background: rgba(110, 138, 255, 0.12);
+  color: var(--text-primary);
+}
+.coranto-money-body,
+.coranto-money-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.coranto-money-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 9px 8px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  text-decoration: none;
+  overflow: hidden;
+}
+.coranto-money-row:hover,
+.coranto-money-row:focus-visible {
+  border-color: rgba(110, 138, 255, 0.7);
+}
+.coranto-money-rank {
+  color: var(--text-dim);
+  font: 10px var(--font-mono);
+  text-align: right;
+}
+.coranto-money-who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.coranto-money-name,
+.coranto-money-detail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.coranto-money-name {
+  color: var(--text-primary);
+  font: 600 11.5px var(--font-sans);
+}
+.coranto-money-detail {
+  color: var(--text-dim);
+  font: 9.5px var(--font-mono);
+}
+.coranto-money-raised {
+  color: #a9b9ff;
+  font: 600 12px var(--font-mono);
+  white-space: nowrap;
+}
+.coranto-money-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: rgba(110, 138, 255, 0.65);
+}
+
+/* Every scrolling area shows a bar a person can see and drag, including on
+   systems that hide scrollbars until the pointer moves. */
+@supports selector(::-webkit-scrollbar) {
+  #coranto-rail,
+  #coranto-feed-body,
+  .coranto-briefing-card,
+  .coranto-guide-card {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+  }
+  #coranto-rail::-webkit-scrollbar,
+  #coranto-feed-body::-webkit-scrollbar,
+  .coranto-briefing-card::-webkit-scrollbar,
+  .coranto-guide-card::-webkit-scrollbar {
+    width: 10px;
+  }
+  #coranto-rail::-webkit-scrollbar-track,
+  #coranto-feed-body::-webkit-scrollbar-track,
+  .coranto-briefing-card::-webkit-scrollbar-track,
+  .coranto-guide-card::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.04);
+  }
+  #coranto-rail::-webkit-scrollbar-thumb,
+  #coranto-feed-body::-webkit-scrollbar-thumb,
+  .coranto-briefing-card::-webkit-scrollbar-thumb,
+  .coranto-guide-card::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: rgba(52, 224, 138, 0.6);
+    background-clip: padding-box;
+  }
+  #coranto-rail::-webkit-scrollbar-thumb:hover,
+  #coranto-feed-body::-webkit-scrollbar-thumb:hover,
+  .coranto-briefing-card::-webkit-scrollbar-thumb:hover,
+  .coranto-guide-card::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(52, 224, 138, 0.9);
+  }
+}
+
+/* ── One frame: header, ticker, left column, globe, feed ─────────
+   On a wide window the rail is a docked column like the feed, not buttons
+   floating over the globe. The globe and everything centred on it take the
+   space between the two columns. */
+:root {
+  --coranto-rail-w: clamp(250px, 18vw, 296px);
+}
+@media (min-width: 1101px) {
+  #coranto-rail {
+    top: calc(var(--coranto-header-h) + var(--coranto-ticker-h));
+    left: 0;
+    bottom: 0;
+    box-sizing: border-box;
+    width: var(--coranto-rail-w);
+    padding: 14px 6px 18px 14px;
+    border-right: 1px solid var(--coranto-line);
+    background: linear-gradient(
+      270deg,
+      rgba(4, 9, 7, 0.86),
+      rgba(4, 9, 7, 0.95)
+    );
+    backdrop-filter: blur(20px) saturate(1.3);
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  }
+  body[data-coranto-mode='news'] #cesiumContainer {
+    left: var(--coranto-rail-w);
+    width: calc(100% - var(--coranto-feed-w) - var(--coranto-rail-w));
+  }
+  body[data-coranto-mode='news'] #world-overlay-root {
+    inset: calc(var(--coranto-header-h) + var(--coranto-ticker-h))
+      var(--coranto-feed-w) 0 var(--coranto-rail-w);
+  }
+  body[data-coranto-mode='news']
+    :is(#global-loading-status, #traffic-sync-chip, #cctv-sync-chip, #toast) {
+    left: calc(
+      var(--coranto-rail-w) +
+        (100% - var(--coranto-feed-w) - var(--coranto-rail-w)) / 2
+    );
+  }
+  /* The credit line stays in view beside the rail, never under it. */
+  html
+    body[data-coranto-mode='news']:not(.coranto-x):not(.coranto-y)
+    #cesium-credits {
+    left: calc(var(--coranto-rail-w) + 14px);
+    bottom: 10px;
+  }
+}
+
+/* One frame: the headline ticker stays under the header in INSTRUMENTS too,
+   so both views share the same top of the page. It sits below the engine's
+   floating panels, like the header, and the engine's top controls move down
+   to clear it. */
+body[data-coranto-mode='instruments'][data-coranto-frame='one']
+  #coranto-ticker {
+  z-index: 40;
+  background: rgba(4, 7, 11, 0.95);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+body[data-coranto-mode='instruments'][data-coranto-frame='one']
+  #top-center-actions {
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 14px);
+}
+body[data-coranto-mode='instruments'][data-coranto-frame='one']
+  #global-loading-status {
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 66px);
+}
+body[data-coranto-mode='instruments'][data-coranto-frame='one']
+  :is(#traffic-sync-chip, #cctv-sync-chip) {
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 104px);
 }

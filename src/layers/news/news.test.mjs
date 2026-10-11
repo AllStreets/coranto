@@ -79,11 +79,17 @@ test('an article without a source, link or time is never passed on', () => {
         article({ id: 'b', url: 'javascript:void(0)' }),
         article({ id: 'c', publisher: '' }),
         article({ id: 'd', publishedAt: '' }),
-        article({ id: 'e', place: { name: 'X', lat: 999, lon: 0, precision: 'city' } }),
+        article({
+          id: 'e',
+          place: { name: 'X', lat: 999, lon: 0, precision: 'city' },
+        }),
       ],
     }),
   );
-  assert.deepEqual(snapshot.articles.map((a) => a.id), ['a1']);
+  assert.deepEqual(
+    snapshot.articles.map((a) => a.id),
+    ['a1'],
+  );
 });
 
 test('the source reads the route, and reports 503 as unavailable with the source list', async () => {
@@ -94,7 +100,11 @@ test('the source reads the route, and reports 503 as unavailable with the source
   const down = createNewsSource({
     fetchImpl: async () =>
       Response.json(
-        { error: 'news_unavailable', retryAfter: 42, sources: [source({ ok: false, reason: 'timeout', count: 0 })] },
+        {
+          error: 'news_unavailable',
+          retryAfter: 42,
+          sources: [source({ ok: false, reason: 'timeout', count: 0 })],
+        },
         { status: 503 },
       ),
   });
@@ -117,7 +127,14 @@ test('stories at one place share one marker at the exact table coordinate', () =
     article({ id: 'a3', place: null }),
     article({
       id: 'a4',
-      place: { name: 'France', lat: 46.2, lon: 2.2, precision: 'country', matched: 'French', field: 'title' },
+      place: {
+        name: 'France',
+        lat: 46.2,
+        lon: 2.2,
+        precision: 'country',
+        matched: 'French',
+        field: 'title',
+      },
     }),
   ]);
   assert.equal(groups.length, 2);
@@ -133,11 +150,26 @@ test('stories at one place share one marker at the exact table coordinate', () =
 test('layer stats map onto the standard feed states', () => {
   const snapshot = normalizeNewsSnapshot(payload());
   const partial = normalizeNewsSnapshot(
-    payload({ sources: [source(), source({ id: 'dw', name: 'DW', ok: false, reason: 'timeout' })] }),
+    payload({
+      sources: [
+        source(),
+        source({ id: 'dw', name: 'DW', ok: false, reason: 'timeout' }),
+      ],
+    }),
   );
   const stale = normalizeNewsSnapshot(payload({ stale: true }));
   const off = normalizeNewsSnapshot(
-    payload({ sources: [source(), source({ id: 'newsapi', name: 'NewsAPI', configured: false, ok: false })] }),
+    payload({
+      sources: [
+        source(),
+        source({
+          id: 'newsapi',
+          name: 'NewsAPI',
+          configured: false,
+          ok: false,
+        }),
+      ],
+    }),
   );
   assert.equal(layerFeedState(newsStats({ snapshot })), 'nominal');
   assert.equal(newsStats({ snapshot }).source, '1 of 1 sources');
@@ -146,10 +178,15 @@ test('layer stats map onto the standard feed states', () => {
   // An optional source that is not configured is not a failure.
   assert.equal(layerFeedState(newsStats({ snapshot: off })), 'nominal');
   assert.equal(
-    layerFeedState(newsStats({ snapshot: null, error: 'No news source is reachable' })),
+    layerFeedState(
+      newsStats({ snapshot: null, error: 'No news source is reachable' }),
+    ),
     'unavailable',
   );
-  assert.equal(layerFeedState(newsStats({ snapshot, error: 'News HTTP 502' })), 'degraded');
+  assert.equal(
+    layerFeedState(newsStats({ snapshot, error: 'News HTTP 502' })),
+    'degraded',
+  );
 });
 
 test('every card carries the article’s own link, publisher and time', () => {
@@ -184,27 +221,53 @@ test('with no articles the panel shows one sentence and no cards', () => {
     {
       enabled: true,
       error: 'No news source is reachable',
-      unavailable: { retryAfter: 60, sources: [source({ ok: false, reason: 'timeout', count: 0, lastSuccessAt: null })] },
+      unavailable: {
+        retryAfter: 60,
+        sources: [
+          source({
+            ok: false,
+            reason: 'timeout',
+            count: 0,
+            lastSuccessAt: null,
+          }),
+        ],
+      },
     },
     {},
     NOW,
   );
   assert.deepEqual(down.cards, []);
-  assert.equal(down.empty, 'No news source is reachable. Nothing to show. Retrying in 60 s.');
+  assert.equal(
+    down.empty,
+    'No news source is reachable. Nothing to show. Retrying in 60 s.',
+  );
   assert.equal(down.healthState, 'down');
   assert.equal(down.sources[0].detail, 'timed out · has not answered');
-  const failed = buildNewsPanelModel({ enabled: true, error: 'News HTTP 502' }, {}, NOW);
+  const failed = buildNewsPanelModel(
+    { enabled: true, error: 'News HTTP 502' },
+    {},
+    NOW,
+  );
   assert.deepEqual(failed.cards, []);
-  assert.equal(failed.empty, 'The news service did not answer. Nothing to show.');
+  assert.equal(
+    failed.empty,
+    'The news service did not answer. Nothing to show.',
+  );
 });
 
 test('stale and partial states are stated, and a down source is named', () => {
   const stale = buildNewsPanelModel(
-    { enabled: true, snapshot: normalizeNewsSnapshot(payload({ stale: true })) },
+    {
+      enabled: true,
+      snapshot: normalizeNewsSnapshot(payload({ stale: true })),
+    },
     {},
     NOW,
   );
-  assert.match(stale.stale, /^Showing saved results from .+\. No source is reachable right now\.$/);
+  assert.match(
+    stale.stale,
+    /^Showing saved results from .+\. No source is reachable right now\.$/,
+  );
   assert.equal(stale.healthState, 'stale');
   const partial = buildNewsPanelModel(
     {
@@ -213,8 +276,22 @@ test('stale and partial states are stated, and a down source is named', () => {
         payload({
           sources: [
             source(),
-            source({ id: 'gdelt', name: 'GDELT', ok: false, count: 0, reason: 'rate-limited', lastSuccessAt: null }),
-            source({ id: 'newsapi', name: 'NewsAPI', configured: false, ok: false, count: 0, lastSuccessAt: null }),
+            source({
+              id: 'gdelt',
+              name: 'GDELT',
+              ok: false,
+              count: 0,
+              reason: 'rate-limited',
+              lastSuccessAt: null,
+            }),
+            source({
+              id: 'newsapi',
+              name: 'NewsAPI',
+              configured: false,
+              ok: false,
+              count: 0,
+              lastSuccessAt: null,
+            }),
           ],
         }),
       ),
@@ -237,7 +314,13 @@ test('stale and partial states are stated, and a down source is named', () => {
 test('filters narrow the list and say so when nothing matches', () => {
   const articles = [
     article(),
-    article({ id: 'a2', publisher: 'DW', category: 'climate', place: null, url: 'https://www.dw.com/x' }),
+    article({
+      id: 'a2',
+      publisher: 'DW',
+      category: 'climate',
+      place: null,
+      url: 'https://www.dw.com/x',
+    }),
   ];
   const view = {
     enabled: true,
@@ -245,13 +328,23 @@ test('filters narrow the list and say so when nothing matches', () => {
     places: groupNewsByPlace(articles),
     selectedPlaceKey: 'city:Doha',
   };
-  assert.deepEqual(buildNewsPanelModel(view, {}, NOW).cards.map((c) => c.id), ['a1']);
+  assert.deepEqual(
+    buildNewsPanelModel(view, {}, NOW).cards.map((c) => c.id),
+    ['a1'],
+  );
   assert.equal(buildNewsPanelModel(view, {}, NOW).place.name, 'Doha');
   const none = buildNewsPanelModel(view, { publisher: 'DW' }, NOW);
   assert.deepEqual(none.cards, []);
   assert.equal(none.empty, 'No current stories match these filters.');
-  const all = buildNewsPanelModel({ ...view, selectedPlaceKey: null }, { category: 'climate' }, NOW);
-  assert.deepEqual(all.cards.map((c) => c.id), ['a2']);
+  const all = buildNewsPanelModel(
+    { ...view, selectedPlaceKey: null },
+    { category: 'climate' },
+    NOW,
+  );
+  assert.deepEqual(
+    all.cards.map((c) => c.id),
+    ['a2'],
+  );
   assert.equal(all.cards[0].place, 'No location');
 });
 
@@ -259,7 +352,9 @@ test('filters narrow the list and say so when nothing matches', () => {
 
 function callRoute(plugin, { method = 'GET', url = '/' } = {}) {
   let handler;
-  plugin.configureServer({ middlewares: { use: (_path, fn) => (handler = fn) } });
+  plugin.configureServer({
+    middlewares: { use: (_path, fn) => (handler = fn) },
+  });
   return new Promise((resolve) => {
     const res = {
       writeHead(status, headers) {
@@ -267,7 +362,11 @@ function callRoute(plugin, { method = 'GET', url = '/' } = {}) {
         this.headers = headers;
       },
       end(body) {
-        resolve({ status: this.status, headers: this.headers, body: JSON.parse(body) });
+        resolve({
+          status: this.status,
+          headers: this.headers,
+          body: JSON.parse(body),
+        });
       },
     };
     handler({ method, url }, res);
@@ -283,7 +382,9 @@ test('the route serves articles with the source report', async () => {
     now: () => NOW,
     sleep: async () => {},
     fetchImpl: async (url) =>
-      url.includes('bbci') ? new Response(feed) : new Response('', { status: 500 }),
+      url.includes('bbci')
+        ? new Response(feed)
+        : new Response('', { status: 500 }),
   });
   const { status, headers, body } = await callRoute(plugin);
   assert.equal(status, 200);
@@ -291,7 +392,10 @@ test('the route serves articles with the source report', async () => {
   assert.equal(body.articles.length, 1);
   assert.equal(body.articles[0].publisher, 'BBC');
   assert.equal(body.sources.find((s) => s.id === 'bbc').ok, true);
-  assert.equal(body.sources.find((s) => s.id === 'guardian').reason, 'http-error');
+  assert.equal(
+    body.sources.find((s) => s.id === 'guardian').reason,
+    'http-error',
+  );
 });
 
 test('with every source down and nothing saved the route returns 503 and no articles', async () => {
@@ -310,9 +414,15 @@ test('with every source down and nothing saved the route returns 503 and no arti
 });
 
 test('the route refuses other methods and any query', async () => {
-  const plugin = newsProxy({ cachePath: null, fetchImpl: async () => new Response('') });
+  const plugin = newsProxy({
+    cachePath: null,
+    fetchImpl: async () => new Response(''),
+  });
   assert.equal((await callRoute(plugin, { method: 'POST' })).status, 405);
-  assert.equal((await callRoute(plugin, { url: '/?url=https://evil.example' })).status, 400);
+  assert.equal(
+    (await callRoute(plugin, { url: '/?url=https://evil.example' })).status,
+    400,
+  );
 });
 
 // ── The brief route ─────────────────────────────────────────────────
@@ -348,7 +458,9 @@ function briefPlugin(modelReply, options = {}) {
     ...options,
   });
   const routes = new Map();
-  plugin.configureServer({ middlewares: { use: (route, fn) => routes.set(route, fn) } });
+  plugin.configureServer({
+    middlewares: { use: (route, fn) => routes.set(route, fn) },
+  });
   const call = (route, { method = 'GET', body } = {}) =>
     new Promise((resolve) => {
       const res = {
@@ -365,7 +477,8 @@ function briefPlugin(modelReply, options = {}) {
         url: '/',
         headers: {},
         on(event, listener) {
-          if (event === 'data' && body) listener(Buffer.from(JSON.stringify(body)));
+          if (event === 'data' && body)
+            listener(Buffer.from(JSON.stringify(body)));
           if (event === 'end') listener();
           return req;
         },
@@ -378,7 +491,10 @@ function briefPlugin(modelReply, options = {}) {
 test('a brief returns only cited, supported sentences, with the outlet count', async () => {
   const { call, calls } = briefPlugin({
     sentences: [
-      { text: 'An attack on Riyadh airport killed twelve people.', cites: [1, 2] },
+      {
+        text: 'An attack on Riyadh airport killed twelve people.',
+        cites: [1, 2],
+      },
       { text: 'The attackers were led by General Hassan.', cites: [1] },
       { text: 'Oil prices rose 9% in response.', cites: [] },
     ],
@@ -412,17 +528,25 @@ test('a brief returns only cited, supported sentences, with the outlet count', a
   assert.doesNotMatch(sent.input, /https?:|test-key/);
   assert.equal(calls[0].init.headers.Authorization, 'Bearer test-key');
   // A second request for the same story is served from memory.
-  await call('/api/news/brief', { method: 'POST', body: { storyId: story.id } });
+  await call('/api/news/brief', {
+    method: 'POST',
+    body: { storyId: story.id },
+  });
   assert.equal(calls.length, 1);
 });
 
 test('a brief the checker rejects whole shows nothing', async () => {
   const { call } = briefPlugin({
-    sentences: [{ text: 'The death toll reached 4,000 in Tehran.', cites: [1] }],
+    sentences: [
+      { text: 'The death toll reached 4,000 in Tehran.', cites: [1] },
+    ],
   });
   const news = await call('/api/news');
   const story = news.body.stories.find((entry) => entry.outlets === 2);
-  const { body } = await call('/api/news/brief', { method: 'POST', body: { storyId: story.id } });
+  const { body } = await call('/api/news/brief', {
+    method: 'POST',
+    body: { storyId: story.id },
+  });
   assert.equal(body.supported, false);
   assert.deepEqual(body.sentences, []);
   assert.deepEqual(body.claims, []);
@@ -430,23 +554,43 @@ test('a brief the checker rejects whole shows nothing', async () => {
 
 test('brief failures say so and never relay provider text', async () => {
   const failing = briefPlugin(() =>
-    Response.json({ error: { message: 'org-123 quota exceeded' } }, { status: 429 }),
+    Response.json(
+      { error: { message: 'org-123 quota exceeded' } },
+      { status: 429 },
+    ),
   );
   const news = await failing.call('/api/news');
   const story = news.body.stories[0];
-  const failed = await failing.call('/api/news/brief', { method: 'POST', body: { storyId: story.id } });
+  const failed = await failing.call('/api/news/brief', {
+    method: 'POST',
+    body: { storyId: story.id },
+  });
   assert.equal(failed.status, 502);
   assert.deepEqual(failed.body, { error: 'brief_failed' });
 
   const keyless = briefPlugin({}, { briefKey: () => '' });
-  const off = await keyless.call('/api/news/brief', { method: 'POST', body: { storyId: 'x' } });
+  const off = await keyless.call('/api/news/brief', {
+    method: 'POST',
+    body: { storyId: 'x' },
+  });
   assert.deepEqual(off.body, { available: false, reason: 'not-configured' });
   assert.equal(keyless.calls.length, 0);
 
   const { call } = briefPlugin({});
   assert.equal((await call('/api/news/brief')).status, 405);
-  assert.equal((await call('/api/news/brief', { method: 'POST', body: { storyId: 'nope' } })).status, 404);
-  assert.equal((await call('/api/news/brief', { method: 'POST', body: {} })).status, 400);
+  assert.equal(
+    (
+      await call('/api/news/brief', {
+        method: 'POST',
+        body: { storyId: 'nope' },
+      })
+    ).status,
+    404,
+  );
+  assert.equal(
+    (await call('/api/news/brief', { method: 'POST', body: {} })).status,
+    400,
+  );
 });
 
 // ── Honesty gates: these fail the build if the rules are broken later ──
@@ -474,6 +618,9 @@ const NEWS_RUNTIME = [
   'server/providers/markets.js',
   'src/sources/markets',
   'src/ui/corantoMarkets.js',
+  'server/providers/campaignFinance.js',
+  'src/sources/campaignFinance',
+  'src/ui/corantoCampaignMoney.js',
   'src/ui/corantoContact.js',
   'src/ui/corantoLink.js',
 ];
@@ -482,7 +629,8 @@ function runtimeFiles() {
   const visit = (relative) => {
     const absolute = path.join(root, relative);
     if (fs.statSync(absolute).isDirectory()) {
-      for (const name of fs.readdirSync(absolute)) visit(path.join(relative, name));
+      for (const name of fs.readdirSync(absolute))
+        visit(path.join(relative, name));
     } else if (relative.endsWith('.js')) files.push(relative);
   };
   NEWS_RUNTIME.forEach(visit);
@@ -491,25 +639,43 @@ function runtimeFiles() {
 
 test('no randomness anywhere in the news code', () => {
   const files = runtimeFiles();
-  assert.ok(files.length >= 14, 'the scan must actually cover the news modules');
+  assert.ok(
+    files.length >= 14,
+    'the scan must actually cover the news modules',
+  );
   for (const file of files) {
     const text = fs.readFileSync(path.join(root, file), 'utf8');
-    assert.doesNotMatch(text, /Math\.random|crypto\.getRandomValues|randomUUID/, file);
+    assert.doesNotMatch(
+      text,
+      /Math\.random|crypto\.getRandomValues|randomUUID/,
+      file,
+    );
   }
 });
 
 test('no story is written into the code', () => {
   // An object literal carrying both a headline and a link is a seeded story.
-  const seeded = /\{[^{}]*\btitle\s*:\s*['"`][^'"`]{12,}['"`][^{}]*\burl\s*:\s*['"`]https?:/s;
+  const seeded =
+    /\{[^{}]*\btitle\s*:\s*['"`][^'"`]{12,}['"`][^{}]*\burl\s*:\s*['"`]https?:/s;
   for (const file of runtimeFiles()) {
     const text = fs.readFileSync(path.join(root, file), 'utf8');
     assert.doesNotMatch(text, seeded, file);
-    assert.doesNotMatch(text, /FALLBACK_NEWS|SAMPLE_|DEMO_|PLACEHOLDER_STOR/i, file);
+    // `DEMO_KEY` is api.data.gov's shared public key. It returns the same
+    // real FEC records as a personal key, so it is not sample content.
+    assert.doesNotMatch(
+      text,
+      /FALLBACK_NEWS|SAMPLE_|DEMO_(?!KEY\b)|PLACEHOLDER_STOR/i,
+      file,
+    );
   }
 });
 
 test('a missing date is never replaced with the clock', () => {
-  for (const file of ['src/sources/news/feeds.js', 'src/sources/news/records.js', 'src/sources/news/article.js']) {
+  for (const file of [
+    'src/sources/news/feeds.js',
+    'src/sources/news/records.js',
+    'src/sources/news/article.js',
+  ]) {
     const text = fs.readFileSync(path.join(root, file), 'utf8');
     assert.doesNotMatch(text, /new Date\(\)|Date\.now\(\)/, file);
   }

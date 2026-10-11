@@ -75,7 +75,8 @@ It is built from two projects:
   ├─ hazards .......... cyclones, floods, volcanoes, quakes, fires from GDACS and NASA
   ├─ watch power ...... military aircraft airborne now, mapped military sites, plate readers
   ├─ elections ........ polling days in the next 120 days, with election news beside them
-  ├─ markets .......... exchange rates and crypto prices, each with its source and time
+  ├─ markets .......... stock indices, oil, the US 10-year yield, exchange rates and crypto, each with its source and day
+  ├─ campaign money ... the biggest US Senate and House fundraisers, from their own FEC filings
   ├─ live TV .......... live news channels from every continent, one click away
   ├─ live layers ...... aircraft, military flights, ships, satellites, storms, launches
   └─ instruments ...... the full control room: tracking, cameras, weather, voice
@@ -213,6 +214,11 @@ is not broadcasting is not shown.
   <img src="docs/media/coranto/elections.png" alt="The Elections lens: upcoming polling days and one country's election news" width="100%"/>
 </p>
 
+<p align="center">
+  <img src="docs/media/coranto/campaign-money.png" alt="US campaign money: the biggest Senate fundraisers from FEC filings" width="100%"/>
+</p>
+<p align="center"><em>US campaign money: who has raised the most this cycle, from candidates' own FEC filings. Each name opens the record at fec.gov.</em></p>
+
 <p align="center"><em>Twenty-three polling days in the next 120. Brazil's is selected: the card links to the election's article, and the feed has narrowed to Brazil's election news.</em></p>
 
 The **ELECTIONS** lens lists polling days in the next 120 days, marks them on
@@ -233,7 +239,7 @@ the official election body before relying on a date.
 <td width="50%"><img src="docs/media/coranto/live-tv.png" alt="The Live TV list of ten news channels" width="100%"/></td>
 </tr>
 <tr>
-<td><em>Markets: eight exchange rates and three crypto prices, each with its source and the time the source gave it, beside the finance news.</em></td>
+<td><em>Markets: three stock indices, Brent and WTI oil, the US 10-year yield, eight exchange rates and three crypto prices, each with its source and the day or time the source gave it, beside the finance news.</em></td>
 <td><em>Live TV: ten news channels across every continent, from AUSPEX's broadcaster list.</em></td>
 </tr>
 </table>
@@ -270,6 +276,8 @@ Coranto has two views, switched at the top right.
 | Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
 | Watch power | Click **WATCH POWER** on the left. Click any aircraft in the list to fly to it and open its public track. |
 | Check the markets | Click **MARKETS** on the left. Click any figure to open its source. |
+| See who is raising the most money | Click **ELECTIONS**, then **US campaign money**. Choose Senate or House. Click a name to open the FEC record. |
+| Save a search | Search, pick a topic or select a place, then press **SAVE THIS VIEW** under My Watches. It tells you what it saved. |
 | Watch a newsroom live | Click **LIVE TV** and pick a channel. |
 | Follow elections | Click **ELECTIONS** on the left. Click a polling day to see that country's election news. |
 | Follow something | Set a search, place or topic, then click **＋ SAVE THIS VIEW**. It appears under MY WATCHES. |
@@ -408,6 +416,7 @@ is documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 | Shell and feed | `src/ui/corantoShell.js`, `src/ui/newsPanel.js` |
 | Watches, briefing and the lenses | `src/ui/watches.js`, `src/ui/corantoPower.js`, `src/ui/corantoElections.js`, `src/ui/corantoMarkets.js`, `src/ui/corantoBroadcasts.js` |
 | Market figures | `src/sources/markets/`, `server/providers/markets.js` |
+| US campaign money (FEC) | `src/sources/campaignFinance/`, `server/providers/campaignFinance.js`, `src/ui/corantoCampaignMoney.js` |
 | Election calendar | `src/sources/elections/`, `server/providers/elections.js`, `src/layers/elections/` |
 | Look | `src/ui/styles/coranto.css`, `build/corantoTheme.js` |
 | Design spec | `docs/superpowers/specs/` |
@@ -428,7 +437,7 @@ npm run build
 |---|---|
 | **1. Foundation and truth feed** | Built: sourced feed from 35 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell |
 | **2. Verification** | Built: stories grouped across outlets, outlet counts, outlets by region, differing figures, AI briefs checked sentence by sentence, and seven non-English sources |
-| **3. Lenses and your own feed** | Built: saved watches, My Briefing, the Watch Power, Elections and Markets lenses, and Live TV. Next: official election results and candidates, stock indices with a keyed source (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
+| **3. Lenses and your own feed** | Built: saved watches, My Briefing, the Watch Power, Elections and Markets lenses, and Live TV. Also built: stock indices, oil and the 10-year yield from FRED, and US campaign money from FEC filings in the Elections lens. Next: official election results (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
 | **4. Beauty pass** | Started: first-visit welcome, paged feed, shareable views, tracking cards in the news view. Next: the INSTRUMENTS view and a full visual identity |
 | **5. Public site** | A hosted version anyone can open |
 

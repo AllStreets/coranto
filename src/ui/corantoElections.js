@@ -1,9 +1,11 @@
 import { electionCountdown, electionDay } from '../layers/elections/model.js';
+import { createCampaignMoney } from './corantoCampaignMoney.js';
 
 /**
  * The Elections lens: polling days in the next 120 days as Wikidata records
  * them, beside the election news from the feed. Wikidata is a public,
  * volunteer-edited database, not an election authority, and the lens says so.
+ * Below the calendar it shows US campaign money from FEC filings.
  */
 
 /** Words that mark a headline as election news. */
@@ -83,10 +85,42 @@ export function createElectionsLens({
     text: 'POLLING DAYS',
   });
   const list = el(document, 'div', { class: 'coranto-elections-list' });
+  const money = createCampaignMoney({ document });
+  const calendar = el(document, 'div', { class: 'coranto-elections-pane' });
+  // Two short lists, one at a time, instead of one long column.
+  const tabCalendar = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-money-tab',
+    text: 'Polling days',
+  });
+  const tabMoney = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-money-tab',
+    text: 'US campaign money',
+  });
+  function showPane(name) {
+    calendar.hidden = name !== 'calendar';
+    money.element.hidden = name !== 'money';
+    tabCalendar.setAttribute('aria-pressed', String(name === 'calendar'));
+    tabMoney.setAttribute('aria-pressed', String(name === 'money'));
+  }
+  tabCalendar.addEventListener('click', () => showPane('calendar'));
+  tabMoney.addEventListener('click', () => showPane('money'));
   const element = el(
     document,
     'div',
     { class: 'coranto-power coranto-elections' },
+    el(
+      document,
+      'div',
+      { class: 'coranto-money-tabs', role: 'group', 'aria-label': 'Show' },
+      tabCalendar,
+      tabMoney,
+    ),
+    calendar,
+    money.element,
+  );
+  calendar.append(
     el(document, 'p', {
       class: 'coranto-power-intro',
       text: 'Elections in the next 120 days, as recorded by Wikidata, with election news beside them. Wikidata is edited by volunteers and is not an election authority: check dates with the official body before relying on them.',
@@ -94,6 +128,7 @@ export function createElectionsLens({
     heading,
     list,
   );
+  showPane('calendar');
   element.hidden = true;
 
   const layer = () => getDataManager()?.layers?.get('elections')?.module;
@@ -179,6 +214,7 @@ export function createElectionsLens({
     enter() {
       active = true;
       element.hidden = false;
+      money.enter();
       const manager = getDataManager();
       const module = layer();
       if (manager && module) {
@@ -196,6 +232,7 @@ export function createElectionsLens({
       active = false;
       shownKey = null;
       element.hidden = true;
+      money.leave();
       unsubscribe?.();
       unsubscribe = null;
       const manager = getDataManager();
