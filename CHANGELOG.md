@@ -338,6 +338,11 @@
 
 ## [Unreleased]
 
+- Redraw the satellite icon as a body with two solar wings and a dish, and
+  colour each icon by its class as the engine colours its dot. The
+  geostationary belt reads as a violet band over the equator again; the white
+  icons had been covering it. The map key lists each colour.
+
 - Live TV now has a newsroom on every inhabited continent. Todo Noticias in
   Buenos Aires (Spanish) and CNN Brasil in São Paulo (Portuguese) join the
   list, each pinned on the globe. Both were checked live on YouTube and

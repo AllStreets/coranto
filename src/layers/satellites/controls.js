@@ -237,6 +237,7 @@ export function createControls({ state: layerState, services, parts, source }) {
           latitude: Cesium.Math.toDegrees(carto.latitude),
           longitude: Cesium.Math.toDegrees(carto.longitude),
           altitudeM: carto.height,
+          group: sat?.group ?? null,
         });
       }
       return result;

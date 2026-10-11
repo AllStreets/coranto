@@ -84,7 +84,8 @@ export const ICONS = Object.freeze({
   ],
   satellite: [
     STROKE,
-    '<rect x="9.5" y="9.5" width="5" height="5" rx="0.8" transform="rotate(45 12 12)"/><path d="M6.3 10.5 3 7.2l3-3 3.3 3.3M17.7 13.5 21 16.8l-3 3-3.3-3.3"/><path d="M15.5 5.5a4.5 4.5 0 0 1 3 3"/>',
+    // A bus with two solar wings and a dish, tilted as satellites are drawn.
+    '<g transform="rotate(-40 12 12)"><rect x="9.7" y="8" width="4.6" height="8" rx="0.9" fill="currentColor" stroke="none"/><rect x="1.4" y="9.3" width="6.4" height="5.4" rx="0.5" fill="currentColor" fill-opacity="0.32"/><rect x="16.2" y="9.3" width="6.4" height="5.4" rx="0.5" fill="currentColor" fill-opacity="0.32"/><path d="M4.6 9.3v5.4M19.4 9.3v5.4M7.8 12h1.9M14.3 12h1.9M12 8V5.8"/><path d="M9.5 3.6a2.7 2.7 0 0 0 5 0"/></g>',
   ],
   election: [
     STROKE,

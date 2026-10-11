@@ -215,8 +215,25 @@ export function buildMapKeyModel(state) {
   if (state.satellites)
     more.push(
       {
-        image: iconImage('satellite', '#e6e0f7'),
-        label: 'Satellite in the named catalogue. Select one to follow it.',
+        image: iconImage('satellite', '#c89bff'),
+        label:
+          'Geostationary satellite. Together they form the violet band over the equator.',
+      },
+      {
+        image: iconImage('satellite', '#4fd8ff'),
+        label: 'Navigation satellite: GPS, GLONASS, Galileo',
+      },
+      {
+        image: iconImage('satellite', '#fff6e5'),
+        label: 'Space station or visiting spacecraft',
+      },
+      {
+        image: iconImage('satellite', '#ff4444'),
+        label: 'The International Space Station, with its orbit drawn in red',
+      },
+      {
+        image: iconImage('satellite', '#9fb3c4'),
+        label: 'Other bright satellite. Select any satellite to follow it.',
       },
       {
         swatch: '#9aa3b5',
