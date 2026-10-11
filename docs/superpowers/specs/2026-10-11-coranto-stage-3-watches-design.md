@@ -1,4 +1,4 @@
-# Coranto stage 3, part 1: watches, My Briefing and Watch Power
+# Coranto stage 3: watches, My Briefing, Watch Power and Elections
 
 Date: 2026-10-11
 Status: built
@@ -61,10 +61,34 @@ Scope: the lens shows aircraft that broadcast their own position and sites
 and cameras already mapped in OpenStreetMap. It does not identify or follow
 individuals.
 
-## 6. Left for the rest of stage 3
+## 6. Elections lens
+
+`src/sources/elections/`, `src/layers/elections/`, `src/ui/corantoElections.js`.
+
+- `/api/elections` asks the Wikidata Query Service for elections dated in the
+  next 120 days and groups them by country and day. A country often has many
+  contests on one day; the group leads with one that has an English Wikipedia
+  article and counts the rest.
+- Dropped: entries with no English name or country, dates stored only to the
+  year, and contests titled "next ... election".
+- The layer draws one marker per country at the country's point, labelled
+  with the date when the poll is within 45 days.
+- The lens lists the polling days, narrows the feed to headlines carrying an
+  election word (whole words, so "polls" does not match "pollution"), and on
+  selecting a polling day flies to the country, opens a card linking to the
+  source, and adds the country's name to the feed search.
+- With Wikidata unreachable and nothing cached, the lens says so and lists
+  nothing. A cached calendar is served as stale.
+
+An official source was the aim. No keyless official calendar covers the
+world, so the lens uses Wikidata and says on every entry that it does.
+
+## 7. Left for the rest of stage 3
 
 
-- An Elections lens from official sources.
+
+- Official results and candidate filings where an authority publishes them
+  (for the United States, the FEC with an API key).
 - Government (non-military) aircraft in Watch Power.
 - Markets and live broadcasts from AUSPEX.
 - Exporting or sharing a set of watches.

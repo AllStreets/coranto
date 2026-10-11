@@ -13,6 +13,18 @@ How to read this:
 
 ## Live sources (fetched at runtime — not stored in this repo)
 
+### Upcoming elections (Coranto)
+
+Read server-side by `/api/elections` from the Wikidata Query Service
+(`query.wikidata.org/sparql`), keyless, CC0. The query asks for items that are
+elections with a date in the next 120 days. Each entry keeps its Wikidata
+item link and, where one exists, its English Wikipedia article.
+
+Wikidata is a volunteer-edited database, not an election authority. Entries
+with no English name or no country are dropped, as are dates stored only to
+the year (which Wikidata records as 1 January) and contests titled "next ...
+election". The calendar is refreshed at most every six hours.
+
 ### Natural hazards (Coranto)
 
 Read server-side by `/api/hazards`.

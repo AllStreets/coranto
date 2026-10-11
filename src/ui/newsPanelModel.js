@@ -177,6 +177,13 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
     .filter(Boolean);
   const haystack = (article) =>
     `${article.title} ${article.summary} ${article.publisher} ${article.place?.name ?? ''}`.toLowerCase();
+  // A lens can ask for stories carrying any of a set of words.
+  const anyOf = (filters.any ?? []).length
+    ? new RegExp(
+        `\\b(?:${filters.any.map((word) => word.replace(/[^a-z]/gi, '')).join('|')})\\b`,
+        'i',
+      )
+    : null;
   const category = filters.category ?? null;
   const publisher = filters.publisher ?? null;
 
@@ -192,6 +199,7 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
           selectedPlace.key)) &&
     (!category || article.category === category) &&
     (!publisher || article.publisher === publisher) &&
+    (!anyOf || anyOf.test(`${article.title} ${article.summary}`)) &&
     (!terms.length ||
       ((text) => terms.every((term) => text.includes(term)))(
         haystack(article),

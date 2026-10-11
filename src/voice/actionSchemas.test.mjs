@@ -38,7 +38,7 @@ test('the complete Realtime tool payload pins the manifest-generated layer relea
     // requested radius and center authority in descriptions only.
     // Street Level adds its toggle enum values and generated alias hint.
     // Coranto adds the news layer toggle and names the app Coranto.
-    'f85854b1f30043c9bc7461dfd36ea4273e0b224498bffbb2028f4f5d43b75c08',
+    'e4eb43cf282713543a1a3df4c7b44c5dcad54f5c7b49103c2223d429c2566617',
   );
 });
 

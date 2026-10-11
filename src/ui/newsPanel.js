@@ -514,6 +514,17 @@ export function createNewsFeed({
       search.value = query;
       render();
     },
+    /** Keep stories carrying any of these words; an empty list clears it. */
+    setAny(words = []) {
+      filters.any = [...words];
+      render();
+    },
+    /** Set only the search words. */
+    setQuery(query = '') {
+      filters.query = query;
+      search.value = query;
+      render();
+    },
     /** Group headlines into stories, or list every headline. */
     setGrouped(grouped) {
       filters.grouped = Boolean(grouped);

@@ -28,6 +28,7 @@ import { cycloneProxy } from './cyclones.js';
 import { windProxy } from './wind.js';
 import { newsProxy } from './news.js';
 import { hazardsProxy } from './hazards.js';
+import { electionsProxy } from './elections.js';
 
 /**
  * Construct the local provider plugins in their established order.
@@ -64,6 +65,7 @@ function localProviderPlugins({ realtime } = {}) {
     firePerimetersProxy(),
     newsProxy(),
     hazardsProxy(),
+    electionsProxy(),
     keySetupEndpoint(),
   ];
 }

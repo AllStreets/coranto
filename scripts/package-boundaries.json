@@ -2215,7 +2215,14 @@
       "src/sources/hazards/records.js",
       "src/sources/news/registry.js",
       "src/ui/watches.js",
-      "src/ui/corantoPower.js"
+      "src/ui/corantoPower.js",
+      "src/app/layers/elections.js",
+      "src/layers/elections/index.js",
+      "src/layers/elections/model.js",
+      "src/layers/elections/source.js",
+      "src/sources/elections/records.js",
+      "src/sources/news/countries.js",
+      "src/ui/corantoElections.js"
     ],
     "external": [
       "hls.js",
@@ -2754,7 +2761,14 @@
       "src/sources/hazards/records.js",
       "src/sources/news/registry.js",
       "src/ui/watches.js",
-      "src/ui/corantoPower.js"
+      "src/ui/corantoPower.js",
+      "src/app/layers/elections.js",
+      "src/layers/elections/index.js",
+      "src/layers/elections/model.js",
+      "src/layers/elections/source.js",
+      "src/sources/elections/records.js",
+      "src/sources/news/countries.js",
+      "src/ui/corantoElections.js"
     ],
     "external": [
       "hls.js",

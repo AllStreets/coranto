@@ -464,6 +464,13 @@ const NEWS_RUNTIME = [
   'src/sources/hazards',
   'src/layers/hazards',
   'src/app/layers/hazards.js',
+  'server/providers/elections.js',
+  'src/sources/elections',
+  'src/layers/elections',
+  'src/app/layers/elections.js',
+  'src/ui/corantoElections.js',
+  'src/ui/corantoPower.js',
+  'src/ui/watches.js',
 ];
 function runtimeFiles() {
   const files = [];

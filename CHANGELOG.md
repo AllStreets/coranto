@@ -1,5 +1,11 @@
 # Changelog
 
+- Coranto: an Elections lens lists polling days in the next 120 days as
+  Wikidata records them, marks them on the globe, narrows the feed to election
+  news, and shows a country's election stories when its polling day is
+  selected. Every entry links to its Wikidata item or Wikipedia article and is
+  labelled as recorded by Wikidata.
+
 - Coranto: a Watch Power lens in the news view switches on military aircraft
   and mapped military sites, offers mapped plate-reader cameras, lists the
   military aircraft airborne now with what each is broadcasting, and links

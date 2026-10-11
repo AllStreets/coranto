@@ -1,4 +1,5 @@
 import { createNewsFeed } from './newsPanel.js';
+import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
 import { createPowerLens } from './corantoPower.js';
 import {
   buildBriefing,
@@ -69,6 +70,10 @@ const GUIDE = [
   [
     'Watch power',
     'WATCH POWER on the left switches on military aircraft, mapped military sites and plate-reader cameras, and lists the aircraft airborne now. Each one links to its live public track. It watches institutions and equipment, not people.',
+  ],
+  [
+    'Follow elections',
+    'ELECTIONS on the left lists polling days in the next 120 days as Wikidata records them, marks them on the globe, and narrows the feed to election news. Click one to see that country’s election stories. Dates come from a volunteer-edited database, so check the official body.',
   ],
   [
     'Go deeper',
@@ -344,13 +349,31 @@ export function createCorantoShell({
       'Military aircraft, military sites and plate readers from public sources',
     'aria-pressed': 'false',
   });
+  const lensElections = el(document, 'button', {
+    type: 'button',
+    text: 'ELECTIONS',
+    title: 'Upcoming polling days and election news',
+    'aria-pressed': 'false',
+  });
   const lensSwitch = el(
     document,
     'div',
     { class: 'coranto-lens-switch', role: 'group', 'aria-label': 'Lens' },
     lensNews,
     lensPower,
+    lensElections,
   );
+  const elections = createElectionsLens({
+    document,
+    getDataManager: () => dataManager,
+    showCard: (detail) => {
+      if (detail) card.dataset.owner = 'elections';
+      else if (card.dataset.owner !== 'elections') return;
+      showCard(detail);
+    },
+    onCountry: (country) =>
+      feed?.setQuery(country ? country.toLowerCase() : ''),
+  });
   const power = createPowerLens({
     document,
     getDataManager: () => dataManager,
@@ -399,6 +422,7 @@ export function createCorantoShell({
     topicList,
     watchSection,
     power.element,
+    elections.element,
   );
 
   // ── Feed ────────────────────────────────────────────────────────
@@ -754,23 +778,30 @@ export function createCorantoShell({
   let lens = 'news';
   function setLens(next) {
     if (next === lens) return;
-    lens = next;
-    const watching = lens === 'power';
-    lensNews.setAttribute('aria-pressed', String(!watching));
-    lensPower.setAttribute('aria-pressed', String(watching));
-    topicList.hidden = watching;
-    watchSection.hidden = watching;
-    if (watching) {
-      // Show the military news beside the aircraft and sites.
-      category = 'military';
-      layer.setGoodNewsOnly(false);
-      feed?.setCategory('military');
-      power.enter();
-    } else {
+    // Undo what the lens being left set up.
+    if (lens === 'power') {
       if (card.dataset.owner === 'power') showCard(null);
       power.leave();
-      category = null;
-      feed?.setCategory(null);
+    } else if (lens === 'elections') {
+      if (card.dataset.owner === 'elections') showCard(null);
+      elections.leave();
+      feed?.setAny([]);
+      feed?.setQuery('');
+    }
+    lens = next;
+    lensNews.setAttribute('aria-pressed', String(lens === 'news'));
+    lensPower.setAttribute('aria-pressed', String(lens === 'power'));
+    lensElections.setAttribute('aria-pressed', String(lens === 'elections'));
+    topicList.hidden = lens !== 'news';
+    watchSection.hidden = lens !== 'news';
+    layer.setGoodNewsOnly(false);
+    // Each lens shows its own slice of the news beside it.
+    category = lens === 'power' ? 'military' : null;
+    feed?.setCategory(category);
+    if (lens === 'power') power.enter();
+    if (lens === 'elections') {
+      feed?.setAny(ELECTION_TERMS);
+      elections.enter();
     }
   }
 
@@ -913,6 +944,7 @@ export function createCorantoShell({
   });
   lensNews.addEventListener('click', () => setLens('news'));
   lensPower.addEventListener('click', () => setLens('power'));
+  lensElections.addEventListener('click', () => setLens('elections'));
   modeNews.addEventListener('click', () => setMode('news'));
   modeTools.addEventListener('click', () => setMode('instruments'));
   guideBtn.addEventListener('click', () => {

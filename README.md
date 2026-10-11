@@ -6,7 +6,7 @@
 
 <img alt="news" src="https://img.shields.io/badge/news-real_headlines_·_real_links-34E08A?style=for-the-badge&labelColor=04070b"/>
 <img alt="sources" src="https://img.shields.io/badge/news_sources-35_named_·_6_languages_·_health_shown-34E08A?style=for-the-badge&labelColor=04070b"/>
-<img alt="live layers" src="https://img.shields.io/badge/live_layers-32-34E08A?style=for-the-badge&labelColor=04070b"/>
+<img alt="live layers" src="https://img.shields.io/badge/live_layers-33-34E08A?style=for-the-badge&labelColor=04070b"/>
 <img alt="AI text" src="https://img.shields.io/badge/AI_text-optional_·_cited_·_checked_in_code-A3E635?style=for-the-badge&labelColor=04070b"/>
 <img alt="keys" src="https://img.shields.io/badge/API_keys-none_required-34E08A?style=for-the-badge&labelColor=04070b"/>
 <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-34E08A?style=for-the-badge&labelColor=04070b"/></a>
@@ -74,6 +74,7 @@ It is built from two projects:
   ├─ good news ........ headlines tagged as progress: medical, science, space, humanity
   ├─ hazards .......... cyclones, floods, volcanoes, quakes, fires from GDACS and NASA
   ├─ watch power ...... military aircraft airborne now, mapped military sites, plate readers
+  ├─ elections ........ polling days in the next 120 days, with election news beside them
   ├─ live layers ...... aircraft, military flights, ships, satellites, storms, launches
   └─ instruments ...... the full control room: tracking, cameras, weather, voice
 ```
@@ -204,6 +205,24 @@ Everything in the lens is already public. It shows institutions and
 equipment. It does not identify or follow individuals, and an aircraft that
 is not broadcasting is not shown.
 
+### Elections
+
+<p align="center">
+  <img src="docs/media/coranto/elections.png" alt="The Elections lens: upcoming polling days and one country's election news" width="100%"/>
+</p>
+
+<p align="center"><em>Twenty-three polling days in the next 120. Brazil's is selected: the card links to the election's article, and the feed has narrowed to Brazil's election news.</em></p>
+
+The **ELECTIONS** lens lists polling days in the next 120 days, marks them on
+the globe, and narrows the feed to election news. Clicking a polling day
+flies to the country and shows its election stories.
+
+The calendar comes from **Wikidata**, the public database behind Wikipedia.
+It is edited by volunteers and is not an election authority, so the lens says
+"as recorded by Wikidata" on every entry and links each to its source. Dates
+recorded only to the year, and contests with no set date, are left out. Check
+the official election body before relying on a date.
+
 ---
 
 ## How to use it
@@ -223,6 +242,7 @@ Coranto has two views, switched at the top right.
 | See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
 | Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
 | Watch power | Click **WATCH POWER** on the left. Click any aircraft in the list to fly to it and open its public track. |
+| Follow elections | Click **ELECTIONS** on the left. Click a polling day to see that country's election news. |
 | Follow something | Set a search, place or topic, then click **＋ SAVE THIS VIEW**. It appears under MY WATCHES. |
 | Catch up | Click **MY BRIEFING** for the latest stories on every watch. |
 | Search | Type in the box above the feed. Stories must contain every word, in the headline, summary, publisher or place. |
@@ -352,7 +372,8 @@ is documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 | News globe layer | `src/layers/news/` |
 | Hazard records, route and layer | `src/sources/hazards/`, `server/providers/hazards.js`, `src/layers/hazards/` |
 | Shell and feed | `src/ui/corantoShell.js`, `src/ui/newsPanel.js` |
-| Watches, briefing and the Watch Power lens | `src/ui/watches.js`, `src/ui/corantoPower.js` |
+| Watches, briefing and the lenses | `src/ui/watches.js`, `src/ui/corantoPower.js`, `src/ui/corantoElections.js` |
+| Election calendar | `src/sources/elections/`, `server/providers/elections.js`, `src/layers/elections/` |
 | Look | `src/ui/styles/coranto.css`, `build/corantoTheme.js` |
 | Design spec | `docs/superpowers/specs/` |
 
@@ -372,7 +393,7 @@ npm run build
 |---|---|
 | **1. Foundation and truth feed** | Built: sourced feed from 35 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell |
 | **2. Verification** | Built: stories grouped across outlets, outlet counts, outlets by region, differing figures, AI briefs checked sentence by sentence, and seven non-English sources |
-| **3. Lenses and your own feed** | Built: saved watches, My Briefing and the Watch Power lens. Next: Elections (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
+| **3. Lenses and your own feed** | Built: saved watches, My Briefing, and the Watch Power and Elections lenses. Next: official election results and candidates (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
 | **4. Beauty pass** | Full visual identity and a guided first run |
 | **5. Public site** | A hosted version anyone can open |
 

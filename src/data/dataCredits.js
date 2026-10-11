@@ -104,6 +104,13 @@ export const DATA_CREDITS = [
       '<a href="https://www.geonames.org" target="_blank" rel="noopener">GeoNames</a> (CC BY 4.0)',
   },
   {
+    key: 'elections',
+    html:
+      'Upcoming elections: ' +
+      '<a href="https://www.wikidata.org" target="_blank" rel="noopener">Wikidata</a> ' +
+      '(CC0). Dates are as Wikidata records them; check the election authority',
+  },
+  {
     key: 'hazards',
     html:
       'Natural hazards: ' +

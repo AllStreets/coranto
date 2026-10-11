@@ -675,10 +675,10 @@ test('the voice TOOL SCHEMA matches the pinned contract — the mission mapping 
   // list descriptions; the missions still ride existing tools.
   // Street Level adds toggle enum values and the generated alias hint.
   // Coranto: news layer toggle added, app named Coranto in descriptions.
-  assert.equal(block.length, 29877, 'serialized tool schema length drifted');
+  assert.equal(block.length, 29949, 'serialized tool schema length drifted');
   assert.equal(
     crypto.createHash('sha256').update(block).digest('hex'),
-    'eef358d108b023baa30581d526a7783aacdcfd56174a8247be2af8f6926bc2e9',
+    'ff0ef87e90fe166cc4733f87ce448c57515b34a40945479bf91f243849d0ab52',
     'the first-run missions must ride EXISTING tools: no schema edit, no cache bust',
   );
   const instructions = fs.readFileSync(new URL('../server/providers/openai/instructions.js', import.meta.url), 'utf8');

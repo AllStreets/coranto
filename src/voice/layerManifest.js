@@ -142,6 +142,12 @@ const layers = [
     noQuery: 'read in the News panel; no voice query yet',
   },
   {
+    id: 'elections',
+    aliases: ['upcoming elections', 'election calendar'],
+    context: false,
+    noQuery: 'shown on the globe; no voice query yet',
+  },
+  {
     id: 'hazards',
     aliases: ['natural hazards', 'disasters'],
     context: false,

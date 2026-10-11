@@ -431,7 +431,71 @@
   align-items: flex-start;
   gap: 1px;
 }
-.coranto-power .coranto-rail-heading {
+.coranto-power .coranto-lens-switch button {
+  line-height: 1.25;
+}
+.coranto-lens-switch button:last-child[aria-pressed='true'] {
+  background: rgba(110, 138, 255, 0.2);
+  color: #a9b9ff;
+}
+.coranto-elections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 46vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(110, 138, 255, 0.4) transparent;
+}
+.coranto-election {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 2px 8px;
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  text-align: left;
+  cursor: pointer;
+}
+.coranto-election:hover,
+.coranto-election[aria-current] {
+  border-color: rgba(110, 138, 255, 0.7);
+}
+.coranto-election-date {
+  grid-row: span 2;
+  color: #a9b9ff;
+  font: 600 10px/1.3 var(--font-mono);
+}
+.coranto-election-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.coranto-election-country {
+  color: var(--text-primary);
+  font: 600 11.5px var(--font-sans);
+}
+.coranto-election-title {
+  overflow: hidden;
+  color: var(--text-dim);
+  font: 10px/1.35 var(--font-sans);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.coranto-election-days {
+  grid-column: 2;
+  color: var(--text-dim);
+  font: 9px var(--font-mono);
+}
+#coranto-card[data-owner='elections'] {
+  border-left-color: #6e8aff;
+}
+#coranto-card[data-owner='power'] {
+  border-left-color: #c084fc;
+}
+.coranto-rail-heading {
   margin: 2px 0 0;
 }
 .coranto-power-intro,

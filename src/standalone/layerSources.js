@@ -23,6 +23,7 @@ import { createMapillarySource } from '../layers/streetLevel/providers/mapillary
 import { createReferenceSources } from '../sources/reference.js';
 import { createNewsSource } from '../layers/news/source.js';
 import { createHazardSource } from '../layers/hazards/source.js';
+import { createElectionSource } from '../layers/elections/source.js';
 export { createReferenceSources as createStandaloneReferenceSources } from '../sources/reference.js';
 
 /** Select standalone providers without starting their acquisition. */
@@ -57,6 +58,7 @@ export function createStandaloneLayerSources(overrides = {}) {
     cyclones: createCycloneSource(),
     news: createNewsSource(),
     hazards: createHazardSource(),
+    elections: createElectionSource(),
     mapillary: createMapillarySource({
       token: import.meta.env?.MAPILLARY_CLIENT_TOKEN || '',
     }),

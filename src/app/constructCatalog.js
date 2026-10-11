@@ -26,6 +26,7 @@ import { createApplicationFirms } from './layers/firms.js';
 import { createApplicationEarthquakes } from './layers/earthquakes.js';
 import { createApplicationNews } from './layers/news.js';
 import { createApplicationHazards } from './layers/hazards.js';
+import { createApplicationElections } from './layers/elections.js';
 import { createApplicationFirePerimeters } from './layers/perimeters.js';
 import { createApplicationCables } from './layers/submarineCables.js';
 import { createApplicationStreetLevel } from './layers/streetLevel.js';
@@ -46,6 +47,7 @@ export const LOCAL_ONLY_LAYER_METADATA = Object.freeze([
   Object.freeze({ id: 'local-adsb', disposition: 'local-only' }),
   Object.freeze({ id: 'news', disposition: 'local-only' }),
   Object.freeze({ id: 'hazards', disposition: 'local-only' }),
+  Object.freeze({ id: 'elections', disposition: 'local-only' }),
 ]);
 
 /** Serialization metadata for every layer the application catalog constructs. */
@@ -127,6 +129,7 @@ export function createApplicationCatalog({
         createApplicationEarthquakes({ source: sources.earthquakes }),
         createApplicationNews({ source: sources.news }),
         createApplicationHazards({ source: sources.hazards }),
+        createApplicationElections({ source: sources.elections }),
         createApplicationFirePerimeters({
           source: sources['fire-perimeters'],
         }),
