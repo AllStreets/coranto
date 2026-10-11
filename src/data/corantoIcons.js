@@ -112,6 +112,39 @@ export const ICONS = Object.freeze({
     STROKE,
     '<circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M8.2 15.8a5.4 5.4 0 0 1 0-7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.4 18.6a9.3 9.3 0 0 1 0-13.2M18.6 5.4a9.3 9.3 0 0 1 0 13.2"/>',
   ],
+  car: [
+    STROKE,
+    '<path d="M4 16.5v-3.2l1.8-4.6A2 2 0 0 1 7.7 7.4h8.6a2 2 0 0 1 1.9 1.3l1.8 4.6v3.2"/><path d="M3.5 13.3h17"/><circle cx="7.5" cy="16.8" r="1.7"/><circle cx="16.5" cy="16.8" r="1.7"/>',
+  ],
+  bus: [
+    STROKE,
+    '<rect x="5" y="4" width="14" height="13.5" rx="2"/><path d="M5 11.5h14M8 20v-2.5M16 20v-2.5"/><circle cx="8.5" cy="14.5" r="0.9" fill="currentColor" stroke="none"/><circle cx="15.5" cy="14.5" r="0.9" fill="currentColor" stroke="none"/>',
+  ],
+  bike: [
+    STROKE,
+    '<circle cx="6.5" cy="15.5" r="3.5"/><circle cx="17.5" cy="15.5" r="3.5"/><path d="M6.5 15.5 10 8.5h5l2.5 7M10 8.5l3 7M9 6.5h2.5"/>',
+  ],
+  camera: [
+    STROKE,
+    '<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.3-2h5.4L16 7h2.5A1.5 1.5 0 0 1 20 8.5v8A1.5 1.5 0 0 1 18.5 18h-13A1.5 1.5 0 0 1 4 16.5v-8Z"/><circle cx="12" cy="12.5" r="3.2"/>',
+  ],
+  wind: [
+    STROKE,
+    '<path d="M3 9h10.5a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 13h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 17h7"/>',
+  ],
+  rain: [
+    STROKE,
+    '<path d="M7 15a4 4 0 0 1 .600-7.95A5 5 0 0 1 17.3 8.5 3.3 3.3 0 0 1 17 15H7Z"/><path d="M8.5 18l-.800 2M12.5 18l-.800 2M16.5 18l-.800 2"/>',
+  ],
+  cloud: [
+    STROKE,
+    '<path d="M7 18a4.5 4.5 0 0 1 .600-8.95A5.5 5.5 0 0 1 18.2 10.5 3.8 3.8 0 0 1 17.5 18H7Z"/>',
+  ],
+  bolt: [SOLID, '<path d="M13.5 2 5 13.5h5.5L9.5 22 19 9.5h-5.8L13.5 2Z"/>'],
+  compass: [
+    STROKE,
+    '<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5 15.5 8.5Z"/>',
+  ],
   // Interface
   target: [
     STROKE,
@@ -218,5 +251,54 @@ export function markerImage({
       `<circle cx="32" cy="32" r="25" fill="#07060c" fill-opacity="${approximate ? 0.62 : 0.9}" stroke="${colour}" stroke-width="3.5"${ring}/>` +
       `<g transform="translate(15.2 15.2) scale(1.4)" ${attrs.replaceAll('currentColor', glyph)}>${body.replaceAll('currentColor', glyph)}</g>` +
       `</svg>`,
+  );
+}
+
+/** The icon each engine layer shows in the layer list, by layer id. */
+export const LAYER_ICONS = Object.freeze({
+  news: 'news',
+  elections: 'election',
+  satellites: 'satellite',
+  flights: 'aircraft',
+  military: 'military',
+  'local-adsb': 'broadcast',
+  'ais-live-vessels': 'ship',
+  traffic: 'car',
+  transit: 'bus',
+  bikeshare: 'bike',
+  cctv: 'camera',
+  'recent-imagery': 'satellite',
+  'street-level': 'camera',
+  'alpr-cameras': 'camera',
+  'military-installations': 'target',
+  'local-datacenters': 'technology',
+  'telegeography-submarine-cables': 'cable',
+  'local-dams': 'flood',
+  hazards: 'hazard',
+  'rocket-launches': 'launch',
+  earthquakes: 'earthquake',
+  'local-firms': 'wildfire',
+  'fire-perimeters': 'wildfire',
+  wind: 'wind',
+  'weather-radar': 'rain',
+  'weather-satellite': 'cloud',
+  'weather-lightning': 'bolt',
+  'weather-cyclones': 'cyclone',
+  directions: 'compass',
+  radio: 'speaker',
+});
+
+/**
+ * Style rules that swap each layer row's text glyph for its icon. `scope`
+ * is a selector the rules sit under, so only the intended view changes.
+ */
+export function layerIconCss(scope, colour = '#cfc8e6') {
+  const rows = Object.entries(LAYER_ICONS).map(
+    ([id, icon]) =>
+      `${scope} .data-toggle-row[data-layer-id='${id}'] .data-icon{background-image:url("${iconImage(icon, colour)}")}`,
+  );
+  return (
+    `${scope} .data-toggle-row .data-icon{font-size:0;width:16px;height:16px;flex:0 0 16px;background:center/contain no-repeat}` +
+    rows.join('')
   );
 }

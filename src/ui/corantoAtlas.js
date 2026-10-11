@@ -9,6 +9,7 @@ import {
   LINE_COLOURS,
 } from '../data/corantoAtlasStyle.js';
 import { ICONS } from '../data/corantoIcons.js';
+import { cullBeyondHorizon } from './corantoHorizon.js';
 
 /**
  * The atlas overlays brought over from AUSPEX as they were:
@@ -169,6 +170,7 @@ export function createAtlas({
 }) {
   const state = { borders: false, countries: false, cities: false };
   const drawn = { borders: null, countries: null, cities: null };
+  const stopCulling = { countries: null, cities: null };
   const data = {};
   const records = new Map();
   let handler = null;
@@ -344,6 +346,8 @@ export function createAtlas({
       if (!viewer) return false;
       state[name] = Boolean(on);
       if (!on) {
+        stopCulling[name]?.();
+        stopCulling[name] = null;
         if (drawn[name]) viewer.scene.primitives.remove(drawn[name]);
         drawn[name] = null;
         viewer.scene.requestRender?.();
@@ -356,6 +360,8 @@ export function createAtlas({
         if (!state[name] || drawn[name]) return state[name];
         if (name !== 'borders') ensureHandler(viewer);
         drawn[name] = draw[name](viewer, loaded);
+        if (name !== 'borders')
+          stopCulling[name] = cullBeyondHorizon(viewer, drawn[name]);
         viewer.scene.requestRender?.();
         return true;
       } catch {
@@ -366,6 +372,8 @@ export function createAtlas({
     destroy() {
       const viewer = getViewer();
       for (const name of Object.keys(drawn)) {
+        stopCulling[name]?.();
+        stopCulling[name] = null;
         if (drawn[name]) viewer?.scene?.primitives?.remove(drawn[name]);
         drawn[name] = null;
         state[name] = false;

@@ -1,5 +1,6 @@
 import * as Cesium from 'cesium';
 import { iconImage } from '../data/corantoIcons.js';
+import { cullBeyondHorizon } from './corantoHorizon.js';
 
 /**
  * Live television news, as AUSPEX had it: a player inside the app and a pin
@@ -194,6 +195,7 @@ export function createBroadcasts({ document, getViewer = () => null }) {
   let isOpen = false;
   let frame = null;
   let pins = null;
+  let stopCulling = null;
   let handler = null;
 
   const stage = el(document, 'div', { class: 'coranto-tv-stage' });
@@ -262,6 +264,7 @@ export function createBroadcasts({ document, getViewer = () => null }) {
   function drawPins() {
     const viewer = getViewer();
     if (!viewer) return;
+    stopCulling?.();
     if (pins) viewer.scene.primitives.remove(pins);
     pins = new Cesium.BillboardCollection({ scene: viewer.scene });
     const stacked = new Map();
@@ -285,6 +288,7 @@ export function createBroadcasts({ document, getViewer = () => null }) {
       });
     });
     viewer.scene.primitives.add(pins);
+    stopCulling = cullBeyondHorizon(viewer, pins);
     if (!handler) {
       handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
       handler.setInputAction((click) => {
@@ -298,6 +302,8 @@ export function createBroadcasts({ document, getViewer = () => null }) {
 
   function clearPins() {
     const viewer = getViewer();
+    stopCulling?.();
+    stopCulling = null;
     if (pins) viewer?.scene?.primitives?.remove(pins);
     pins = null;
     handler?.destroy();

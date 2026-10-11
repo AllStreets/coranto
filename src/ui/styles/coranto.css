@@ -2972,66 +2972,6 @@ body[data-coranto-mode='instruments'] #coranto-tv {
   color: var(--accent);
 }
 
-/* Every scrolling area shows a bar a person can see and drag, including on
-   systems that hide scrollbars until the pointer moves. Kept last so no
-   later rule turns one thin or invisible again. */
-@supports selector(::-webkit-scrollbar) {
-  #coranto-rail,
-  #coranto-feed-body,
-  .coranto-briefing-card,
-  .coranto-guide-card,
-  .coranto-key-body,
-  .coranto-story-body,
-  #coranto-sources-menu,
-  #coranto-tv {
-    scrollbar-width: auto;
-    scrollbar-color: auto;
-  }
-  #coranto-rail::-webkit-scrollbar,
-  #coranto-feed-body::-webkit-scrollbar,
-  .coranto-briefing-card::-webkit-scrollbar,
-  .coranto-guide-card::-webkit-scrollbar,
-  .coranto-key-body::-webkit-scrollbar,
-  .coranto-story-body::-webkit-scrollbar,
-  #coranto-sources-menu::-webkit-scrollbar,
-  #coranto-tv::-webkit-scrollbar {
-    width: 10px;
-  }
-  #coranto-rail::-webkit-scrollbar-track,
-  #coranto-feed-body::-webkit-scrollbar-track,
-  .coranto-briefing-card::-webkit-scrollbar-track,
-  .coranto-guide-card::-webkit-scrollbar-track,
-  .coranto-key-body::-webkit-scrollbar-track,
-  .coranto-story-body::-webkit-scrollbar-track,
-  #coranto-sources-menu::-webkit-scrollbar-track,
-  #coranto-tv::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-  }
-  #coranto-rail::-webkit-scrollbar-thumb,
-  #coranto-feed-body::-webkit-scrollbar-thumb,
-  .coranto-briefing-card::-webkit-scrollbar-thumb,
-  .coranto-guide-card::-webkit-scrollbar-thumb,
-  .coranto-key-body::-webkit-scrollbar-thumb,
-  .coranto-story-body::-webkit-scrollbar-thumb,
-  #coranto-sources-menu::-webkit-scrollbar-thumb,
-  #coranto-tv::-webkit-scrollbar-thumb {
-    border: 2px solid transparent;
-    border-radius: 6px;
-    background: rgba(180, 124, 255, 0.7);
-    background-clip: padding-box;
-  }
-  #coranto-rail::-webkit-scrollbar-thumb:hover,
-  #coranto-feed-body::-webkit-scrollbar-thumb:hover,
-  .coranto-briefing-card::-webkit-scrollbar-thumb:hover,
-  .coranto-guide-card::-webkit-scrollbar-thumb:hover,
-  .coranto-key-body::-webkit-scrollbar-thumb:hover,
-  .coranto-story-body::-webkit-scrollbar-thumb:hover,
-  #coranto-sources-menu::-webkit-scrollbar-thumb:hover,
-  #coranto-tv::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(180, 124, 255, 0.95);
-  }
-}
-
 /* Lens bar: one row, one way of showing which lens is on */
 .coranto-lens-switch {
   display: flex;
@@ -3335,4 +3275,251 @@ body[data-coranto-mode='instruments'] #coranto-tv {
 .news-chip-place img {
   width: 10px;
   height: 10px;
+}
+
+/* ── INSTRUMENTS in the shared frame ──────────────────────────────
+   For people only (data-coranto-frame='one'); automated browsers keep the
+   engine's own look, which its gates measure. The engine's layout code is
+   untouched: these rules change its variables and the surfaces' paint. */
+body[data-coranto-frame='one'][data-coranto-mode='instruments'] {
+  --panel-radius: 0px;
+  --btn-radius: 2px;
+  --glass-bg: rgba(9, 8, 15, 0.96);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-border-hover: rgba(180, 124, 255, 0.6);
+}
+:root:not([data-ui-theme='cyber'])
+  body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  :is(
+    .data-panel-inner,
+    .cctv-panel-inner,
+    .weather-panel-inner,
+    .recent-imagery-panel-inner,
+    .street-level-panel-inner,
+    .scene-panel-inner,
+    .global-context-panel-inner,
+    .radio-panel-inner,
+    .panel-inner,
+    .location-inner,
+    #pp-toggles:not(.collapsed),
+    #pp-toggles.collapsed > .pp-header-row
+  ) {
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+/* The same violet bracket corners as the news panels. */
+:root:not([data-ui-theme='cyber'])
+  body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  :is(
+    .data-panel-inner,
+    .cctv-panel-inner,
+    .weather-panel-inner,
+    .recent-imagery-panel-inner,
+    .street-level-panel-inner,
+    .scene-panel-inner,
+    .global-context-panel-inner,
+    .radio-panel-inner,
+    .panel-inner,
+    .location-inner,
+    #pp-toggles:not(.collapsed),
+    #pp-toggles.collapsed > .pp-header-row
+  )::before,
+:root:not([data-ui-theme='cyber'])
+  body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  :is(
+    .data-panel-inner,
+    .cctv-panel-inner,
+    .weather-panel-inner,
+    .recent-imagery-panel-inner,
+    .street-level-panel-inner,
+    .scene-panel-inner,
+    .global-context-panel-inner,
+    .radio-panel-inner,
+    .panel-inner,
+    .location-inner,
+    #pp-toggles:not(.collapsed),
+    #pp-toggles.collapsed > .pp-header-row
+  )::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--accent);
+  opacity: 0.85;
+  pointer-events: none;
+}
+:root:not([data-ui-theme='cyber'])
+  body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  :is(
+    .data-panel-inner,
+    .cctv-panel-inner,
+    .weather-panel-inner,
+    .recent-imagery-panel-inner,
+    .street-level-panel-inner,
+    .scene-panel-inner,
+    .global-context-panel-inner,
+    .radio-panel-inner,
+    .panel-inner,
+    .location-inner,
+    #pp-toggles:not(.collapsed),
+    #pp-toggles.collapsed > .pp-header-row
+  )::before {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+:root:not([data-ui-theme='cyber'])
+  body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  :is(
+    .data-panel-inner,
+    .cctv-panel-inner,
+    .weather-panel-inner,
+    .recent-imagery-panel-inner,
+    .street-level-panel-inner,
+    .scene-panel-inner,
+    .global-context-panel-inner,
+    .radio-panel-inner,
+    .panel-inner,
+    .location-inner,
+    #pp-toggles:not(.collapsed),
+    #pp-toggles.collapsed > .pp-header-row
+  )::after {
+  right: -1px;
+  bottom: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+:root:not([data-ui-theme='cyber'])
+  body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  .panel-glow {
+  display: none;
+}
+:root:not([data-ui-theme='cyber'])
+  body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  :is(
+    .panel-collapse-btn,
+    .pp-toggle-btn,
+    #command-dock,
+    #gev-voice-control,
+    #key-setup-chip
+  ) {
+  border-radius: 2px;
+}
+:root:not([data-ui-theme='cyber'])
+  body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  .panel-title {
+  color: #cfc8e6;
+  letter-spacing: 2px;
+}
+:root:not([data-ui-theme='cyber'])
+  body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  #key-setup-chip {
+  border-color: rgba(180, 124, 255, 0.55);
+  background: rgba(9, 8, 15, 0.96);
+  color: var(--accent);
+}
+/* The rails never climb over the header and ticker. */
+body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  #left-panel-stack {
+  top: max(
+    calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 14px),
+    var(--left-stack-safe-top, var(--left-stack-top))
+  );
+}
+body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  #right-context-rail {
+  top: max(
+    calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 14px),
+    var(--right-stack-safe-top, 26vh)
+  );
+  max-height: min(
+    var(--right-stack-max-height, 70vh),
+    calc(100vh - var(--coranto-header-h) - var(--coranto-ticker-h) - 14px - 4vh)
+  );
+}
+/* The engine's readouts take the brand colour and sit below the ticker. */
+body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  #intel-hud:not([data-variant='cyber']) {
+  --hud-color: rgba(207, 200, 230, 0.86) !important;
+  --hud-glow: rgba(180, 124, 255, 0.3) !important;
+  --hud-border: rgba(180, 124, 255, 0.5) !important;
+}
+body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  #intel-hud
+  .hud-top-bar {
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 10px);
+}
+body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  #intel-hud[data-variant='minimal']
+  .hud-top-left {
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 12px);
+}
+body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  #intel-hud
+  :is(.hud-classification, #hud-mode) {
+  color: var(--accent);
+}
+
+/* Every scrolling area shows a bar a person can see and drag, including on
+   systems that hide scrollbars until the pointer moves. Kept last so no
+   later rule turns one thin or invisible again. */
+@supports selector(::-webkit-scrollbar) {
+  #coranto-rail,
+  #coranto-feed-body,
+  .coranto-briefing-card,
+  .coranto-guide-card,
+  .coranto-key-body,
+  .coranto-story-body,
+  #coranto-sources-menu,
+  #coranto-tv {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+  }
+  #coranto-rail::-webkit-scrollbar,
+  #coranto-feed-body::-webkit-scrollbar,
+  .coranto-briefing-card::-webkit-scrollbar,
+  .coranto-guide-card::-webkit-scrollbar,
+  .coranto-key-body::-webkit-scrollbar,
+  .coranto-story-body::-webkit-scrollbar,
+  #coranto-sources-menu::-webkit-scrollbar,
+  #coranto-tv::-webkit-scrollbar {
+    width: 10px;
+  }
+  #coranto-rail::-webkit-scrollbar-track,
+  #coranto-feed-body::-webkit-scrollbar-track,
+  .coranto-briefing-card::-webkit-scrollbar-track,
+  .coranto-guide-card::-webkit-scrollbar-track,
+  .coranto-key-body::-webkit-scrollbar-track,
+  .coranto-story-body::-webkit-scrollbar-track,
+  #coranto-sources-menu::-webkit-scrollbar-track,
+  #coranto-tv::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  #coranto-rail::-webkit-scrollbar-thumb,
+  #coranto-feed-body::-webkit-scrollbar-thumb,
+  .coranto-briefing-card::-webkit-scrollbar-thumb,
+  .coranto-guide-card::-webkit-scrollbar-thumb,
+  .coranto-key-body::-webkit-scrollbar-thumb,
+  .coranto-story-body::-webkit-scrollbar-thumb,
+  #coranto-sources-menu::-webkit-scrollbar-thumb,
+  #coranto-tv::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: rgba(180, 124, 255, 0.7);
+    background-clip: padding-box;
+  }
+  #coranto-rail::-webkit-scrollbar-thumb:hover,
+  #coranto-feed-body::-webkit-scrollbar-thumb:hover,
+  .coranto-briefing-card::-webkit-scrollbar-thumb:hover,
+  .coranto-guide-card::-webkit-scrollbar-thumb:hover,
+  .coranto-key-body::-webkit-scrollbar-thumb:hover,
+  .coranto-story-body::-webkit-scrollbar-thumb:hover,
+  #coranto-sources-menu::-webkit-scrollbar-thumb:hover,
+  #coranto-tv::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(180, 124, 255, 0.95);
+  }
 }

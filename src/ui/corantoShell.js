@@ -6,7 +6,11 @@ import { createBoardStore } from './corantoBoardModel.js';
 import { createBroadcasts } from './corantoBroadcasts.js';
 import { contactCard } from './corantoContact.js';
 import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
-import { TOPIC_COLOURS, iconImage } from '../data/corantoIcons.js';
+import {
+  TOPIC_COLOURS,
+  iconImage,
+  layerIconCss,
+} from '../data/corantoIcons.js';
 import { ATLAS_OVERLAYS, createAtlas } from './corantoAtlas.js';
 import { createMapKey } from './corantoMapKey.js';
 import { createMarketsLens } from './corantoMarkets.js';
@@ -1385,11 +1389,13 @@ export function createCorantoShell({
     }
   }
 
-  /** The news view always has its headlines on (people only). */
+  /**
+   * For people the headlines are on in both views: the ticker, the LIVE
+   * count and the story markers are part of INSTRUMENTS too.
+   */
   function ensureNewsOn() {
     if (
       body.dataset.corantoFrame === 'one' &&
-      body.dataset.corantoMode === 'news' &&
       dataManager?.layers?.has('news') &&
       !dataManager.isEnabled('news')
     )
@@ -1693,6 +1699,11 @@ export function createCorantoShell({
   // views. Automated browsers keep the engine's own layout, which its browser
   // gates measure.
   body.dataset.corantoFrame = win.navigator?.webdriver ? 'classic' : 'one';
+  // In the shared frame the engine's layer list shows icons, not emoji.
+  const layerIconStyle = el(document, 'style', {
+    text: layerIconCss("body[data-coranto-frame='one']"),
+  });
+  document.head?.append(layerIconStyle);
   setMode(storedMode ?? defaultMode, { remember: false });
   if (body.dataset.corantoMode === 'news') {
     // News opens straight onto the feed; the engine's mission launcher
@@ -1760,7 +1771,10 @@ export function createCorantoShell({
         timers.push(setTimeout(ensureNewsOn, 1500));
         return;
       }
-      if (body.dataset.corantoMode !== 'news') return;
+      if (body.dataset.corantoMode !== 'news') {
+        timers.push(setTimeout(ensureNewsOn, 1500));
+        return;
+      }
       // A fresh visit in news mode: headlines on, whole Earth in view.
       timers.push(
         setTimeout(() => {
@@ -1777,6 +1791,7 @@ export function createCorantoShell({
         clearTimeout(timer);
       }
       document.removeEventListener('keydown', onKey);
+      layerIconStyle.remove();
       nuclear.hide();
       atlas.destroy();
       board.destroy();

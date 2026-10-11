@@ -17,6 +17,15 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: INSTRUMENTS shares the frame and the look. Its panels have the
+  same square edges, bracket corners and dark surface as the news panels; its
+  readouts take the brand colour and sit below the ticker; the layer list
+  shows icons instead of emoji; and the headlines stay on, so the ticker, the
+  LIVE count and the story markers are there too. The engine's own layout
+  code is untouched and automated browsers still get its original look.
+- Coranto: markers beyond the horizon are hidden. Country, city, newsroom
+  and nuclear-state markers on the far side of the Earth no longer show
+  through when the view is down at street level.
 - Coranto: the analyst board, from AUSPEX. BOARD in the header (so it is
   there in NEWS and INSTRUMENTS) opens what you have pinned, how the items
   connect, and a brief and timeline worked out from them. Pin a story from

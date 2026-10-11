@@ -6,10 +6,13 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 
 ## Already ordered (first)
 
-- [~] **P1 Dock INSTRUMENTS into the news frame.** Same header, ticker and
-  columns in both views. Done so far: shared header and ticker. Open: the
-  engine's floating panels in the shared columns. Automated browsers keep the
-  classic layout the CI gates measure.
+- [~] **P1 INSTRUMENTS in the news frame.** Done: shared header and ticker,
+  the same panel chrome, brand-coloured readouts kept below the ticker,
+  icons in the layer list, headlines on in both views. The panels still
+  float where the engine puts them rather than sitting in fixed columns;
+  its layout solver is left alone on purpose. Open: emoji in the visual
+  presets, display panel and key-setup panel; panels dragged under the
+  header.
 - [x] **P2 Government (non-military) aircraft in Watch Power.** From the
   public plane-alert database (ODbL) joined to live ADS-B. Open: selecting
   one by clicking its marker on the globe (rows work).

@@ -1,5 +1,6 @@
 import * as Cesium from 'cesium';
 import { markerImage } from '../data/corantoIcons.js';
+import { cullBeyondHorizon } from './corantoHorizon.js';
 import { NEWS_COUNTRIES } from '../sources/news/countries.js';
 
 /**
@@ -63,35 +64,34 @@ const PREFIX = 'nuclear:';
  * @param {(detail: object|null) => void} options.showCard
  */
 export function createNuclearMarks({ getViewer, showCard }) {
-  let entities = [];
+  let marks = null;
   let handler = null;
+  let stopCulling = null;
   return {
     get shown() {
-      return entities.length > 0;
+      return marks !== null;
     },
     show() {
       const viewer = getViewer();
-      if (!viewer || entities.length) return;
+      if (!viewer || marks) return;
       const image = markerImage({ icon: 'nuclear', colour: NUCLEAR_COLOUR });
-      entities = NUCLEAR_STATES.map((state) =>
-        viewer.entities.add({
+      marks = new Cesium.BillboardCollection({ scene: viewer.scene });
+      for (const state of NUCLEAR_STATES)
+        marks.add({
           id: PREFIX + state.code,
-          position: Cesium.Cartesian3.fromDegrees(state.lon, state.lat),
-          billboard: {
-            image,
-            width: 22,
-            height: 22,
-            // Beside the country's story marker, which shares this point.
-            pixelOffset: new Cesium.Cartesian2(19, -19),
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            disableDepthTestDistance: 50_000,
-          },
-        }),
-      );
+          position: Cesium.Cartesian3.fromDegrees(state.lon, state.lat, 2500),
+          image,
+          width: 22,
+          height: 22,
+          // Beside the country's story marker, which shares this point.
+          pixelOffset: new Cesium.Cartesian2(19, -19),
+          disableDepthTestDistance: 50_000,
+        });
+      viewer.scene.primitives.add(marks);
+      stopCulling = cullBeyondHorizon(viewer, marks);
       handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
       handler.setInputAction((click) => {
-        const picked = viewer.scene.pick(click.position);
-        const id = picked?.id?.id ?? picked?.id;
+        const id = viewer.scene.pick(click.position)?.id;
         if (typeof id !== 'string' || !id.startsWith(PREFIX)) return;
         const state = NUCLEAR_STATES.find(
           (entry) => entry.code === id.slice(PREFIX.length),
@@ -102,8 +102,10 @@ export function createNuclearMarks({ getViewer, showCard }) {
     },
     hide() {
       const viewer = getViewer();
-      for (const entity of entities) viewer?.entities?.remove(entity);
-      entities = [];
+      stopCulling?.();
+      stopCulling = null;
+      if (marks) viewer?.scene?.primitives?.remove(marks);
+      marks = null;
       handler?.destroy();
       handler = null;
       viewer?.scene?.requestRender?.();
