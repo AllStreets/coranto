@@ -53,7 +53,7 @@ const GOVERNMENT_COLOUR = '#e8d5a3';
 /** A plane marker as an image, in one colour with a dark edge. */
 export function planeMarker(colour) {
   return `data:image/svg+xml,${encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56" width="56" height="56"><g fill="${colour}" stroke="#05060a" stroke-width="2" stroke-linejoin="round">${PLANE_PATHS}</g></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56" width="112" height="112"><g fill="${colour}" stroke="#05060a" stroke-width="2" stroke-linejoin="round">${PLANE_PATHS}</g></svg>`,
   )}`;
 }
 

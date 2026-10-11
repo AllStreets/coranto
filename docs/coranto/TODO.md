@@ -74,18 +74,18 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [ ] **T21 Quality bar.** Default view is globe, feed and rail; every
   advanced tool within two clicks; nothing outside the shared tokens.
 
-## Decisions the owner needs to make
+## Decisions (answered 2026-10-11)
 
-1. Which AUSPEX AI tools to port. Several write text with a model (synthesized
-   brief, red-team brief, verify, translate). Coranto's rule is that AI text
-   is optional, cited and checked in code; anything that cannot meet that is
-   left out.
-2. Whether "pin to relief" brings AUSPEX's whole Relief module.
-3. Ships: AIS type codes say "passenger", which covers ferries as well as
-   cruise ships. Label the class passenger, or find a sourced cruise list.
-4. Country conflict and status marks need a sourced, dated basis. AUSPEX
-   derived the conflict mark from live headlines; its nuclear, sanctions and
-   P5 flags were a hand-kept list.
-5. The climate topic is green, and green is otherwise reserved for good news
-   and live status. Keep or change.
-6. A database for saved boards (AUSPEX used Supabase) or browser-only.
+1. Port only the AUSPEX AI tools that can cite their sources and be checked
+   in code.
+2. Relief module: undecided. The owner asked for a description first. Its ten
+   tools are mostly model-written from headlines (situation report, response
+   council, displacement, famine phases, recovery timeline, civilian
+   protection) with no official data feed behind them.
+3. Ships: one "passenger" class for ferries and cruise ships.
+4. Country marks: conflict as a derived, labelled mark; the nuclear-armed
+   states mark is in. Sanctions and P5 flags stay out until sourced. All
+   icons must be crisp at their on-screen size.
+5. Climate stays green; good news is a different green (lime `#a8e05f`).
+6. Saved analyst boards go in a database, as AUSPEX did.
+7. Uniform UI: build one sample screen for sign-off before restyling.

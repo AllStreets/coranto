@@ -33,6 +33,7 @@ const marker = (icon, colour, extra = {}) => ({
  * @param {boolean} state.elections
  * @param {boolean} state.fires
  * @param {boolean} state.governmentAircraft
+ * @param {boolean} state.nuclear
  * @param {string[]} state.otherLayers Names of other layers switched on.
  * @returns {Array<{heading: string, rows: Array<{image?: string, swatch?: string, label: string}>}>}
  */
@@ -106,6 +107,12 @@ export function buildMapKeyModel(state) {
     more.push({
       swatch: ELECTION_COLOR,
       label: 'Polling day in the next 120 days',
+    });
+  if (state.nuclear)
+    more.push({
+      ...marker('nuclear', '#ff9f0a'),
+      label:
+        'Nuclear-armed state (nine, as listed by the Federation of American Scientists)',
     });
   if (state.governmentAircraft)
     more.push({

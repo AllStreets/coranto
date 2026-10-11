@@ -2,8 +2,8 @@ export const NEWS_OVERLAY_SOURCE_ID = 'news';
 export const NEWS_OVERLAY_COHORT_LIMIT = 96;
 export const NEWS_OVERLAY_COLLISION_CAPACITY = 40;
 export const NEWS_ACCENT = '#f2c14e';
-/** AUSPEX's living green, used when the view is narrowed to good news. */
-export const NEWS_GOOD_ACCENT = '#34e08a';
+/** Good-news lime: a different green from the climate topic's emerald. */
+export const NEWS_GOOD_ACCENT = '#a8e05f';
 
 /** Camera height above a place, by how precisely the story was placed. */
 export const NEWS_FOCUS_HEIGHT_M = Object.freeze({

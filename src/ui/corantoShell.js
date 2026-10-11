@@ -6,6 +6,7 @@ import { contactCard } from './corantoContact.js';
 import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
 import { createMapKey } from './corantoMapKey.js';
 import { createMarketsLens } from './corantoMarkets.js';
+import { createNuclearMarks } from './corantoNuclear.js';
 import { createPowerLens } from './corantoPower.js';
 import {
   WATCH_LIMIT,
@@ -535,6 +536,14 @@ export function createCorantoShell({
     'aria-expanded': 'false',
     'aria-controls': 'coranto-key',
   });
+  // Nuclear-armed states are always marked, as in AUSPEX.
+  const nuclear = createNuclearMarks({
+    getViewer: () => dataManager?.viewer ?? null,
+    showCard: (detail) => {
+      card.dataset.owner = 'nuclear';
+      showCard(detail);
+    },
+  });
   const mapKey = createMapKey({
     document,
     onClose: () => setMapKey(false),
@@ -555,6 +564,7 @@ export function createCorantoShell({
       elections: on('elections'),
       fires: on('local-firms'),
       governmentAircraft: lens === 'power',
+      nuclear: nuclear.shown,
       otherLayers: HEADER_LAYERS.filter(
         ([id]) => !KEYED_LAYERS.has(id) && on(id),
       ).map(([, label]) => label),
@@ -1373,6 +1383,8 @@ export function createCorantoShell({
     /** Called once the layer manager exists. */
     attachDataManager(manager) {
       dataManager = manager;
+      // People only: automated browsers keep the engine's own scene.
+      if (body.dataset.corantoFrame === 'one') nuclear.show();
       syncLayers();
       hazardsLayer = manager.layers?.get('hazards')?.module ?? null;
       unsubscribeHazards = hazardsLayer?.subscribe?.(renderCard) ?? null;
@@ -1408,6 +1420,7 @@ export function createCorantoShell({
         clearTimeout(timer);
       }
       document.removeEventListener('keydown', onKey);
+      nuclear.hide();
       document.removeEventListener('pointerdown', onOutside);
       unsubscribeHazards?.();
       feed?.destroy();

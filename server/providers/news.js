@@ -2,9 +2,10 @@ import fsp from 'node:fs/promises';
 import path from 'node:path';
 import {
   BRIEF_INSTRUCTIONS,
+  BRIEF_SCHEMA,
   briefInput,
   briefSources,
-  validateBrief,
+  checkBrief,
 } from '../../src/sources/news/brief.js';
 import {
   NewsUnavailableError,
@@ -18,6 +19,10 @@ import { enforceRateLimit, openAiRateLimiter } from './openai/rate-limit.js';
 const MAX_DISK_CACHE_BYTES = 8 * 1024 * 1024;
 const BRIEF_CACHE_TTL_MS = 30 * 60 * 1000;
 const BRIEF_CACHE_MAX = 200;
+// A brief with nothing to show is kept only briefly, so asking again soon
+// gets a fresh attempt.
+const BRIEF_EMPTY_TTL_MS = 60 * 1000;
+const BRIEF_ATTEMPTS = 2;
 
 function openAiText(data) {
   if (typeof data?.output_text === 'string' && data.output_text.trim())
@@ -178,48 +183,78 @@ export function newsProxy({
     const cacheKey = `${storyId}|${sources.map((source) => source.id).join(',')}`;
     const clock = now ? now() : Date.now();
     const cached = briefCache.get(cacheKey);
-    if (cached && clock - cached.at < BRIEF_CACHE_TTL_MS)
+    if (
+      cached &&
+      clock - cached.at <
+        (cached.value.supported ? BRIEF_CACHE_TTL_MS : BRIEF_EMPTY_TTL_MS)
+    )
       return json(200, cached.value);
     const model =
       process.env.CORANTO_BRIEF_MODEL ||
       process.env.OPENAI_HUD_SUMMARY_MODEL ||
       OPENAI_HUD_SUMMARY_MODEL_DEFAULT;
-    let text = '';
-    try {
-      const response = await briefFetch('https://api.openai.com/v1/responses', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model,
-          instructions: BRIEF_INSTRUCTIONS,
-          input: briefInput(sources),
-          reasoning: { effort: 'minimal' },
-          max_output_tokens: 1200,
-        }),
-        signal: AbortSignal.timeout(45_000),
-      });
-      if (!response.ok) {
-        // Never relay the provider's own error text.
-        console.warn(`[news] brief upstream HTTP ${response.status}`);
+    // The model is asked again once when its reply cannot be read or nothing
+    // in it passes the check; replies vary from one call to the next.
+    let checked = { readable: false, sentences: [], claims: [], removed: 0 };
+    for (let attempt = 0; attempt < BRIEF_ATTEMPTS; attempt++) {
+      let text = '';
+      try {
+        const response = await briefFetch(
+          'https://api.openai.com/v1/responses',
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model,
+              instructions: BRIEF_INSTRUCTIONS,
+              input: briefInput(sources),
+              reasoning: { effort: 'minimal' },
+              max_output_tokens: 2000,
+              text: {
+                format: {
+                  type: 'json_schema',
+                  name: 'brief',
+                  strict: true,
+                  schema: BRIEF_SCHEMA,
+                },
+              },
+            }),
+            signal: AbortSignal.timeout(45_000),
+          },
+        );
+        if (!response.ok) {
+          // Never relay the provider's own error text.
+          console.warn(`[news] brief upstream HTTP ${response.status}`);
+          return json(502, { error: 'brief_failed' });
+        }
+        text = openAiText(await response.json());
+      } catch {
+        console.warn('[news] brief request failed');
         return json(502, { error: 'brief_failed' });
       }
-      text = openAiText(await response.json());
-    } catch {
-      console.warn('[news] brief request failed');
-      return json(502, { error: 'brief_failed' });
+      checked = checkBrief(text, sources);
+      if (checked.sentences.length || checked.claims.length) break;
     }
-    const checked = validateBrief(text, sources);
+    const supported = Boolean(
+      checked.sentences.length || checked.claims.length,
+    );
     const value = {
       available: true,
       storyId,
       model,
-      supported: Boolean(checked),
-      sentences: checked?.sentences ?? [],
-      claims: checked?.claims ?? [],
-      removed: checked?.removed ?? 0,
+      supported,
+      // Why nothing is shown, when nothing is.
+      reason: supported
+        ? null
+        : checked.readable
+          ? 'unsupported'
+          : 'unreadable',
+      sentences: checked.sentences,
+      claims: checked.claims,
+      removed: checked.removed,
       sources: sources.map(({ n, publisher, title, url }) => ({
         n,
         publisher,

@@ -12,6 +12,16 @@ export const CATEGORY_CODE = {
   climate: 'CLM',
 };
 
+/** Why a brief shows nothing, in one sentence. */
+function emptyBriefText(data) {
+  if (data.reason === 'unreadable')
+    return 'The model’s reply could not be read, so nothing is shown.';
+  const n = data.removed;
+  return n > 0
+    ? `The model wrote ${n} ${n === 1 ? 'statement' : 'statements'}, and each had a name or figure that is not in the headlines it cited. None is shown.`
+    : 'The model wrote nothing that could be checked against the headlines, so nothing is shown.';
+}
+
 function el(document, tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -99,6 +109,12 @@ export function createNewsFeed({
       );
       return box;
     }
+    const retry = () => {
+      const button = el(document, 'button', 'news-brief-retry', 'Try again');
+      button.type = 'button';
+      button.addEventListener('click', () => requestBrief(storyId));
+      return button;
+    };
     if (state.status === 'error') {
       box.append(
         el(
@@ -107,6 +123,7 @@ export function createNewsFeed({
           'news-brief-note',
           'The brief could not be written. Nothing is shown.',
         ),
+        retry(),
       );
       return box;
     }
@@ -125,12 +142,8 @@ export function createNewsFeed({
     };
     if (!data.supported) {
       box.append(
-        el(
-          document,
-          'p',
-          'news-brief-note',
-          'Nothing the model wrote could be matched to the sources, so nothing is shown.',
-        ),
+        el(document, 'p', 'news-brief-note', emptyBriefText(data)),
+        retry(),
       );
     }
     if (data.sentences.length) {

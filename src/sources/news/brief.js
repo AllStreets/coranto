@@ -20,14 +20,41 @@ export const BRIEF_INSTRUCTIONS = [
   'You summarise one news story for a reader, using ONLY the numbered sources supplied.',
   'Rules:',
   '1. Use no knowledge of your own. If the sources do not say it, do not write it.',
-  '2. Every sentence must cite the source numbers it rests on.',
-  '3. Copy figures, names and places exactly as a cited source gives them.',
+  '2. Every sentence must cite the source numbers it rests on, in its "cites" list only. Do not write source numbers or publisher names inside the sentence.',
+  '3. Copy figures, names and places exactly as a cited source gives them. Do not expand a name: if the source says "Trump", write "Trump".',
   '4. Where sources give different figures or accounts, say that outlets differ and cite each.',
   '5. Do not speculate, predict, or characterise motives.',
   `6. Write at most ${BRIEF_MAX_SENTENCES} short sentences, then at most ${BRIEF_MAX_CLAIMS} separate factual claims the sources make.`,
   'Reply with JSON only, in this shape:',
   '{"sentences":[{"text":"...","cites":[1,2]}],"claims":[{"text":"...","cites":[1]}]}',
 ].join('\n');
+
+/**
+ * The reply shape, enforced by the model API where it supports a schema, so
+ * the reply is always readable JSON.
+ */
+export const BRIEF_SCHEMA = Object.freeze({
+  type: 'object',
+  additionalProperties: false,
+  required: ['sentences', 'claims'],
+  properties: Object.fromEntries(
+    ['sentences', 'claims'].map((key) => [
+      key,
+      {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['text', 'cites'],
+          properties: {
+            text: { type: 'string' },
+            cites: { type: 'array', items: { type: 'integer' } },
+          },
+        },
+      },
+    ]),
+  ),
+});
 
 /** Number the story's articles for the model and for citation. */
 export function briefSources(articles) {
@@ -128,17 +155,34 @@ function parseModelJson(text) {
   }
 }
 
+/**
+ * Remove citation marks the model wrote into the sentence itself, such as
+ * "(sources 2, 6, 7)" or "[1]". The citations travel in `cites`; left in the
+ * text they would be read as figures the sources do not contain.
+ */
+export function stripCitationMarks(text) {
+  return String(text ?? '')
+    .replace(/\s*\((?:sources?|refs?)\.?\s*[\d\s,;&and]+\)/gi, '')
+    .replace(/\s*\[\d+(?:\s*[,;-]\s*\d+)*\]/g, '')
+    .replace(/\s+([.,;])/g, '$1')
+    .trim();
+}
+
 function checkItems(items, sources, limit) {
   const byNumber = new Map(sources.map((source) => [source.n, source]));
   const kept = [];
   let removed = 0;
   for (const item of Array.isArray(items) ? items : []) {
-    const text = typeof item?.text === 'string' ? item.text.trim() : '';
+    const text =
+      typeof item?.text === 'string' ? stripCitationMarks(item.text) : '';
+    // Accept "3" as well as 3: some replies quote their numbers.
     const cites = [
       ...new Set(
-        (Array.isArray(item?.cites) ? item.cites : []).filter((n) =>
-          Number.isInteger(n),
-        ),
+        (Array.isArray(item?.cites) ? item.cites : [])
+          .map((n) =>
+            typeof n === 'string' && /^\d+$/.test(n) ? Number(n) : n,
+          )
+          .filter((n) => Number.isInteger(n)),
       ),
     ];
     const cited = cites.map((n) => byNumber.get(n));
@@ -170,12 +214,29 @@ function checkItems(items, sources, limit) {
  * null when the reply is not the requested JSON or nothing survives.
  */
 export function validateBrief(modelText, sources) {
+  const checked = checkBrief(modelText, sources);
+  return checked.sentences.length || checked.claims.length
+    ? {
+        sentences: checked.sentences,
+        claims: checked.claims,
+        removed: checked.removed,
+      }
+    : null;
+}
+
+/**
+ * The same check, saying why nothing is shown when nothing is.
+ * @returns {{readable: boolean, sentences: object[], claims: object[], removed: number}}
+ * `readable` is false when the reply was not the requested JSON at all.
+ */
+export function checkBrief(modelText, sources) {
   const parsed = parseModelJson(modelText);
-  if (!parsed) return null;
+  if (!parsed)
+    return { readable: false, sentences: [], claims: [], removed: 0 };
   const sentences = checkItems(parsed.sentences, sources, BRIEF_MAX_SENTENCES);
   const claims = checkItems(parsed.claims, sources, BRIEF_MAX_CLAIMS);
-  if (!sentences.kept.length && !claims.kept.length) return null;
   return {
+    readable: true,
     sentences: sentences.kept,
     claims: claims.kept,
     removed: sentences.removed + claims.removed,

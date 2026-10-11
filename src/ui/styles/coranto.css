@@ -390,13 +390,13 @@
   --topic: var(--cat-climate);
 }
 .coranto-topic-good {
-  --topic: #34e08a;
+  --topic: #a8e05f;
   margin-top: 9px;
 }
 .coranto-topic-good[aria-pressed='true'] {
-  background: rgba(52, 224, 138, 0.14);
-  color: #34e08a;
-  border-color: rgba(52, 224, 138, 0.6);
+  background: rgba(168, 224, 95, 0.14);
+  color: #a8e05f;
+  border-color: rgba(168, 224, 95, 0.6);
 }
 
 .coranto-lens-switch {
@@ -1220,8 +1220,8 @@
   --tag: var(--cat-climate);
 }
 .news-card.news-card-good {
-  --tag: #34e08a;
-  background: linear-gradient(90deg, rgba(52, 224, 138, 0.07), transparent 70%);
+  --tag: #a8e05f;
+  background: linear-gradient(90deg, rgba(168, 224, 95, 0.07), transparent 70%);
 }
 .news-card-meta {
   display: flex;
@@ -2444,4 +2444,21 @@ body[data-coranto-mode='instruments'] #coranto-key {
 }
 .coranto-key-square {
   border-radius: 2px;
+}
+
+.news-brief-retry {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 5px 11px;
+  border: 1px solid rgba(180, 124, 255, 0.55);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font: 600 10px var(--font-mono);
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+.news-brief-retry:hover,
+.news-brief-retry:focus-visible {
+  background: rgba(180, 124, 255, 0.14);
 }

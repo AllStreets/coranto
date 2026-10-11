@@ -90,6 +90,10 @@ export const ICONS = Object.freeze({
     STROKE,
     '<path d="M4 12.5h16V20H4z"/><path d="M8 12.5V5h8v7.5"/><path d="M10.3 8.3l1.3 1.3 2.3-2.6"/>',
   ],
+  nuclear: [
+    SOLID,
+    '<circle cx="12" cy="12" r="2.1"/><path d="M9.90 8.36L7.20 3.69A9.6 9.6 0 0 1 16.80 3.69L14.10 8.36A4.2 4.2 0 0 0 9.90 8.36ZM16.20 12.00L21.60 12.00A9.6 9.6 0 0 1 16.80 20.31L14.10 15.64A4.2 4.2 0 0 0 16.20 12.00ZM9.90 15.64L7.20 20.31A9.6 9.6 0 0 1 2.40 12.00L7.80 12.00A4.2 4.2 0 0 0 9.90 15.64Z"/>',
+  ],
   // Interface
   close: [STROKE, '<path d="M6 6l12 12M18 6 6 18"/>'],
   plus: [STROKE, '<path d="M12 5v14M5 12h14"/>'],
@@ -107,7 +111,7 @@ export const TOPIC_COLOURS = Object.freeze({
   finance: '#e8b84b',
   climate: '#34d17a',
   news: '#d5d0e2',
-  good: '#34e08a',
+  good: '#a8e05f',
 });
 
 /** Which icon a hazard kind uses. Kinds without their own use the triangle. */
@@ -143,12 +147,14 @@ const dataUri = (svg) => `data:image/svg+xml,${encodeURIComponent(svg)}`;
 export function iconImage(name, colour = '#ffffff') {
   const [attrs, body] = ICONS[name] ?? ICONS.hazard;
   return dataUri(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48"><g ${attrs.replaceAll('currentColor', colour)}>${body.replaceAll('currentColor', colour)}</g></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96"><g ${attrs.replaceAll('currentColor', colour)}>${body.replaceAll('currentColor', colour)}</g></svg>`,
   );
 }
 
 /**
- * A globe marker: the icon on a dark disc ringed in its colour.
+ * A globe marker: the icon on a dark disc ringed in its colour. It is a
+ * vector drawn at twice its largest on-screen size, so it stays sharp on
+ * high-density displays.
  *
  * @param {object} options
  * @param {string} options.icon Name in `ICONS`.
@@ -167,7 +173,7 @@ export function markerImage({
   const glyph = liftColour(colour, 0.45);
   const ring = approximate ? ' stroke-dasharray="5 4"' : '';
   return dataUri(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">` +
       (selected
         ? '<circle cx="32" cy="32" r="30" fill="none" stroke="#ffffff" stroke-width="2.5"/>'
         : '') +

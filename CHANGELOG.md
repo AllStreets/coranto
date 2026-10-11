@@ -17,6 +17,18 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: AI briefs no longer come back empty for no reason. The model's
+  reply is held to a JSON schema, it is asked once more when nothing passes,
+  and an empty result is kept for a minute instead of thirty. Source numbers
+  the model wrote inside a sentence ("(sources 2, 6, 7)") are removed before
+  checking; they used to be read as unsupported figures. When nothing can be
+  shown the box says why and offers Try again.
+- Coranto: the nine nuclear-armed states are marked on the globe with a
+  trefoil, as in AUSPEX, each linking to the Federation of American
+  Scientists' current estimates. No warhead counts are shown.
+- Coranto: good news is a lime green, distinct from the climate topic's
+  emerald. Globe markers are drawn at twice their on-screen size so they
+  stay sharp on high-density displays.
 - Coranto: the globe uses icons, not dots. A story marker shows the icon and
   colour of the topic most stories at that place carry; hazards show a
   cyclone, earthquake, flood, fire, volcano, drought or ice icon in their
