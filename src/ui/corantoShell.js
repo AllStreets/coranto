@@ -89,11 +89,11 @@ const CATEGORIES = [
 const GUIDE = [
   [
     'Read',
-    'The feed on the right is every current headline from the sources, newest first. Each headline is the publisher’s own words and opens the original article.',
+    'The feed on the right is every current headline from the sources, newest first, in the publisher’s own words. Click a headline to open the story here: its summary, where it was placed, and tools such as a checked AI brief and who else covered it. The link to the original article is at the bottom.',
   ],
   [
     'See where',
-    'Each gold marker is a place that stories name. A solid dot is a city. A hollow ring is a country or region, so the position is approximate. Click a marker to see only that place’s stories.',
+    'Each marker is a place that stories name, showing the icon of the topic most of them share. A solid ring is a city. A dashed ring is a country or region, so the position is approximate. Click a marker to see only that place’s stories. MAP KEY explains every symbol on the globe.',
   ],
   [
     'Check why',
@@ -109,7 +109,7 @@ const GUIDE = [
   ],
   [
     'Search',
-    'Type in the search box above the feed (or press /) to keep only stories that mention your words, in the headline, summary, publisher or place. Esc clears it.',
+    'Type in the search box above the feed (or press /) to keep only stories that mention your words, in the headline, summary, publisher or place. Esc clears it. The box beside it sets how far back to look: the last day, three days, or the whole week Coranto keeps.',
   ],
   [
     'Follow what matters to you',
@@ -121,15 +121,23 @@ const GUIDE = [
   ],
   [
     'Watch power',
-    'WATCH POWER on the left switches on military aircraft, mapped military sites and plate-reader cameras, and lists the aircraft airborne now. Each one links to its live public track. It watches institutions and equipment, not people.',
+    'POWER on the left switches on military aircraft, mapped military sites and plate-reader cameras, and lists military and government aircraft airborne now. Each one links to its live public track. It watches institutions and equipment, not people.',
   ],
   [
     'Follow elections',
-    'ELECTIONS on the left lists polling days in the next 120 days as Wikidata records them, marks them on the globe, and narrows the feed to election news. Click one to see that country’s election stories. Dates come from a volunteer-edited database, so check the official body.',
+    'VOTES on the left lists polling days in the next 120 days as Wikidata records them, marks them on the globe, and narrows the feed to election news. Click one to see that country’s election stories. Dates come from a volunteer-edited database, so check the official body.',
   ],
   [
     'Markets and live TV',
     'MARKETS shows exchange rates and crypto prices with their source and time, beside finance news. LIVE TV plays live news channels from every continent here in the app and pins each newsroom on the globe.',
+  ],
+  [
+    'Add the atlas',
+    'MAP OVERLAYS on the left switches on country borders with front lines and disputed lines, every country’s name with its status marks, and a thousand cities with an icon for what each is known as. Select a country or city to see its card and its stories.',
+  ],
+  [
+    'Build a picture',
+    'PIN TO BOARD keeps a story, country or city on the analyst board. BOARD at the top shows what you have pinned, draws the connections between items that mention the same name, and works out a brief and a timeline from them. Nothing on the board is written by a model.',
   ],
   [
     'Go deeper',

@@ -145,6 +145,33 @@ export const ICONS = Object.freeze({
     STROKE,
     '<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5 15.5 8.5Z"/>',
   ],
+  circle: [STROKE, '<circle cx="12" cy="12" r="7.5"/>'],
+  grid: [
+    STROKE,
+    '<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 9.5h16M4 14.5h16M9.5 4v16M14.5 4v16"/>',
+  ],
+  moon: [
+    STROKE,
+    '<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  ],
+  thermometer: [
+    STROKE,
+    '<path d="M10 14.2V5.5a2 2 0 0 1 4 0v8.7a4 4 0 1 1-4 0Z"/><path d="M12 9v7"/><circle cx="12" cy="17.3" r="1.3" fill="currentColor" stroke="none"/>',
+  ],
+  sparkle: [
+    SOLID,
+    '<path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9L12 3Z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"/>',
+  ],
+  contrast: [
+    STROKE,
+    '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" stroke="none"/>',
+  ],
+  square: [STROKE, '<rect x="5" y="5" width="14" height="14" rx="1.5"/>'],
+  search: [STROKE, '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/>'],
+  pin: [
+    STROKE,
+    '<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/>',
+  ],
   // Interface
   target: [
     STROKE,
@@ -168,6 +195,7 @@ export const ICONS = Object.freeze({
   ],
   close: [STROKE, '<path d="M6 6l12 12M18 6 6 18"/>'],
   plus: [STROKE, '<path d="M12 5v14M5 12h14"/>'],
+  minus: [STROKE, '<path d="M5 12h14"/>'],
   key: [
     STROKE,
     '<rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M7 9h.01M7 12.5h.01M7 16h.01M10.5 9H17M10.5 12.5H17M10.5 16H15"/>',
@@ -288,17 +316,51 @@ export const LAYER_ICONS = Object.freeze({
   radio: 'speaker',
 });
 
+/** Engine controls whose text glyph or emoji becomes an icon: selector to icon. */
+export const CONTROL_ICONS = Object.freeze({
+  ".style-btn[data-style='normal'] .btn-icon": 'circle',
+  ".style-btn[data-style='retro'] .btn-icon": 'grid',
+  ".style-btn[data-style='surveillance'] .btn-icon": 'moon',
+  ".style-btn[data-style='thermal'] .btn-icon": 'thermometer',
+  ".style-btn[data-style='anime'] .btn-icon": 'sparkle',
+  ".style-btn[data-style='noir'] .btn-icon": 'contrast',
+  ".style-btn[data-style='snow'] .btn-icon": 'ice',
+  '#hud-toggle .pp-icon': 'target',
+  '#detection-toggle .pp-icon': 'grid',
+  '#models3d-toggle .pp-icon': 'aircraft',
+  '#clean-view-toggle .pp-icon': 'square',
+  '#bloom-toggle .pp-icon': 'sparkle',
+  '#sharpen-toggle .pp-icon': 'search',
+  '#share-btn .share-icon': 'link',
+});
+
 /**
- * Style rules that swap each layer row's text glyph for its icon. `scope`
- * is a selector the rules sit under, so only the intended view changes.
+ * Style rules that swap text glyphs and emoji in the engine's controls for
+ * icons. `scope` is a selector the rules sit under, so only the intended
+ * view changes; the engine's markup is left as it is.
  */
 export function layerIconCss(scope, colour = '#cfc8e6') {
   const rows = Object.entries(LAYER_ICONS).map(
     ([id, icon]) =>
       `${scope} .data-toggle-row[data-layer-id='${id}'] .data-icon{background-image:url("${iconImage(icon, colour)}")}`,
   );
+  const controls = Object.entries(CONTROL_ICONS).map(
+    ([selector, icon]) =>
+      `${scope} ${selector}{font-size:0;display:inline-block;width:16px;height:16px;background:url("${iconImage(icon, colour)}") center/contain no-repeat}`,
+  );
   return (
     `${scope} .data-toggle-row .data-icon{font-size:0;width:16px;height:16px;flex:0 0 16px;background:center/contain no-repeat}` +
-    rows.join('')
+    rows.join('') +
+    controls.join('') +
+    // The location line starts with a pin emoji: hide that one character
+    // and show the pin icon in its place.
+    `${scope} #location-mini-city{padding-left:17px;background:url("${iconImage('pin', colour)}") left center/13px no-repeat}` +
+    `${scope} #location-mini-city::first-letter{font-size:0}` +
+    // Collapse buttons used plus, minus and triangle characters.
+    `${scope} .panel-collapse-btn{font-size:0;background:url("${iconImage('plus', colour)}") center/11px no-repeat}` +
+    `${scope} .panel-collapse-btn[aria-expanded='true']{background-image:url("${iconImage('minus', colour)}")}` +
+    // Key tiers were coloured emoji dots.
+    `${scope} .key-setup-tier{font-size:0;display:inline-block;width:8px;height:8px;border-radius:50%;background:#e8b84b}` +
+    `${scope} .key-setup-tier[title^='Metered']{background:#ff4d5e}`
   );
 }

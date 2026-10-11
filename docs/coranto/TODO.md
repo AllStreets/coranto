@@ -41,9 +41,11 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   with BOARD, the story pop-up, restyling INSTRUMENTS panels to match.
 - [ ] **T14 Carry the military HUD styling the owner likes** into the news
   side (part of T12).
-- [ ] **T13 No emojis or text glyphs.** One SVG icon set. Known offenders:
-  the close and plus glyphs in the shell, emoji in the key-setup panel, the
-  triangle used as the fires layer icon. Sweep the whole app.
+- [~] **T13 No emojis or text glyphs.** One SVG icon set of 53 icons. Done:
+  the news view, the layer list, visual presets, display toggles, share
+  button, collapse buttons, location line, key tiers. Open: arrows in a few
+  button labels (MANAGE, GET KEY, radio transport), the engine's corner
+  brackets drawn with box characters, emoji in voice and directions text.
 
 ## Globe and map language
 
@@ -95,12 +97,14 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 
 ## Verify and explain
 
-- [ ] **T10 Test every instruments layer** in a real browser; fix or state
-  why it cannot work.
-- [ ] **T11 Key audit.** In `.env`: NewsAPI, OpenAI, OpenSky, AISStream,
+- [x] **T10 Test every instruments layer** in a real browser. All 30 were
+  switched on and read back on 2026-10-11: see `docs/coranto/INSTRUMENTS.md`.
+  Open: the tools that are not layers (voice, cockpit view, scenes, share
+  links, visual presets) have not been exercised one by one.
+- [x] **T11 Key audit** (table in `docs/coranto/INSTRUMENTS.md`). In `.env`: NewsAPI, OpenAI, OpenSky, AISStream,
   FEC. Not set: Google Maps, Cesium ion, Mapillary, TomTom, TfL, Launch
   Library, NASA FIRMS (no longer required).
-- [ ] **T9 Plain inventory of INSTRUMENTS** for the owner, and in the guide.
+- [x] **T9 Plain inventory of INSTRUMENTS**: `docs/coranto/INSTRUMENTS.md`.
 - [ ] **T21 Quality bar.** Default view is globe, feed and rail; every
   advanced tool within two clicks; nothing outside the shared tokens.
 

@@ -17,6 +17,14 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: emoji and text glyphs in INSTRUMENTS are icons: visual presets,
+  display toggles, share, collapse buttons, the location line and key tiers.
+- Coranto: a government aircraft can be selected by clicking it on the globe.
+  The Live TV panel can be dragged by its title and resized from its corner.
+- Coranto: every INSTRUMENTS layer was switched on and checked;
+  `docs/coranto/INSTRUMENTS.md` lists what each shows, its source, the key it
+  needs and whether it works. The guide covers story panels, the map key, the
+  time range, the atlas and the analyst board.
 - Coranto: the board's connections are AUSPEX's entity network, copied: a
   force-directed graph on a faint grid, with glowing links that pulse and
   carry the name they rest on. It fits itself to the panel; scroll zooms and

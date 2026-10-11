@@ -256,7 +256,7 @@ export function createBroadcasts({ document, getViewer = () => null }) {
     tabs,
     el(document, 'p', {
       class: 'coranto-tv-note',
-      text: 'The player is YouTube’s own and loads only while this panel is open. Each newsroom is pinned on the globe.',
+      text: 'The player is YouTube’s own and loads only while this panel is open. Each newsroom is pinned on the globe. Drag the title to move the panel; drag its corner to resize it.',
     }),
   );
   element.hidden = true;
@@ -390,5 +390,28 @@ export function createBroadcasts({ document, getViewer = () => null }) {
     },
   };
   closeButton.addEventListener('click', api.close);
+
+  // Drag the panel by its title strip; it stays inside the window.
+  const handle = element.firstElementChild;
+  handle.style.cursor = 'move';
+  handle.addEventListener('pointerdown', (event) => {
+    if (event.target.closest('button')) return;
+    const box = element.getBoundingClientRect();
+    const start = { x: event.clientX - box.left, y: event.clientY - box.top };
+    const move = (next) => {
+      const maxX = (win?.innerWidth ?? 0) - box.width - 6;
+      const maxY = (win?.innerHeight ?? 0) - 60;
+      element.style.left = `${Math.max(6, Math.min(maxX, next.clientX - start.x))}px`;
+      element.style.top = `${Math.max(6, Math.min(maxY, next.clientY - start.y))}px`;
+      element.style.right = 'auto';
+    };
+    const stop = () => {
+      win?.removeEventListener('pointermove', move);
+      win?.removeEventListener('pointerup', stop);
+    };
+    win?.addEventListener('pointermove', move);
+    win?.addEventListener('pointerup', stop);
+    event.preventDefault();
+  });
   return api;
 }

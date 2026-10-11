@@ -1,3 +1,5 @@
+import * as Cesium from 'cesium';
+
 /**
  * The Watch Power lens: what states fly (military and government aircraft)
  * and where their bases and plate readers are, drawn from public sources and shown beside the news.
@@ -109,6 +111,7 @@ export function sortAircraft(records) {
 }
 
 const GOVERNMENT_REFRESH_MS = 2 * 60 * 1000;
+const GOVERNMENT_PREFIX = 'government-aircraft:';
 
 /** The section heading for the government aircraft list. */
 function governmentHeading(government) {
@@ -180,6 +183,7 @@ export function createPowerLens({
   let government = { status: 'idle', aircraft: [], listed: 0 };
   let governmentTimer = null;
   const governmentMarkers = [];
+  let governmentClicks = null;
   const govHeading = el(document, 'div', {
     class: 'coranto-rail-heading',
     text: 'GOVERNMENT AIRCRAFT',
@@ -255,6 +259,8 @@ export function createPowerLens({
   function clearGovernmentMarkers() {
     const entities = getDataManager()?.viewer?.entities;
     for (const marker of governmentMarkers.splice(0)) entities?.remove(marker);
+    governmentClicks?.destroy();
+    governmentClicks = null;
   }
 
   function drawGovernmentMarkers() {
@@ -274,6 +280,7 @@ export function createPowerLens({
       );
       governmentMarkers.push(
         viewer.entities.add({
+          id: `${GOVERNMENT_PREFIX}${record.icao24}`,
           position,
           billboard: {
             image,
@@ -288,6 +295,21 @@ export function createPowerLens({
           },
         }),
       );
+    }
+    // Selecting a marker on the globe opens the same card as its row.
+    if (government.aircraft.length) {
+      governmentClicks = new Cesium.ScreenSpaceEventHandler(
+        viewer.scene.canvas,
+      );
+      governmentClicks.setInputAction((click) => {
+        const picked = viewer.scene.pick(click.position);
+        const id = picked?.id?.id ?? picked?.id;
+        if (typeof id !== 'string' || !id.startsWith(GOVERNMENT_PREFIX)) return;
+        const record = government.aircraft.find(
+          (entry) => entry.icao24 === id.slice(GOVERNMENT_PREFIX.length),
+        );
+        if (record) selectGovernment(record);
+      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     }
     viewer.scene.requestRender?.();
   }

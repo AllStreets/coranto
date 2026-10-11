@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  CONTROL_ICONS,
   ICONS,
+  LAYER_ICONS,
   TOPIC_COLOURS,
   hazardIcon,
+  layerIconCss,
   liftColour,
   markerImage,
 } from '../data/corantoIcons.js';
@@ -96,4 +99,20 @@ test('the map key describes only what is switched on', () => {
     ),
     ['Good news'],
   );
+});
+
+test('every engine layer and control has an icon, applied only under a scope', () => {
+  for (const [id, icon] of Object.entries(LAYER_ICONS))
+    assert.ok(ICONS[icon], id);
+  for (const [selector, icon] of Object.entries(CONTROL_ICONS))
+    assert.ok(ICONS[icon], selector);
+  assert.equal(Object.keys(LAYER_ICONS).length, 30);
+  const css = layerIconCss("body[data-coranto-frame='one']");
+  // Every rule sits under the scope, so automated browsers are unaffected.
+  for (const rule of css.split('}').filter(Boolean))
+    assert.ok(
+      rule.startsWith("body[data-coranto-frame='one'] "),
+      rule.slice(0, 60),
+    );
+  assert.match(css, /data-layer-id='ais-live-vessels'/);
 });

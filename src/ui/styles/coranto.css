@@ -3464,6 +3464,14 @@ body[data-coranto-frame='one'][data-coranto-mode='instruments']
   color: var(--accent);
 }
 
+/* Live TV can be resized from its corner */
+#coranto-tv {
+  resize: both;
+  min-width: 300px;
+  min-height: 240px;
+  max-width: calc(100vw - 12px);
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */
