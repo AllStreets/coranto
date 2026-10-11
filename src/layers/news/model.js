@@ -2,6 +2,8 @@ export const NEWS_OVERLAY_SOURCE_ID = 'news';
 export const NEWS_OVERLAY_COHORT_LIMIT = 96;
 export const NEWS_OVERLAY_COLLISION_CAPACITY = 40;
 export const NEWS_ACCENT = '#f2c14e';
+/** AUSPEX's living green, used when the view is narrowed to good news. */
+export const NEWS_GOOD_ACCENT = '#34e08a';
 
 /** Camera height above a place, by how precisely the story was placed. */
 export const NEWS_FOCUS_HEIGHT_M = Object.freeze({
@@ -59,13 +61,18 @@ export function newsPlaceLabel(group) {
 }
 
 /** World-overlay entry for one place label. */
-export function createNewsOverlayEntry({ group, position, selected = false }) {
+export function createNewsOverlayEntry({
+  group,
+  position,
+  selected = false,
+  accent = NEWS_ACCENT,
+}) {
   return {
     id: group.key,
     position,
     variant: 'label',
     title: newsPlaceLabel(group),
-    accent: NEWS_ACCENT,
+    accent,
     priority:
       (selected ? 1_000_000 : 0) +
       group.articles.length * 1000 +

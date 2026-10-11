@@ -165,11 +165,8 @@ export class IntelHUD {
       }
     };
 
-    // Session-consistent pseudorandom identifiers (generated once at construction)
-    this._missionId = `KH11-${4000 + Math.floor(Math.random() * 200)}`;
-    this._sensorId = `OPS-${4100 + Math.floor(Math.random() * 100)}`;
-    this._orbitNum = 47000 + Math.floor(Math.random() * 1000);
-    this._passNum = 100 + Math.floor(Math.random() * 200);
+    // Coranto shows nothing it cannot source, so the HUD carries no invented
+    // mission, sensor, orbit or pass numbers and no classification marking.
 
     this._buildDOM();
     this.viewer.camera.moveEnd.addEventListener(this._onCameraMoveEnd);
@@ -189,16 +186,16 @@ export class IntelHUD {
       <div class="hud-sonar" aria-hidden="true"></div>
 
       <div class="hud-top-bar">
-        <span class="hud-top-bar-left">TOP SECRET // SI-TK // NOFORN</span>
-        <span class="hud-top-bar-center">${this._missionId}</span>
+        <span class="hud-top-bar-left">OPEN SOURCES // PUBLIC DATA</span>
+        <span class="hud-top-bar-center">CORANTO</span>
         <span class="hud-top-bar-right">PAGE 1/1</span>
       </div>
 
       <div class="hud-corner hud-top-left">
         <div class="hud-bracket">┌</div>
         <div class="hud-content">
-          <div class="hud-classification">TOP SECRET // SI-TK // NOFORN</div>
-          <div class="hud-system">${this._missionId}  ${this._sensorId}</div>
+          <div class="hud-classification">OPEN SOURCES // PUBLIC DATA</div>
+          <div class="hud-system">EVERY ITEM LINKS TO ITS SOURCE</div>
           <div class="hud-mode" id="hud-mode">NORMAL</div>
           <div class="hud-summary-wrap">
             <div class="hud-summary-label">SUMMARY</div>
@@ -209,8 +206,8 @@ export class IntelHUD {
 
       <div class="hud-corner hud-top-right">
         <div class="hud-content" style="text-align:right">
-          <div class="hud-rec"><span id="hud-rec-dot">●</span> REC  <span id="hud-timestamp">2026-01-01 00:00:00Z</span></div>
-          <div class="hud-orbital">ORB: ${this._orbitNum}  PASS: DESC-${this._passNum}</div>
+          <div class="hud-rec"><span id="hud-rec-dot">●</span> UTC  <span id="hud-timestamp">2026-01-01 00:00:00Z</span></div>
+          <div class="hud-orbital">LIVE VIEW · NOT RECORDED</div>
         </div>
         <div class="hud-bracket">┐</div>
       </div>
@@ -238,9 +235,9 @@ export class IntelHUD {
       </div>
 
       <div class="hud-edge hud-right-edge">
-        <div>BAND: PAN</div>
-        <div>BITS: 11</div>
-        <div>LVL: 1A</div>
+        <div>NO LOGIN</div>
+        <div>NO TRACKING</div>
+        <div>OPEN CODE</div>
       </div>
 
       <div class="hud-bottom-bar">

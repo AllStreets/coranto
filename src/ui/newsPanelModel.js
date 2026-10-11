@@ -105,6 +105,10 @@ function card(article, now) {
       ? `${article.place.precision}:${article.place.name}`
       : null,
     category: article.category ? `auto-tag: ${article.category}` : '',
+    categoryId: article.category ?? '',
+    goodNews: article.progress
+      ? `auto-tag: good news · ${article.progress}`
+      : '',
     summary: article.summary,
     url: article.url,
     linkText: `Open at ${hostOf(article.url)}`,
@@ -125,7 +129,10 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
   const category = filters.category ?? null;
   const publisher = filters.publisher ?? null;
 
+  const goodNewsOnly = Boolean(view?.goodNewsOnly);
+  const goodNewsCount = all.filter((article) => article.progress).length;
   const matches = (article) =>
+    (!goodNewsOnly || article.progress) &&
     (!selectedPlace ||
       (article.place &&
         `${article.place.precision}:${article.place.name}` ===
@@ -141,7 +148,10 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
 
   let empty = '';
   if (!cards.length) {
-    if (snapshot) empty = 'No current stories match these filters.';
+    if (snapshot && goodNewsOnly && goodNewsCount === 0)
+      empty =
+        'No current headline is tagged as good news. The tag is automatic and cautious.';
+    else if (snapshot) empty = 'No current stories match these filters.';
     else if (view?.unavailable)
       empty = `No news source is reachable. Nothing to show. Retrying in ${view.unavailable.retryAfter} s.`;
     else if (view?.error)
@@ -191,6 +201,8 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
     categories: count('category'),
     publishers: count('publisher'),
     filters: { category, publisher },
+    goodNewsOnly,
+    goodNewsCount,
     cards,
     empty,
   };

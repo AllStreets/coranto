@@ -1,6 +1,12 @@
 import { buildNewsPanelModel } from './newsPanelModel.js';
 
-const PANEL_ID = 'news-panel';
+const CATEGORY_CODE = {
+  geopolitics: 'GEO',
+  technology: 'TEC',
+  military: 'MIL',
+  finance: 'FIN',
+  climate: 'CLM',
+};
 
 function el(document, tag, className, text) {
   const node = document.createElement(tag);
@@ -10,29 +16,34 @@ function el(document, tag, className, text) {
 }
 
 /**
- * The News panel in the right rail. It renders exactly what
- * `buildNewsPanelModel` returns: publisher headlines with their links, the
- * source-health line, and one sentence when there is nothing to show.
+ * The headline feed. It renders exactly what `buildNewsPanelModel` returns:
+ * publisher headlines with their links, the source-health line, and one
+ * sentence when there is nothing to show.
  *
  * @param {object} options
  * @param {Document} options.document
- * @param {{getView: Function, subscribe: Function, selectPlace: Function}} options.layer
+ * @param {HTMLElement} options.body Element the feed renders into.
+ * @param {{getView: Function, subscribe: Function, selectPlace: Function, setGoodNewsOnly: Function}} options.layer
+ * @param {(model: object) => void} [options.onModel] Called after each render.
  * @param {() => number} [options.now]
  */
-export function createNewsPanel({ document, layer, now = () => Date.now() }) {
-  const panel = document?.getElementById?.(PANEL_ID);
-  const body = document?.getElementById?.('news-panel-body');
-  const countEl = document?.getElementById?.('news-panel-count');
-  if (!panel || !body) return null;
+export function createNewsFeed({
+  document,
+  body,
+  layer,
+  onModel = () => {},
+  now = () => Date.now(),
+}) {
+  if (!document?.createElement || !body) return null;
 
   const filters = { category: null, publisher: null };
-  let appeared = false;
   let sourcesOpen = false;
   let droppedOpen = false;
 
   const status = el(document, 'div', 'news-status');
   const healthBtn = el(document, 'button', 'news-health');
   healthBtn.type = 'button';
+  healthBtn.title = 'Show every source and whether it answered';
   const healthDot = el(document, 'span', 'news-health-dot');
   const healthText = el(document, 'span', 'news-health-text');
   healthBtn.append(healthDot, healthText);
@@ -46,11 +57,10 @@ export function createNewsPanel({ document, layer, now = () => Date.now() }) {
   const filterRow = el(document, 'div', 'news-filters');
   const placeChip = el(document, 'button', 'news-chip news-chip-place');
   placeChip.type = 'button';
-  const categorySelect = el(document, 'select', 'news-select');
-  categorySelect.setAttribute('aria-label', 'Filter by automatic tag');
+  placeChip.title = 'Clear the place filter';
   const publisherSelect = el(document, 'select', 'news-select');
   publisherSelect.setAttribute('aria-label', 'Filter by publisher');
-  filterRow.append(placeChip, categorySelect, publisherSelect);
+  filterRow.append(placeChip, publisherSelect);
 
   const empty = el(document, 'p', 'news-empty');
   const list = el(document, 'ol', 'news-list');
@@ -69,15 +79,33 @@ export function createNewsPanel({ document, layer, now = () => Date.now() }) {
   function renderCard(card) {
     const item = el(document, 'li', 'news-card');
     item.dataset.articleId = card.id;
+    if (card.categoryId) item.dataset.category = card.categoryId;
+    if (card.goodNews) item.classList.add('news-card-good');
+
     const meta = el(document, 'div', 'news-card-meta');
-    meta.append(el(document, 'span', 'news-card-publisher', card.publisher));
+    const code = card.goodNews
+      ? 'GOOD'
+      : (CATEGORY_CODE[card.categoryId] ?? 'NEWS');
+    const tag = el(document, 'span', 'news-card-code', code);
+    tag.title = card.goodNews || card.category || 'No automatic tag';
+    meta.append(
+      tag,
+      el(document, 'span', 'news-card-publisher', card.publisher),
+    );
     const time = el(document, 'time', 'news-card-time', card.published);
     time.dateTime = card.publishedIso;
     meta.append(time);
-    const title = el(document, 'h4', 'news-card-title', card.title);
+
+    const title = el(document, 'a', 'news-card-title', card.title);
+    title.href = card.url;
+    title.target = '_blank';
+    title.rel = 'noopener noreferrer';
+    title.title = card.linkText;
     item.append(meta, title);
     if (card.summary)
       item.append(el(document, 'p', 'news-card-summary', card.summary));
+
+    const foot = el(document, 'div', 'news-card-foot');
     const place = el(
       document,
       card.placeKey ? 'button' : 'span',
@@ -91,33 +119,17 @@ export function createNewsPanel({ document, layer, now = () => Date.now() }) {
         layer.selectPlace(card.placeKey, { focus: true }),
       );
     }
-    item.append(place);
-    const foot = el(document, 'div', 'news-card-foot');
-    if (card.category)
-      foot.append(el(document, 'span', 'news-card-tag', card.category));
     const link = el(document, 'a', 'news-card-link', card.linkText);
     link.href = card.url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
-    foot.append(link);
+    foot.append(place, link);
     item.append(foot);
     return item;
   }
 
   function render() {
     const model = buildNewsPanelModel(layer.getView(), filters, now());
-    panel.hidden = !model.visible;
-    if (!model.visible) return;
-    if (!appeared) {
-      appeared = true;
-      const preference = panel.dataset?.collapsedPreference;
-      if (
-        panel.classList.contains('collapsed') &&
-        (preference === undefined || preference === 'default')
-      )
-        panel.querySelector(`[data-collapse-target="${PANEL_ID}"]`)?.click();
-    }
-    if (countEl) countEl.textContent = model.total ? String(model.total) : '';
 
     healthBtn.hidden = !model.health;
     healthBtn.dataset.state = model.healthState;
@@ -149,8 +161,6 @@ export function createNewsPanel({ document, layer, now = () => Date.now() }) {
 
     placeChip.hidden = !model.place;
     placeChip.textContent = model.place ? `${model.place.name} ✕` : '';
-    placeChip.title = 'Clear the place filter';
-    fillSelect(categorySelect, 'All tags', model.categories, filters.category);
     fillSelect(
       publisherSelect,
       'All publishers',
@@ -162,6 +172,7 @@ export function createNewsPanel({ document, layer, now = () => Date.now() }) {
     empty.hidden = !model.empty;
     empty.textContent = model.empty;
     list.replaceChildren(...model.cards.map(renderCard));
+    onModel(model);
   }
 
   healthBtn.addEventListener('click', () => {
@@ -173,29 +184,32 @@ export function createNewsPanel({ document, layer, now = () => Date.now() }) {
     render();
   });
   placeChip.addEventListener('click', () => layer.selectPlace(null));
-  categorySelect.addEventListener('change', () => {
-    filters.category = categorySelect.value || null;
-    render();
-  });
   publisherSelect.addEventListener('change', () => {
     filters.publisher = publisherSelect.value || null;
     render();
   });
 
   const unsubscribe = layer.subscribe(render);
-  // Relative times ("3 min ago") stay true while the panel is open.
-  const timer = setInterval(() => {
-    if (!panel.hidden) render();
-  }, 60_000);
+  // Relative times ("3 min ago") stay true while the feed is open.
+  const timer = setInterval(render, 60_000);
   render();
 
   return {
     render,
+    /** Narrow to one automatic tag, or null for every story. */
+    setCategory(category) {
+      filters.category = category || null;
+      render();
+    },
+    /** Open or close the per-source list. */
+    showSources(open = true) {
+      sourcesOpen = open;
+      render();
+    },
     destroy() {
       unsubscribe();
       clearInterval(timer);
       body.replaceChildren();
-      panel.hidden = true;
     },
   };
 }

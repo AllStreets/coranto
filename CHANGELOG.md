@@ -1,5 +1,15 @@
 # Changelog
 
+- Coranto: the app is renamed Coranto and gains a news view modelled on
+  AUSPEX. `/api/news` reads ten publisher feeds, GDELT and optional NewsAPI,
+  drops any item without a publisher, link or publish date, and reports which
+  sources answered; with none reachable it returns no articles. A World News
+  layer places one marker per place a story names, with hollow rings for
+  country and region matches. The shell adds a header with a live badge and
+  layer switches, a headline ticker, a topic list, a Good news filter and a
+  full-height feed; INSTRUMENTS switches to the existing control room. The HUD
+  no longer shows invented classification, mission, orbit or pass values.
+
 - Treat explicitly current, complete empty vessel coverage as a successful update,
   clearing obsolete contacts while retaining stale or incomplete snapshots.
 

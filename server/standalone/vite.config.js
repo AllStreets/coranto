@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv } from 'vite';
 import { resolveAllowedHosts } from '../../build/allowedHosts.js';
 import { createBrowserViteConfig } from '../../build/vite.js';
+import { corantoThemePlugin } from '../../build/corantoTheme.js';
 import { localProviderPlugins } from '../providers/local.js';
 import { localMcpPlugin } from '../mcp/plugin.js';
 import { apiNotFoundPlugin } from './api-not-found.js';
@@ -20,6 +21,7 @@ export default defineConfig(({ command, mode }) => {
       ...localProviderPlugins({ realtime: { tools: standaloneVoiceTools() } }),
       localMcpPlugin(),
       apiNotFoundPlugin(),
+      corantoThemePlugin(),
     ],
     googleApiKey: process.env.GOOGLE_MAPS_API_KEY,
     cesiumToken: process.env.CESIUM_ION_TOKEN,

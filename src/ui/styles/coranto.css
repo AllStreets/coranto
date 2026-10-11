@@ -1,0 +1,835 @@
+/* Coranto identity, loaded last. The palette and type come from AUSPEX's
+   "Living Green": a calm near-black, one living accent, red kept for real
+   danger. The upstream cyan literals are retinted by build/corantoTheme.js. */
+:root {
+  --bg-dark: #04070b;
+  --glass-bg: rgba(7, 18, 12, 0.78);
+  --menu-bg: #0a120d;
+  --accent: #34e08a;
+  --accent-dim: rgba(52, 224, 138, 0.15);
+  --accent-glow: rgba(52, 224, 138, 0.4);
+  --text-primary: #e9f1ec;
+  --text-secondary: rgba(200, 216, 207, 0.62);
+  --text-dim: rgba(159, 179, 168, 0.42);
+  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', 'SF Mono', monospace;
+  --font-sans: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-brand: 'Syne', 'Manrope', sans-serif;
+  --font-head: 'Fraunces', Georgia, serif;
+  --coranto-sig: linear-gradient(90deg, #34e08a, #a3e635);
+  /* AUSPEX category hues: distinct, cool, never read as danger. */
+  --cat-geopolitics: #6e8aff;
+  --cat-technology: #22d3ee;
+  --cat-military: #c084fc;
+  --cat-finance: #e8b84b;
+  --cat-climate: #34d17a;
+}
+
+/* Wordmark */
+#title-bar h1,
+.loader-content h2 {
+  font-family: var(--font-brand);
+  font-weight: 800;
+  letter-spacing: 7px;
+}
+#title-bar .title-accent,
+.loader-content .title-accent {
+  font-weight: 800;
+  background: var(--coranto-sig);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+#title-bar .subtitle {
+  letter-spacing: 4px;
+}
+#title-bar .title-logo img,
+.loader-content .loader-logo img {
+  filter: drop-shadow(0 0 10px rgba(52, 224, 138, 0.35));
+}
+
+/* First-run card */
+#first-run-launcher h2 {
+  font-family: var(--font-head);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* ── Coranto shell (modelled on AUSPEX) ─────────────────────────── */
+:root {
+  --coranto-header-h: 58px;
+  --coranto-ticker-h: 34px;
+  --coranto-feed-w: clamp(330px, 23vw, 400px);
+  --coranto-line: rgba(255, 255, 255, 0.08);
+  --coranto-line-2: rgba(255, 255, 255, 0.14);
+  --coranto-glass: rgba(5, 13, 9, 0.9);
+}
+
+/* The engine's own title and style badge are replaced by the header. */
+#title-bar,
+#style-indicator {
+  display: none !important;
+}
+
+#coranto-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 400;
+  height: var(--coranto-header-h);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--coranto-line);
+  background: linear-gradient(180deg, rgba(4, 7, 11, 0.96), rgba(4, 7, 11, 0.84));
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+.coranto-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex: 0 0 auto;
+}
+.coranto-brand img {
+  width: 30px;
+  height: 30px;
+  filter: drop-shadow(0 0 10px rgba(52, 224, 138, 0.35));
+}
+.coranto-wordmark {
+  font: 800 19px/1 var(--font-brand);
+  letter-spacing: 5px;
+}
+.coranto-wordmark em {
+  font-style: normal;
+  background: var(--coranto-sig);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.coranto-tagline {
+  margin-top: 5px;
+  font-size: 7.5px;
+  letter-spacing: 2.4px;
+  color: var(--text-dim);
+}
+#coranto-live {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border: 1px solid rgba(52, 224, 138, 0.45);
+  border-radius: 4px;
+  background: rgba(52, 224, 138, 0.1);
+  color: #34e08a;
+  font: 600 10px var(--font-mono);
+  letter-spacing: 1.6px;
+  cursor: pointer;
+}
+.coranto-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+  animation: coranto-breathe 6s ease-in-out infinite;
+}
+#coranto-live[data-state='partial'] {
+  /* Some sources are down: still live, said plainly in the count. */
+  border-color: rgba(52, 224, 138, 0.45);
+}
+#coranto-live[data-state='stale'],
+#coranto-live[data-state='loading'] {
+  border-color: rgba(232, 184, 75, 0.5);
+  background: rgba(232, 184, 75, 0.1);
+  color: #e8b84b;
+}
+#coranto-live[data-state='down'] {
+  border-color: rgba(255, 77, 94, 0.55);
+  background: rgba(255, 77, 94, 0.1);
+  color: #ff4d5e;
+}
+#coranto-layers {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#coranto-layers::-webkit-scrollbar {
+  display: none;
+}
+.coranto-layer {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 500 9px var(--font-mono);
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+.coranto-layer:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.coranto-layer[aria-pressed='true'] {
+  border-color: rgba(52, 224, 138, 0.7);
+  background: rgba(52, 224, 138, 0.12);
+  color: #34e08a;
+}
+.coranto-layer[data-busy] {
+  opacity: 0.55;
+}
+#coranto-count {
+  flex: 0 0 auto;
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  color: var(--text-secondary);
+}
+#coranto-clock {
+  flex: 0 0 auto;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+#coranto-mode {
+  display: flex;
+  flex: 0 0 auto;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 5px;
+  overflow: hidden;
+}
+#coranto-mode button {
+  padding: 7px 11px;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 600 9px var(--font-mono);
+  letter-spacing: 1.6px;
+  cursor: pointer;
+}
+#coranto-mode button[aria-pressed='true'] {
+  background: #34e08a;
+  color: #04070b;
+}
+
+/* Ticker */
+#coranto-ticker {
+  position: fixed;
+  inset: var(--coranto-header-h) 0 auto 0;
+  z-index: 399;
+  height: var(--coranto-ticker-h);
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--coranto-line);
+  background: rgba(4, 7, 11, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+#coranto-ticker[data-empty='true'] .coranto-ticker-window {
+  visibility: hidden;
+}
+.coranto-ticker-label {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: rgba(52, 224, 138, 0.14);
+  color: #34e08a;
+  font: 700 9px var(--font-brand);
+  letter-spacing: 2px;
+}
+.coranto-ticker-window {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+}
+.coranto-ticker-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 44px;
+  height: 100%;
+  padding-left: 100%;
+  white-space: nowrap;
+  animation: coranto-ticker var(--coranto-ticker-seconds, 180s) linear infinite;
+}
+.coranto-ticker-track:hover {
+  animation-play-state: paused;
+}
+.coranto-ticker-track a {
+  color: var(--text-primary);
+  font: 12.5px var(--font-sans);
+  text-decoration: none;
+}
+.coranto-ticker-track a:hover {
+  color: #34e08a;
+}
+.coranto-ticker-source {
+  margin-right: 9px;
+  color: #6e8aff;
+  font: 600 9px var(--font-mono);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+@keyframes coranto-ticker {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Topic rail */
+#coranto-rail {
+  position: fixed;
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 14px);
+  left: 18px;
+  z-index: 300;
+  width: 204px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.coranto-rail-actions,
+.coranto-topics {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.coranto-rail-btn,
+.coranto-topic {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  border: 1px solid var(--coranto-line);
+  border-radius: 4px;
+  background: var(--coranto-glass);
+  color: var(--text-secondary);
+  font: 500 9px var(--font-mono);
+  letter-spacing: 1.7px;
+  text-align: left;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+.coranto-rail-btn {
+  width: 132px;
+  padding: 8px 11px;
+}
+.coranto-topic {
+  padding: 10px 11px;
+  font: 700 9.5px var(--font-brand);
+  letter-spacing: 1.6px;
+}
+.coranto-rail-btn:hover,
+.coranto-topic:hover {
+  color: var(--text-primary);
+  border-color: var(--coranto-line-2);
+}
+.coranto-topic[aria-pressed='true'] {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 2px 0 0 var(--topic, #b7c2cc);
+}
+.coranto-topic-pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--topic, #b7c2cc);
+  box-shadow: 0 0 7px var(--topic, #b7c2cc);
+}
+.coranto-topic-label {
+  flex: 1 1 auto;
+}
+.coranto-topic-count {
+  color: var(--text-dim);
+  font: 500 10px var(--font-mono);
+  letter-spacing: 0;
+}
+.coranto-topic[data-category='geopolitics'] {
+  --topic: var(--cat-geopolitics);
+}
+.coranto-topic[data-category='technology'] {
+  --topic: var(--cat-technology);
+}
+.coranto-topic[data-category='military'] {
+  --topic: var(--cat-military);
+}
+.coranto-topic[data-category='finance'] {
+  --topic: var(--cat-finance);
+}
+.coranto-topic[data-category='climate'] {
+  --topic: var(--cat-climate);
+}
+.coranto-topic-good {
+  --topic: #34e08a;
+  margin-top: 9px;
+}
+.coranto-topic-good[aria-pressed='true'] {
+  background: rgba(52, 224, 138, 0.14);
+  color: #34e08a;
+  border-color: rgba(52, 224, 138, 0.6);
+}
+
+/* Feed */
+#coranto-feed {
+  position: fixed;
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h));
+  right: 0;
+  bottom: 0;
+  z-index: 300;
+  width: var(--coranto-feed-w);
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--coranto-line);
+  background: linear-gradient(90deg, rgba(4, 9, 7, 0.86), rgba(4, 9, 7, 0.95));
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+}
+.coranto-feed-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--coranto-line);
+}
+.coranto-feed-title {
+  font: 700 11px var(--font-brand);
+  letter-spacing: 3px;
+  color: var(--text-primary);
+}
+.coranto-feed-count {
+  font: 10px var(--font-mono);
+  letter-spacing: 1px;
+  color: var(--text-dim);
+}
+#coranto-feed-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(52, 224, 138, 0.4) transparent;
+}
+#coranto-feed-body [hidden] {
+  display: none !important;
+}
+
+.news-status {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 18px 0;
+}
+.news-health,
+.news-dropped {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font: 10px var(--font-mono);
+  letter-spacing: 0.4px;
+  text-align: left;
+  cursor: pointer;
+}
+.news-health:hover,
+.news-dropped:hover {
+  color: var(--text-primary);
+}
+.news-dropped {
+  color: var(--text-dim);
+}
+.news-health-dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+.news-health[data-state='ok'] .news-health-dot,
+.news-health[data-state='partial'] .news-health-dot {
+  background: #34e08a;
+  box-shadow: 0 0 8px rgba(52, 224, 138, 0.7);
+}
+.news-health[data-state='stale'] .news-health-dot {
+  background: #e8b84b;
+}
+.news-health[data-state='down'] .news-health-dot {
+  background: #ff4d5e;
+}
+.news-source-list,
+.news-dropped-list {
+  list-style: none;
+  margin: 4px 0 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.025);
+  font: 10px var(--font-mono);
+  color: var(--text-secondary);
+}
+.news-source {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 0;
+}
+.news-source-name {
+  color: var(--text-primary);
+}
+.news-source[data-state='down'] .news-source-detail {
+  color: #ff8a95;
+}
+.news-source[data-state='off'] .news-source-name {
+  color: var(--text-dim);
+}
+.news-source-detail {
+  text-align: right;
+}
+.news-dropped-row {
+  padding: 1px 0;
+}
+.news-stale {
+  margin: 4px 0;
+  padding: 7px 9px;
+  border: 1px solid rgba(232, 184, 75, 0.4);
+  border-radius: 4px;
+  background: rgba(232, 184, 75, 0.08);
+  color: #e8b84b;
+  font: 11.5px/1.4 var(--font-sans);
+}
+.news-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 18px 2px;
+}
+.news-select,
+.news-chip {
+  min-width: 0;
+  padding: 5px 7px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 4px;
+  background: var(--menu-bg);
+  color: var(--text-secondary);
+  font: 10px var(--font-mono);
+}
+.news-select {
+  flex: 1 1 120px;
+}
+.news-chip-place {
+  border-color: rgba(242, 193, 78, 0.6);
+  color: #f2c14e;
+  cursor: pointer;
+}
+.news-empty {
+  padding: 26px 18px;
+  color: var(--text-secondary);
+  font: 13px/1.55 var(--font-sans);
+}
+.news-list {
+  list-style: none;
+  margin-top: 6px;
+}
+.news-card {
+  --tag: #b7c2cc;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 15px 18px 14px 22px;
+  border-bottom: 1px solid var(--coranto-line);
+  overflow-wrap: anywhere;
+}
+.news-card::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  bottom: 14px;
+  left: 9px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--tag);
+  opacity: 0.85;
+}
+.news-card:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+.news-card[data-category='geopolitics'] {
+  --tag: var(--cat-geopolitics);
+}
+.news-card[data-category='technology'] {
+  --tag: var(--cat-technology);
+}
+.news-card[data-category='military'] {
+  --tag: var(--cat-military);
+}
+.news-card[data-category='finance'] {
+  --tag: var(--cat-finance);
+}
+.news-card[data-category='climate'] {
+  --tag: var(--cat-climate);
+}
+.news-card.news-card-good {
+  --tag: #34e08a;
+  background: linear-gradient(90deg, rgba(52, 224, 138, 0.07), transparent 70%);
+}
+.news-card-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  font: 9.5px var(--font-mono);
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+.news-card-code {
+  color: var(--tag);
+  font: 800 10px var(--font-brand);
+  letter-spacing: 1.6px;
+}
+.news-card-publisher::before {
+  content: '· ';
+  color: var(--text-dim);
+}
+.news-card-time {
+  margin-left: auto;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.news-card-title {
+  color: var(--text-primary);
+  font: 600 15.5px/1.3 var(--font-head);
+  letter-spacing: 0.1px;
+  text-decoration: none;
+}
+.news-card-title:hover {
+  color: #ffffff;
+  text-decoration: underline;
+  text-decoration-color: var(--tag);
+  text-underline-offset: 3px;
+}
+.news-card-summary {
+  color: var(--text-secondary);
+  font: 12px/1.5 var(--font-sans);
+}
+.news-card-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.news-card-place {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-dim);
+  font: 9.5px/1.4 var(--font-mono);
+  text-align: left;
+}
+button.news-card-place {
+  cursor: pointer;
+}
+button.news-card-place:hover {
+  color: #f2c14e;
+}
+.news-card-link {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font: 9.5px var(--font-mono);
+  text-decoration: none;
+}
+.news-card-link:hover {
+  text-decoration: underline;
+}
+@keyframes coranto-breathe {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Guide */
+#coranto-guide {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(2, 4, 6, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+#coranto-guide[hidden] {
+  display: none;
+}
+.coranto-guide-card {
+  width: min(620px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 28px 30px 24px;
+  border: 1px solid rgba(52, 224, 138, 0.3);
+  border-radius: 12px;
+  background: #060d09;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+.coranto-guide-kicker {
+  color: #34e08a;
+  font: 600 10px var(--font-mono);
+  letter-spacing: 3px;
+}
+.coranto-guide-card h2 {
+  margin: 8px 0 16px;
+  color: var(--text-primary);
+  font: 600 27px/1.15 var(--font-head);
+}
+.coranto-guide-card ol {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  counter-reset: guide;
+}
+.coranto-guide-card li {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  column-gap: 8px;
+  counter-increment: guide;
+  color: var(--text-secondary);
+  font: 13.5px/1.5 var(--font-sans);
+}
+.coranto-guide-card li::before {
+  content: counter(guide);
+  grid-row: span 2;
+  color: #34e08a;
+  font: 600 12px var(--font-mono);
+  padding-top: 2px;
+}
+.coranto-guide-card li strong {
+  color: var(--text-primary);
+  font: 700 11px var(--font-brand);
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+.coranto-guide-close {
+  margin-top: 20px;
+  padding: 9px 18px;
+  border: 1px solid rgba(52, 224, 138, 0.6);
+  border-radius: 999px;
+  background: rgba(52, 224, 138, 0.12);
+  color: #34e08a;
+  font: 600 11px var(--font-mono);
+  letter-spacing: 1.5px;
+  cursor: pointer;
+}
+
+/* ── Modes ──────────────────────────────────────────────────────── */
+/* News: the engine's control-room chrome steps aside. */
+body[data-coranto-mode='news'] #intel-hud,
+body[data-coranto-mode='news'] #left-panel-stack,
+body[data-coranto-mode='news'] #right-context-rail,
+body[data-coranto-mode='news'] #command-dock,
+body[data-coranto-mode='news'] #control-panel,
+body[data-coranto-mode='news'] #key-setup-chip,
+body[data-coranto-mode='news'] #top-center-actions,
+body[data-coranto-mode='news'] #first-run-launcher {
+  display: none !important;
+}
+/* The globe and its label canvas fill the space the feed leaves. */
+body[data-coranto-mode='news'] #cesiumContainer {
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h));
+  width: calc(100% - var(--coranto-feed-w));
+  height: calc(100% - var(--coranto-header-h) - var(--coranto-ticker-h));
+}
+body[data-coranto-mode='news'] #world-overlay-root {
+  inset: calc(var(--coranto-header-h) + var(--coranto-ticker-h))
+    var(--coranto-feed-w) 0 0;
+}
+/* Instruments: the shell keeps only its header. */
+body[data-coranto-mode='instruments'] #coranto-ticker,
+body[data-coranto-mode='instruments'] #coranto-rail,
+body[data-coranto-mode='instruments'] #coranto-feed {
+  display: none;
+}
+/* Below the engine's floating panels, which may be dragged anywhere. */
+body[data-coranto-mode='instruments'] #coranto-header {
+  z-index: 40;
+}
+body[data-coranto-mode='instruments'] #top-center-actions {
+  top: calc(var(--coranto-header-h) + 14px);
+}
+/* Full-screen engine surfaces take the whole window. */
+body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
+  :is(#coranto-header, #coranto-ticker, #coranto-rail, #coranto-feed) {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  #coranto-rail {
+    display: none;
+  }
+  #coranto-count,
+  .coranto-tagline {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  body[data-coranto-mode='news'] #cesiumContainer {
+    width: 100%;
+    height: calc(54vh - var(--coranto-header-h) - var(--coranto-ticker-h));
+  }
+  body[data-coranto-mode='news'] #world-overlay-root {
+    inset: calc(var(--coranto-header-h) + var(--coranto-ticker-h)) 0 46vh 0;
+  }
+  #coranto-feed {
+    top: auto;
+    left: 0;
+    width: auto;
+    height: 46vh;
+    border-left: 0;
+    border-top: 1px solid var(--coranto-line);
+  }
+  #coranto-layers,
+  #coranto-clock {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coranto-ticker-track,
+  .coranto-live-dot {
+    animation: none;
+  }
+  .coranto-ticker-track {
+    padding-left: 12px;
+  }
+}
+
+/* HUD readouts in the living accent. Style presets and the Cyber theme set
+   their own HUD colours with higher specificity and keep them. */
+#intel-hud {
+  --hud-color: rgba(52, 224, 138, 0.66);
+  --hud-glow: rgba(52, 224, 138, 0.35);
+  --hud-border: rgba(52, 224, 138, 0.15);
+}

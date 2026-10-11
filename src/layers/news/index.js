@@ -2,6 +2,7 @@ import * as Cesium from 'cesium';
 import {
   NEWS_ACCENT,
   NEWS_FOCUS_HEIGHT_M,
+  NEWS_GOOD_ACCENT,
   NEWS_OVERLAY_COHORT_LIMIT,
   NEWS_OVERLAY_COLLISION_CAPACITY,
   NEWS_OVERLAY_SOURCE_ID,
@@ -40,9 +41,20 @@ export function createNewsLayer({
   let _unavailable = null;
   let _groups = [];
   let _selectedKey = null;
+  let _goodNewsOnly = false;
   const _listeners = new Set();
 
-  const accent = Cesium.Color.fromCssColorString(NEWS_ACCENT);
+  const newsColor = Cesium.Color.fromCssColorString(NEWS_ACCENT);
+  const goodColor = Cesium.Color.fromCssColorString(NEWS_GOOD_ACCENT);
+
+  function regroup() {
+    const articles = _snapshot?.articles ?? [];
+    _groups = groupNewsByPlace(
+      _goodNewsOnly ? articles.filter((a) => a.progress) : articles,
+    );
+    if (_selectedKey && !_groups.some((g) => g.key === _selectedKey))
+      _selectedKey = null;
+  }
 
   function emit() {
     for (const listener of [..._listeners]) {
@@ -57,6 +69,8 @@ export function createNewsLayer({
   function render() {
     if (!_dataSource) return;
     _dataSource.entities.removeAll();
+    const accent = _goodNewsOnly ? goodColor : newsColor;
+    const accentCss = _goodNewsOnly ? NEWS_GOOD_ACCENT : NEWS_ACCENT;
     const entries = [];
     for (const group of _groups) {
       const position = Cesium.Cartesian3.fromDegrees(group.lon, group.lat);
@@ -75,7 +89,14 @@ export function createNewsLayer({
           disableDepthTestDistance: 50_000,
         },
       });
-      entries.push(createNewsOverlayEntry({ group, position, selected }));
+      entries.push(
+        createNewsOverlayEntry({
+          group,
+          position,
+          selected,
+          accent: accentCss,
+        }),
+      );
     }
     if (_enabled) {
       overlayHost.setEntries(
@@ -167,9 +188,7 @@ export function createNewsLayer({
         _snapshot = snapshot;
         _error = null;
         _unavailable = null;
-        _groups = groupNewsByPlace(snapshot.articles);
-        if (_selectedKey && !_groups.some((g) => g.key === _selectedKey))
-          _selectedKey = null;
+        regroup();
         render();
         emit();
         return true;
@@ -232,6 +251,7 @@ export function createNewsLayer({
         unavailable: _unavailable,
         places: _groups,
         selectedPlaceKey: _selectedKey,
+        goodNewsOnly: _goodNewsOnly,
       };
     },
 
@@ -240,6 +260,14 @@ export function createNewsLayer({
       if (typeof listener !== 'function') return () => {};
       _listeners.add(listener);
       return () => _listeners.delete(listener);
+    },
+
+    /** Narrow the globe and panel to stories tagged as good news. */
+    setGoodNewsOnly(value) {
+      _goodNewsOnly = Boolean(value);
+      regroup();
+      render();
+      emit();
     },
 
     /** Select a place (or null to clear), optionally flying the camera to it. */

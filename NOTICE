@@ -1,0 +1,21 @@
+Coranto
+Copyright 2026 Connor Evans
+
+This product is a derivative of God's Eye View
+(https://github.com/bilawalsidhu/gods-eye-view),
+Copyright (c) 2026 Bilawal Sidhu, licensed under the MIT License.
+The original licence text and its note on third-party data and assets are
+reproduced in LICENSE-gods-eye-view.
+
+This product incorporates code and data from AUSPEX
+(https://github.com/AllStreets/AUSPEX),
+Copyright 2026 Connor Evans, licensed under the Apache License, Version 2.0:
+the news junk filter, the keyword topic scorer, the breakthroughs tagging and
+the city and country tables.
+
+City names and coordinates are derived from GeoNames (https://www.geonames.org),
+licensed under Creative Commons Attribution 4.0.
+US state label points are from Natural Earth (public domain).
+
+Datasets bundled under src/data/local_data/ and data fetched from third-party
+providers at runtime remain under their own licences. See DATA_SOURCES.md.

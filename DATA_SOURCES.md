@@ -13,6 +13,41 @@ How to read this:
 
 ## Live sources (fetched at runtime — not stored in this repo)
 
+### News (Coranto)
+
+Read server-side by `/api/news`; the registry is `src/sources/news/registry.js`.
+Coranto displays each item's headline, the publisher's own summary, the
+publish time and a link to the original. It does not fetch article bodies or
+images. Headlines and summaries belong to their publishers.
+
+| Source | Endpoint | Key |
+|---|---|---|
+| BBC | `feeds.bbci.co.uk/news/world/rss.xml` | none |
+| The Guardian | `www.theguardian.com/world/rss` | none |
+| Al Jazeera | `www.aljazeera.com/xml/rss/all.xml` | none |
+| NPR | `feeds.npr.org/1004/rss.xml` | none |
+| DW | `rss.dw.com/rdf/rss-en-all` | none |
+| France 24 | `www.france24.com/en/rss` | none |
+| UN News | `news.un.org/feed/subscribe/en/news/all/rss.xml` | none |
+| ReliefWeb | `reliefweb.int/updates/rss.xml` | none |
+| ScienceDaily | `www.sciencedaily.com/rss/top/science.xml` | none |
+| Ars Technica | `feeds.arstechnica.com/arstechnica/science` | none |
+| GDELT DOC 2.0 | `api.gdeltproject.org/api/v2/doc/doc` | none |
+| NewsAPI | `newsapi.org/v2/top-headlines` | `NEWS_API_KEY` (optional) |
+
+Editorial filtering: items are left out when they have no headline, link,
+publisher or publish date; when they are older than 48 hours or dated in the
+future; when the source domain is on the non-news list; or when the text
+matches the advert, PR and entertainment list without a hard-news term. The
+lists are `SOURCE_DENYLIST`, `JUNK_RE` and `PRIORITY_RE` in
+`src/sources/news/junk.js`. The feed shows the count for each reason.
+
+Story locations are inferred by whole-word matching of the headline, then the
+summary, against a table of 1,000 cities (GeoNames, CC BY 4.0), countries, US
+states (Natural Earth, public domain) and named regions. Names that are also
+common words or personal names are excluded (`REMOVED_PLACE_NAMES` in
+`src/sources/news/gazetteer.js`).
+
 | Source                                                                | Used for                                                                                                                            | License / terms                                                                                                                                                                                                                                                                                                                                       | Attribution                                                                                                                                 |
 | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | **NOAA GFS (wind)** (`noaa-gfs-bdp-pds.s3.amazonaws.com`) | Global 10 m wind, optional 2 m temperature and mean sea-level pressure for Wind. Keyless; latest 6-hourly 0.25° cycle, byte-range GRIB2 reads, cached for an hour | U.S. public domain (NOAA); keyless via NOAA Open Data on AWS | "NOAA Global Forecast System (GFS)" (courtesy; not an endorsement) |

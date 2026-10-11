@@ -2,6 +2,7 @@ import { detectCategory } from './categories.js';
 import { matchPlace } from './gazetteer.js';
 import { canonicalNewsUrl, parsePublishedAt } from './article.js';
 import { isJunk, isLowQualitySource } from './junk.js';
+import { detectProgress } from './progress.js';
 
 export {
   canonicalNewsUrl,
@@ -79,6 +80,7 @@ export function normalizeArticle(raw, { sourceId, fetchedAt, now }) {
       fetchedAt: new Date(fetchedAt).toISOString(),
       place,
       category: detectCategory(`${title} ${summary}`),
+      progress: detectProgress(title),
     },
   };
 }

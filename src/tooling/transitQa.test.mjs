@@ -670,7 +670,7 @@ test('public transit documentation uses courtesy attribution and the approved gr
     assert.match(row, /published for developer use and not against their use/);
   }
   const readme = readFileSync(
-    new URL('../../README.md', import.meta.url),
+    new URL('../../docs/GODS-EYE-VIEW-README.md', import.meta.url),
     'utf8',
   );
   assert.ok(

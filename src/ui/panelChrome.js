@@ -12,7 +12,6 @@ const SHARE_PANEL_STATE_SPECS = Object.freeze([
   { id: 'location-bar', pinnable: true },
   { id: 'data-panel' },
   { id: 'cctv-panel' },
-  { id: 'news-panel' },
   { id: 'weather-panel' },
   { id: 'recent-imagery-panel' },
   { id: 'street-level-panel' },
@@ -26,7 +25,6 @@ const SHARE_PANEL_STATE_SPECS = Object.freeze([
 const COCKPIT_ENTRY_COLLAPSE_PANEL_IDS = Object.freeze([
   'data-panel',
   'cctv-panel',
-  'news-panel',
   'weather-panel',
   'recent-imagery-panel',
   'street-level-panel',
@@ -292,7 +290,6 @@ export class PanelChrome {
     const isRightRail = [
       'pp-toggles',
       'cctv-panel',
-      'news-panel',
       'weather-panel',
       'recent-imagery-panel',
       'street-level-panel',

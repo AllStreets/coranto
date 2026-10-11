@@ -138,7 +138,11 @@ test('nothing promises a GeoJSON export for drawn shapes', () => {
       `${file} still claims a GeoJSON export`,
     );
   }
-  for (const file of ['README.md', 'CHANGELOG.md', 'docs/CURRENT-STATE.md']) {
+  for (const file of [
+    'docs/GODS-EYE-VIEW-README.md',
+    'CHANGELOG.md',
+    'docs/CURRENT-STATE.md',
+  ]) {
     const source = read(file);
     const at = source.indexOf('DISPLAY ▸ **Draw**');
     const start = at >= 0 ? at : source.indexOf('DISPLAY ▸ Draw');
