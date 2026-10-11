@@ -773,9 +773,15 @@ body[data-coranto-mode='instruments'] #coranto-rail,
 body[data-coranto-mode='instruments'] #coranto-feed {
   display: none;
 }
-/* Below the engine's floating panels, which may be dragged anywhere. */
+/* Below the engine's floating panels, which may be dragged anywhere, and
+   transparent to clicks except on its own controls, so the globe under the
+   bar stays clickable. */
 body[data-coranto-mode='instruments'] #coranto-header {
   z-index: 40;
+  pointer-events: none;
+}
+body[data-coranto-mode='instruments'] #coranto-header :is(button, a) {
+  pointer-events: auto;
 }
 body[data-coranto-mode='instruments'] #top-center-actions {
   top: calc(var(--coranto-header-h) + 14px);
