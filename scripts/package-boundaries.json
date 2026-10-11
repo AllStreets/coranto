@@ -2225,7 +2225,9 @@
       "src/ui/corantoElections.js",
       "src/ui/corantoMarkets.js",
       "src/ui/corantoBroadcasts.js",
-      "src/sources/markets/records.js"
+      "src/sources/markets/records.js",
+      "src/ui/corantoContact.js",
+      "src/ui/corantoLink.js"
     ],
     "external": [
       "hls.js",
@@ -2774,7 +2776,9 @@
       "src/ui/corantoElections.js",
       "src/ui/corantoMarkets.js",
       "src/ui/corantoBroadcasts.js",
-      "src/sources/markets/records.js"
+      "src/sources/markets/records.js",
+      "src/ui/corantoContact.js",
+      "src/ui/corantoLink.js"
     ],
     "external": [
       "hls.js",

@@ -1,6 +1,9 @@
 import { NEWS_LANGUAGES } from '../sources/news/registry.js';
 import { buildNewsPanelModel } from './newsPanelModel.js';
 
+/** Cards drawn at once; the rest are one click away. */
+const PAGE_SIZE = 60;
+
 const CATEGORY_CODE = {
   geopolitics: 'GEO',
   technology: 'TEC',
@@ -211,10 +214,13 @@ export function createNewsFeed({
     'Headlines are shown in their original language; Coranto does not translate them.';
   filterRow.append(search, placeChip, languageSelect, publisherSelect);
 
+  const more = el(document, 'button', 'news-more');
+  more.type = 'button';
+  let shownLimit = PAGE_SIZE;
   const empty = el(document, 'p', 'news-empty');
   const list = el(document, 'ol', 'news-list');
   list.setAttribute('aria-label', 'Headlines');
-  body.replaceChildren(status, filterRow, empty, list);
+  body.replaceChildren(status, filterRow, empty, list, more);
 
   function fillSelect(select, label, options, selected) {
     const nodes = [new Option(label, '')];
@@ -466,7 +472,12 @@ export function createNewsFeed({
 
     empty.hidden = !model.empty;
     empty.textContent = model.empty;
-    list.replaceChildren(...model.cards.map(renderCard));
+    // Draw a page at a time: hundreds of cards on every keystroke is slow.
+    const visible = model.cards.slice(0, shownLimit);
+    list.replaceChildren(...visible.map(renderCard));
+    const remaining = model.cards.length - visible.length;
+    more.hidden = remaining <= 0;
+    more.textContent = `Show ${Math.min(PAGE_SIZE, remaining)} more of ${remaining}`;
     onModel(model);
   }
 
@@ -481,6 +492,18 @@ export function createNewsFeed({
   placeChip.addEventListener('click', () => layer.selectPlace(null));
   search.addEventListener('input', () => {
     filters.query = search.value;
+    shownLimit = PAGE_SIZE;
+    render();
+  });
+  search.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !search.value) return;
+    event.stopPropagation();
+    search.value = '';
+    filters.query = '';
+    render();
+  });
+  more.addEventListener('click', () => {
+    shownLimit += PAGE_SIZE;
     render();
   });
   languageSelect.addEventListener('change', () =>
@@ -498,6 +521,11 @@ export function createNewsFeed({
 
   return {
     render,
+    /** Put the cursor in the search box. */
+    focusSearch() {
+      search.focus();
+      search.select();
+    },
     /** The feed's own filters: search words, topic and publisher. */
     getFilters() {
       return {

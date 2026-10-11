@@ -274,7 +274,9 @@ Coranto has two views, switched at the top right.
 | Follow elections | Click **ELECTIONS** on the left. Click a polling day to see that country's election news. |
 | Follow something | Set a search, place or topic, then click **＋ SAVE THIS VIEW**. It appears under MY WATCHES. |
 | Catch up | Click **MY BRIEFING** for the latest stories on every watch. |
-| Search | Type in the box above the feed. Stories must contain every word, in the headline, summary, publisher or place. |
+| Share what you are looking at | Click **SHARE VIEW**. It copies a link that reopens the same lens, search, topic and place. The link carries the filter only, never news content. |
+| See what an aircraft or ship is | Switch on FLIGHTS, MILITARY or SHIPS and click one. A card shows what it is broadcasting and links to a public tracker. |
+| Search | Press `/` or type in the box above the feed. Stories must contain every word, in the headline, summary, publisher or place. |
 | Narrow by topic | Use the list on the left. |
 | See only good news | Click **GOOD NEWS**. |
 | Check the sources | Click the **LIVE** badge. It lists every source and whether it answered. |
@@ -424,7 +426,7 @@ npm run build
 | **1. Foundation and truth feed** | Built: sourced feed from 35 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell |
 | **2. Verification** | Built: stories grouped across outlets, outlet counts, outlets by region, differing figures, AI briefs checked sentence by sentence, and seven non-English sources |
 | **3. Lenses and your own feed** | Built: saved watches, My Briefing, the Watch Power, Elections and Markets lenses, and Live TV. Next: official election results and candidates, stock indices with a keyed source (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
-| **4. Beauty pass** | Full visual identity and a guided first run |
+| **4. Beauty pass** | Started: first-visit welcome, paged feed, shareable views, tracking cards in the news view. Next: the INSTRUMENTS view and a full visual identity |
 | **5. Public site** | A hosted version anyone can open |
 
 Coranto currently runs on your own machine. There is no hosted version yet.

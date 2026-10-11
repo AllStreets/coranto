@@ -19,10 +19,18 @@ export class ElectionsUnavailableError extends Error {
 export function createElectionService({
   fetchImpl = fetch,
   now = () => Date.now(),
-  timeoutMs = 40_000,
+  timeoutMs = 45_000,
+  initialState = null,
 } = {}) {
   let elections = null;
   let fetchedAt = null;
+  if (
+    Array.isArray(initialState?.elections) &&
+    Number.isFinite(initialState?.fetchedAt)
+  ) {
+    elections = initialState.elections;
+    fetchedAt = initialState.fetchedAt;
+  }
   let attemptedAt = -Infinity;
   let inFlight = null;
 
@@ -34,8 +42,7 @@ export function createElectionService({
     groups: groupElections(elections, now()),
   });
 
-  async function refresh() {
-    attemptedAt = now();
+  async function read() {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
@@ -59,15 +66,26 @@ export function createElectionService({
       );
       const parsed = parseElections(JSON.parse(text));
       if (!parsed.length) throw new Error('empty');
-      elections = parsed;
-      fetchedAt = now();
-      return payload(false);
-    } catch {
-      if (elections) return payload(true);
-      throw new ElectionsUnavailableError();
+      return parsed;
     } finally {
       clearTimeout(timer);
     }
+  }
+
+  async function refresh() {
+    attemptedAt = now();
+    // The public endpoint is uneven: one retry turns most failures around.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        elections = await read();
+        fetchedAt = now();
+        return payload(false);
+      } catch {
+        /* try once more, then fall back */
+      }
+    }
+    if (elections) return payload(true);
+    throw new ElectionsUnavailableError();
   }
 
   return {
@@ -85,6 +103,10 @@ export function createElectionService({
         });
       }
       return inFlight;
+    },
+    /** The last calendar read, for a disk cache. */
+    exportState() {
+      return elections ? { version: 1, fetchedAt, elections } : null;
     },
   };
 }

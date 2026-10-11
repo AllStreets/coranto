@@ -1826,3 +1826,41 @@ body[data-coranto-mode='news'] #cesium-credits {
   );
   padding-right: 22px;
 }
+
+.coranto-card-link[hidden] {
+  display: none;
+}
+#coranto-card[data-owner='contact'] {
+  border-left-color: #22d3ee;
+}
+
+.news-more {
+  display: block;
+  width: calc(100% - 36px);
+  margin: 14px 18px 22px;
+  padding: 10px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font: 600 10px var(--font-mono);
+  letter-spacing: 1.2px;
+  cursor: pointer;
+}
+.news-more:hover {
+  border-color: rgba(52, 224, 138, 0.6);
+  color: #34e08a;
+}
+
+.coranto-guide-welcome {
+  display: none;
+  margin: -6px 0 16px;
+  padding: 11px 13px;
+  border-left: 2px solid #34e08a;
+  background: rgba(52, 224, 138, 0.07);
+  color: var(--text-primary);
+  font: 13.5px/1.55 var(--font-sans);
+}
+#coranto-guide[data-welcome] .coranto-guide-welcome {
+  display: block;
+}

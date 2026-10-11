@@ -86,6 +86,7 @@ async function openWith(browser, status, body) {
   await page.setViewport({ width: 1440, height: 900 });
   await page.evaluateOnNewDocument(() => {
     localStorage.setItem('coranto.mode.v1', 'news');
+    localStorage.setItem('coranto.welcomed.v1', '1');
   });
   await page.setRequestInterception(true);
   page.on('request', (request) => {

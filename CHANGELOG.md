@@ -1,5 +1,12 @@
 # Changelog
 
+- Coranto: SHARE VIEW copies a link that reopens the current lens, search,
+  topic, place and language. Selecting an aircraft, ship or mapped site in the
+  news view opens a card of what it reports with a link to a public tracker.
+  The feed draws 60 cards at a time. `/` focuses the search and Esc clears it.
+  A first visit opens the guide once. The election calendar query is several
+  times faster, retries once and keeps its last good read on disk.
+
 - Coranto: a Markets lens shows European Central Bank reference exchange
   rates and CoinGecko crypto prices, each with its source and time, beside
   finance news. Live TV lists ten live news channels from AUSPEX's broadcaster

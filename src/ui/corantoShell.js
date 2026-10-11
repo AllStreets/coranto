@@ -1,6 +1,9 @@
 import { createNewsFeed } from './newsPanel.js';
 import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
+import { getContextStore } from '../data/contextStore.js';
 import { createBroadcastsDialog } from './corantoBroadcasts.js';
+import { contactCard } from './corantoContact.js';
+import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
 import { createMarketsLens } from './corantoMarkets.js';
 import { createPowerLens } from './corantoPower.js';
 import {
@@ -11,6 +14,7 @@ import {
 } from './watches.js';
 
 const MODE_KEY = 'coranto.mode.v1';
+const WELCOME_KEY = 'coranto.welcomed.v1';
 const FIRST_RUN_SESSION_KEY = 'gev:first-run-mission-session:v1';
 
 /** Live layers offered in the header. Ids are catalog layer ids. */
@@ -59,7 +63,7 @@ const GUIDE = [
   ],
   [
     'Search',
-    'Type in the search box above the feed to keep only stories that mention your words, in the headline, summary, publisher or place.',
+    'Type in the search box above the feed (or press /) to keep only stories that mention your words, in the headline, summary, publisher or place. Esc clears it.',
   ],
   [
     'Follow what matters to you',
@@ -126,6 +130,12 @@ function hazardMeta(item) {
   return `${item.source} · since ${started.getDate()} ${month} ${started.getFullYear()}`;
 }
 
+/** The share button's wording before, after and on a failed copy. */
+function copyLabel(copied) {
+  if (copied === null) return 'SHARE VIEW';
+  return copied ? 'LINK COPIED' : 'COPY BLOCKED';
+}
+
 /** Text for the header badge: a fixed phrase, or the count of live sources. */
 function liveLabel(state, live, total) {
   return LIVE_LABELS[state] ?? `LIVE · ${live}/${total}`;
@@ -179,6 +189,8 @@ export function createCorantoShell({
     /* blocked storage */
   }
   const startedWithLink = Boolean(win.location?.hash);
+  // A Coranto link carries a view to reopen (see corantoLink.js).
+  let sharedView = readViewFromSearch(win.location?.search);
 
   // ── Header ──────────────────────────────────────────────────────
   const liveBtn = el(document, 'button', {
@@ -404,6 +416,12 @@ export function createCorantoShell({
     text: 'LIVE TV',
     title: 'Live television news channels from every continent',
   });
+  const shareBtn = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-rail-btn',
+    text: 'SHARE VIEW',
+    title: 'Copy a link that reopens this lens, search and place',
+  });
   const briefingBtn = el(document, 'button', {
     type: 'button',
     class: 'coranto-rail-btn coranto-rail-briefing',
@@ -438,6 +456,7 @@ export function createCorantoShell({
       sourcesBtn,
       homeBtn,
       tvBtn,
+      shareBtn,
       briefingBtn,
     ),
     lensSwitch,
@@ -504,6 +523,10 @@ export function createCorantoShell({
         text: 'CORANTO · GUIDE',
       }),
       el(document, 'h2', { text: 'How to read the world here' }),
+      el(document, 'p', {
+        class: 'coranto-guide-welcome',
+        text: 'Welcome to Coranto. Everything here is a real headline from a named publisher, pinned to the place it names. Nothing is invented, and every item links to its source. This guide is always under GUIDE on the left.',
+      }),
       el(
         document,
         'ol',
@@ -603,8 +626,48 @@ export function createCorantoShell({
     cardKind.textContent = detail.kind;
     cardTitle.textContent = detail.title;
     cardMeta.textContent = detail.meta;
-    cardLink.href = detail.url;
-    cardLink.textContent = detail.linkText;
+    cardLink.hidden = !detail.url;
+    if (detail.url) {
+      cardLink.href = detail.url;
+      cardLink.textContent = detail.linkText;
+    }
+  }
+
+  // Whatever the engine has selected (an aircraft, a ship, a mapped site)
+  // gets a card too, so tracking detail shows without leaving the news view.
+  let contactId = null;
+  let contactDismissed = null;
+  function pollContact() {
+    if (body.dataset.corantoMode !== 'news') return;
+    let record = null;
+    try {
+      const store = getContextStore();
+      record = store.selectedEntityId
+        ? (store.entities.get(store.selectedEntityId) ?? null)
+        : null;
+    } catch {
+      record = null;
+    }
+    const id = record?.id ?? null;
+    if (id && id === contactDismissed) return;
+    if (!id) contactDismissed = null;
+    const detail = id ? contactCard(record) : null;
+    if (!detail) {
+      if (contactId && card.dataset.owner === 'contact') showCard(null);
+      contactId = null;
+      return;
+    }
+    // Another lens's card stays until the reader picks a different contact.
+    if (id === contactId && card.dataset.owner !== 'contact') return;
+    contactId = id;
+    card.dataset.owner = 'contact';
+    showCard({
+      ...detail,
+      onClose: () => {
+        contactDismissed = id;
+        contactId = null;
+      },
+    });
   }
 
   function renderCard(view) {
@@ -890,7 +953,28 @@ export function createCorantoShell({
     });
   }
 
+  function applySharedView() {
+    if (!sharedView || !layer.getView().snapshot) return;
+    const view = sharedView;
+    sharedView = null;
+    setLens(view.lens);
+    const c = view.criteria;
+    if (view.lens === 'news') category = c.category;
+    layer.setLanguage(c.language);
+    layer.setGoodNewsOnly(c.goodNews);
+    layer.selectPlace(c.placeKey);
+    feed?.setFilters({
+      query: c.query,
+      category: view.lens === 'news' ? c.category : category,
+      publisher: c.publisher,
+    });
+  }
+
   function onModel(model) {
+    if (sharedView) {
+      // Deferred: applying it re-enters this render.
+      win.setTimeout(applySharedView, 0);
+    }
     const state = model.healthState;
     liveBtn.dataset.state = state;
     const sources = model.sources.filter((source) => source.state !== 'off');
@@ -977,6 +1061,23 @@ export function createCorantoShell({
   briefing.addEventListener('click', (event) => {
     if (event.target === briefing) closeBriefing();
   });
+  shareBtn.addEventListener('click', async () => {
+    const url = buildViewUrl(win.location, {
+      lens,
+      criteria: currentCriteria(),
+    });
+    let copied = false;
+    try {
+      await win.navigator.clipboard.writeText(url);
+      copied = true;
+    } catch {
+      copied = false;
+    }
+    shareBtn.textContent = copyLabel(copied);
+    win.setTimeout(() => {
+      shareBtn.textContent = copyLabel(null);
+    }, 2200);
+  });
   lensNews.addEventListener('click', () => setLens('news'));
   lensPower.addEventListener('click', () => setLens('power'));
   lensElections.addEventListener('click', () => setLens('elections'));
@@ -996,6 +1097,18 @@ export function createCorantoShell({
     if (event.target === guide) guide.hidden = true;
   });
   const onKey = (event) => {
+    // "/" jumps to the search box, as on most reading sites.
+    if (
+      event.key === '/' &&
+      body.dataset.corantoMode === 'news' &&
+      !event.metaKey &&
+      !event.ctrlKey &&
+      !/^(?:INPUT|TEXTAREA|SELECT)$/.test(event.target?.tagName ?? '')
+    ) {
+      event.preventDefault();
+      feed?.focusSearch();
+      return;
+    }
     if (event.key !== 'Escape') return;
     if (!guide.hidden) guide.hidden = true;
     if (!briefing.hidden) closeBriefing();
@@ -1022,11 +1135,22 @@ export function createCorantoShell({
   }
 
   feed = createNewsFeed({ document, body: feedBody, layer, onModel });
+  // First visit: open the guide once. Automated browsers are left alone.
+  if (
+    body.dataset.corantoMode === 'news' &&
+    !win.navigator?.webdriver &&
+    readStored(localStorageRef, WELCOME_KEY) === null
+  ) {
+    guide.dataset.welcome = 'true';
+    guide.hidden = false;
+    writeStored(localStorageRef, WELCOME_KEY, '1');
+  }
   tick();
   timers.push(
     setInterval(tick, 1000),
     setInterval(syncLayers, 1000),
     setInterval(() => power.refresh(), 5000),
+    setInterval(pollContact, 800),
   );
 
   return {
@@ -1036,6 +1160,21 @@ export function createCorantoShell({
       syncLayers();
       hazardsLayer = manager.layers?.get('hazards')?.module ?? null;
       unsubscribeHazards = hazardsLayer?.subscribe?.(renderCard) ?? null;
+      if (sharedView) {
+        // A shared Coranto view always opens in the news view with news on.
+        setMode('news', { remember: false });
+        timers.push(
+          setTimeout(() => {
+            if (!dataManager.isEnabled('news'))
+              Promise.resolve(dataManager.setEnabled('news', true)).catch(
+                () => {},
+              );
+            // Without a camera in the link, start from the whole globe.
+            if (!startedWithLink) wholeEarth();
+          }, 1200),
+        );
+        return;
+      }
       if (body.dataset.corantoMode !== 'news' || startedWithLink) return;
       // A fresh visit in news mode: headlines on, whole Earth in view.
       timers.push(

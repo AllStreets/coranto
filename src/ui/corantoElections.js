@@ -76,6 +76,7 @@ export function createElectionsLens({
   let active = false;
   let turnedOn = false;
   let unsubscribe = null;
+  let shownKey = null;
 
   const heading = el(document, 'div', {
     class: 'coranto-rail-heading',
@@ -156,6 +157,11 @@ export function createElectionsLens({
             : 'Reading the election calendar…',
         }),
       );
+    // Act only when the selection changes, so a routine refresh does not
+    // overwrite a search the reader typed.
+    const key = view?.selected?.key ?? null;
+    if (key === shownKey) return;
+    shownKey = key;
     if (view?.selected) {
       showCard({
         ...electionCard(view.selected),
@@ -188,6 +194,7 @@ export function createElectionsLens({
     },
     leave() {
       active = false;
+      shownKey = null;
       element.hidden = true;
       unsubscribe?.();
       unsubscribe = null;

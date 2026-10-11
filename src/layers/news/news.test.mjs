@@ -474,6 +474,8 @@ const NEWS_RUNTIME = [
   'server/providers/markets.js',
   'src/sources/markets',
   'src/ui/corantoMarkets.js',
+  'src/ui/corantoContact.js',
+  'src/ui/corantoLink.js',
 ];
 function runtimeFiles() {
   const files = [];

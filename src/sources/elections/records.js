@@ -30,16 +30,18 @@ export function electionQuery(now) {
   const day = (ms) => new Date(ms).toISOString().slice(0, 10);
   const from = day(now);
   const to = day(now + ELECTION_WINDOW_DAYS * DAY_MS);
-  // The country is OPTIONAL on purpose: making it a required join times the
-  // public endpoint out. Rows without one are dropped when parsing.
-  return `SELECT ?e ?eLabel ?date ?iso ?article WHERE {
+  // Two things keep this inside the public endpoint's time limit: the
+  // country is OPTIONAL (a required join times out; rows without one are
+  // dropped when parsing), and the English name is read from rdfs:label
+  // directly, not through the label service, which is several times slower.
+  return `SELECT ?e ?label ?date ?iso ?article WHERE {
   ?e wdt:P31/wdt:P279* wd:Q40231 ;
      wdt:P585 ?date .
   FILTER(?date >= "${from}T00:00:00Z"^^xsd:dateTime && ?date <= "${to}T00:00:00Z"^^xsd:dateTime)
   OPTIONAL { ?e wdt:P17 ?country . ?country wdt:P297 ?iso . }
+  OPTIONAL { ?e rdfs:label ?label . FILTER(LANG(?label) = "en") }
   OPTIONAL { ?article schema:about ?e ; schema:isPartOf <https://en.wikipedia.org/> . }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-} ORDER BY ?date LIMIT 1500`;
+} LIMIT 2000`;
 }
 
 const httpsUrl = (value, host) => {
@@ -64,11 +66,11 @@ export function parseElections(data) {
       'www.wikidata.org',
     );
     const id = item?.match(/\/(Q\d+)$/)?.[1];
-    const title = String(row?.eLabel?.value ?? '').trim();
+    const title = String(row?.label?.value ?? '').trim();
     const date = String(row?.date?.value ?? '').slice(0, 10);
     const iso2 = String(row?.iso?.value ?? '').toUpperCase();
     if (!id || seen.has(id)) continue;
-    // An item with no English label comes back named by its own id.
+    // No English name: nothing a reader could recognise.
     if (!title || /^Q\d+$/.test(title)) continue;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(date)))
       continue;
