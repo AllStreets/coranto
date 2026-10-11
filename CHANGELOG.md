@@ -1,5 +1,12 @@
 # Changelog
 
+- Coranto: sixteen more news sources across Asia, Africa, the Americas,
+  science and international bodies; a search box that narrows the feed to
+  stories containing every word; a Natural Hazards layer from GDACS and NASA
+  EONET with a detail card linking to the tracker's report; loading and sync
+  notices now sit below the header bars; a currency prefix such as "US$" no
+  longer places a story in the United States.
+
 - Coranto: the app is renamed Coranto and gains a news view modelled on
   AUSPEX. `/api/news` reads ten publisher feeds, GDELT and optional NewsAPI,
   drops any item without a publisher, link or publish date, and reports which

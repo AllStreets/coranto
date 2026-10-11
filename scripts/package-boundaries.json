@@ -2207,7 +2207,12 @@
       "src/sources/news/article.js",
       "src/ui/newsPanel.js",
       "src/ui/newsPanelModel.js",
-      "src/ui/corantoShell.js"
+      "src/ui/corantoShell.js",
+      "src/app/layers/hazards.js",
+      "src/layers/hazards/index.js",
+      "src/layers/hazards/model.js",
+      "src/layers/hazards/source.js",
+      "src/sources/hazards/records.js"
     ],
     "external": [
       "hls.js",
@@ -2738,7 +2743,12 @@
       "src/sources/news/article.js",
       "src/ui/newsPanel.js",
       "src/ui/newsPanelModel.js",
-      "src/ui/corantoShell.js"
+      "src/ui/corantoShell.js",
+      "src/app/layers/hazards.js",
+      "src/layers/hazards/index.js",
+      "src/layers/hazards/model.js",
+      "src/layers/hazards/source.js",
+      "src/sources/hazards/records.js"
     ],
     "external": [
       "hls.js",

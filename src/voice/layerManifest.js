@@ -142,6 +142,12 @@ const layers = [
     noQuery: 'read in the News panel; no voice query yet',
   },
   {
+    id: 'hazards',
+    aliases: ['natural hazards', 'disasters'],
+    context: false,
+    noQuery: 'shown on the globe; no voice query yet',
+  },
+  {
     id: 'earthquakes',
     aliases: ['quakes', 'seismic'],
     context: false,

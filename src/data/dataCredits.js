@@ -104,6 +104,14 @@ export const DATA_CREDITS = [
       '<a href="https://www.geonames.org" target="_blank" rel="noopener">GeoNames</a> (CC BY 4.0)',
   },
   {
+    key: 'hazards',
+    html:
+      'Natural hazards: ' +
+      '<a href="https://www.gdacs.org" target="_blank" rel="noopener">GDACS</a> ' +
+      '(UN and European Commission) and ' +
+      '<a href="https://eonet.gsfc.nasa.gov" target="_blank" rel="noopener">NASA EONET</a>',
+  },
+  {
     key: 'opensky',
     html:
       'Flights: OpenSky Network — Schäfer et al., ' +

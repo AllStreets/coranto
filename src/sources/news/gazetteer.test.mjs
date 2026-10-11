@@ -71,6 +71,11 @@ test('upper-case abbreviations match and lower-case words do not', () => {
   assert.equal(matchPlace('Join us for the turkey and china sale'), null);
 });
 
+test('a currency prefix is not a place', () => {
+  assert.equal(matchPlace('Aid package worth US$100 million approved'), null);
+  assert.equal(matchPlace('Fund raises US $2bn for US ports').name, 'United States');
+});
+
 test('longer names win over the names inside them', () => {
   assert.equal(matchPlace('Guinea-Bissau votes').name, 'Guinea-Bissau');
   assert.equal(matchPlace('Floods in Papua New Guinea').name, 'Papua New Guinea');

@@ -5,9 +5,10 @@ const FIRST_RUN_SESSION_KEY = 'gev:first-run-mission-session:v1';
 
 /** Live layers offered in the header. Ids are catalog layer ids. */
 const HEADER_LAYERS = [
+  ['hazards', 'HAZARDS', 'Cyclones, floods, volcanoes and more (GDACS, NASA)'],
   ['flights', 'FLIGHTS', 'Live civil aircraft'],
   ['military', 'MILITARY', 'Military aircraft broadcasting their position'],
-  ['ais-live-vessels', 'SHIPS', 'Live vessels (needs an AISStream key)'],
+  ['ais-live-vessels', 'SHIPS', 'Live vessels from AIS (needs a key)'],
   ['satellites', 'SATELLITES', 'Satellites from public orbital elements'],
   ['earthquakes', 'QUAKES', 'USGS earthquakes, last 24 hours'],
   ['local-firms', 'FIRES', 'NASA FIRMS active fires (needs a key)'],
@@ -47,8 +48,12 @@ const GUIDE = [
     'The LIVE badge counts how many sources answered. Click it to see each one. A source that is down is named as down; nothing is shown in its place.',
   ],
   [
+    'Search',
+    'Type in the search box above the feed to keep only stories that mention your words, in the headline, summary, publisher or place.',
+  ],
+  [
     'Add live layers',
-    'The buttons along the top add other public feeds to the same globe: aircraft, military flights, ships, satellites, earthquakes, storms and more.',
+    'The buttons along the top add other public feeds to the same globe: natural hazards, aircraft, military flights, ships, satellites, earthquakes, storms and more. Click a hazard marker to see what it is and open its source.',
   ],
   [
     'Go deeper',
@@ -78,6 +83,13 @@ const LIVE_LABELS = {
   down: 'NO SOURCE REACHABLE',
   stale: 'SAVED RESULTS',
 };
+
+/** `GDACS · since 6 Oct 2026` */
+function hazardMeta(item) {
+  const started = new Date(item.startedAt);
+  const month = started.toLocaleString('en-GB', { month: 'short' });
+  return `${item.source} · since ${started.getDate()} ${month} ${started.getFullYear()}`;
+}
 
 /** Text for the header badge: a fixed phrase, or the count of live sources. */
 function liveLabel(state, live, total) {
@@ -365,7 +377,56 @@ export function createCorantoShell({
   );
   guide.hidden = true;
 
-  body.append(header, ticker, rail, feedAside, guide);
+  // ── Selected-event card ─────────────────────────────────────────
+  const cardKind = el(document, 'span', { class: 'coranto-card-kind' });
+  const cardTitle = el(document, 'div', { class: 'coranto-card-title' });
+  const cardMeta = el(document, 'div', { class: 'coranto-card-meta' });
+  const cardLink = el(document, 'a', {
+    class: 'coranto-card-link',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+  });
+  const cardClose = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-card-close',
+    'aria-label': 'Close',
+    text: '✕',
+  });
+  const card = el(
+    document,
+    'aside',
+    { id: 'coranto-card', 'aria-label': 'Selected event' },
+    el(document, 'div', { class: 'coranto-card-head' }, cardKind, cardClose),
+    cardTitle,
+    cardMeta,
+    cardLink,
+  );
+  card.hidden = true;
+  let hazardsLayer = null;
+  let unsubscribeHazards = null;
+
+  function renderCard(view) {
+    const item = view?.enabled ? view.selected : null;
+    card.hidden = !item;
+    if (!item) return;
+    card.dataset.alert = item.alert ?? 'none';
+    cardKind.textContent = item.alert
+      ? `${item.kind.toUpperCase()} · ${item.alert.toUpperCase()} ALERT`
+      : item.kind.toUpperCase();
+    cardTitle.textContent = item.title;
+    cardMeta.textContent = hazardMeta(item);
+    cardLink.href = item.url;
+    let host = '';
+    try {
+      host = new URL(item.url).hostname.replace(/^www\./, '');
+    } catch {
+      host = 'source';
+    }
+    cardLink.textContent = `Open at ${host}`;
+  }
+  cardClose.addEventListener('click', () => hazardsLayer?.select(null));
+
+  body.append(header, ticker, rail, feedAside, card, guide);
 
   // ── Behaviour ───────────────────────────────────────────────────
   function setMode(mode, { remember = true } = {}) {
@@ -518,14 +579,15 @@ export function createCorantoShell({
     attachDataManager(manager) {
       dataManager = manager;
       syncLayers();
+      hazardsLayer = manager.layers?.get('hazards')?.module ?? null;
+      unsubscribeHazards = hazardsLayer?.subscribe?.(renderCard) ?? null;
       if (body.dataset.corantoMode !== 'news' || startedWithLink) return;
       // A fresh visit in news mode: headlines on, whole Earth in view.
       timers.push(
         setTimeout(() => {
-          if (!dataManager.isEnabled('news'))
-            Promise.resolve(dataManager.setEnabled('news', true)).catch(
-              () => {},
-            );
+          for (const id of ['news', 'hazards'])
+            if (dataManager.layers?.has(id) && !dataManager.isEnabled(id))
+              Promise.resolve(dataManager.setEnabled(id, true)).catch(() => {});
           wholeEarth();
         }, 1500),
       );
@@ -536,8 +598,9 @@ export function createCorantoShell({
         clearTimeout(timer);
       }
       document.removeEventListener('keydown', onKey);
+      unsubscribeHazards?.();
       feed?.destroy();
-      for (const node of [header, ticker, rail, feedAside, guide])
+      for (const node of [header, ticker, rail, feedAside, card, guide])
         node.remove();
       delete body.dataset.corantoMode;
     },

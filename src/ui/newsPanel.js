@@ -36,7 +36,7 @@ export function createNewsFeed({
 }) {
   if (!document?.createElement || !body) return null;
 
-  const filters = { category: null, publisher: null };
+  const filters = { category: null, publisher: null, query: '' };
   let sourcesOpen = false;
   let droppedOpen = false;
 
@@ -54,13 +54,19 @@ export function createNewsFeed({
   const droppedList = el(document, 'ul', 'news-dropped-list');
   status.append(healthBtn, sourceList, staleNote, droppedBtn, droppedList);
 
+  const search = el(document, 'input', 'news-search');
+  search.type = 'search';
+  search.placeholder = 'Search the feed';
+  search.setAttribute('aria-label', 'Search the feed');
+  search.autocomplete = 'off';
+  search.spellcheck = false;
   const filterRow = el(document, 'div', 'news-filters');
   const placeChip = el(document, 'button', 'news-chip news-chip-place');
   placeChip.type = 'button';
   placeChip.title = 'Clear the place filter';
   const publisherSelect = el(document, 'select', 'news-select');
   publisherSelect.setAttribute('aria-label', 'Filter by publisher');
-  filterRow.append(placeChip, publisherSelect);
+  filterRow.append(search, placeChip, publisherSelect);
 
   const empty = el(document, 'p', 'news-empty');
   const list = el(document, 'ol', 'news-list');
@@ -74,6 +80,49 @@ export function createNewsFeed({
     select.replaceChildren(...nodes);
     select.value = selected ?? '';
     select.hidden = options.length === 0;
+  }
+
+  /** Sources grouped by whether they answered, the failures first. */
+  function renderSources(sources) {
+    const groups = [
+      ['down', 'NOT ANSWERING'],
+      ['ok', 'ANSWERING'],
+      ['off', 'OPTIONAL, NOT SET UP'],
+    ];
+    const nodes = [];
+    for (const [state, heading] of groups) {
+      const rows = sources.filter((source) => source.state === state);
+      if (!rows.length) continue;
+      const group = el(document, 'li', 'news-source-group');
+      group.dataset.state = state;
+      const list = el(document, 'ul', 'news-source-rows');
+      for (const source of rows) {
+        const row = el(document, 'li', 'news-source');
+        row.dataset.state = source.state;
+        row.append(
+          el(document, 'span', 'news-source-dot'),
+          el(document, 'span', 'news-source-name', source.name),
+        );
+        if (source.count !== null)
+          row.append(
+            el(document, 'span', 'news-source-count', String(source.count)),
+          );
+        else
+          row.append(el(document, 'span', 'news-source-detail', source.detail));
+        list.append(row);
+      }
+      group.append(
+        el(
+          document,
+          'div',
+          'news-source-heading',
+          `${heading} · ${rows.length}`,
+        ),
+        list,
+      );
+      nodes.push(group);
+    }
+    return nodes;
   }
 
   function renderCard(card) {
@@ -136,17 +185,7 @@ export function createNewsFeed({
     healthBtn.setAttribute('aria-expanded', String(sourcesOpen));
     healthText.textContent = model.health;
     sourceList.hidden = !sourcesOpen || !model.sources.length;
-    sourceList.replaceChildren(
-      ...model.sources.map((source) => {
-        const row = el(document, 'li', 'news-source');
-        row.dataset.state = source.state;
-        row.append(
-          el(document, 'span', 'news-source-name', source.name),
-          el(document, 'span', 'news-source-detail', source.detail),
-        );
-        return row;
-      }),
-    );
+    sourceList.replaceChildren(...renderSources(model.sources));
     staleNote.hidden = !model.stale;
     staleNote.textContent = model.stale;
     droppedBtn.hidden = model.droppedTotal === 0;
@@ -184,6 +223,10 @@ export function createNewsFeed({
     render();
   });
   placeChip.addEventListener('click', () => layer.selectPlace(null));
+  search.addEventListener('input', () => {
+    filters.query = search.value;
+    render();
+  });
   publisherSelect.addEventListener('change', () => {
     filters.publisher = publisherSelect.value || null;
     render();

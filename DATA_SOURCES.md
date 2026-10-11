@@ -13,6 +13,21 @@ How to read this:
 
 ## Live sources (fetched at runtime — not stored in this repo)
 
+### Natural hazards (Coranto)
+
+Read server-side by `/api/hazards`.
+
+| Source | Endpoint | Key |
+|---|---|---|
+| GDACS (UN and European Commission) | `www.gdacs.org/xml/rss.xml` | none |
+| NASA EONET v3 | `eonet.gsfc.nasa.gov/api/v3/events` | none |
+
+Each event keeps its tracker's link, start time and coordinate. GDACS events
+carry GDACS's own Green, Orange or Red alert level; Coranto does not score
+events itself. Events older than 30 days are left out, and wildfires are
+capped at the 30 most recent because they would otherwise crowd out every
+other hazard.
+
 ### News (Coranto)
 
 Read server-side by `/api/news`; the registry is `src/sources/news/registry.js`.
@@ -32,6 +47,22 @@ images. Headlines and summaries belong to their publishers.
 | ReliefWeb | `reliefweb.int/updates/rss.xml` | none |
 | ScienceDaily | `www.sciencedaily.com/rss/top/science.xml` | none |
 | Ars Technica | `feeds.arstechnica.com/arstechnica/science` | none |
+| Euronews | `www.euronews.com/rss` | none |
+| South China Morning Post | `www.scmp.com/rss/91/feed` | none |
+| The Straits Times | `www.straitstimes.com/news/world/rss.xml` | none |
+| CNA | `www.channelnewsasia.com/api/v1/rss-outbound-feed` | none |
+| The Japan Times | `www.japantimes.co.jp/feed/` | none |
+| The Hindu | `www.thehindu.com/news/international/feeder/default.rss` | none |
+| The Times of India | `timesofindia.indiatimes.com/rssfeeds/296589292.cms` | none |
+| ABC News (Australia) | `www.abc.net.au/news/feed/51120/rss.xml` | none |
+| Africanews | `www.africanews.com/feed/rss` | none |
+| AllAfrica | `allafrica.com/tools/headlines/rdf/latest/headlines.rdf` | none |
+| Premium Times | `www.premiumtimesng.com/feed` | none |
+| Buenos Aires Times | `www.batimes.com.ar/feed` | none |
+| ProPublica | `www.propublica.org/feeds/propublica/main` | none |
+| Nature | `www.nature.com/nature.rss` | none |
+| WHO | `www.who.int/rss-feeds/news-english.xml` | none |
+| NASA | `www.nasa.gov/news-release/feed/` | none |
 | GDELT DOC 2.0 | `api.gdeltproject.org/api/v2/doc/doc` | none |
 | NewsAPI | `newsapi.org/v2/top-headlines` | `NEWS_API_KEY` (optional) |
 

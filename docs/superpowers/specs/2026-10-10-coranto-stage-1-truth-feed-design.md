@@ -568,5 +568,10 @@ runtime has no fixture mode.
   in `src/sources/news/service.js`, both portable, not under `server/`.
 - **US states** were added to place matching from the bundled Natural Earth
   data, at region precision.
+- **More sources.** Sixteen feeds were added across Asia, Africa, the
+  Americas, science and international bodies, each checked for dated items.
+- **Feed search** narrows the feed to stories containing every word typed.
+- **Natural hazards** from AUSPEX's GDACS and NASA EONET senses were added as
+  a layer with the same rules: tracker link, start time, per-tracker health.
 - **Not built:** the `qa:news` browser gate in section 10. The server route,
   layer, panel model and honesty rules are covered by unit tests.

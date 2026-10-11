@@ -78,6 +78,7 @@ function sourceRows(sources, now) {
       id: source.id,
       name: source.name,
       state: !source.configured ? 'off' : source.ok ? 'ok' : 'down',
+      count: source.configured && source.ok ? source.count : null,
       detail,
     };
   });
@@ -126,6 +127,12 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
   const all = snapshot?.articles ?? [];
   const selectedPlace =
     view?.places?.find((place) => place.key === view.selectedPlaceKey) ?? null;
+  const terms = String(filters.query ?? '')
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean);
+  const haystack = (article) =>
+    `${article.title} ${article.summary} ${article.publisher} ${article.place?.name ?? ''}`.toLowerCase();
   const category = filters.category ?? null;
   const publisher = filters.publisher ?? null;
 
@@ -138,7 +145,11 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
         `${article.place.precision}:${article.place.name}` ===
           selectedPlace.key)) &&
     (!category || article.category === category) &&
-    (!publisher || article.publisher === publisher);
+    (!publisher || article.publisher === publisher) &&
+    (!terms.length ||
+      ((text) => terms.every((term) => text.includes(term)))(
+        haystack(article),
+      ));
   const cards = all.filter(matches).map((article) => card(article, now));
 
   const dropped = Object.entries(snapshot?.dropped ?? {})
@@ -200,7 +211,7 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
       : null,
     categories: count('category'),
     publishers: count('publisher'),
-    filters: { category, publisher },
+    filters: { category, publisher, query: terms.join(' ') },
     goodNewsOnly,
     goodNewsCount,
     cards,

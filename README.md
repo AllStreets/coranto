@@ -5,13 +5,14 @@
 **EVERY STORY HAS A PLACE AND A DATE**
 
 <img alt="news" src="https://img.shields.io/badge/news-real_headlines_·_real_links-34E08A?style=for-the-badge&labelColor=04070b"/>
-<img alt="sources" src="https://img.shields.io/badge/sources-11_named_·_health_shown-34E08A?style=for-the-badge&labelColor=04070b"/>
+<img alt="sources" src="https://img.shields.io/badge/news_sources-28_named_·_health_shown-34E08A?style=for-the-badge&labelColor=04070b"/>
+<img alt="live layers" src="https://img.shields.io/badge/live_layers-32-34E08A?style=for-the-badge&labelColor=04070b"/>
 <img alt="AI text" src="https://img.shields.io/badge/AI--written_text-none-A3E635?style=for-the-badge&labelColor=04070b"/>
 <img alt="keys" src="https://img.shields.io/badge/API_keys-none_required-34E08A?style=for-the-badge&labelColor=04070b"/>
 <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-34E08A?style=for-the-badge&labelColor=04070b"/></a>
 <br/>
 <img alt="globe" src="https://img.shields.io/badge/globe-CesiumJS_·_photoreal_3D-6b7382?style=flat-square&labelColor=04070b"/>
-<img alt="feeds" src="https://img.shields.io/badge/feeds-RSS_·_GDELT_·_USGS_·_ADS--B_·_NOAA-6b7382?style=flat-square&labelColor=04070b"/>
+<img alt="feeds" src="https://img.shields.io/badge/feeds-RSS_·_GDELT_·_GDACS_·_NASA_·_USGS_·_ADS--B_·_AIS_·_NOAA-6b7382?style=flat-square&labelColor=04070b"/>
 <img alt="built on" src="https://img.shields.io/badge/built_on-God's_Eye_View_+_AUSPEX-6b7382?style=flat-square&labelColor=04070b"/>
 <img alt="tests" src="https://img.shields.io/badge/tests-node:test_·_browser_gates-6b7382?style=flat-square&labelColor=04070b"/>
 
@@ -23,10 +24,11 @@
   <img src="docs/media/coranto/world-news.png" alt="Coranto: current headlines pinned to the places they name, with the feed on the right" width="100%"/>
 </p>
 
-<p align="center"><em>Current headlines on a live globe. Every marker is a place a story names. Every card is the publisher's own headline and opens the original.</em></p>
+<p align="center"><em>569 current stories from 25 live sources, pinned to the places they name, with an erupting volcano selected from the hazards layer. Every card is the publisher's own headline and opens the original.</em></p>
 
 <p align="center">
 <a href="#what-this-is">What this is</a> ·
+<a href="#why-it-exists">Why it exists</a> ·
 <a href="#the-honesty-rules">The honesty rules</a> ·
 <a href="#how-to-use-it">How to use it</a> ·
 <a href="#quickstart">Quickstart</a> ·
@@ -60,12 +62,32 @@ It is built from two projects:
 ```
   the instrument
   ├─ the feed ......... publisher headlines, newest first, each linked to its source
+  ├─ search ........... keep only the stories that mention your words
   ├─ the globe ........ one marker per place the stories name; rings where approximate
   ├─ source health .... which feeds answered, which did not, and when
   ├─ good news ........ headlines tagged as progress: medical, science, space, humanity
-  ├─ live layers ...... aircraft, military flights, ships, satellites, quakes, storms
+  ├─ hazards .......... cyclones, floods, volcanoes, quakes, fires from GDACS and NASA
+  ├─ live layers ...... aircraft, military flights, ships, satellites, storms, launches
   └─ instruments ...... the full control room: tracking, cameras, weather, voice
 ```
+
+---
+
+## Why it exists
+
+Knowing what is happening in the world, early and across domains, has mostly
+belonged to governments and to people who can pay for terminals. The raw
+material is public: publisher feeds, aircraft transponders, ship beacons,
+orbital elements, seismographs, disaster alerts. What has been missing is one
+instrument that gathers it, shows it honestly, and belongs to anyone.
+
+Coranto aims at two things at once:
+
+- **The whole picture stays available.** Every source, every layer, undigested,
+  for anyone who wants to look for themselves.
+- **You can narrow it to what you care about.** Search, topics, places and
+  filters cut the stream down without anything rewriting it for you. Saved
+  searches and personal briefings are on the roadmap.
 
 ---
 
@@ -106,10 +128,12 @@ Coranto has two views, switched at the top right.
 | See where stories are | Look at the gold markers. A solid dot is a city. A hollow ring is a country or region, so the position is approximate. |
 | See one place's stories | Click its marker. Clear the filter with the chip at the top of the feed. |
 | Check why a story is where it is | Read the line under the summary, for example `Kyiv · city · matched "Kyiv" in headline`. Click it to fly there. |
+| Search | Type in the box above the feed. Stories must contain every word, in the headline, summary, publisher or place. |
 | Narrow by topic | Use the list on the left. |
 | See only good news | Click **GOOD NEWS**. |
 | Check the sources | Click the **LIVE** badge. It lists every source and whether it answered. |
-| Add live layers | Use the buttons along the top: flights, military, ships, satellites, quakes, storms, launches, cables. |
+| Add live layers | Use the buttons along the top: hazards, flights, military, ships, satellites, quakes, fires, storms, launches, cables. |
+| Read a hazard | Click its marker. A card shows what it is, the tracker's alert level and a link to the tracker's report. Red means the tracker issued a Red alert, nothing else. |
 | Get back to the whole globe | Click **WHOLE EARTH**. |
 | Move the globe | Drag to spin, scroll to zoom, hold Ctrl or the right button and drag to tilt. |
 
@@ -129,7 +153,7 @@ and copy a share link. Its own guide is in
 <td width="50%"><img src="docs/media/coranto/instruments.png" alt="The Instruments view" width="100%"/></td>
 </tr>
 <tr>
-<td><em>News with three live layers on: 5,441 civil aircraft, 20 military aircraft and the last day's earthquakes.</em></td>
+<td><em>Europe with flights, ships, military aircraft, quakes and hazards on: 5,962 aircraft and 8,143 vessels at the moment of capture. The source list shows 25 of 28 news sources answering.</em></td>
 <td><em>Instruments: the same globe with the full control room around it.</em></td>
 </tr>
 </table>
@@ -150,31 +174,50 @@ npm run dev
 
 Open **http://localhost:4173**. The news view loads with headlines on.
 
-Optional keys add more: a Cesium ion token or Google Maps key for photoreal 3D
-cities, `NEWS_API_KEY` for one more news source, and others for ships and
-fires. Put them in a `.env` file (see `.env.example`) or use **POWER UP** in
-the Instruments view.
+### Keys that switch more on
+
+Nothing needs a key. Each of these adds a feed. Put them in a `.env` file in
+the project folder (it is gitignored; see `.env.example`), or paste them into
+**POWER UP** in the Instruments view.
+
+| Key | What it adds |
+|---|---|
+| `AISSTREAM_API_KEY` | Live ships worldwide (AIS) |
+| `OPENSKY_CLIENT_ID`, `OPENSKY_CLIENT_SECRET` | Fuller live aircraft coverage (ADS-B); works without, at a lower rate |
+| `NEWS_API_KEY` | One more news source |
+| `FIRMS_MAP_KEY` | NASA active-fire detections |
+| `CESIUM_ION_TOKEN` or `GOOGLE_MAPS_API_KEY` | Photoreal 3D cities |
+| `OPENAI_API_KEY` | Voice control |
 
 ---
 
 ## Sources
 
-| Source | Kind | Needs a key |
+| Region or beat | Sources | Needs a key |
 |---|---|---|
-| BBC, The Guardian, Al Jazeera, NPR, DW, France 24, UN News, ReliefWeb, ScienceDaily, Ars Technica | Publisher RSS and Atom feeds | No |
-| GDELT | Global article index | No |
-| NewsAPI | Headline API | Yes, optional |
+| Europe | BBC, The Guardian, DW, France 24, Euronews | No |
+| Middle East | Al Jazeera | No |
+| Asia and Pacific | South China Morning Post, The Straits Times, CNA, The Japan Times, The Hindu, The Times of India, ABC News (Australia) | No |
+| Africa | Africanews, AllAfrica, Premium Times | No |
+| Americas | NPR, ProPublica, Buenos Aires Times | No |
+| International bodies | UN News, ReliefWeb, WHO | No |
+| Science and space | Nature, ScienceDaily, Ars Technica, NASA | No |
+| Indexes | GDELT | No |
+| Indexes | NewsAPI | Yes, optional |
+
+Natural hazards come from **GDACS** (the UN and European Commission's disaster
+alert system) and **NASA EONET**. Both are keyless.
 
 Coranto shows the headline, the publisher's own summary and a link. It does not
 copy article bodies or images.
 
 Two things to know:
 
-- **The list leans Western and English-language.** A wider spread is planned
-  with the cross-outlet comparison work.
-- **Some sources will be down.** GDELT rate-limits and ReliefWeb sometimes
-  refuses automated readers. Coranto reports them as down; the feed works on
-  the rest.
+- **The list is English-language.** It now spans every inhabited continent,
+  but non-English outlets are not read yet.
+- **Some sources will be down.** GDELT rate-limits, and ReliefWeb and UN News
+  sometimes refuse or time out. Coranto reports them as down; the feed works
+  on the rest.
 
 Stories are filtered before display: adverts, PR copy, entertainment and
 anything older than 48 hours are left out. The feed shows how many items were
@@ -205,7 +248,8 @@ is documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 |---|---|
 | Record rules, place matching, topic and good-news tags | `src/sources/news/` |
 | News route | `server/providers/news.js` |
-| Globe layer | `src/layers/news/` |
+| News globe layer | `src/layers/news/` |
+| Hazard records, route and layer | `src/sources/hazards/`, `server/providers/hazards.js`, `src/layers/hazards/` |
 | Shell and feed | `src/ui/corantoShell.js`, `src/ui/newsPanel.js` |
 | Look | `src/ui/styles/coranto.css`, `build/corantoTheme.js` |
 | Design spec | `docs/superpowers/specs/` |
@@ -223,9 +267,9 @@ npm run build
 
 | Stage | Status |
 |---|---|
-| **1. Foundation and truth feed** | Built: sourced feed, globe layer, source health, good-news tag, AUSPEX-style shell |
+| **1. Foundation and truth feed** | Built: sourced feed from 28 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell |
 | **2. Verification** | Next: the same story across outlets, a count of independent sources, claim-by-claim checks, AI briefs where every sentence cites its source |
-| **3. Lenses** | Good News, Elections (from official sources), Watch Power (government aircraft, plate-reader locations, public cameras) |
+| **3. Lenses and your own feed** | Saved searches and a personal briefing built from them; Good News, Elections (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
 | **4. Beauty pass** | Full visual identity and a guided first run |
 | **5. Public site** | A hosted version anyone can open |
 

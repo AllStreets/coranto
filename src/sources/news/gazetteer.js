@@ -346,12 +346,13 @@ const INDEX = buildIndex();
 const BLOCKED = new Set(NON_PLACE_PHRASES);
 // Longest alternatives first, so "Guinea-Bissau" wins over "Guinea" and a
 // blocked phrase such as "New Mexico" wins over "Mexico". Case-sensitive:
-// lower-case "turkey" and "china" are not places.
+// lower-case "turkey" and "china" are not places. A name followed by "$" is a
+// currency ("US$100 million"), not a place.
 const PATTERN = new RegExp(
   `(?<![\\p{L}\\p{N}])(?:${[...INDEX.keys(), ...BLOCKED]
     .sort((a, b) => b.length - a.length)
     .map(escapeRegExp)
-    .join('|')})(?![\\p{L}\\p{N}])`,
+    .join('|')})(?![\\p{L}\\p{N}$])`,
   'gu',
 );
 
