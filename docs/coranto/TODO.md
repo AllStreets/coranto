@@ -77,7 +77,9 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   connections, computed brief and timeline, saved boards in the browser.
   Open: escalation matrix and dead reckoning (both rule-based in AUSPEX),
   history search over a database archive, pinning aircraft and ships.
-- [ ] **T15 Category colours and related stories in INSTRUMENTS.**
+- [~] **T15 Category colours and related stories in INSTRUMENTS.** Done:
+  story markers with topic icons and a stories card. Open: stories near a
+  selected aircraft, ship or camera.
 
 ## Atlas (copied from AUSPEX, 2026-10-11)
 

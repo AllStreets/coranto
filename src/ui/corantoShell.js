@@ -219,6 +219,36 @@ function hudWhereLine(at) {
   return `${part(deg(at.latitude), 'N', 'S')} ${part(deg(at.longitude), 'E', 'W')} // ALT ${km.toLocaleString('en-GB')} KM`;
 }
 
+/** The newest headline at a place. */
+function placeCardTitle(place) {
+  return place.articles[0]?.title ?? place.name;
+}
+
+/** Who published it, and how much else is there. */
+function placeCardMeta(place) {
+  const [first] = place.articles;
+  const others = place.articles.length - 1;
+  const topics = [
+    ...new Set(place.articles.map((a) => a.category).filter(Boolean)),
+  ];
+  return [
+    first?.publisher,
+    others > 0
+      ? `and ${others} more current ${others === 1 ? 'story' : 'stories'} here`
+      : '',
+    topics.length ? topics.join(', ') : '',
+    place.precision === 'city'
+      ? ''
+      : 'placed at the country or region, not a pinpoint',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
+
+function placeCardAction(count) {
+  return count === 1 ? 'Open this story' : `Read all ${count} in NEWS`;
+}
+
 /** The header button for the analyst board. */
 function boardLabel(count) {
   return count ? `BOARD · ${count}` : 'BOARD';
@@ -1148,6 +1178,47 @@ export function createCorantoShell({
       onClose: () => hazardsLayer?.select(null),
     });
   }
+  // In INSTRUMENTS the feed is not on screen, so a story marker opens a card
+  // saying what is there, with a way straight to the stories.
+  let instrumentsPlace = null;
+  const unsubscribePlace = layer.subscribe?.((view) => renderPlaceCard(view));
+  function renderPlaceCard(view) {
+    const key = view?.selectedPlaceKey ?? null;
+    if (body.dataset.corantoMode !== 'instruments') {
+      instrumentsPlace = null;
+      return;
+    }
+    if (key === instrumentsPlace) return;
+    instrumentsPlace = key;
+    const place = key ? (view.places ?? []).find((p) => p.key === key) : null;
+    if (!place) {
+      if (card.dataset.owner === 'place') showCard(null);
+      return;
+    }
+    card.dataset.owner = 'place';
+    showCard({
+      kind: `STORIES // ${place.name.toUpperCase()} · ${place.precision.toUpperCase()}`,
+      title: placeCardTitle(place),
+      meta: placeCardMeta(place),
+      action: {
+        label: placeCardAction(place.articles.length),
+        run: () => {
+          const only = place.articles.length === 1 ? place.articles[0] : null;
+          setMode('news');
+          if (only) feed?.openStory(storyKeyFor(only.id));
+        },
+      },
+      onClose: () => layer.selectPlace(null),
+    });
+  }
+  /** The story an article belongs to, as the feed knows it. */
+  function storyKeyFor(articleId) {
+    const story = (layer.getView().snapshot?.stories ?? []).find((entry) =>
+      entry.articleIds.includes(articleId),
+    );
+    return story?.id ?? articleId;
+  }
+
   cardClose.addEventListener('click', () => {
     const close = cardOnClose;
     showCard(null);
@@ -1431,6 +1502,10 @@ export function createCorantoShell({
     modeTools.setAttribute('aria-pressed', String(next === 'instruments'));
     if (remember) writeStored(localStorageRef, MODE_KEY, next);
     ensureNewsOn();
+    // A place selected in one view is still selected in the other.
+    if (next !== 'instruments' && card.dataset.owner === 'place')
+      showCard(null);
+    renderPlaceCard(layer.getView());
     // The engine lays its panels out from measured sizes.
     win.dispatchEvent?.(new win.Event('resize'));
   }
@@ -1517,6 +1592,7 @@ export function createCorantoShell({
     liveBtn.dataset.state = state;
     sourceRowsShown = model.sources;
     renderSourcesMenu();
+    renderPlaceCard(layer.getView());
     // Country marks that depend on the headlines follow the headlines.
     atlas.setArticles(layer.getView().snapshot?.articles ?? []);
     const sources = model.sources.filter((source) => source.state !== 'off');
@@ -1818,6 +1894,7 @@ export function createCorantoShell({
       }
       document.removeEventListener('keydown', onKey);
       layerIconStyle.remove();
+      unsubscribePlace?.();
       nuclear.hide();
       atlas.destroy();
       board.destroy();

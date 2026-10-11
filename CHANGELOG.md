@@ -17,6 +17,10 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: story markers work in INSTRUMENTS. Selecting one opens a card with
+  the newest headline there, how many more stories the place has and their
+  topics, and a button that opens the story or takes you to that place's
+  stories in NEWS.
 - Coranto: countries follow the headlines, by AUSPEX's two rules. A country
   gains the conflict mark when three or more current military headlines name
   it in the headline and use fighting vocabulary, in addition to AUSPEX's
