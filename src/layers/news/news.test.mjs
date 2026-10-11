@@ -471,6 +471,9 @@ const NEWS_RUNTIME = [
   'src/ui/corantoElections.js',
   'src/ui/corantoPower.js',
   'src/ui/watches.js',
+  'server/providers/markets.js',
+  'src/sources/markets',
+  'src/ui/corantoMarkets.js',
 ];
 function runtimeFiles() {
   const files = [];

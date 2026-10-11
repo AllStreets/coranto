@@ -75,6 +75,8 @@ It is built from two projects:
   ├─ hazards .......... cyclones, floods, volcanoes, quakes, fires from GDACS and NASA
   ├─ watch power ...... military aircraft airborne now, mapped military sites, plate readers
   ├─ elections ........ polling days in the next 120 days, with election news beside them
+  ├─ markets .......... exchange rates and crypto prices, each with its source and time
+  ├─ live TV .......... live news channels from every continent, one click away
   ├─ live layers ...... aircraft, military flights, ships, satellites, storms, launches
   └─ instruments ...... the full control room: tracking, cameras, weather, voice
 ```
@@ -223,6 +225,31 @@ It is edited by volunteers and is not an election authority, so the lens says
 recorded only to the year, and contests with no set date, are left out. Check
 the official election body before relying on a date.
 
+### Markets and live TV
+
+<table>
+<tr>
+<td width="50%"><img src="docs/media/coranto/markets.png" alt="The Markets lens with exchange rates, crypto prices and finance news" width="100%"/></td>
+<td width="50%"><img src="docs/media/coranto/live-tv.png" alt="The Live TV list of ten news channels" width="100%"/></td>
+</tr>
+<tr>
+<td><em>Markets: eight exchange rates and three crypto prices, each with its source and the time the source gave it, beside the finance news.</em></td>
+<td><em>Live TV: ten news channels across every continent, from AUSPEX's broadcaster list.</em></td>
+</tr>
+</table>
+
+**MARKETS** shows exchange rates and crypto prices beside the finance news.
+Exchange rates are the European Central Bank's reference rates, which are set
+once each working day and are not live trading prices; the lens says so.
+Crypto prices come from CoinGecko. Every figure links to its source, and a
+change is shown only when the source itself gave an earlier figure to compare
+with. Stock indices and commodities are not shown, because no keyless public
+source for them is available.
+
+**LIVE TV** links to live news channels in Doha, Paris, Berlin, Singapore,
+Sydney, New York and elsewhere. Coranto links to each channel and does not
+embed the player, so nothing loads from YouTube until you click.
+
 ---
 
 ## How to use it
@@ -242,6 +269,8 @@ Coranto has two views, switched at the top right.
 | See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
 | Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
 | Watch power | Click **WATCH POWER** on the left. Click any aircraft in the list to fly to it and open its public track. |
+| Check the markets | Click **MARKETS** on the left. Click any figure to open its source. |
+| Watch a newsroom live | Click **LIVE TV** and pick a channel. |
 | Follow elections | Click **ELECTIONS** on the left. Click a polling day to see that country's election news. |
 | Follow something | Set a search, place or topic, then click **＋ SAVE THIS VIEW**. It appears under MY WATCHES. |
 | Catch up | Click **MY BRIEFING** for the latest stories on every watch. |
@@ -372,7 +401,8 @@ is documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 | News globe layer | `src/layers/news/` |
 | Hazard records, route and layer | `src/sources/hazards/`, `server/providers/hazards.js`, `src/layers/hazards/` |
 | Shell and feed | `src/ui/corantoShell.js`, `src/ui/newsPanel.js` |
-| Watches, briefing and the lenses | `src/ui/watches.js`, `src/ui/corantoPower.js`, `src/ui/corantoElections.js` |
+| Watches, briefing and the lenses | `src/ui/watches.js`, `src/ui/corantoPower.js`, `src/ui/corantoElections.js`, `src/ui/corantoMarkets.js`, `src/ui/corantoBroadcasts.js` |
+| Market figures | `src/sources/markets/`, `server/providers/markets.js` |
 | Election calendar | `src/sources/elections/`, `server/providers/elections.js`, `src/layers/elections/` |
 | Look | `src/ui/styles/coranto.css`, `build/corantoTheme.js` |
 | Design spec | `docs/superpowers/specs/` |
@@ -393,7 +423,7 @@ npm run build
 |---|---|
 | **1. Foundation and truth feed** | Built: sourced feed from 35 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell |
 | **2. Verification** | Built: stories grouped across outlets, outlet counts, outlets by region, differing figures, AI briefs checked sentence by sentence, and seven non-English sources |
-| **3. Lenses and your own feed** | Built: saved watches, My Briefing, and the Watch Power and Elections lenses. Next: official election results and candidates (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
+| **3. Lenses and your own feed** | Built: saved watches, My Briefing, the Watch Power, Elections and Markets lenses, and Live TV. Next: official election results and candidates, stock indices with a keyed source (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
 | **4. Beauty pass** | Full visual identity and a guided first run |
 | **5. Public site** | A hosted version anyone can open |
 

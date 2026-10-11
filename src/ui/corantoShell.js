@@ -1,5 +1,7 @@
 import { createNewsFeed } from './newsPanel.js';
 import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
+import { createBroadcastsDialog } from './corantoBroadcasts.js';
+import { createMarketsLens } from './corantoMarkets.js';
 import { createPowerLens } from './corantoPower.js';
 import {
   buildBriefing,
@@ -74,6 +76,10 @@ const GUIDE = [
   [
     'Follow elections',
     'ELECTIONS on the left lists polling days in the next 120 days as Wikidata records them, marks them on the globe, and narrows the feed to election news. Click one to see that country’s election stories. Dates come from a volunteer-edited database, so check the official body.',
+  ],
+  [
+    'Markets and live TV',
+    'MARKETS shows exchange rates and crypto prices with their source and time, beside finance news. LIVE TV links to live news channels from every continent.',
   ],
   [
     'Go deeper',
@@ -355,6 +361,12 @@ export function createCorantoShell({
     title: 'Upcoming polling days and election news',
     'aria-pressed': 'false',
   });
+  const lensMarkets = el(document, 'button', {
+    type: 'button',
+    text: 'MARKETS',
+    title: 'Exchange rates and crypto prices, with finance news',
+    'aria-pressed': 'false',
+  });
   const lensSwitch = el(
     document,
     'div',
@@ -362,7 +374,10 @@ export function createCorantoShell({
     lensNews,
     lensPower,
     lensElections,
+    lensMarkets,
   );
+  const markets = createMarketsLens({ document });
+  const tv = createBroadcastsDialog({ document });
   const elections = createElectionsLens({
     document,
     getDataManager: () => dataManager,
@@ -383,6 +398,12 @@ export function createCorantoShell({
     },
   });
 
+  const tvBtn = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-rail-btn',
+    text: 'LIVE TV',
+    title: 'Live television news channels from every continent',
+  });
   const briefingBtn = el(document, 'button', {
     type: 'button',
     class: 'coranto-rail-btn coranto-rail-briefing',
@@ -416,6 +437,7 @@ export function createCorantoShell({
       guideBtn,
       sourcesBtn,
       homeBtn,
+      tvBtn,
       briefingBtn,
     ),
     lensSwitch,
@@ -423,6 +445,7 @@ export function createCorantoShell({
     watchSection,
     power.element,
     elections.element,
+    markets.element,
   );
 
   // ── Feed ────────────────────────────────────────────────────────
@@ -616,7 +639,16 @@ export function createCorantoShell({
     close?.();
   });
 
-  body.append(header, ticker, rail, feedAside, card, guide, briefing);
+  body.append(
+    header,
+    ticker,
+    rail,
+    feedAside,
+    card,
+    guide,
+    briefing,
+    tv.element,
+  );
 
   // ── Behaviour ───────────────────────────────────────────────────
   const watchStore = createWatchStore({ storage: localStorageRef });
@@ -787,18 +819,21 @@ export function createCorantoShell({
       elections.leave();
       feed?.setAny([]);
       feed?.setQuery('');
-    }
+    } else if (lens === 'markets') markets.leave();
     lens = next;
     lensNews.setAttribute('aria-pressed', String(lens === 'news'));
     lensPower.setAttribute('aria-pressed', String(lens === 'power'));
     lensElections.setAttribute('aria-pressed', String(lens === 'elections'));
+    lensMarkets.setAttribute('aria-pressed', String(lens === 'markets'));
     topicList.hidden = lens !== 'news';
     watchSection.hidden = lens !== 'news';
     layer.setGoodNewsOnly(false);
     // Each lens shows its own slice of the news beside it.
-    category = lens === 'power' ? 'military' : null;
+    category =
+      lens === 'power' ? 'military' : lens === 'markets' ? 'finance' : null;
     feed?.setCategory(category);
     if (lens === 'power') power.enter();
+    if (lens === 'markets') markets.enter();
     if (lens === 'elections') {
       feed?.setAny(ELECTION_TERMS);
       elections.enter();
@@ -945,6 +980,8 @@ export function createCorantoShell({
   lensNews.addEventListener('click', () => setLens('news'));
   lensPower.addEventListener('click', () => setLens('power'));
   lensElections.addEventListener('click', () => setLens('elections'));
+  lensMarkets.addEventListener('click', () => setLens('markets'));
+  tvBtn.addEventListener('click', () => tv.open());
   modeNews.addEventListener('click', () => setMode('news'));
   modeTools.addEventListener('click', () => setMode('instruments'));
   guideBtn.addEventListener('click', () => {
@@ -962,6 +999,7 @@ export function createCorantoShell({
     if (event.key !== 'Escape') return;
     if (!guide.hidden) guide.hidden = true;
     if (!briefing.hidden) closeBriefing();
+    tv.close();
   };
   document.addEventListener('keydown', onKey);
   const showSources = () => {
@@ -1025,6 +1063,7 @@ export function createCorantoShell({
         card,
         guide,
         briefing,
+        tv.element,
       ])
         node.remove();
       delete body.dataset.corantoMode;

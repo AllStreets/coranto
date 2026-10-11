@@ -29,6 +29,7 @@ import { windProxy } from './wind.js';
 import { newsProxy } from './news.js';
 import { hazardsProxy } from './hazards.js';
 import { electionsProxy } from './elections.js';
+import { marketsProxy } from './markets.js';
 
 /**
  * Construct the local provider plugins in their established order.
@@ -66,6 +67,7 @@ function localProviderPlugins({ realtime } = {}) {
     newsProxy(),
     hazardsProxy(),
     electionsProxy(),
+    marketsProxy(),
     keySetupEndpoint(),
   ];
 }

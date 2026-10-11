@@ -13,6 +13,22 @@ How to read this:
 
 ## Live sources (fetched at runtime — not stored in this repo)
 
+### Market figures (Coranto)
+
+Read server-side by `/api/markets`, refreshed at most every five minutes.
+
+| Source | Endpoint | Key |
+|---|---|---|
+| European Central Bank reference rates, via Frankfurter | `api.frankfurter.dev/v1` | none |
+| CoinGecko | `api.coingecko.com/api/v3/simple/price` | none |
+
+ECB reference rates are published once each working day. A rate's change is
+computed from the two most recent published days. A crypto price's change is
+CoinGecko's own 24-hour figure. Each figure keeps the time its source gave.
+
+Live television links (Coranto's LIVE TV list) point to each broadcaster's
+YouTube channel live page. Coranto does not embed or proxy the streams.
+
 ### Upcoming elections (Coranto)
 
 Read server-side by `/api/elections` from the Wikidata Query Service

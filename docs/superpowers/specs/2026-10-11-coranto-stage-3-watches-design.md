@@ -1,4 +1,4 @@
-# Coranto stage 3: watches, My Briefing, Watch Power and Elections
+# Coranto stage 3: watches, My Briefing and the lenses
 
 Date: 2026-10-11
 Status: built
@@ -83,12 +83,32 @@ individuals.
 An official source was the aim. No keyless official calendar covers the
 world, so the lens uses Wikidata and says on every entry that it does.
 
-## 7. Left for the rest of stage 3
+## 7. Markets lens and Live TV
+
+- `/api/markets` reads European Central Bank reference rates (through
+  Frankfurter) for eight currencies against the US dollar, and CoinGecko
+  prices for three coins. Each quote carries its value, the time its source
+  gave, the source name and a link.
+- A change is shown only from figures the source supplied: the previous
+  published ECB day, or CoinGecko's own 24-hour change. With one day of rates
+  there is a value and no change.
+- The lens states that reference rates are not live trading prices, names a
+  source that is down, and shows one sentence and no figures when neither
+  answers. A fall is shown in amber; red stays reserved for a tracker's Red
+  alert.
+- Stock indices and commodities are left out. The keyless source AUSPEX used
+  for them no longer answers.
+- Live TV is a list of AUSPEX's ten broadcasters as links to each channel's
+  live page. Nothing is embedded, so no third-party player loads until the
+  reader clicks.
+
+## 8. Left for the rest of stage 3
+
 
 
 
 - Official results and candidate filings where an authority publishes them
   (for the United States, the FEC with an API key).
 - Government (non-military) aircraft in Watch Power.
-- Markets and live broadcasts from AUSPEX.
+- Stock indices and commodities, with a keyed source.
 - Exporting or sharing a set of watches.

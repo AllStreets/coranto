@@ -495,6 +495,134 @@
 #coranto-card[data-owner='power'] {
   border-left-color: #c084fc;
 }
+.coranto-lens-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.coranto-lens-switch button:nth-child(4)[aria-pressed='true'] {
+  background: rgba(232, 184, 75, 0.18);
+  color: #f3d58a;
+}
+.coranto-lens-switch button:nth-child(3)[aria-pressed='true'] {
+  background: rgba(110, 138, 255, 0.2);
+  color: #a9b9ff;
+}
+.coranto-lens-switch button:nth-child(2)[aria-pressed='true'] {
+  background: rgba(192, 132, 252, 0.18);
+  color: #d8b4fe;
+}
+.coranto-rail-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.coranto-rail-actions .coranto-rail-btn {
+  width: auto;
+}
+.coranto-rail-actions .coranto-rail-briefing {
+  grid-column: 1 / -1;
+}
+.coranto-markets-body,
+.coranto-markets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.coranto-markets-body {
+  gap: 8px;
+  max-height: 54vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.coranto-quote {
+  display: grid;
+  grid-template-columns: 1fr auto 52px;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 9px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  text-decoration: none;
+}
+.coranto-quote:hover {
+  border-color: rgba(232, 184, 75, 0.6);
+}
+.coranto-quote-label {
+  color: var(--text-secondary);
+  font: 10px var(--font-mono);
+}
+.coranto-quote-value {
+  color: var(--text-primary);
+  font: 600 12px var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.coranto-quote-change {
+  color: var(--text-dim);
+  font: 10px var(--font-mono);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.coranto-quote[data-direction='up'] .coranto-quote-change {
+  color: #34e08a;
+}
+/* A fall is amber, not red: red is kept for a tracker's Red alert. */
+.coranto-quote[data-direction='down'] .coranto-quote-change {
+  color: #e8b84b;
+}
+.coranto-markets-source {
+  color: var(--text-dim);
+  font: 9px/1.4 var(--font-mono);
+}
+.coranto-markets-down {
+  color: #ff8a95;
+  font: 10px var(--font-mono);
+}
+
+/* Live TV */
+#coranto-tv {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(2, 4, 6, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+#coranto-tv[hidden] {
+  display: none;
+}
+.coranto-tv-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.coranto-tv {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 11px 13px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.025);
+  text-decoration: none;
+}
+.coranto-tv:hover {
+  border-color: rgba(52, 224, 138, 0.6);
+}
+.coranto-tv strong {
+  color: var(--text-primary);
+  font: 600 15px var(--font-head);
+}
+.coranto-tv span {
+  color: var(--text-secondary);
+  font: 11px var(--font-sans);
+}
+.coranto-tv em {
+  color: var(--accent);
+  font: normal 9.5px var(--font-mono);
+}
 .coranto-rail-heading {
   margin: 2px 0 0;
 }
@@ -1665,4 +1793,36 @@ body[data-coranto-mode='news'] #cesium-credits {
   #coranto-rail .coranto-rail-actions {
     display: none;
   }
+}
+
+/* The card's top line never breaks a word: the topic code and the time keep
+   their width, and a long publisher name is cut with an ellipsis. */
+.news-card-meta {
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+.news-card-code,
+.news-card-lang,
+.news-card-time {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+.news-card-publisher {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* The layer switches scroll sideways when the window is narrow; a fade shows
+   there are more instead of cutting one off mid-word. */
+#coranto-layers {
+  mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 calc(100% - 28px),
+    transparent
+  );
+  padding-right: 22px;
 }

@@ -2222,7 +2222,10 @@
       "src/layers/elections/source.js",
       "src/sources/elections/records.js",
       "src/sources/news/countries.js",
-      "src/ui/corantoElections.js"
+      "src/ui/corantoElections.js",
+      "src/ui/corantoMarkets.js",
+      "src/ui/corantoBroadcasts.js",
+      "src/sources/markets/records.js"
     ],
     "external": [
       "hls.js",
@@ -2768,7 +2771,10 @@
       "src/layers/elections/source.js",
       "src/sources/elections/records.js",
       "src/sources/news/countries.js",
-      "src/ui/corantoElections.js"
+      "src/ui/corantoElections.js",
+      "src/ui/corantoMarkets.js",
+      "src/ui/corantoBroadcasts.js",
+      "src/sources/markets/records.js"
     ],
     "external": [
       "hls.js",

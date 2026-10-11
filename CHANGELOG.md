@@ -1,5 +1,11 @@
 # Changelog
 
+- Coranto: a Markets lens shows European Central Bank reference exchange
+  rates and CoinGecko crypto prices, each with its source and time, beside
+  finance news. Live TV lists ten live news channels from AUSPEX's broadcaster
+  list as links. Feed cards no longer break the topic code across lines; a
+  long publisher name is shortened with an ellipsis instead.
+
 - Coranto: an Elections lens lists polling days in the next 120 days as
   Wikidata records them, marks them on the globe, narrows the feed to election
   news, and shows a country's election stories when its polling day is
