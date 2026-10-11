@@ -3525,6 +3525,30 @@ body[data-coranto-frame='one'][data-coranto-mode='instruments']
   min-height: 0;
 }
 
+/* The engine's tracking widgets were placed against the whole window, which
+   put them under the feed column or the ticker. Keep them over the globe. */
+body[data-coranto-frame='one'][data-coranto-mode='news']:not(.cockpit-mode)
+  #view-switcher {
+  right: auto;
+  left: calc(var(--coranto-rail-w) + 18px);
+  bottom: 56px;
+  z-index: 310;
+}
+body[data-coranto-frame='one']:not(.cockpit-mode) #orbit-indicator {
+  top: calc(var(--coranto-header-h) + 48px);
+}
+body[data-coranto-frame='one'][data-coranto-mode='news']:not(.cockpit-mode)
+  #orbit-indicator {
+  top: calc(var(--coranto-header-h) + 70px);
+  right: calc(var(--coranto-feed-w) + 22px);
+  z-index: 310;
+}
+/* Nothing of Coranto's sits on top of a full-screen engine surface. */
+body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
+  :is(#coranto-card, #coranto-hud, #coranto-key) {
+  display: none;
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */

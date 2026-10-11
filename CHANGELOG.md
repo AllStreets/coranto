@@ -338,6 +338,12 @@
 
 ## [Unreleased]
 
+- Keep the engine's tracking widgets over the globe. The view switcher shown
+  while following an aircraft or satellite, and the orbit indicator, were
+  placed against the whole window and sat under the feed column or the
+  ticker. Coranto's own card, frame and map key now step aside for the
+  full-screen cockpit view.
+
 - Redraw the satellite icon as a body with two solar wings and a dish, and
   colour each icon by its class as the engine colours its dot. The
   geostationary belt reads as a violet band over the equator again; the white
