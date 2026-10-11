@@ -1,6 +1,8 @@
 import { CATEGORY_CODE, createNewsFeed } from './newsPanel.js';
 import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
 import { getContextStore } from '../data/contextStore.js';
+import { createBoard } from './corantoBoard.js';
+import { createBoardStore } from './corantoBoardModel.js';
 import { createBroadcasts } from './corantoBroadcasts.js';
 import { contactCard } from './corantoContact.js';
 import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
@@ -65,7 +67,7 @@ const HEADER_LAYERS = [
   [
     'rocket-launches',
     'LAUNCHES',
-    'Recent and upcoming rocket launches',
+    'Recent and upcoming rocket launches. Satellites show too while this is on; they go back to how they were when you switch it off.',
     'launch',
   ],
   ['telegeography-submarine-cables', 'CABLES', 'Undersea cables', 'cable'],
@@ -197,6 +199,17 @@ function hudWhereLine(at) {
     `${Math.abs(value).toFixed(2)}°${value >= 0 ? pos : neg}`;
   const km = Math.round(at.height / 1000);
   return `${part(deg(at.latitude), 'N', 'S')} ${part(deg(at.longitude), 'E', 'W')} // ALT ${km.toLocaleString('en-GB')} KM`;
+}
+
+/** The header button for the analyst board. */
+function boardLabel(count) {
+  return count ? `BOARD · ${count}` : 'BOARD';
+}
+
+/** The pin button on a card. */
+function pinLabel(pinned, full) {
+  if (pinned) return 'Unpin from the board';
+  return full ? 'The board is full' : 'Pin to the board';
 }
 
 /** What to tell the reader after SAVE THIS VIEW is pressed. */
@@ -385,6 +398,27 @@ export function createCorantoShell({
     layerNav.append(button);
   }
 
+  // The analyst board is one button in the header, so it is there in both
+  // NEWS and INSTRUMENTS.
+  const boardStore = createBoardStore({ storage: localStorageRef });
+  const boardBtn = el(
+    document,
+    'button',
+    {
+      type: 'button',
+      id: 'coranto-board-btn',
+      title:
+        'The analyst board: what you have pinned, how it connects, and a brief worked out from it',
+    },
+    el(document, 'img', { src: iconImage('key', '#c9c2de'), alt: '' }),
+    el(document, 'span'),
+  );
+  const syncBoardButton = () => {
+    boardBtn.lastElementChild.textContent = boardLabel(
+      boardStore.list().length,
+    );
+  };
+  syncBoardButton();
   const count = el(document, 'span', { id: 'coranto-count' });
   const clock = el(document, 'time', { id: 'coranto-clock' });
   const modeNews = el(document, 'button', {
@@ -448,6 +482,7 @@ export function createCorantoShell({
     layerNav,
     count,
     clock,
+    boardBtn,
     modeSwitch,
   );
 
@@ -481,7 +516,19 @@ export function createCorantoShell({
     text: 'WHOLE EARTH',
     title: 'Pull back to the whole globe',
   });
-  const topicList = el(document, 'div', { class: 'coranto-topics' });
+  const topicCount = el(document, 'small');
+  const topicList = el(
+    document,
+    'div',
+    { class: 'coranto-topics' },
+    el(
+      document,
+      'div',
+      { class: 'coranto-strip' },
+      el(document, 'span', { text: 'TOPICS' }),
+      topicCount,
+    ),
+  );
   const topicButtons = new Map();
   for (const [id, label] of CATEGORIES) {
     const button = el(document, 'button', {
@@ -533,26 +580,32 @@ export function createCorantoShell({
   const lensNews = el(document, 'button', {
     type: 'button',
     text: 'NEWS',
-    title: 'Topics and your watches',
+    'data-lens': 'news',
+    title: 'News: topics and your watches',
     'aria-pressed': 'true',
   });
   const lensPower = el(document, 'button', {
     type: 'button',
-    text: 'WATCH POWER',
+    text: 'POWER',
+    'data-lens': 'power',
     title:
-      'Military aircraft, military sites and plate readers from public sources',
+      'Watch Power: military and government aircraft, military sites and plate readers, from public sources',
     'aria-pressed': 'false',
   });
   const lensElections = el(document, 'button', {
     type: 'button',
-    text: 'ELECTIONS',
-    title: 'Upcoming polling days and election news',
+    text: 'VOTES',
+    'data-lens': 'elections',
+    title:
+      'Elections: upcoming polling days, US campaign money and election news',
     'aria-pressed': 'false',
   });
   const lensMarkets = el(document, 'button', {
     type: 'button',
     text: 'MARKETS',
-    title: 'Exchange rates and crypto prices, with finance news',
+    'data-lens': 'markets',
+    title:
+      'Markets: indices, oil, exchange rates and crypto, with finance news',
     'aria-pressed': 'false',
   });
   const lensSwitch = el(
@@ -565,6 +618,29 @@ export function createCorantoShell({
     lensMarkets,
   );
   const markets = createMarketsLens({ document });
+  const board = createBoard({
+    document,
+    store: boardStore,
+    getArticles: () => layer.getView().snapshot?.articles ?? [],
+    onOpen: (asset) => {
+      board.close();
+      if (body.dataset.corantoMode !== 'news') setMode('news');
+      if (asset.kind === 'story') feed?.openStory(asset.key);
+      else {
+        const place = (layer.getView().places ?? []).find(
+          (entry) =>
+            entry.precision === asset.kind && entry.name === asset.title,
+        );
+        if (place) layer.selectPlace(place.key, { focus: true });
+        else flyTo(asset.lat, asset.lon, 3_000_000);
+      }
+    },
+    onChange: () => {
+      syncBoardButton();
+      feed?.render();
+    },
+  });
+  boardBtn.addEventListener('click', () => board.open());
   const tv = createBroadcasts({
     document,
     getViewer: () => dataManager?.viewer ?? null,
@@ -623,7 +699,19 @@ export function createCorantoShell({
     getViewer: () => dataManager?.viewer ?? null,
     showCard: (detail) => {
       card.dataset.owner = 'atlas';
-      showCard(detail);
+      const pin = detail?.pin;
+      const withAction = () =>
+        showCard({
+          ...detail,
+          action: pin && {
+            label: pinLabel(boardStore.has(pin.key), boardStore.full),
+            run: () => {
+              boardStore.toggle(pin);
+              withAction();
+            },
+          },
+        });
+      withAction();
     },
     // Narrow the feed to the place when current stories name it.
     selectPlace: (kind, name) => {
@@ -733,13 +821,18 @@ export function createCorantoShell({
     text: 'MY BRIEFING',
     title: 'The latest stories for every watch you have saved',
   });
-  const saveBtn = el(document, 'button', {
-    type: 'button',
-    class: 'coranto-watch-save',
-    text: '＋ SAVE THIS VIEW',
-    title:
-      'Save the current search, place and topic as a watch. Kept in this browser only.',
-  });
+  const saveBtn = el(
+    document,
+    'button',
+    {
+      type: 'button',
+      class: 'coranto-watch-save',
+      title:
+        'Save the current search, place and topic as a watch. Kept in this browser only.',
+    },
+    el(document, 'img', { src: iconImage('plus', '#b47cff'), alt: '' }),
+    el(document, 'span', { text: 'SAVE THIS VIEW' }),
+  );
   const saveNote = el(document, 'p', {
     class: 'coranto-watch-note',
     role: 'status',
@@ -918,12 +1011,19 @@ export function createCorantoShell({
     target: '_blank',
     rel: 'noopener noreferrer',
   });
-  const cardClose = el(document, 'button', {
+  const cardClose = el(
+    document,
+    'button',
+    { type: 'button', class: 'coranto-card-close', 'aria-label': 'Close' },
+    el(document, 'img', { src: iconImage('close', '#d5d0e2'), alt: '' }),
+  );
+  // An optional second button on a card, such as PIN TO BOARD.
+  const cardAction = el(document, 'button', {
     type: 'button',
-    class: 'coranto-card-close',
-    'aria-label': 'Close',
-    text: '✕',
+    class: 'coranto-card-action',
   });
+  let cardActionRun = null;
+  cardAction.addEventListener('click', () => cardActionRun?.());
   const card = el(
     document,
     'aside',
@@ -931,6 +1031,7 @@ export function createCorantoShell({
     el(document, 'div', { class: 'coranto-card-head' }, cardKind, cardClose),
     cardTitle,
     cardMeta,
+    cardAction,
     cardLink,
   );
   card.hidden = true;
@@ -948,6 +1049,9 @@ export function createCorantoShell({
     cardKind.textContent = detail.kind;
     cardTitle.textContent = detail.title;
     cardMeta.textContent = detail.meta;
+    cardAction.hidden = !detail.action;
+    cardActionRun = detail.action?.run ?? null;
+    if (detail.action) cardAction.textContent = detail.action.label;
     cardLink.hidden = !detail.url;
     if (detail.url) {
       cardLink.href = detail.url;
@@ -1051,6 +1155,7 @@ export function createCorantoShell({
     hud,
     sourcesMenu,
     mapKey.element,
+    board.element,
     ticker,
     rail,
     feedAside,
@@ -1112,13 +1217,17 @@ export function createCorantoShell({
           }),
         );
         open.addEventListener('click', () => openWatch(watch));
-        const remove = el(document, 'button', {
-          type: 'button',
-          class: 'coranto-watch-remove',
-          'aria-label': `Remove the watch ${watch.name}`,
-          title: 'Remove this watch',
-          text: '✕',
-        });
+        const remove = el(
+          document,
+          'button',
+          {
+            type: 'button',
+            class: 'coranto-watch-remove',
+            'aria-label': `Remove the watch ${watch.name}`,
+            title: 'Remove this watch',
+          },
+          el(document, 'img', { src: iconImage('close', '#a9a2bf'), alt: '' }),
+        );
         remove.addEventListener('click', () => {
           watchStore.remove(watch.id);
           renderWatches();
@@ -1316,6 +1425,20 @@ export function createCorantoShell({
     updateHud();
   }
 
+  function flyTo(lat, lon, height) {
+    const camera = dataManager?.viewer?.camera;
+    if (!camera || !Number.isFinite(lat) || !Number.isFinite(lon)) return;
+    camera.cancelFlight?.();
+    camera.flyTo({
+      destination:
+        dataManager.viewer.scene.globe.ellipsoid.cartographicToCartesian(
+          camera.positionCartographic.constructor.fromDegrees(lon, lat, height),
+        ),
+      orientation: { heading: 0, pitch: -Math.PI / 2, roll: 0 },
+      duration: 1.6,
+    });
+  }
+
   function wholeEarth() {
     const camera = dataManager?.viewer?.camera;
     if (!camera) return;
@@ -1370,6 +1493,7 @@ export function createCorantoShell({
     const live = sources.filter((source) => source.state === 'ok').length;
     liveText.textContent = liveLabel(state, live, sources.length);
     count.textContent = model.total ? `${model.total} HEADLINES` : '';
+    topicCount.textContent = count.textContent;
     feedCount.textContent = !model.total
       ? ''
       : model.grouped
@@ -1542,6 +1666,7 @@ export function createCorantoShell({
     if (!guide.hidden) guide.hidden = true;
     if (!briefing.hidden) closeBriefing();
     tv.close();
+    board.close();
   };
   document.addEventListener('keydown', onKey);
   const showSources = () => {
@@ -1575,7 +1700,13 @@ export function createCorantoShell({
     writeStored(sessionStorageRef, FIRST_RUN_SESSION_KEY, 'dismissed');
   }
 
-  feed = createNewsFeed({ document, body: feedBody, layer, onModel });
+  feed = createNewsFeed({
+    document,
+    body: feedBody,
+    layer,
+    onModel,
+    board: boardStore,
+  });
   // First visit: open the guide once. Automated browsers are left alone.
   if (
     body.dataset.corantoMode === 'news' &&
@@ -1648,6 +1779,7 @@ export function createCorantoShell({
       document.removeEventListener('keydown', onKey);
       nuclear.hide();
       atlas.destroy();
+      board.destroy();
       document.removeEventListener('pointerdown', onOutside);
       unsubscribeHazards?.();
       feed?.destroy();

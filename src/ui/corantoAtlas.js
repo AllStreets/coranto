@@ -190,11 +190,19 @@ export function createAtlas({
       const record = typeof id === 'string' ? records.get(id) : null;
       if (!record) return;
       const count = selectPlace(record.kind, record.item.name);
-      showCard(
-        record.kind === 'country'
+      showCard({
+        ...(record.kind === 'country'
           ? countryCard(record.item, count)
-          : cityCard(record.item, count),
-      );
+          : cityCard(record.item, count)),
+        // What the analyst board keeps if this is pinned.
+        pin: {
+          key: `${record.kind}:${record.item.name}`,
+          kind: record.kind,
+          title: record.item.name,
+          lat: record.item.lat,
+          lon: record.item.lng,
+        },
+      });
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
 

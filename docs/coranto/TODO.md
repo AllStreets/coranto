@@ -24,8 +24,8 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [x] **T3 Briefing rows use their topic colour** and show the topic code.
 - [x] **T19 Fires.** Works without a key from NASA's public 24-hour files;
   heat cells are now visible at whole-Earth zoom.
-- [ ] **T20 Launches.** Works, but turning it on also turns on SATELLITES and
-  leaves it on. Decouple or say so.
+- [x] **T20 Launches.** Works. It needs the satellites layer, switches it on
+  while it is on and restores it afterwards; the button now says so.
 
 ## Design foundation
 
@@ -68,7 +68,10 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   as attribution inside an in-app surface.
 - [ ] **T8 AUSPEX story-popup tools**: pin to analyst, mirrors, blindspot,
   verify, translate, listen, provenance.
-- [ ] **T2 Analyst board**, housed in INSTRUMENTS.
+- [x] **T2 Analyst board**, opened from the header in both views. Pins,
+  connections, computed brief and timeline, saved boards in the browser.
+  Open: escalation matrix and dead reckoning (both rule-based in AUSPEX),
+  history search over a database archive, pinning aircraft and ships.
 - [ ] **T15 Category colours and related stories in INSTRUMENTS.**
 
 ## Atlas (copied from AUSPEX, 2026-10-11)

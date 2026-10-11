@@ -17,6 +17,17 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: the analyst board, from AUSPEX. BOARD in the header (so it is
+  there in NEWS and INSTRUMENTS) opens what you have pinned, how the items
+  connect, and a brief and timeline worked out from them. Pin a story from
+  its panel, or a country or city from its card. The board survives a
+  reload, and boards can be saved, loaded and copied out as text. Everything
+  on it is computed by fixed rules from the pins and current headlines;
+  AUSPEX's model-written tools (consensus, adversary playbook, red team) are
+  left out because their output cannot be checked against sources.
+- Coranto: the lens bar is one row (NEWS, POWER, VOTES, MARKETS), rail panels
+  have a label strip with a count, and the last text glyphs in the news view
+  (close and plus marks) are icons.
 - Coranto: ships are ships. Each vessel is drawn as a top-down hull for its
   class, from its own AIS type code: cargo and container, tanker, passenger
   (ferries and cruise ships alike), military and law enforcement, small

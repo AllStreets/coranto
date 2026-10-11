@@ -70,6 +70,7 @@ export function createNewsFeed({
   onModel = () => {},
   now = () => Date.now(),
   fetchImpl = (...args) => globalThis.fetch(...args),
+  board = null,
 }) {
   if (!document?.createElement || !body) return null;
 
@@ -639,6 +640,35 @@ export function createNewsFeed({
       );
       tools.append(fly);
     }
+    if (board) {
+      const key = card.storyId ?? card.id;
+      const isPinned = board.has(key);
+      const pin = toolButton('plus', isPinned ? 'PINNED' : 'PIN TO BOARD', {
+        active: isPinned,
+        title: isPinned
+          ? 'Remove this story from the analyst board'
+          : 'Keep this story on the analyst board',
+      });
+      pin.addEventListener('click', () => {
+        const result = board.toggle({
+          key,
+          kind: 'story',
+          title: card.title,
+          summary: card.summary,
+          publisher: card.publisher,
+          url: card.url,
+          publishedAt: card.publishedIso,
+          category: card.categoryId,
+          place: place?.name ?? '',
+          lat: place?.lat,
+          lon: place?.lon,
+        });
+        if (result === 'full')
+          pin.title = 'The board is full. Unpin something first.';
+        render();
+      });
+      tools.append(pin);
+    }
     if (speech()) {
       const listen = toolButton('speaker', speaking ? 'STOP' : 'LISTEN', {
         active: speaking,
@@ -758,7 +788,12 @@ export function createNewsFeed({
     );
 
     placeChip.hidden = !model.place;
-    placeChip.textContent = model.place ? `${model.place.name} ✕` : '';
+    if (model.place) {
+      const clear = el(document, 'img');
+      clear.src = iconImage('close', '#f2c14e');
+      clear.alt = 'Clear';
+      placeChip.replaceChildren(model.place.name, clear);
+    } else placeChip.replaceChildren();
     fillSelect(
       publisherSelect,
       'All publishers',
