@@ -43,6 +43,11 @@
 </table>
 
 <p align="center">
+  <img src="docs/media/coranto/board.png" alt="The analyst board: pinned stories, the connections between them, and a computed brief" width="100%"/>
+</p>
+<p align="center"><em>The analyst board: seven pinned stories, the names that connect them drawn as a live network, and a brief worked out from the pins by fixed rules. Nothing on it is written by a model.</em></p>
+
+<p align="center">
 <a href="#what-this-is">What this is</a> ·
 <a href="#why-it-exists">Why it exists</a> ·
 <a href="#the-honesty-rules">The honesty rules</a> ·
