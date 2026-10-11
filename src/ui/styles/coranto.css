@@ -1929,3 +1929,72 @@ body[data-coranto-mode='news'] #cesium-credits {
     padding: 20px 18px;
   }
 }
+
+/* Dialogs always fit the window: the card is capped to the visible height
+   and scrolls inside, with its buttons kept in view at the bottom. */
+#coranto-guide,
+#coranto-briefing,
+#coranto-tv {
+  padding: 16px;
+  overflow: hidden;
+}
+.coranto-guide-card {
+  box-sizing: border-box;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.coranto-guide-card > .coranto-guide-close,
+.coranto-briefing-actions {
+  position: sticky;
+  bottom: -24px;
+  z-index: 1;
+  margin-top: 16px;
+  padding: 12px 0 4px;
+  background: linear-gradient(180deg, transparent, #060d09 38%);
+}
+.coranto-guide-card > .coranto-guide-close {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(52, 224, 138, 0.14), rgba(52, 224, 138, 0.14)), #060d09;
+  padding: 11px 18px;
+}
+@media (max-height: 760px) {
+  .coranto-guide-card h2 {
+    margin: 4px 0 10px;
+    font-size: 22px;
+  }
+  .coranto-guide-card ol {
+    gap: 8px;
+  }
+  .coranto-guide-card li {
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+}
+
+/* The left rail never runs off the bottom: it ends above the window edge and
+   scrolls inside when its contents are taller than the space. */
+#coranto-rail {
+  bottom: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(52, 224, 138, 0.35) transparent;
+  padding-right: 4px;
+}
+#coranto-rail > * {
+  flex: 0 0 auto;
+}
+/* Inner lists size to their content; the rail is the one scroller. */
+#coranto-rail .coranto-watch-list,
+#coranto-rail .coranto-power-air,
+#coranto-rail .coranto-elections-list,
+#coranto-rail .coranto-markets-body {
+  max-height: none;
+  overflow: visible;
+}
