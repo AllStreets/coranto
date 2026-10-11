@@ -1,12 +1,13 @@
 import { readResponseTextCapped } from '../httpBody.js';
 import { clusterArticles } from './cluster.js';
+import { differingFigures } from './figures.js';
 import { parseFeed, parseGdelt, parseNewsApi } from './feeds.js';
 import {
   NEWS_DROP_REASONS,
   NEWS_MAX_AGE_MS,
   normalizeArticles,
 } from './records.js';
-import { NEWS_SOURCES } from './registry.js';
+import { NEWS_COVERAGE_REGIONS, NEWS_SOURCES } from './registry.js';
 
 export const NEWS_CACHE_TTL_MS = 10 * 60 * 1000;
 export const NEWS_RETRY_AFTER_MS = 60 * 1000;
@@ -168,7 +169,13 @@ export function createNewsService({
       if (entry.fetchedAt !== null && at - entry.fetchedAt <= NEWS_MAX_AGE_MS) {
         const result = normalizeArticles(
           entry.raws,
-          { sourceId: source.id, fetchedAt: entry.fetchedAt, now: at },
+          {
+            sourceId: source.id,
+            region: source.region,
+            lang: source.lang,
+            fetchedAt: entry.fetchedAt,
+            now: at,
+          },
           seen,
         );
         count = result.articles.length;
@@ -200,10 +207,42 @@ export function createNewsService({
       fetchedAt: new Date(fetchedAt).toISOString(),
       stale,
       articles,
-      stories: clusterArticles(articles),
+      stories: describeStories(articles, report),
       sources: report,
       dropped,
     };
+  }
+
+  /**
+   * Group the articles into stories and, for each, record which regions'
+   * outlets carried it and where their headline figures differ.
+   */
+  function describeStories(articles, report) {
+    const byId = new Map(articles.map((article) => [article.id, article]));
+    // A region can only be called quiet on a story if we are reading it now.
+    const listening = new Set(
+      sources
+        .filter((source) => report.find((row) => row.id === source.id)?.ok)
+        .map((source) => source.region),
+    );
+    return clusterArticles(articles).map((story) => {
+      const members = story.articleIds.map((id) => byId.get(id));
+      if (story.outlets < 2) return story;
+      const coverage = NEWS_COVERAGE_REGIONS.map((region) => ({
+        region,
+        outlets: new Set(
+          members
+            .filter((article) => article.region === region)
+            .map((article) => article.publisher),
+        ).size,
+        listening: listening.has(region),
+      }));
+      return {
+        ...story,
+        coverage,
+        differing: differingFigures(members),
+      };
+    });
   }
 
   async function refresh() {

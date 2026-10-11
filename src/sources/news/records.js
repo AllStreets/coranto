@@ -51,7 +51,10 @@ const clean = (value) =>
  * @param {{title?: string, summary?: string, url?: string, publisher?: string, publishedAt?: string}} raw
  * @param {{sourceId: string, fetchedAt: number, now: number}} context
  */
-export function normalizeArticle(raw, { sourceId, fetchedAt, now }) {
+export function normalizeArticle(
+  raw,
+  { sourceId, region, lang, fetchedAt, now },
+) {
   const title = clean(raw?.title).slice(0, NEWS_TITLE_MAX);
   if (!title || title === '[Removed]') return { dropped: 'noTitle' };
   const url = canonicalNewsUrl(raw?.url);
@@ -76,6 +79,8 @@ export function normalizeArticle(raw, { sourceId, fetchedAt, now }) {
       url,
       publisher,
       sourceId,
+      region: region ?? null,
+      lang: lang ?? 'en',
       publishedAt: new Date(publishedMs).toISOString(),
       fetchedAt: new Date(fetchedAt).toISOString(),
       place,

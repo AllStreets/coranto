@@ -5,7 +5,7 @@
 **EVERY STORY HAS A PLACE AND A DATE**
 
 <img alt="news" src="https://img.shields.io/badge/news-real_headlines_·_real_links-34E08A?style=for-the-badge&labelColor=04070b"/>
-<img alt="sources" src="https://img.shields.io/badge/news_sources-28_named_·_health_shown-34E08A?style=for-the-badge&labelColor=04070b"/>
+<img alt="sources" src="https://img.shields.io/badge/news_sources-35_named_·_6_languages_·_health_shown-34E08A?style=for-the-badge&labelColor=04070b"/>
 <img alt="live layers" src="https://img.shields.io/badge/live_layers-32-34E08A?style=for-the-badge&labelColor=04070b"/>
 <img alt="AI text" src="https://img.shields.io/badge/AI_text-optional_·_cited_·_checked_in_code-A3E635?style=for-the-badge&labelColor=04070b"/>
 <img alt="keys" src="https://img.shields.io/badge/API_keys-none_required-34E08A?style=for-the-badge&labelColor=04070b"/>
@@ -63,6 +63,8 @@ It is built from two projects:
   the instrument
   ├─ the feed ......... publisher headlines, newest first, each linked to its source
   ├─ stories .......... the same event across outlets, with how many carried it
+  ├─ coverage ......... which regions' outlets carried a story, and which did not
+  ├─ figures .......... where outlets give different numbers for the same thing
   ├─ AI brief ......... optional; every sentence cites its sources or is removed
   ├─ search ........... keep only the stories that mention your words
   ├─ the globe ........ one marker per place the stories name; rings where approximate
@@ -136,6 +138,25 @@ removed and counted. The check proves a sentence's figures and names come
 from the cited articles; it does not prove the outlets are right, which is
 why every sentence links to them.
 
+<p align="center">
+  <img src="docs/media/coranto/figures-and-regions.png" alt="A story from 12 outlets showing differing death tolls and outlets by region" width="100%"/>
+</p>
+
+<p align="center"><em>One story from 12 outlets, 23 headlines. Four outlets' headlines said three were killed and ten said twelve, so the card says the figures differ and who gave which. Below, outlets by region: none of the African outlets read had carried it.</em></p>
+
+Two more things are read straight from the headlines, with no model:
+
+- **Figures that differ.** When outlets in one story give different numbers
+  for the same thing, the card says so and names who gave which: for example
+  `killed: 15 (France 24) · 20 (CNA)`, or `magnitude: 7.6 (The Hindu) · 7.7
+  (Euronews, The Guardian)`. Coranto does not pick a winner; later reports
+  often carry higher counts.
+- **Outlets by region.** Opening a story's outlet list shows how many outlets
+  based in Europe, the Middle East, Asia-Pacific, Africa and the Americas
+  carried it. A dashed `Africa 0` means the African outlets Coranto reads are
+  answering and none has carried it. That is a statement about the outlets
+  Coranto reads, not about the whole press of a region.
+
 ---
 
 ## How to use it
@@ -153,6 +174,7 @@ Coranto has two views, switched at the top right.
 | See who else reported a story | Click the `N outlets` chip on a card to list every outlet's own headline. |
 | Get a checked summary | Click **AI BRIEF** on a story with several outlets. Needs an OpenAI key. |
 | See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
+| Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
 | Search | Type in the box above the feed. Stories must contain every word, in the headline, summary, publisher or place. |
 | Narrow by topic | Use the list on the left. |
 | See only good news | Click **GOOD NEWS**. |
@@ -225,6 +247,7 @@ the project folder (it is gitignored; see `.env.example`), or paste them into
 | Asia and Pacific | South China Morning Post, The Straits Times, CNA, The Japan Times, The Hindu, The Times of India, ABC News (Australia) | No |
 | Africa | Africanews, AllAfrica, Premium Times | No |
 | Americas | NPR, ProPublica, Buenos Aires Times | No |
+| In French, Spanish, German, Portuguese, Arabic | Le Monde, El País, BBC Mundo, Der Spiegel, Tagesschau, G1 Globo, Al Jazeera Arabic | No |
 | International bodies | UN News, ReliefWeb, WHO | No |
 | Science and space | Nature, ScienceDaily, Ars Technica, NASA | No |
 | Indexes | GDELT | No |
@@ -238,8 +261,10 @@ copy article bodies or images.
 
 Two things to know:
 
-- **The list is English-language.** It now spans every inhabited continent,
-  but non-English outlets are not read yet.
+- **Other languages are shown as published.** Seven outlets in French,
+  Spanish, German, Portuguese and Arabic are read. The feed shows English by
+  default; the language menu shows the rest, untranslated. Place matching,
+  topics and story grouping work best in English.
 - **Some sources will be down.** GDELT rate-limits, and ReliefWeb and UN News
   sometimes refuse or time out. Coranto reports them as down; the feed works
   on the rest.
@@ -282,6 +307,7 @@ is documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 
 ```bash
 npm test                 # unit tests, including the honesty gates
+npm run qa:news          # browser check of the news view (dev server running)
 npm run format:check
 npm run check:boundaries
 npm run build
@@ -293,8 +319,8 @@ npm run build
 
 | Stage | Status |
 |---|---|
-| **1. Foundation and truth feed** | Built: sourced feed from 28 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell |
-| **2. Verification** | Partly built: stories grouped across outlets with outlet counts, and AI briefs checked sentence by sentence. Next: comparing coverage across regions, flagging differing figures, non-English sources |
+| **1. Foundation and truth feed** | Built: sourced feed from 35 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell |
+| **2. Verification** | Built: stories grouped across outlets, outlet counts, outlets by region, differing figures, AI briefs checked sentence by sentence, and seven non-English sources |
 | **3. Lenses and your own feed** | Saved searches and a personal briefing built from them; Good News, Elections (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
 | **4. Beauty pass** | Full visual identity and a guided first run |
 | **5. Public site** | A hosted version anyone can open |

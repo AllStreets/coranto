@@ -63,6 +63,13 @@ images. Headlines and summaries belong to their publishers.
 | Nature | `www.nature.com/nature.rss` | none |
 | WHO | `www.who.int/rss-feeds/news-english.xml` | none |
 | NASA | `www.nasa.gov/news-release/feed/` | none |
+| Le Monde (French) | `www.lemonde.fr/international/rss_full.xml` | none |
+| El País (Spanish) | `feeds.elpais.com/.../internacional/portada` | none |
+| BBC Mundo (Spanish) | `www.bbc.com/mundo/index.xml` | none |
+| Der Spiegel (German) | `www.spiegel.de/ausland/index.rss` | none |
+| Tagesschau (German) | `www.tagesschau.de/ausland/index~rss2.xml` | none |
+| G1 Globo (Portuguese) | `g1.globo.com/rss/g1/mundo/` | none |
+| Al Jazeera Arabic | `www.aljazeera.net/aljazeerarss/...` | none |
 | GDELT DOC 2.0 | `api.gdeltproject.org/api/v2/doc/doc` | none |
 | NewsAPI | `newsapi.org/v2/top-headlines` | `NEWS_API_KEY` (optional) |
 

@@ -92,9 +92,44 @@ support. Rules 1 to 4 are unchanged.
   cache, failure and keyless responses, and that the model is sent no links
   and no key.
 
-## 6. Left for the rest of stage 2
+## 6. Outlets by region and differing figures
 
-- Coverage comparison across regions for one story (AUSPEX's Divergence).
-- Noting when a region's outlets are silent on a story (AUSPEX's Silence).
-- Flagging when outlets give different figures for the same thing.
-- Non-English sources.
+Both are read from the headlines on the server with no model.
+
+- **Outlets by region.** Each source has the region it is based in. A story
+  with two or more outlets records, for Europe, the Middle East, Asia-Pacific,
+  Africa and the Americas, how many distinct outlets carried it and whether
+  any source from that region is answering. A region with answering sources
+  and no outlet on the story is shown as a dashed zero; a region with no
+  answering source is shown as unknown. The wording is limited to "the outlets
+  Coranto reads".
+- **Differing figures** (`src/sources/news/figures.js`). Counted figures are
+  read from each headline for killed, injured, missing, arrested, displaced
+  and earthquake magnitude. Where a story's outlets give two or more values
+  for one of these, the card lists each value with the outlets that gave it.
+  Coranto does not choose between them.
+
+Known limit: a story that has chained two events together can show figures
+from both as if they differed.
+
+## 7. Other languages
+
+Seven outlets in French, Spanish, German, Portuguese and Arabic are read.
+Their headlines are shown as published; nothing is translated. The feed and
+the globe show English by default and a language menu shows the others.
+Place matching uses English names, so many non-English stories are unplaced,
+and topics, good-news tags and grouping are weaker outside English.
+
+Two feeds that answered with only stale items (NHK, Corriere della Sera) were
+tried and removed.
+
+## 8. Browser gate
+
+`npm run qa:news` answers `/api/news` inside a test browser and checks a
+healthy feed, a feed with one source down, and no source reachable.
+
+## 9. Left for later
+
+- Translating non-English headlines, labelled as machine translation.
+- Place names in other languages.
+- Splitting chained stories.

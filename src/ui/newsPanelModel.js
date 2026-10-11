@@ -46,6 +46,49 @@ export function relativeTime(ms, now) {
   return `${Math.floor(hours / 24)} d ago`;
 }
 
+const FIGURE_LABEL = {
+  killed: 'killed',
+  injured: 'injured',
+  missing: 'missing',
+  arrested: 'arrested',
+  displaced: 'displaced',
+  magnitude: 'magnitude',
+};
+
+/** "Europe 4", and "Africa: none of the outlets read" where that is known. */
+function coverageRows(coverage) {
+  return (coverage ?? []).map((row) => ({
+    region: row.region,
+    outlets: row.outlets,
+    state: row.outlets > 0 ? 'covered' : row.listening ? 'quiet' : 'unread',
+    text:
+      row.outlets > 0
+        ? `${row.region} ${row.outlets}`
+        : row.listening
+          ? `${row.region} 0`
+          : `${row.region} –`,
+    title:
+      row.outlets > 0
+        ? `${row.outlets} ${row.outlets === 1 ? 'outlet' : 'outlets'} based in ${row.region} carried this`
+        : row.listening
+          ? `None of the ${row.region} outlets Coranto reads has carried this in the last 48 hours`
+          : `No ${row.region} outlet is answering right now, so nothing can be said`,
+  }));
+}
+
+/** "killed: 15 (France 24) · 20 (BBC, CNA)" */
+function differingRows(differing) {
+  return (differing ?? []).map((row) => ({
+    what: FIGURE_LABEL[row.what] ?? row.what,
+    text: row.values
+      .map(
+        (entry) =>
+          `${entry.value.toLocaleString('en-GB')} (${entry.publishers.join(', ')})`,
+      )
+      .join(' · '),
+  }));
+}
+
 function hostOf(url) {
   try {
     return new URL(url).hostname.replace(/^www\./, '');
@@ -113,6 +156,7 @@ function card(article, now) {
     summary: article.summary,
     url: article.url,
     linkText: `Open at ${hostOf(article.url)}`,
+    lang: article.lang && article.lang !== 'en' ? article.lang : '',
   };
 }
 
@@ -136,10 +180,12 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
   const category = filters.category ?? null;
   const publisher = filters.publisher ?? null;
 
+  const language = view?.language === undefined ? 'en' : view.language;
   const goodNewsOnly = Boolean(view?.goodNewsOnly);
   const goodNewsCount = all.filter((article) => article.progress).length;
   const matches = (article) =>
     (!goodNewsOnly || article.progress) &&
+    (!language || (article.lang ?? 'en') === language) &&
     (!selectedPlace ||
       (article.place &&
         `${article.place.precision}:${article.place.name}` ===
@@ -179,6 +225,15 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
         outlets,
         outletsText:
           outlets > 1 ? `${outlets} outlets` : rest.length ? '1 outlet' : '',
+        // Shown only for the whole story, not a filtered slice of it.
+        coverage:
+          members.length === story.articleIds.length
+            ? coverageRows(story.coverage)
+            : [],
+        differing:
+          members.length === story.articleIds.length
+            ? differingRows(story.differing)
+            : [],
         others: rest.map((article) => ({
           id: article.id,
           publisher: article.publisher,
@@ -218,7 +273,7 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
   const count = (key) => {
     const counts = new Map();
     for (const article of all) {
-      const value = article[key];
+      const value = key === 'lang' ? (article.lang ?? 'en') : article[key];
       if (value) counts.set(value, (counts.get(value) ?? 0) + 1);
     }
     return [...counts]
@@ -254,6 +309,8 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
     filters: { category, publisher, query: terms.join(' ') },
     grouped,
     headlines: matching.length,
+    language,
+    languages: count('lang'),
     goodNewsOnly,
     goodNewsCount,
     cards,

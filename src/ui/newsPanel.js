@@ -1,3 +1,4 @@
+import { NEWS_LANGUAGES } from '../sources/news/registry.js';
 import { buildNewsPanelModel } from './newsPanelModel.js';
 
 const CATEGORY_CODE = {
@@ -204,7 +205,11 @@ export function createNewsFeed({
   placeChip.title = 'Clear the place filter';
   const publisherSelect = el(document, 'select', 'news-select');
   publisherSelect.setAttribute('aria-label', 'Filter by publisher');
-  filterRow.append(search, placeChip, publisherSelect);
+  const languageSelect = el(document, 'select', 'news-select');
+  languageSelect.setAttribute('aria-label', 'Language');
+  languageSelect.title =
+    'Headlines are shown in their original language; Coranto does not translate them.';
+  filterRow.append(search, placeChip, languageSelect, publisherSelect);
 
   const empty = el(document, 'p', 'news-empty');
   const list = el(document, 'ol', 'news-list');
@@ -279,6 +284,16 @@ export function createNewsFeed({
       tag,
       el(document, 'span', 'news-card-publisher', card.publisher),
     );
+    if (card.lang) {
+      const langTag = el(
+        document,
+        'span',
+        'news-card-lang',
+        card.lang.toUpperCase(),
+      );
+      langTag.title = `In ${NEWS_LANGUAGES[card.lang] ?? card.lang}, as published`;
+      meta.append(langTag);
+    }
     const time = el(document, 'time', 'news-card-time', card.published);
     time.dateTime = card.publishedIso;
     meta.append(time);
@@ -309,6 +324,21 @@ export function createNewsFeed({
         else openStories.add(card.storyId);
         render();
       });
+      for (const row of card.differing ?? []) {
+        const note = el(document, 'p', 'news-card-differ');
+        note.title =
+          'Read from the headlines. Coranto does not judge which is right; later reports often carry higher counts.';
+        note.append(
+          el(
+            document,
+            'span',
+            'news-card-differ-label',
+            `FIGURES DIFFER · ${row.what.toUpperCase()}`,
+          ),
+          ` ${row.text}`,
+        );
+        item.append(note);
+      }
       const actions = el(document, 'div', 'news-card-actions');
       actions.append(more);
       if (card.outlets > 1) {
@@ -332,6 +362,24 @@ export function createNewsFeed({
       item.append(actions);
       if (briefs.has(card.storyId)) item.append(renderBrief(card.storyId));
       if (open) {
+        if (card.coverage?.length) {
+          const coverage = el(document, 'div', 'news-card-coverage');
+          coverage.append(
+            el(
+              document,
+              'span',
+              'news-card-coverage-label',
+              'OUTLETS BY REGION',
+            ),
+          );
+          for (const row of card.coverage) {
+            const chip = el(document, 'span', 'news-card-region', row.text);
+            chip.dataset.state = row.state;
+            chip.title = row.title;
+            coverage.append(chip);
+          }
+          item.append(coverage);
+        }
         const others = el(document, 'ul', 'news-card-others');
         for (const other of card.others) {
           const row = el(document, 'li', 'news-card-other');
@@ -406,6 +454,14 @@ export function createNewsFeed({
       model.publishers,
       filters.publisher,
     );
+    const languageOptions = [new Option('All languages', '')];
+    for (const { value, count } of model.languages)
+      languageOptions.push(
+        new Option(`${NEWS_LANGUAGES[value] ?? value} (${count})`, value),
+      );
+    languageSelect.replaceChildren(...languageOptions);
+    languageSelect.value = model.language ?? '';
+    languageSelect.hidden = model.languages.length < 2;
     filterRow.hidden = model.total === 0;
 
     empty.hidden = !model.empty;
@@ -427,6 +483,9 @@ export function createNewsFeed({
     filters.query = search.value;
     render();
   });
+  languageSelect.addEventListener('change', () =>
+    layer.setLanguage(languageSelect.value || null),
+  );
   publisherSelect.addEventListener('change', () => {
     filters.publisher = publisherSelect.value || null;
     render();

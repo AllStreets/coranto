@@ -505,7 +505,7 @@ export function createCorantoShell({
     const sources = model.sources.filter((source) => source.state !== 'off');
     const live = sources.filter((source) => source.state === 'ok').length;
     liveText.textContent = liveLabel(state, live, sources.length);
-    count.textContent = model.total ? `${model.total} STORIES` : '';
+    count.textContent = model.total ? `${model.total} HEADLINES` : '';
     feedCount.textContent = !model.total
       ? ''
       : model.grouped

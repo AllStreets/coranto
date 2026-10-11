@@ -42,13 +42,17 @@ export function createNewsLayer({
   let _groups = [];
   let _selectedKey = null;
   let _goodNewsOnly = false;
+  // English by default; other languages are one choice away in the feed.
+  let _language = 'en';
   const _listeners = new Set();
 
   const newsColor = Cesium.Color.fromCssColorString(NEWS_ACCENT);
   const goodColor = Cesium.Color.fromCssColorString(NEWS_GOOD_ACCENT);
 
   function regroup() {
-    const articles = _snapshot?.articles ?? [];
+    const articles = (_snapshot?.articles ?? []).filter(
+      (a) => !_language || (a.lang ?? 'en') === _language,
+    );
     _groups = groupNewsByPlace(
       _goodNewsOnly ? articles.filter((a) => a.progress) : articles,
     );
@@ -252,6 +256,7 @@ export function createNewsLayer({
         places: _groups,
         selectedPlaceKey: _selectedKey,
         goodNewsOnly: _goodNewsOnly,
+        language: _language,
       };
     },
 
@@ -260,6 +265,14 @@ export function createNewsLayer({
       if (typeof listener !== 'function') return () => {};
       _listeners.add(listener);
       return () => _listeners.delete(listener);
+    },
+
+    /** Show one language's headlines, or every language with null. */
+    setLanguage(code) {
+      _language = code || null;
+      regroup();
+      render();
+      emit();
     },
 
     /** Narrow the globe and panel to stories tagged as good news. */

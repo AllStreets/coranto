@@ -1,5 +1,11 @@
 # Changelog
 
+- Coranto: stories now show how many outlets from each region carried them
+  and where the outlets' headline figures differ, both read from the headlines
+  with no model. Seven outlets in French, Spanish, German, Portuguese and
+  Arabic are read and shown as published, behind a language menu that defaults
+  to English. `npm run qa:news` checks the news view in a browser.
+
 - Coranto: the feed groups headlines about the same event into one story and
   counts the distinct outlets that carried it, with a switch back to every
   headline. `POST /api/news/brief` asks a model to summarise a story from the

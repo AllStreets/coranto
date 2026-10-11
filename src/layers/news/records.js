@@ -19,6 +19,38 @@ function normalizeSource(source) {
   };
 }
 
+function normalizeCoverage(coverage) {
+  if (!Array.isArray(coverage)) return [];
+  return coverage
+    .filter(
+      (row) => typeof row?.region === 'string' && Number.isFinite(row.outlets),
+    )
+    .map((row) => ({
+      region: row.region,
+      outlets: row.outlets,
+      listening: row.listening === true,
+    }));
+}
+
+function normalizeDiffering(differing) {
+  if (!Array.isArray(differing)) return [];
+  const out = [];
+  for (const row of differing) {
+    if (typeof row?.what !== 'string' || !Array.isArray(row.values)) continue;
+    const values = row.values
+      .filter(
+        (entry) =>
+          Number.isFinite(entry?.value) && Array.isArray(entry.publishers),
+      )
+      .map((entry) => ({
+        value: entry.value,
+        publishers: entry.publishers.filter((p) => typeof p === 'string'),
+      }));
+    if (values.length >= 2) out.push({ what: row.what, values });
+  }
+  return out;
+}
+
 /**
  * Story groups from the server, limited to articles that passed validation.
  * When the server sent none, every article is its own story.
@@ -37,6 +69,8 @@ function normalizeStories(stories, articles) {
       id: story.id,
       articleIds: ids,
       outlets: new Set(ids.map((id) => known.get(id).publisher)).size,
+      coverage: normalizeCoverage(story.coverage),
+      differing: normalizeDiffering(story.differing),
     });
   }
   for (const article of articles)
