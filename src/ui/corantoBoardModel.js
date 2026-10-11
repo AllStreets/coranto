@@ -176,6 +176,73 @@ export function buildTimeline(assets, articles) {
   return [...days.entries()].map(([day, items]) => ({ day, items }));
 }
 
+/** Topics on the matrix, with AUSPEX's words for each. */
+export const MATRIX_TOPICS = Object.freeze([
+  ['geopolitics', 'GEO', 'war|conflict|diplomacy|election|sanction|geopolitic'],
+  ['technology', 'TEC', 'cyber|tech|ai|chip|hack|data'],
+  ['military', 'MIL', 'military|troops|missile|weapon|navy|army'],
+  ['finance', 'FIN', 'bank|market|economy|trade|dollar|sanction|oil'],
+  ['climate', 'CLM', 'climate|carbon|flood|drought|wildfire|emission'],
+]);
+
+/**
+ * AUSPEX's five-by-five matrix: how much two topics overlap. A cell adds the
+ * pinned items in its topics to the current headlines that use words from
+ * both (capped at six, as AUSPEX did). It measures overlap in coverage. It
+ * is not a measure of danger, and the page says so.
+ *
+ * Words match whole, with a plural allowed, so "ai" does not match "said".
+ */
+export function buildMatrix(assets, articles) {
+  const tests = new Map(
+    MATRIX_TOPICS.map(([id, , words]) => [
+      id,
+      new RegExp(
+        `(?<![\\p{L}\\p{N}])(?:${words})(?:s|es)?(?![\\p{L}\\p{N}])`,
+        'iu',
+      ),
+    ]),
+  );
+  const bodies = (articles ?? []).map((article) => ({
+    article,
+    body: `${article.title} ${article.summary ?? ''}`,
+  }));
+  const pinned = (id) => assets.filter((asset) => asset.category === id).length;
+  const cells = {};
+  let max = 1;
+  for (const [row] of MATRIX_TOPICS) {
+    cells[row] = {};
+    for (const [col] of MATRIX_TOPICS) {
+      const base =
+        row === col
+          ? pinned(row) * 2
+          : pinned(row) > 0 && pinned(col) > 0
+            ? 3
+            : 0;
+      const matches = bodies
+        .filter(
+          ({ body }) =>
+            tests.get(row).test(body) &&
+            (row === col || tests.get(col).test(body)),
+        )
+        .map(({ article }) => article);
+      const score = base + Math.min(matches.length, 6);
+      max = Math.max(max, score);
+      cells[row][col] = { score, matches: matches.slice(0, 20) };
+    }
+  }
+  return { cells, max };
+}
+
+/** Which of four shades a cell gets, by its share of the highest score. */
+export function matrixShade(score, max) {
+  const share = score / Math.max(1, max);
+  if (share > 0.7) return 3;
+  if (share > 0.4) return 2;
+  if (share > 0.15) return 1;
+  return 0;
+}
+
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 /** The brief built from the pinned items. */

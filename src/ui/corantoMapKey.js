@@ -44,6 +44,7 @@ const marker = (icon, colour, extra = {}) => ({
  * @param {boolean} state.nuclear
  * @param {boolean} state.broadcasts
  * @param {boolean} state.ships
+ * @param {boolean} state.satellites
  * @param {boolean} state.borders
  * @param {boolean} state.countries
  * @param {boolean} state.activity
@@ -205,6 +206,17 @@ export function buildMapKeyModel(state) {
       image: iconImage('broadcast', '#E8A020'),
       label: 'Newsroom broadcasting live. Select one to watch it.',
     });
+  if (state.satellites)
+    more.push(
+      {
+        image: iconImage('satellite', '#e6e0f7'),
+        label: 'Satellite in the named catalogue. Select one to follow it.',
+      },
+      {
+        swatch: '#9aa3b5',
+        label: 'Small dots: the rest, mostly the Starlink shell',
+      },
+    );
   if (state.governmentAircraft)
     more.push({
       image: iconImage('aircraft', '#e8d5a3'),

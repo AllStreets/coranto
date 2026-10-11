@@ -3472,6 +3472,44 @@ body[data-coranto-frame='one'][data-coranto-mode='instruments']
   max-width: calc(100vw - 12px);
 }
 
+/* The board's topic matrix */
+.coranto-matrix {
+  display: grid;
+  grid-template-columns: 38px repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+.coranto-matrix-head {
+  display: grid;
+  place-items: center;
+  font: 700 9px var(--font-brand);
+  letter-spacing: 1.2px;
+}
+.coranto-matrix-cell {
+  aspect-ratio: 1 / 1;
+  min-height: 34px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 2px;
+  background: rgba(120, 110, 150, 0.14);
+  color: var(--text-primary);
+  font: 600 13px var(--font-mono);
+  cursor: pointer;
+}
+.coranto-matrix-cell[data-shade='1'] {
+  background: rgba(180, 124, 255, 0.24);
+}
+.coranto-matrix-cell[data-shade='2'] {
+  background: rgba(180, 124, 255, 0.48);
+}
+.coranto-matrix-cell[data-shade='3'] {
+  background: rgba(180, 124, 255, 0.8);
+  color: #07060c;
+}
+.coranto-matrix-cell:hover,
+.coranto-matrix-cell:focus-visible,
+.coranto-matrix-cell[aria-pressed='true'] {
+  border-color: #ffffff;
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */

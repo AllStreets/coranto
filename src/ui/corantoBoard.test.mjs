@@ -13,6 +13,8 @@ import {
   boardLinks,
   boardText,
   boardTitle,
+  buildMatrix,
+  matrixShade,
   buildSynthesis,
   buildTimeline,
   corroboration,
@@ -250,4 +252,35 @@ test('items link through any name they both use, not only the fixed list', () =>
   assert.deepEqual(links, [
     { a: 'a', b: 'b', terms: ['Riyadh'], sameTopic: false },
   ]);
+});
+
+test('the matrix counts overlap between topics and matches whole words only', () => {
+  const assets = [
+    story('a', 'x', { category: 'military' }),
+    story('b', 'y', { category: 'finance' }),
+  ];
+  const articles = [
+    {
+      title: 'Oil market rattled as missile strikes hit ports',
+      url: 'https://x/1',
+    },
+    { title: 'Army chief said the navy will expand', url: 'https://x/2' },
+    { title: 'He said nothing about the detail', url: 'https://x/3' },
+  ];
+  const { cells, max } = buildMatrix(assets, articles);
+  // One pinned military item counts double on the diagonal, plus two headlines.
+  assert.equal(cells.military.military.score, 4);
+  // Both topics are pinned (3) and one headline uses words from both.
+  assert.equal(cells.military.finance.score, 4);
+  assert.deepEqual(
+    cells.military.finance.matches.map((a) => a.url),
+    ['https://x/1'],
+  );
+  // "said" and "detail" do not count as the technology word "ai".
+  assert.equal(cells.technology.technology.score, 0);
+  assert.equal(max, 4);
+  assert.deepEqual(
+    [4, 2, 1, 0].map((score) => matrixShade(score, 4)),
+    [3, 2, 1, 0],
+  );
 });

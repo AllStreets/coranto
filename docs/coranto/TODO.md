@@ -53,9 +53,8 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   for hazards, a shared icon module (`src/data/corantoIcons.js`). Open:
   city-type icons, country status marks, elections, quakes, launches.
 - [x] **T18 Ship icons.** Top-down hulls by class, rotated to heading.
-- [ ] **T22 Satellite icons.** The layer draws about 28,000 points and moves
-  them every frame, so icons for all would lag. Plan: icons for the named
-  and selected satellites only; the rest stay points.
+- [x] **T22 Satellite icons** on the named catalogue (about a thousand); the
+  Starlink shell stays as dots. No frame-rate cost measured.
 - [ ] **T17 Stories located on the globe** and clickable, alongside the
   instruments tools.
 - [~] **T4 Map key** generated from what is actually drawn. Done for
@@ -75,11 +74,11 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   verify, translate, listen, provenance.
 - [x] **T2 Analyst board**, opened from the header in both views. Pins,
   connections, computed brief and timeline, saved boards in the browser.
-  Open: escalation matrix and dead reckoning (both rule-based in AUSPEX),
-  history search over a database archive, pinning aircraft and ships.
+  Also done: the 3D connections graph, the topic matrix. Open: history
+  search over a database archive, pinning aircraft and ships.
 - [~] **T15 Category colours and related stories in INSTRUMENTS.** Done:
-  story markers with topic icons and a stories card. Open: stories near a
-  selected aircraft, ship or camera.
+  story markers with topic icons and a stories card; stories near a
+  selected aircraft, ship or site in the news view.
 
 ## Atlas (copied from AUSPEX, 2026-10-11)
 

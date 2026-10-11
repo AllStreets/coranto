@@ -1,9 +1,12 @@
 import { TOPIC_COLOURS, iconImage, markerImage } from '../data/corantoIcons.js';
 import {
+  MATRIX_TOPICS,
   boardLinks,
   boardText,
+  buildMatrix,
   buildSynthesis,
   buildTimeline,
+  matrixShade,
 } from './corantoBoardModel.js';
 
 /**
@@ -182,6 +185,7 @@ export function createBoard({
   const win = document.defaultView;
   let tab = 'brief';
   let showSaved = false;
+  let matrixPick = null;
   let note = '';
 
   const count = el(document, 'span', { class: 'coranto-story-count' });
@@ -747,6 +751,7 @@ export function createBoard({
       ...[
         ['brief', 'Brief'],
         ['timeline', 'Timeline'],
+        ['matrix', 'Matrix'],
       ].map(([id, label]) => {
         const node = el(document, 'button', {
           type: 'button',
@@ -798,6 +803,77 @@ export function createBoard({
         el(document, 'p', {
           class: 'coranto-power-foot',
           text: 'Worked out from the pinned items and current headlines by fixed rules; not written by a model. "Related" counts other headlines sharing three or more long words: it shows how much is being written, not whether a story is true.',
+        }),
+      );
+    } else if (tab === 'matrix') {
+      const { cells, max } = buildMatrix(assets, articles);
+      const grid = el(document, 'div', { class: 'coranto-matrix' });
+      grid.append(el(document, 'span', { class: 'coranto-matrix-corner' }));
+      for (const [id, code] of MATRIX_TOPICS) {
+        const head = el(document, 'span', {
+          class: 'coranto-matrix-head',
+          text: code,
+        });
+        head.style.color = TOPIC_COLOURS[id];
+        grid.append(head);
+      }
+      for (const [row, rowCode] of MATRIX_TOPICS) {
+        const head = el(document, 'span', {
+          class: 'coranto-matrix-head',
+          text: rowCode,
+        });
+        head.style.color = TOPIC_COLOURS[row];
+        grid.append(head);
+        for (const [col, colCode] of MATRIX_TOPICS) {
+          const cell = cells[row][col];
+          const button = el(document, 'button', {
+            type: 'button',
+            class: 'coranto-matrix-cell',
+            'data-shade': String(matrixShade(cell.score, max)),
+            'aria-pressed': String(matrixPick === `${row}:${col}`),
+            title: `${rowCode} and ${colCode}: ${cell.matches.length} current headlines use words from both`,
+            text: String(cell.score),
+          });
+          button.addEventListener('click', () => {
+            matrixPick =
+              matrixPick === `${row}:${col}` ? null : `${row}:${col}`;
+            render();
+          });
+          grid.append(button);
+        }
+      }
+      out.push(grid);
+      if (matrixPick) {
+        const [row, col] = matrixPick.split(':');
+        const matches = cells[row]?.[col]?.matches ?? [];
+        out.push(
+          el(document, 'div', {
+            class: 'coranto-rail-heading',
+            text: matrixHeading(row, col, matches.length),
+          }),
+        );
+        for (const article of matches) {
+          const link = el(document, 'a', {
+            class: 'coranto-board-line',
+            href: article.url,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+          });
+          link.style.setProperty(
+            '--tag',
+            TOPIC_COLOURS[article.category] ?? TOPIC_COLOURS.news,
+          );
+          link.append(
+            el(document, 'span', { text: article.title }),
+            el(document, 'small', { text: article.publisher }),
+          );
+          out.push(link);
+        }
+      }
+      out.push(
+        el(document, 'p', {
+          class: 'coranto-power-foot',
+          text: 'Each cell adds the pinned items in its two topics to the current headlines that use words from both, up to six. Darker means more overlap in coverage. It is not a measure of danger. Select a cell to list its headlines.',
         }),
       );
     } else {
@@ -868,6 +944,12 @@ export function createBoard({
     if (event.target === element) api.close();
   });
   return api;
+}
+
+function matrixHeading(row, col, count) {
+  const code = (id) => MATRIX_TOPICS.find(([topic]) => topic === id)?.[1] ?? id;
+  const pair = row === col ? code(row) : `${code(row)} AND ${code(col)}`;
+  return `${pair} · ${count} ${count === 1 ? 'HEADLINE' : 'HEADLINES'}`;
 }
 
 function saveNote(board) {

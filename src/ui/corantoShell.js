@@ -4,7 +4,12 @@ import { getContextStore } from '../data/contextStore.js';
 import { createBoard } from './corantoBoard.js';
 import { createBoardStore } from './corantoBoardModel.js';
 import { createBroadcasts } from './corantoBroadcasts.js';
-import { contactCard } from './corantoContact.js';
+import {
+  NEARBY_KM,
+  contactCard,
+  contactPosition,
+  nearbyStoryPlaces,
+} from './corantoContact.js';
 import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
 import {
   TOPIC_COLOURS,
@@ -16,6 +21,7 @@ import { setRealOnly } from '../data/corantoPolicy.js';
 import { createMapKey } from './corantoMapKey.js';
 import { createMarketsLens } from './corantoMarkets.js';
 import { createNuclearMarks } from './corantoNuclear.js';
+import { createSatelliteIcons } from './corantoSatelliteIcons.js';
 import { createPowerLens } from './corantoPower.js';
 import {
   WATCH_LIMIT,
@@ -42,7 +48,12 @@ const FIRST_RUN_SESSION_KEY = 'gev:first-run-mission-session:v1';
 const NEWS_LABELS_IN_NEWS = 16;
 
 /** Header layers whose symbols the map key explains itself. */
-const KEYED_LAYERS = new Set(['hazards', 'local-firms', 'ais-live-vessels']);
+const KEYED_LAYERS = new Set([
+  'hazards',
+  'local-firms',
+  'ais-live-vessels',
+  'satellites',
+]);
 
 /** Live layers offered in the header. Ids are catalog layer ids. */
 const HEADER_LAYERS = [
@@ -247,6 +258,16 @@ function placeCardMeta(place) {
 
 function placeCardAction(count) {
   return count === 1 ? 'Open this story' : `Read all ${count} in NEWS`;
+}
+
+/** The button on an aircraft or ship card that leads to nearby stories. */
+function nearbyLabel(near) {
+  const stories = near.reduce(
+    (sum, entry) => sum + entry.place.articles.length,
+    0,
+  );
+  const { place, km } = near[0];
+  return `${stories} ${stories === 1 ? 'story' : 'stories'} within ${NEARBY_KM} km · nearest ${place.name}, ${Math.round(km)} km`;
 }
 
 /** The header button for the analyst board. */
@@ -734,6 +755,10 @@ export function createCorantoShell({
     'aria-expanded': 'false',
     'aria-controls': 'coranto-key',
   });
+  // Icons over the named satellites, while the satellites layer is on.
+  const satelliteIcons = createSatelliteIcons({
+    getManager: () => dataManager,
+  });
   // Nuclear-armed states are always marked, as in AUSPEX.
   const nuclear = createNuclearMarks({
     getViewer: () => dataManager?.viewer ?? null,
@@ -856,6 +881,7 @@ export function createCorantoShell({
       nuclear: nuclear.shown,
       broadcasts: tv.isOpen,
       ships: on('ais-live-vessels'),
+      satellites: satelliteIcons.shown,
       borders: atlas.isOn('borders'),
       countries: atlas.isOn('countries'),
       activity: atlas.isOn('activity'),
@@ -1115,6 +1141,27 @@ export function createCorantoShell({
     }
   }
 
+  /** Where a globe object is now, from the object itself. */
+  function entityPosition(entity) {
+    try {
+      const viewer = dataManager?.viewer;
+      const raw = entity?.position;
+      const point = raw?.getValue
+        ? raw.getValue(viewer.clock.currentTime)
+        : raw;
+      const at = point
+        ? viewer.scene.globe.ellipsoid.cartesianToCartographic(point)
+        : null;
+      if (!at) return null;
+      return {
+        lat: (at.latitude * 180) / Math.PI,
+        lon: (at.longitude * 180) / Math.PI,
+      };
+    } catch {
+      return null;
+    }
+  }
+
   // Whatever the engine has selected (an aircraft, a ship, a mapped site)
   // gets a card too, so tracking detail shows without leaving the news view.
   let contactId = null;
@@ -1143,8 +1190,21 @@ export function createCorantoShell({
     if (id === contactId && card.dataset.owner !== 'contact') return;
     contactId = id;
     card.dataset.owner = 'contact';
+    // Stories near it: the same globe, the other half of the picture.
+    const at = contactPosition(record) ?? entityPosition(record.entity);
+    const near = at ? nearbyStoryPlaces(layer.getView().places ?? [], at) : [];
     showCard({
       ...detail,
+      action: near.length
+        ? {
+            label: nearbyLabel(near),
+            run: () => {
+              contactDismissed = id;
+              contactId = null;
+              layer.selectPlace(near[0].place.key);
+            },
+          }
+        : null,
       onClose: () => {
         contactDismissed = id;
         contactId = null;
@@ -1517,6 +1577,14 @@ export function createCorantoShell({
       button.hidden = !known;
       if (known)
         button.setAttribute('aria-pressed', String(dataManager.isEnabled(id)));
+    }
+    // Satellite icons follow the satellites layer (people only).
+    if (body.dataset.corantoFrame === 'one') {
+      const on =
+        dataManager.layers?.has('satellites') &&
+        dataManager.isEnabled('satellites');
+      if (on && !satelliteIcons.shown) satelliteIcons.start();
+      else if (!on && satelliteIcons.shown) satelliteIcons.stop();
     }
     renderMapKey();
   }
@@ -1895,6 +1963,7 @@ export function createCorantoShell({
       document.removeEventListener('keydown', onKey);
       layerIconStyle.remove();
       unsubscribePlace?.();
+      satelliteIcons.stop();
       nuclear.hide();
       atlas.destroy();
       board.destroy();

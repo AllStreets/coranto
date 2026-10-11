@@ -17,6 +17,18 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: icons on the named satellites. About a thousand catalogued
+  satellites (stations, navigation, weather, science) carry a satellite
+  icon that moves with the engine's own position for each; the Starlink
+  shell stays as dots. Measured at the same frame rate with icons on and
+  off. Selecting an icon follows that satellite.
+- Coranto: the board has a Matrix tab, AUSPEX's five-by-five topic grid. A
+  cell adds the pinned items in its two topics to the current headlines that
+  use words from both; selecting a cell lists them. It says it measures
+  overlap in coverage, not danger.
+- Coranto: a selected aircraft, ship or site in the news view offers the
+  stories near it: how many are within 300 km and the nearest place, with
+  one click to them. Only stories pinned to a city count.
 - Coranto: story markers work in INSTRUMENTS. Selecting one opens a card with
   the newest headline there, how many more stories the place has and their
   topics, and a button that opens the story or takes you to that place's

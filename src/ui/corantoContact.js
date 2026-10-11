@@ -85,3 +85,47 @@ export function contactCard(record) {
     ...(contactLink(record) ?? { url: '', linkText: '' }),
   };
 }
+
+/** Where a selected aircraft, ship or site is, if its record says. */
+export function contactPosition(record) {
+  const lat = [
+    record?.lat,
+    record?.latitude,
+    record?.properties?.lat,
+    record?.properties?.latitude,
+  ].find(Number.isFinite);
+  const lon = [
+    record?.lon,
+    record?.longitude,
+    record?.properties?.lon,
+    record?.properties?.longitude,
+  ].find(Number.isFinite);
+  return Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null;
+}
+
+const toRad = (degrees) => (degrees * Math.PI) / 180;
+
+/** Great-circle distance in kilometres. */
+export function distanceKm(a, b) {
+  const dLat = toRad(b.lat - a.lat);
+  const dLon = toRad(b.lon - a.lon);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+export const NEARBY_KM = 300;
+
+/**
+ * Places with current stories within `km` of a point, nearest first. Only
+ * places pinned to a city count: a country's marker is one point standing for
+ * the whole country, so its distance means nothing.
+ */
+export function nearbyStoryPlaces(places, at, km = NEARBY_KM) {
+  return (places ?? [])
+    .filter((place) => place.precision === 'city')
+    .map((place) => ({ place, km: distanceKm(at, place) }))
+    .filter((entry) => entry.km <= km)
+    .sort((a, b) => a.km - b.km);
+}
