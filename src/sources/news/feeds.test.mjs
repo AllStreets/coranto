@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { feedText, gdeltDate, parseFeed, parseGdelt, parseNewsApi } from './feeds.js';
+import {
+  feedText,
+  gdeltDate,
+  parseFeed,
+  parseGdelt,
+  parseNewsApi,
+} from './feeds.js';
 
 test('RSS 2.0 items keep the feed’s title, link, date and description', () => {
   const xml = `<rss><channel><title>Feed</title>
@@ -43,11 +49,17 @@ test('RDF items read dc:date', () => {
   const xml = `<rdf:RDF><item rdf:about="x">
       <title>Vote scheduled</title><link>https://example.org/v</link>
       <dc:date>2026-10-10T08:00:00+02:00</dc:date></item></rdf:RDF>`;
-  assert.equal(parseFeed(xml, 'DW')[0].publishedAt, '2026-10-10T08:00:00+02:00');
+  assert.equal(
+    parseFeed(xml, 'DW')[0].publishedAt,
+    '2026-10-10T08:00:00+02:00',
+  );
 });
 
 test('feedText decodes entities and never leaves markup', () => {
-  assert.equal(feedText('Tom &amp; Jerry&#39;s &#x2014; show'), "Tom & Jerry's — show");
+  assert.equal(
+    feedText('Tom &amp; Jerry&#39;s &#x2014; show'),
+    "Tom & Jerry's — show",
+  );
   assert.equal(feedText('<a href="x">link</a> text'), 'link text');
   assert.equal(feedText(''), '');
 });

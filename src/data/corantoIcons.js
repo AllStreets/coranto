@@ -76,7 +76,7 @@ export const ICONS = Object.freeze({
   // Things that move, pointing up (north)
   aircraft: [
     SOLID,
-    '<ellipse cx="12" cy="12" rx="1.55" ry="8.2"/><path d="M12 8.1 3 14.6l.850 1.7L12 12.9l8.15 3.4.850-1.7Z"/><path d="M12 18 7.7 21.9l.850.85L12 19.7l3.45 3.05.850-.850Z"/>',
+    '<ellipse cx="12" cy="12" rx="1.55" ry="8.2"/><path d="M12 8.1 3 14.6l.850 1.7L12 12.9l8.15 3.4.85-1.7Z"/><path d="M12 18 7.7 21.9l.850.85L12 19.7l3.45 3.05.85-.850Z"/>',
   ],
   launch: [
     STROKE,
@@ -90,9 +90,17 @@ export const ICONS = Object.freeze({
     STROKE,
     '<path d="M4 12.5h16V20H4z"/><path d="M8 12.5V5h8v7.5"/><path d="M10.3 8.3l1.3 1.3 2.3-2.6"/>',
   ],
+  ship: [
+    SOLID,
+    '<path d="M12 2c2.6 3.4 3.6 8 3 13l-.9 6.5H9.9L9 15C8.4 10 9.4 5.4 12 2Z"/>',
+  ],
+  cable: [
+    STROKE,
+    '<path d="M2 15c3 0 3-6 6-6s3 6 6 6 3-6 6-6h2"/><circle cx="4" cy="15" r="1.4" fill="currentColor" stroke="none"/>',
+  ],
   nuclear: [
     SOLID,
-    '<circle cx="12" cy="12" r="2.1"/><path d="M9.90 8.36L7.20 3.69A9.6 9.6 0 0 1 16.80 3.69L14.10 8.36A4.2 4.2 0 0 0 9.90 8.36ZM16.20 12.00L21.60 12.00A9.6 9.6 0 0 1 16.80 20.31L14.10 15.64A4.2 4.2 0 0 0 16.20 12.00ZM9.90 15.64L7.20 20.31A9.6 9.6 0 0 1 2.40 12.00L7.80 12.00A4.2 4.2 0 0 0 9.90 15.64Z"/>',
+    '<circle cx="12" cy="12" r="2.1"/><path d="M9.9 8.36L7.2 3.69A9.6 9.6 0 0 1 16.8 3.69L14.1 8.36A4.2 4.2 0 0 0 9.9 8.36ZM16.2 12L21.6 12A9.6 9.6 0 0 1 16.8 20.31L14.1 15.64A4.2 4.2 0 0 0 16.2 12ZM9.9 15.64L7.2 20.31A9.6 9.6 0 0 1 2.4 12L7.8 12A4.2 4.2 0 0 0 9.9 15.64Z"/>',
   ],
   // Interface
   close: [STROKE, '<path d="M6 6l12 12M18 6 6 18"/>'],

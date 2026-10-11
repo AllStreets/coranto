@@ -29,8 +29,13 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 
 ## Design foundation
 
-- [ ] **T12 One cohesive UI** for NEWS and INSTRUMENTS: one token set, one
-  panel chrome, one button style. Show a sample for sign-off first.
+- [~] **T12 One cohesive UI** for NEWS and INSTRUMENTS. The owner approved
+  the sample (`docs/media/coranto/ui-sample.png`) on 2026-10-11: bracket
+  panels, mono label strips, icons on every row, crisp icons on the globe,
+  text on the globe only where the lens calls for it. Applied so far: icons
+  on topics and layer chips, bracket panels in the rail, the globe frame,
+  lens-aware labels. Open: label strips with counts, the one-row lens bar
+  with BOARD, the story pop-up, restyling INSTRUMENTS panels to match.
 - [ ] **T14 Carry the military HUD styling the owner likes** into the news
   side (part of T12).
 - [ ] **T13 No emojis or text glyphs.** One SVG icon set. Known offenders:
@@ -63,6 +68,15 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [ ] **T2 Analyst board**, housed in INSTRUMENTS.
 - [ ] **T15 Category colours and related stories in INSTRUMENTS.**
 
+## More data
+
+- [x] **T23 A week of stories.** 7-day retention with merged feed reads and a
+  time-range control. Open: a database archive for history beyond a week and
+  search across it, as AUSPEX had with Supabase.
+- [ ] **T24 Relief lens on official data** (owner said yes 2026-10-11):
+  ReliefWeb, UNHCR, IPC famine classification, WHO outbreak notices. Not
+  AUSPEX's model-written version.
+
 ## Verify and explain
 
 - [ ] **T10 Test every instruments layer** in a real browser; fix or state
@@ -78,10 +92,8 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 
 1. Port only the AUSPEX AI tools that can cite their sources and be checked
    in code.
-2. Relief module: undecided. The owner asked for a description first. Its ten
-   tools are mostly model-written from headlines (situation report, response
-   council, displacement, famine phases, recovery timeline, civilian
-   protection) with no official data feed behind them.
+2. Relief: do not port AUSPEX's model-written module; rebuild it as a lens
+   on official humanitarian data (T24).
 3. Ships: one "passenger" class for ferries and cruise ships.
 4. Country marks: conflict as a derived, labelled mark; the nuclear-armed
    states mark is in. Sanctions and P5 flags stay out until sourced. All

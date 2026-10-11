@@ -387,7 +387,7 @@ Two things to know:
   on the rest.
 
 Stories are filtered before display: adverts, PR copy, entertainment and
-anything older than 48 hours are left out. The feed shows how many items were
+anything older than 7 days are left out. The feed shows how many items were
 left out and why. The filter lists are in `src/sources/news/junk.js`.
 
 Every other feed (aircraft, ships, satellites, earthquakes, weather, cameras)

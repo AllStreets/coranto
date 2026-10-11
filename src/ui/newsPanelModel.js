@@ -19,7 +19,7 @@ const DROP_TEXT = {
   noPublisher: 'no publisher',
   noDate: 'no publish date',
   future: 'dated in the future',
-  tooOld: 'older than 48 hours',
+  tooOld: 'older than 7 days',
   lowQualitySource: 'not a news outlet',
   junk: 'adverts, PR or entertainment',
   duplicate: 'duplicates',
@@ -71,7 +71,7 @@ function coverageRows(coverage) {
       row.outlets > 0
         ? `${row.outlets} ${row.outlets === 1 ? 'outlet' : 'outlets'} based in ${row.region} carried this`
         : row.listening
-          ? `None of the ${row.region} outlets Coranto reads has carried this in the last 48 hours`
+          ? `None of the ${row.region} outlets Coranto reads has carried this in the last 7 days`
           : `No ${row.region} outlet is answering right now, so nothing can be said`,
   }));
 }

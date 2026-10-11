@@ -16,7 +16,8 @@ import { sameSiteGated } from './common/same-site.js';
 import { OPENAI_HUD_SUMMARY_MODEL_DEFAULT } from './openai/constants.js';
 import { enforceRateLimit, openAiRateLimiter } from './openai/rate-limit.js';
 
-const MAX_DISK_CACHE_BYTES = 8 * 1024 * 1024;
+// A week of items from every source.
+const MAX_DISK_CACHE_BYTES = 96 * 1024 * 1024;
 const BRIEF_CACHE_TTL_MS = 30 * 60 * 1000;
 const BRIEF_CACHE_MAX = 200;
 // A brief with nothing to show is kept only briefly, so asking again soon

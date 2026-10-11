@@ -5,11 +5,32 @@ import { differingFigures, extractFigures } from './figures.js';
 test('counted figures are read from headlines', () => {
   const cases = [
     ['Russian attack on Ukrainian city kills 20', [['killed', 20]]],
-    ['Twelve killed and 300 injured in attack on airport', [['killed', 12], ['injured', 300]]],
-    ['Attack killed 12 people and wounded over 300 more', [['killed', 12], ['injured', 300]]],
-    ['At least 1,200 dead after floods; 40 missing', [['killed', 1200], ['missing', 40]]],
+    [
+      'Twelve killed and 300 injured in attack on airport',
+      [
+        ['killed', 12],
+        ['injured', 300],
+      ],
+    ],
+    [
+      'Attack killed 12 people and wounded over 300 more',
+      [
+        ['killed', 12],
+        ['injured', 300],
+      ],
+    ],
+    [
+      'At least 1,200 dead after floods; 40 missing',
+      [
+        ['killed', 1200],
+        ['missing', 40],
+      ],
+    ],
     ['Powerful 7.7-magnitude earthquake strikes Panama', [['magnitude', 7.7]]],
-    ['Magnitude 7.6 earthquake shakes Panama, USGS reports', [['magnitude', 7.6]]],
+    [
+      'Magnitude 7.6 earthquake shakes Panama, USGS reports',
+      [['magnitude', 7.6]],
+    ],
     ['Floods displace 2 million in Pakistan', [['displaced', 2_000_000]]],
     ['Police arrest 45 after protest', [['arrested', 45]]],
     ['Parliament debates the budget for 2027', []],
@@ -30,9 +51,15 @@ test('a year or an unrelated number is not a casualty figure', () => {
 
 test('differences between outlets are listed with who said what', () => {
   const diff = differingFigures([
-    { publisher: 'France 24', title: 'Russian attack on Ukrainian city kills 15' },
+    {
+      publisher: 'France 24',
+      title: 'Russian attack on Ukrainian city kills 15',
+    },
     { publisher: 'CNA', title: 'Russian attack on Ukrainian city kills 20' },
-    { publisher: 'BBC', title: 'Russian strike kills at least 20 in Ukrainian city' },
+    {
+      publisher: 'BBC',
+      title: 'Russian strike kills at least 20 in Ukrainian city',
+    },
     { publisher: 'DW', title: 'Ukraine: Russian strike hits city centre' },
   ]);
   assert.deepEqual(diff, [

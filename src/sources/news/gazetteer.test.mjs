@@ -67,18 +67,27 @@ test('AUSPEX substring misplacements do not recur', () => {
 
 test('upper-case abbreviations match and lower-case words do not', () => {
   assert.equal(matchPlace('US and UK sign pact').name, 'United States');
-  assert.equal(matchPlace('U.S. jobs report beats forecast').name, 'United States');
+  assert.equal(
+    matchPlace('U.S. jobs report beats forecast').name,
+    'United States',
+  );
   assert.equal(matchPlace('Join us for the turkey and china sale'), null);
 });
 
 test('a currency prefix is not a place', () => {
   assert.equal(matchPlace('Aid package worth US$100 million approved'), null);
-  assert.equal(matchPlace('Fund raises US $2bn for US ports').name, 'United States');
+  assert.equal(
+    matchPlace('Fund raises US $2bn for US ports').name,
+    'United States',
+  );
 });
 
 test('longer names win over the names inside them', () => {
   assert.equal(matchPlace('Guinea-Bissau votes').name, 'Guinea-Bissau');
-  assert.equal(matchPlace('Floods in Papua New Guinea').name, 'Papua New Guinea');
+  assert.equal(
+    matchPlace('Floods in Papua New Guinea').name,
+    'Papua New Guinea',
+  );
   assert.equal(matchPlace('South Sudan talks stall').name, 'South Sudan');
   assert.equal(matchPlace('Nigeria fuel prices rise').name, 'Nigeria');
 });
@@ -107,13 +116,33 @@ test('the index is populated', () => {
 
 test('headlines in French, Spanish, German and Portuguese are placed', () => {
   const cases = [
-    ['Saudi-Arabien: Viele Tote bei Angriff auf Flughafen in Riad', 'Riyadh', 'city'],
-    ['Face aux drones ukrainiens, des navires liés à la Russie se drapent', 'Russia', 'country'],
-    ['Pourquoi Ceuta et Melilla restent un sujet de discorde entre l’Espagne et le Maroc', 'Spain', 'country'],
+    [
+      'Saudi-Arabien: Viele Tote bei Angriff auf Flughafen in Riad',
+      'Riyadh',
+      'city',
+    ],
+    [
+      'Face aux drones ukrainiens, des navires liés à la Russie se drapent',
+      'Russia',
+      'country',
+    ],
+    [
+      'Pourquoi Ceuta et Melilla restent un sujet de discorde entre l’Espagne et le Maroc',
+      'Spain',
+      'country',
+    ],
     ['“No ayudes al enemigo”: Kiev alerta a Europa', 'Kyiv', 'city'],
-    ['El Gobierno de Estados Unidos anuncia nuevas sanciones', 'United States', 'country'],
+    [
+      'El Gobierno de Estados Unidos anuncia nuevas sanciones',
+      'United States',
+      'country',
+    ],
     ['Deutschland und Frankreich einigen sich in Brüssel', 'Brussels', 'city'],
-    ['Governo dos EUA anuncia acordo com a Arábia Saudita', 'United States', 'country'],
+    [
+      'Governo dos EUA anuncia acordo com a Arábia Saudita',
+      'United States',
+      'country',
+    ],
     ['Séisme: Le Caire envoie de l’aide', 'Cairo', 'city'],
   ];
   for (const [title, name, precision] of cases) {

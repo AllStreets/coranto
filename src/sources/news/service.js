@@ -12,9 +12,33 @@ import { NEWS_COVERAGE_REGIONS, NEWS_SOURCES } from './registry.js';
 export const NEWS_CACHE_TTL_MS = 10 * 60 * 1000;
 export const NEWS_RETRY_AFTER_MS = 60 * 1000;
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
-const MAX_RAW_ITEMS = 300;
+// Items kept per source. A feed lists only its latest few dozen, so earlier
+// reads are kept and merged; this cap bounds a week of a busy source.
+const MAX_RAW_ITEMS = 2500;
 const USER_AGENT =
   'Coranto/0.1 (+https://github.com/AllStreets/coranto; news reader)';
+
+/**
+ * Merge a source's new items with the ones read earlier. A feed lists only
+ * its latest stories, so without this a story disappears from Coranto the
+ * moment it scrolls out of the publisher's feed. The newest read of an item
+ * wins; items the publisher dated more than a week ago are let go.
+ */
+export function mergeRaws(fresh, kept, now) {
+  const seen = new Set();
+  const out = [];
+  for (const raw of [...(fresh ?? []), ...(kept ?? [])]) {
+    const key = String(raw?.url || raw?.title || '').trim();
+    if (!key || seen.has(key)) continue;
+    const published = Date.parse(raw.publishedAt);
+    if (Number.isFinite(published) && now - published > NEWS_MAX_AGE_MS)
+      continue;
+    seen.add(key);
+    out.push(raw);
+    if (out.length >= MAX_RAW_ITEMS) break;
+  }
+  return out;
+}
 
 const failure = (reason) => Object.assign(new Error(reason), { reason });
 
@@ -261,7 +285,7 @@ export function createNewsService({
       const entry = state.get(source.id);
       if (raws) {
         anyOk = true;
-        entry.raws = raws;
+        entry.raws = mergeRaws(raws, entry.raws, at);
         entry.fetchedAt = at;
         entry.ok = true;
         entry.reason = null;

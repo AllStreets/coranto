@@ -12,6 +12,39 @@ export const NEWS_FOCUS_HEIGHT_M = Object.freeze({
   country: 3_200_000,
 });
 
+/** Time ranges the feed offers, in hours. The first is the default. */
+export const NEWS_RANGES_H = Object.freeze([24, 72, 168]);
+
+/**
+ * The part of a snapshot published within `hours` of when it was fetched.
+ * Stories keep only their headlines inside the range; one left with none is
+ * dropped. Nothing is recomputed that the server worked out from the whole
+ * story, so a trimmed story loses its coverage and figure comparison rather
+ * than showing ones that no longer match.
+ */
+export function windowSnapshot(snapshot, hours) {
+  if (!snapshot || !Number.isFinite(hours)) return snapshot;
+  const cutoff = Date.parse(snapshot.fetchedAt) - hours * 3_600_000;
+  const articles = (snapshot.articles ?? []).filter(
+    (article) => Date.parse(article.publishedAt) >= cutoff,
+  );
+  if (articles.length === (snapshot.articles ?? []).length) return snapshot;
+  const kept = new Map(articles.map((article) => [article.id, article]));
+  const stories = [];
+  for (const story of snapshot.stories ?? []) {
+    const ids = story.articleIds.filter((id) => kept.has(id));
+    if (!ids.length) continue;
+    if (ids.length === story.articleIds.length) stories.push(story);
+    else
+      stories.push({
+        id: story.id,
+        articleIds: ids,
+        outlets: new Set(ids.map((id) => kept.get(id).publisher)).size,
+      });
+  }
+  return { ...snapshot, articles, stories };
+}
+
 export const newsPlaceKey = (place) => `${place.precision}:${place.name}`;
 
 /**

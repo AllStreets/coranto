@@ -10,7 +10,8 @@ export {
   parsePublishedAt,
 } from './article.js';
 
-export const NEWS_MAX_AGE_MS = 48 * 60 * 60 * 1000;
+// A week, as AUSPEX kept: enough history to follow a story as it develops.
+export const NEWS_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 export const NEWS_FUTURE_TOLERANCE_MS = 10 * 60 * 1000;
 export const NEWS_SUMMARY_MAX = 400;
 export const NEWS_TITLE_MAX = 300;

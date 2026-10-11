@@ -36,6 +36,7 @@ export function createHazardsLayer({
   let _enabled = false;
   let _snapshot = null;
   let _error = null;
+  let _ambientLabels = true;
   let _selectedId = null;
   const _listeners = new Set();
 
@@ -72,7 +73,9 @@ export function createHazardsLayer({
           disableDepthTestDistance: 50_000,
         },
       });
-      if (hazardHasLabel(item) || selected)
+      // With ambient labels off, the icon says the kind and only the
+      // selected event is named.
+      if ((_ambientLabels && hazardHasLabel(item)) || selected)
         entries.push(createHazardOverlayEntry({ item, position, selected }));
     }
     if (_enabled)
@@ -210,6 +213,12 @@ export function createHazardsLayer({
       if (typeof listener !== 'function') return () => {};
       _listeners.add(listener);
       return () => _listeners.delete(listener);
+    },
+
+    /** Name Orange and Red events on the globe, or only the selected one. */
+    setAmbientLabels(value) {
+      _ambientLabels = Boolean(value);
+      render();
     },
 
     /** Select an event by id, or null to clear. */

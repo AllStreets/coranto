@@ -9,6 +9,7 @@ import { newsProxy } from '../../../server/providers/news.js';
 import {
   groupNewsByPlace,
   dominantTopic,
+  windowSnapshot,
   newsMarkerSize,
   newsPlaceLabel,
   newsStats,
@@ -692,4 +693,39 @@ test('a missing date is never replaced with the clock', () => {
     const text = fs.readFileSync(path.join(root, file), 'utf8');
     assert.doesNotMatch(text, /new Date\(\)|Date\.now\(\)/, file);
   }
+});
+
+test('the time range trims stories without inventing comparisons', () => {
+  const at = (hours) =>
+    new Date(
+      Date.parse('2026-10-11T12:00:00Z') - hours * 3_600_000,
+    ).toISOString();
+  const snapshot = {
+    fetchedAt: at(0),
+    articles: [
+      { id: 'a', publisher: 'BBC', publishedAt: at(2) },
+      { id: 'b', publisher: 'NPR', publishedAt: at(30) },
+      { id: 'c', publisher: 'DW', publishedAt: at(100) },
+    ],
+    stories: [
+      {
+        id: 's1',
+        articleIds: ['a', 'b'],
+        outlets: 2,
+        coverage: [1],
+        differing: [2],
+      },
+      { id: 's2', articleIds: ['c'], outlets: 1 },
+    ],
+  };
+  const day = windowSnapshot(snapshot, 24);
+  assert.deepEqual(
+    day.articles.map((x) => x.id),
+    ['a'],
+  );
+  // The story lost a headline, so its whole-story comparison is dropped.
+  assert.deepEqual(day.stories, [{ id: 's1', articleIds: ['a'], outlets: 1 }]);
+  assert.equal(windowSnapshot(snapshot, 72).stories[0].coverage.length, 1);
+  assert.equal(windowSnapshot(snapshot, 168), snapshot);
+  assert.equal(windowSnapshot(null, 24), null);
 });

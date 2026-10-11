@@ -44,6 +44,9 @@ export function headlineTerms(title) {
   return terms;
 }
 
+/** Headlines further apart than this are never the same story. */
+export const STORY_WINDOW_MS = 36 * 60 * 60 * 1000;
+
 /** The share of a story's headlines a new one must match to join it. */
 export const STORY_MATCH_SHARE = 1 / 3;
 
@@ -73,6 +76,7 @@ export function clusterArticles(articles) {
   const items = (articles ?? []).map((article) => ({
     article,
     terms: headlineTerms(article.title),
+    at: Date.parse(article.publishedAt),
   }));
   // Stories pinned to two different cities or regions are different events,
   // however alike their wording ("shooting", "pregnant woman").
@@ -97,6 +101,9 @@ export function clusterArticles(articles) {
     let home = null;
     let best = 0;
     for (const story of stories) {
+      // Headlines days apart are different developments, and skipping them
+      // keeps a week of stories quick to group.
+      if (Math.abs(story.at - item.at) > STORY_WINDOW_MS) continue;
       let matched = 0;
       for (const member of story.members)
         if (!elsewhere(member, item) && sameStory(member.terms, item.terms))
@@ -109,7 +116,7 @@ export function clusterArticles(articles) {
       }
     }
     if (home) home.members.push(item);
-    else stories.push({ members: [item] });
+    else stories.push({ members: [item], at: item.at });
   }
   return stories.map(({ members }) => {
     const ids = members.map((member) => member.article.id);

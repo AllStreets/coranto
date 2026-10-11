@@ -50,9 +50,12 @@ test('each drop rule reports its reason', () => {
     [{ url: 'not a url' }, 'badUrl'],
     [{ publisher: '  ' }, 'noPublisher'],
     [{ publishedAt: '2026-10-10T12:30:00Z' }, 'future'],
-    [{ publishedAt: '2026-10-08T11:00:00Z' }, 'tooOld'],
+    [{ publishedAt: '2026-10-03T11:00:00Z' }, 'tooOld'],
     [{ url: 'https://www.prnewswire.com/x' }, 'lowQualitySource'],
-    [{ title: 'Best deals of the week: 40% off headphones', summary: '' }, 'junk'],
+    [
+      { title: 'Best deals of the week: 40% off headphones', summary: '' },
+      'junk',
+    ],
   ];
   for (const [overrides, reason] of cases) {
     assert.deepEqual(normalizeArticle(raw(overrides), context), {
@@ -77,7 +80,10 @@ test('duplicates by URL or by headline are counted, first one kept', () => {
     [
       raw({ publisher: 'NPR' }),
       raw({ url: 'https://example.org/other', publisher: 'DW' }),
-      raw({ title: 'Different story from Lagos', url: 'https://example.org/2' }),
+      raw({
+        title: 'Different story from Lagos',
+        url: 'https://example.org/2',
+      }),
     ],
     { ...context, sourceId: 'npr' },
     seen,
@@ -99,7 +105,14 @@ test('an unplaced, untagged story is still a valid article', () => {
 
 test('isShowableArticle rejects anything missing source, link or time', () => {
   const { article } = normalizeArticle(raw(), context);
-  for (const key of ['title', 'url', 'publisher', 'publishedAt', 'fetchedAt', 'id'])
+  for (const key of [
+    'title',
+    'url',
+    'publisher',
+    'publishedAt',
+    'fetchedAt',
+    'id',
+  ])
     assert.equal(isShowableArticle({ ...article, [key]: '' }), false, key);
   assert.equal(
     isShowableArticle({ ...article, place: { ...article.place, lat: 123 } }),
@@ -118,10 +131,22 @@ test('canonicalNewsUrl strips tracking and refuses non-http schemes', () => {
 });
 
 test('categories use whole words and have no default', () => {
-  assert.equal(detectCategory('Missile and airstrike hit the army base'), 'military');
-  assert.equal(detectCategory('Central bank holds rates as inflation cools'), 'finance');
-  assert.equal(detectCategory('Wildfire spreads as drought deepens'), 'climate');
-  assert.equal(detectCategory('New semiconductor plant for AI chips'), 'technology');
+  assert.equal(
+    detectCategory('Missile and airstrike hit the army base'),
+    'military',
+  );
+  assert.equal(
+    detectCategory('Central bank holds rates as inflation cools'),
+    'finance',
+  );
+  assert.equal(
+    detectCategory('Wildfire spreads as drought deepens'),
+    'climate',
+  );
+  assert.equal(
+    detectCategory('New semiconductor plant for AI chips'),
+    'technology',
+  );
   // "ai" inside another word is not a technology story.
   assert.equal(detectCategory('Rain in Spain stays mainly on the plain'), null);
   assert.equal(detectCategory('A quiet day'), null);
@@ -132,6 +157,12 @@ test('the junk filter keeps hard news and drops shopping and PR copy', () => {
   assert.equal(isJunk('Black Friday deals: save up to 50% on laptops'), true);
   assert.equal(isJunk('Peace deal signed after ceasefire talks'), false);
   assert.equal(isJunk('Missile launch detected over the peninsula'), false);
-  assert.equal(isLowQualitySource('https://www.dailymail.co.uk/a', 'Daily Mail'), true);
-  assert.equal(isLowQualitySource('https://www.bbc.co.uk/news/1', 'BBC'), false);
+  assert.equal(
+    isLowQualitySource('https://www.dailymail.co.uk/a', 'Daily Mail'),
+    true,
+  );
+  assert.equal(
+    isLowQualitySource('https://www.bbc.co.uk/news/1', 'BBC'),
+    false,
+  );
 });

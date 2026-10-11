@@ -17,6 +17,20 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: a week of stories, as AUSPEX kept. Headlines are held for 7 days
+  instead of 48 hours, and each source's earlier reads are merged with its
+  new ones, so a story no longer disappears when it scrolls out of the
+  publisher's feed. The feed has a time range (last 24 hours by default, 3
+  days, 7 days) that also drives the globe. Stories more than 36 hours apart
+  are never grouped as one.
+- Coranto: the approved interface direction, first part. Every topic row and
+  header layer has an icon; panels carry violet bracket corners and square
+  edges; the clock is UTC; a quiet frame over the globe says what the lens is
+  showing and where the view is centred.
+- Coranto: text on the globe follows the lens. NEWS names the sixteen
+  busiest places; in the other lenses the story icons stay and their names
+  step back. A hazard is named only when selected, since its icon already
+  says what it is.
 - Coranto: AI briefs no longer come back empty for no reason. The model's
   reply is held to a JSON schema, it is asked once more when nothing passes,
   and an empty result is kept for a minute instead of thirty. Source numbers

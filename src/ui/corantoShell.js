@@ -4,6 +4,7 @@ import { getContextStore } from '../data/contextStore.js';
 import { createBroadcastsDialog } from './corantoBroadcasts.js';
 import { contactCard } from './corantoContact.js';
 import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
+import { TOPIC_COLOURS, iconImage } from '../data/corantoIcons.js';
 import { createMapKey } from './corantoMapKey.js';
 import { createMarketsLens } from './corantoMarkets.js';
 import { createNuclearMarks } from './corantoNuclear.js';
@@ -21,25 +22,49 @@ const MODE_KEY = 'coranto.mode.v1';
 const WELCOME_KEY = 'coranto.welcomed.v1';
 const FIRST_RUN_SESSION_KEY = 'gev:first-run-mission-session:v1';
 
+/** Place names drawn on the globe in the NEWS lens. */
+const NEWS_LABELS_IN_NEWS = 16;
+
 /** Header layers whose symbols the map key explains itself. */
 const KEYED_LAYERS = new Set(['hazards', 'local-firms']);
 
 /** Live layers offered in the header. Ids are catalog layer ids. */
 const HEADER_LAYERS = [
-  ['hazards', 'HAZARDS', 'Cyclones, floods, volcanoes and more (GDACS, NASA)'],
-  ['flights', 'FLIGHTS', 'Live civil aircraft'],
-  ['military', 'MILITARY', 'Military aircraft broadcasting their position'],
-  ['ais-live-vessels', 'SHIPS', 'Live vessels broadcasting over AIS'],
-  ['satellites', 'SATELLITES', 'Satellites from public orbital elements'],
-  ['earthquakes', 'QUAKES', 'USGS earthquakes, last 24 hours'],
+  [
+    'hazards',
+    'HAZARDS',
+    'Cyclones, floods, volcanoes and more (GDACS, NASA)',
+    'hazard',
+  ],
+  ['flights', 'FLIGHTS', 'Live civil aircraft', 'aircraft'],
+  [
+    'military',
+    'MILITARY',
+    'Military aircraft broadcasting their position',
+    'military',
+  ],
+  ['ais-live-vessels', 'SHIPS', 'Live vessels broadcasting over AIS', 'ship'],
+  [
+    'satellites',
+    'SATELLITES',
+    'Satellites from public orbital elements',
+    'satellite',
+  ],
+  ['earthquakes', 'QUAKES', 'USGS earthquakes, last 24 hours', 'earthquake'],
   [
     'local-firms',
     'FIRES',
     'Active fires seen by NASA satellites in the last 24 hours',
+    'wildfire',
   ],
-  ['weather-cyclones', 'STORMS', 'NOAA tropical cyclones'],
-  ['rocket-launches', 'LAUNCHES', 'Recent and upcoming rocket launches'],
-  ['telegeography-submarine-cables', 'CABLES', 'Undersea cables'],
+  ['weather-cyclones', 'STORMS', 'NOAA tropical cyclones', 'cyclone'],
+  [
+    'rocket-launches',
+    'LAUNCHES',
+    'Recent and upcoming rocket launches',
+    'launch',
+  ],
+  ['telegeography-submarine-cables', 'CABLES', 'Undersea cables', 'cable'],
 ];
 
 const CATEGORIES = [
@@ -142,6 +167,34 @@ function hazardMeta(item) {
 }
 
 /** The briefing copy button's wording before, after and on a failed copy. */
+const RANGE_WORDS = {
+  24: 'LAST 24 HOURS',
+  72: 'LAST 3 DAYS',
+  168: 'LAST 7 DAYS',
+};
+
+/** The one line over the globe that says what the lens is showing. */
+function hudLensLine(lens, view) {
+  if (lens === 'power')
+    return 'WATCH POWER // MILITARY AND GOVERNMENT AIRCRAFT, BASES';
+  if (lens === 'elections') return 'ELECTIONS // POLLING DAYS, NEXT 120 DAYS';
+  if (lens === 'markets') return 'MARKETS // FINANCE STORIES BY PLACE';
+  const places = view.places?.length ?? 0;
+  const range = RANGE_WORDS[view.rangeHours] ?? RANGE_WORDS[24];
+  return view.goodNewsOnly
+    ? `GOOD NEWS // ${range} // ${places} PLACES`
+    : `STORIES // ${range} // ${places} PLACES`;
+}
+
+/** Where the view is centred and how high, from the camera. */
+function hudWhereLine(at) {
+  const deg = (radians) => (radians * 180) / Math.PI;
+  const part = (value, pos, neg) =>
+    `${Math.abs(value).toFixed(2)}°${value >= 0 ? pos : neg}`;
+  const km = Math.round(at.height / 1000);
+  return `${part(deg(at.latitude), 'N', 'S')} ${part(deg(at.longitude), 'E', 'W')} // ALT ${km.toLocaleString('en-GB')} KM`;
+}
+
 /** What to tell the reader after SAVE THIS VIEW is pressed. */
 function saveNoteText(saved, hadCriteria, count) {
   if (saved) return `Saved as ${saved.name}. It is listed below.`;
@@ -300,14 +353,19 @@ export function createCorantoShell({
     'aria-label': 'Live layers',
   });
   const layerButtons = new Map();
-  for (const [id, label, title] of HEADER_LAYERS) {
-    const button = el(document, 'button', {
-      type: 'button',
-      class: 'coranto-layer',
-      title,
-      'aria-pressed': 'false',
-      text: label,
-    });
+  for (const [id, label, title, icon] of HEADER_LAYERS) {
+    const button = el(
+      document,
+      'button',
+      {
+        type: 'button',
+        class: 'coranto-layer',
+        title,
+        'aria-pressed': 'false',
+      },
+      el(document, 'img', { src: iconImage(icon, '#c9c2de'), alt: '' }),
+      el(document, 'span', { text: label }),
+    );
     button.addEventListener('click', () => {
       if (!dataManager) return;
       const next = !dataManager.isEnabled(id);
@@ -429,7 +487,11 @@ export function createCorantoShell({
     });
     const number = el(document, 'span', { class: 'coranto-topic-count' });
     button.append(
-      el(document, 'span', { class: 'coranto-topic-pip' }),
+      el(document, 'img', {
+        class: 'coranto-topic-icon',
+        src: iconImage(id ?? 'news', TOPIC_COLOURS[id ?? 'news']),
+        alt: '',
+      }),
       el(document, 'span', { class: 'coranto-topic-label', text: label }),
       number,
     );
@@ -449,7 +511,11 @@ export function createCorantoShell({
   });
   const goodCount = el(document, 'span', { class: 'coranto-topic-count' });
   goodBtn.append(
-    el(document, 'span', { class: 'coranto-topic-pip' }),
+    el(document, 'img', {
+      class: 'coranto-topic-icon',
+      src: iconImage('good', TOPIC_COLOURS.good),
+      alt: '',
+    }),
     el(document, 'span', { class: 'coranto-topic-label', text: 'GOOD NEWS' }),
     goodCount,
   );
@@ -604,6 +670,8 @@ export function createCorantoShell({
     saveNote,
     watchList,
   );
+  for (const node of [topicList, watchSection])
+    node.classList.add('coranto-bracket');
   const rail = el(
     document,
     'nav',
@@ -870,8 +938,31 @@ export function createCorantoShell({
     close?.();
   });
 
+  // The frame over the globe: corner brackets, one line saying what the lens
+  // is showing, and where the view is centred. It takes no clicks.
+  const hudLens = el(document, 'div', { class: 'coranto-hud-lens' });
+  const hudWhere = el(document, 'div', { class: 'coranto-hud-where' });
+  const hud = el(
+    document,
+    'div',
+    { id: 'coranto-hud', 'aria-hidden': 'true' },
+    el(document, 'i', { class: 'coranto-hud-c coranto-hud-tl' }),
+    el(document, 'i', { class: 'coranto-hud-c coranto-hud-tr' }),
+    el(document, 'i', { class: 'coranto-hud-c coranto-hud-bl' }),
+    el(document, 'i', { class: 'coranto-hud-c coranto-hud-br' }),
+    hudLens,
+    hudWhere,
+  );
+  function updateHud() {
+    const view = layer.getView();
+    hudLens.textContent = hudLensLine(lens, view);
+    const at = dataManager?.viewer?.camera?.positionCartographic;
+    hudWhere.textContent = at ? hudWhereLine(at) : '';
+  }
+
   body.append(
     header,
+    hud,
     sourcesMenu,
     mapKey.element,
     ticker,
@@ -1045,6 +1136,17 @@ export function createCorantoShell({
   }
 
   let lens = 'news';
+  /**
+   * Text on the globe follows the lens. In NEWS the busiest places are named;
+   * in the other lenses the story icons stay but their names step back, so
+   * the lens's own subject is what you read. Hazards are named only when
+   * selected: the icon already says what kind each one is.
+   */
+  function applyGlobeText() {
+    if (body.dataset.corantoFrame !== 'one') return;
+    layer.setLabelLimit?.(lens === 'news' ? NEWS_LABELS_IN_NEWS : 0);
+    hazardsLayer?.setAmbientLabels?.(false);
+  }
   function setLens(next) {
     if (next === lens) return;
     // Each lens starts at the top of the rail.
@@ -1071,6 +1173,7 @@ export function createCorantoShell({
     category =
       lens === 'power' ? 'military' : lens === 'markets' ? 'finance' : null;
     feed?.setCategory(category);
+    applyGlobeText();
     if (lens === 'power') power.enter();
     if (lens === 'markets') markets.enter();
     if (lens === 'elections') {
@@ -1103,7 +1206,8 @@ export function createCorantoShell({
   function tick() {
     const date = new Date();
     clock.dateTime = date.toISOString();
-    clock.textContent = `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    clock.textContent = `UTC ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}Z`;
+    updateHud();
   }
 
   function wholeEarth() {
@@ -1387,6 +1491,7 @@ export function createCorantoShell({
       if (body.dataset.corantoFrame === 'one') nuclear.show();
       syncLayers();
       hazardsLayer = manager.layers?.get('hazards')?.module ?? null;
+      applyGlobeText();
       unsubscribeHazards = hazardsLayer?.subscribe?.(renderCard) ?? null;
       if (sharedView) {
         // A shared Coranto view always opens in the news view with news on.
@@ -1426,6 +1531,7 @@ export function createCorantoShell({
       feed?.destroy();
       for (const node of [
         header,
+        hud,
         sourcesMenu,
         mapKey.element,
         ticker,

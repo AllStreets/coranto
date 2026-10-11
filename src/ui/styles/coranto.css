@@ -2462,3 +2462,147 @@ body[data-coranto-mode='instruments'] #coranto-key {
 .news-brief-retry:focus-visible {
   background: rgba(180, 124, 255, 0.14);
 }
+
+/* ── Shared panel language (from the approved sample) ─────────────
+   One chrome for every panel: violet bracket corners at top-left and
+   bottom-right, mono labels, square edges. */
+.coranto-bracket {
+  position: relative;
+}
+.coranto-bracket::before,
+.coranto-bracket::after,
+#coranto-card::before,
+#coranto-card::after,
+#coranto-key::before,
+#coranto-key::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--accent);
+  opacity: 0.85;
+  pointer-events: none;
+}
+.coranto-bracket::before,
+#coranto-card::before,
+#coranto-key::before {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.coranto-bracket::after,
+#coranto-card::after,
+#coranto-key::after {
+  right: -1px;
+  bottom: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+.coranto-topics.coranto-bracket,
+.coranto-watches.coranto-bracket {
+  padding: 8px;
+  border: 1px solid var(--coranto-line);
+  background: rgba(255, 255, 255, 0.022);
+}
+#coranto-card,
+#coranto-key,
+.coranto-rail-btn,
+.coranto-topic,
+.coranto-layer,
+#coranto-live,
+.coranto-power,
+.coranto-power-plane,
+.coranto-election,
+.coranto-quote,
+.coranto-money-row,
+.coranto-lens-switch {
+  border-radius: 2px;
+}
+.coranto-topic-icon {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+}
+.coranto-layer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.coranto-layer img {
+  width: 12px;
+  height: 12px;
+  opacity: 0.7;
+}
+.coranto-layer[aria-pressed='true'] img {
+  opacity: 1;
+}
+#coranto-clock {
+  font: 500 10.5px var(--font-mono);
+  letter-spacing: 1.4px;
+}
+
+/* The frame over the globe */
+#coranto-hud {
+  position: fixed;
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 12px);
+  right: calc(var(--coranto-feed-w) + 12px);
+  bottom: 34px;
+  left: calc(var(--coranto-rail-w) + 12px);
+  z-index: 290;
+  pointer-events: none;
+  color: rgba(207, 200, 230, 0.78);
+  font: 500 9.5px var(--font-mono);
+  letter-spacing: 1.6px;
+}
+body[data-coranto-mode='instruments'] #coranto-hud,
+body[data-coranto-frame='classic'] #coranto-hud {
+  display: none;
+}
+@media (max-width: 1100px) {
+  #coranto-hud {
+    display: none;
+  }
+}
+.coranto-hud-c {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid rgba(180, 124, 255, 0.65);
+}
+.coranto-hud-tl {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+.coranto-hud-tr {
+  top: 0;
+  right: 0;
+  border-left: 0;
+  border-bottom: 0;
+}
+.coranto-hud-bl {
+  bottom: 0;
+  left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+.coranto-hud-br {
+  right: 0;
+  bottom: 0;
+  border-left: 0;
+  border-top: 0;
+}
+.coranto-hud-lens {
+  position: absolute;
+  top: 5px;
+  left: 24px;
+  color: var(--accent);
+}
+.coranto-hud-where {
+  position: absolute;
+  bottom: 5px;
+  left: 24px;
+}

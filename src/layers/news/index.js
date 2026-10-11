@@ -7,11 +7,13 @@ import {
   NEWS_OVERLAY_COHORT_LIMIT,
   NEWS_OVERLAY_COLLISION_CAPACITY,
   NEWS_OVERLAY_SOURCE_ID,
+  NEWS_RANGES_H,
   createNewsOverlayEntry,
   dominantTopic,
   groupNewsByPlace,
   newsMarkerSize,
   newsStats,
+  windowSnapshot,
 } from './model.js';
 export * from './model.js';
 export { createNewsSource, NewsFeedUnavailableError } from './source.js';
@@ -40,6 +42,11 @@ export function createNewsLayer({
   let _clickHandler = null;
   let _enabled = false;
   let _snapshot = null;
+  // Everything the server holds (a week); `_snapshot` is the range in view.
+  let _full = null;
+  let _rangeHours = NEWS_RANGES_H[0];
+  // How many place names to draw; the selected place is always named.
+  let _labelLimit = NEWS_OVERLAY_COHORT_LIMIT;
   let _error = null;
   let _unavailable = null;
   let _groups = [];
@@ -113,7 +120,8 @@ export function createNewsLayer({
         NEWS_OVERLAY_SOURCE_ID,
         entries
           .sort((a, b) => b.priority - a.priority || a.id.localeCompare(b.id))
-          .slice(0, NEWS_OVERLAY_COHORT_LIMIT),
+          // The selected place sorts first, so a limit of zero still names it.
+          .slice(0, Math.max(_labelLimit, _selectedKey ? 1 : 0)),
         {
           cohortLimit: NEWS_OVERLAY_COHORT_LIMIT,
           collisionCapacity: NEWS_OVERLAY_COLLISION_CAPACITY,
@@ -195,7 +203,8 @@ export function createNewsLayer({
       try {
         const snapshot = await source.getSnapshot({ signal: request.signal });
         if (!current()) return false;
-        _snapshot = snapshot;
+        _full = snapshot;
+        _snapshot = windowSnapshot(_full, _rangeHours);
         _error = null;
         _unavailable = null;
         regroup();
@@ -211,6 +220,7 @@ export function createNewsLayer({
             sources: error.sources ?? [],
             retryAfter: error.retryAfter ?? 60,
           };
+          _full = null;
           _snapshot = null;
           _groups = [];
           _selectedKey = null;
@@ -235,6 +245,7 @@ export function createNewsLayer({
         _dataSource = null;
       }
       _viewer = null;
+      _full = null;
       _snapshot = null;
       _groups = [];
       _selectedKey = null;
@@ -263,6 +274,9 @@ export function createNewsLayer({
         selectedPlaceKey: _selectedKey,
         goodNewsOnly: _goodNewsOnly,
         language: _language,
+        rangeHours: _rangeHours,
+        // How many headlines the server holds across the whole week.
+        heldTotal: _full?.articles?.length ?? 0,
       };
     },
 
@@ -276,6 +290,27 @@ export function createNewsLayer({
     /** Show one language's headlines, or every language with null. */
     setLanguage(code) {
       _language = code || null;
+      regroup();
+      render();
+      emit();
+    },
+
+    /**
+     * How many place names to draw beside the markers. The icons always
+     * show; this only quiets the text, for views about something else.
+     */
+    setLabelLimit(limit) {
+      _labelLimit = Math.max(
+        0,
+        Math.min(NEWS_OVERLAY_COHORT_LIMIT, Math.floor(limit) || 0),
+      );
+      render();
+    },
+
+    /** Show the last day, three days or week of stories. */
+    setRangeHours(hours) {
+      _rangeHours = NEWS_RANGES_H.includes(hours) ? hours : NEWS_RANGES_H[0];
+      _snapshot = windowSnapshot(_full, _rangeHours);
       regroup();
       render();
       emit();

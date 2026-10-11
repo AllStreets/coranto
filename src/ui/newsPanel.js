@@ -4,6 +4,13 @@ import { buildNewsPanelModel } from './newsPanelModel.js';
 /** Cards drawn at once; the rest are one click away. */
 const PAGE_SIZE = 60;
 
+/** Time ranges offered in the feed. */
+const RANGE_LABELS = [
+  [24, 'Last 24 hours'],
+  [72, 'Last 3 days'],
+  [168, 'Last 7 days'],
+];
+
 export const CATEGORY_CODE = {
   geopolitics: 'GEO',
   technology: 'TEC',
@@ -225,7 +232,22 @@ export function createNewsFeed({
   languageSelect.setAttribute('aria-label', 'Language');
   languageSelect.title =
     'Headlines are shown in their original language; Coranto does not translate them.';
-  filterRow.append(search, placeChip, languageSelect, publisherSelect);
+  const rangeSelect = el(document, 'select', 'news-select');
+  rangeSelect.setAttribute('aria-label', 'Time range');
+  rangeSelect.title =
+    'How far back to show. Coranto keeps a week of headlines from every source.';
+  for (const [hours, label] of RANGE_LABELS)
+    rangeSelect.append(new Option(label, String(hours)));
+  rangeSelect.addEventListener('change', () =>
+    layer.setRangeHours?.(Number(rangeSelect.value)),
+  );
+  filterRow.append(
+    search,
+    placeChip,
+    rangeSelect,
+    languageSelect,
+    publisherSelect,
+  );
 
   const more = el(document, 'button', 'news-more');
   more.type = 'button';
@@ -480,6 +502,9 @@ export function createNewsFeed({
       );
     languageSelect.replaceChildren(...languageOptions);
     languageSelect.value = model.language ?? '';
+    rangeSelect.value = String(
+      layer.getView().rangeHours ?? RANGE_LABELS[0][0],
+    );
     languageSelect.hidden = model.languages.length < 2;
     filterRow.hidden = model.total === 0;
 
