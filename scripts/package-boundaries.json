@@ -2214,7 +2214,8 @@
       "src/layers/hazards/source.js",
       "src/sources/hazards/records.js",
       "src/sources/news/registry.js",
-      "src/ui/watches.js"
+      "src/ui/watches.js",
+      "src/ui/corantoPower.js"
     ],
     "external": [
       "hls.js",
@@ -2752,7 +2753,8 @@
       "src/layers/hazards/source.js",
       "src/sources/hazards/records.js",
       "src/sources/news/registry.js",
-      "src/ui/watches.js"
+      "src/ui/watches.js",
+      "src/ui/corantoPower.js"
     ],
     "external": [
       "hls.js",

@@ -73,6 +73,7 @@ It is built from two projects:
   ├─ source health .... which feeds answered, which did not, and when
   ├─ good news ........ headlines tagged as progress: medical, science, space, humanity
   ├─ hazards .......... cyclones, floods, volcanoes, quakes, fires from GDACS and NASA
+  ├─ watch power ...... military aircraft airborne now, mapped military sites, plate readers
   ├─ live layers ...... aircraft, military flights, ships, satellites, storms, launches
   └─ instruments ...... the full control room: tracking, cameras, weather, voice
 ```
@@ -181,6 +182,28 @@ A watch only selects. The briefing shows the publishers' own headlines,
 newest first, with nothing rewritten and nothing ranked by a model. Watches
 are stored in your browser and are sent nowhere.
 
+### Watch Power
+
+<p align="center">
+  <img src="docs/media/coranto/watch-power.png" alt="The Watch Power lens: military aircraft, mapped military sites and military news" width="100%"/>
+</p>
+
+<p align="center"><em>A military widebody broadcasting the callsign RCH443 over the Ligurian Sea, picked from the list of 23 military aircraft airborne at that moment, with mapped military sites around it and the military news beside it. The card links to the aircraft's live public track.</em></p>
+
+Governments have always been able to watch. The **WATCH POWER** lens turns
+the same public signals the other way:
+
+- **Military aircraft** that are broadcasting their own position over ADS-B,
+  listed with callsign, type, altitude and speed, each linking to its live
+  track at adsb.lol.
+- **Military sites** mapped in OpenStreetMap, near wherever you are looking.
+- **Plate-reader cameras** mapped in OpenStreetMap, once you zoom into a city.
+- **Military news** in the feed alongside.
+
+Everything in the lens is already public. It shows institutions and
+equipment. It does not identify or follow individuals, and an aircraft that
+is not broadcasting is not shown.
+
 ---
 
 ## How to use it
@@ -199,6 +222,7 @@ Coranto has two views, switched at the top right.
 | Get a checked summary | Click **AI BRIEF** on a story with several outlets. Needs an OpenAI key. |
 | See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
 | Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
+| Watch power | Click **WATCH POWER** on the left. Click any aircraft in the list to fly to it and open its public track. |
 | Follow something | Set a search, place or topic, then click **＋ SAVE THIS VIEW**. It appears under MY WATCHES. |
 | Catch up | Click **MY BRIEFING** for the latest stories on every watch. |
 | Search | Type in the box above the feed. Stories must contain every word, in the headline, summary, publisher or place. |
@@ -328,6 +352,7 @@ is documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 | News globe layer | `src/layers/news/` |
 | Hazard records, route and layer | `src/sources/hazards/`, `server/providers/hazards.js`, `src/layers/hazards/` |
 | Shell and feed | `src/ui/corantoShell.js`, `src/ui/newsPanel.js` |
+| Watches, briefing and the Watch Power lens | `src/ui/watches.js`, `src/ui/corantoPower.js` |
 | Look | `src/ui/styles/coranto.css`, `build/corantoTheme.js` |
 | Design spec | `docs/superpowers/specs/` |
 
@@ -347,7 +372,7 @@ npm run build
 |---|---|
 | **1. Foundation and truth feed** | Built: sourced feed from 35 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell |
 | **2. Verification** | Built: stories grouped across outlets, outlet counts, outlets by region, differing figures, AI briefs checked sentence by sentence, and seven non-English sources |
-| **3. Lenses and your own feed** | Built: saved watches and My Briefing. Next: Good News, Elections (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
+| **3. Lenses and your own feed** | Built: saved watches, My Briefing and the Watch Power lens. Next: Elections (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
 | **4. Beauty pass** | Full visual identity and a guided first run |
 | **5. Public site** | A hosted version anyone can open |
 

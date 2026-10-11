@@ -386,6 +386,121 @@
   border-color: rgba(52, 224, 138, 0.6);
 }
 
+.coranto-lens-switch {
+  display: flex;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--coranto-glass);
+}
+.coranto-lens-switch button {
+  flex: 1 1 0;
+  padding: 8px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 700 8.5px var(--font-brand);
+  letter-spacing: 1.4px;
+  cursor: pointer;
+}
+.coranto-lens-switch button[aria-pressed='true'] {
+  background: rgba(192, 132, 252, 0.18);
+  color: #d8b4fe;
+}
+.coranto-lens-switch button:first-child[aria-pressed='true'] {
+  background: rgba(52, 224, 138, 0.16);
+  color: #34e08a;
+}
+#coranto-rail [hidden] {
+  display: none !important;
+}
+.coranto-power {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-height: 0;
+  padding: 11px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 6px;
+  background: var(--coranto-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.coranto-power-plane {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+.coranto-power .coranto-rail-heading {
+  margin: 2px 0 0;
+}
+.coranto-power-intro,
+.coranto-power-foot,
+.coranto-power-none {
+  color: var(--text-dim);
+  font: 10.5px/1.5 var(--font-sans);
+}
+.coranto-power-layers,
+.coranto-power-air {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.coranto-power-air {
+  max-height: 34vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(192, 132, 252, 0.4) transparent;
+}
+.coranto-power-layer,
+.coranto-power-plane {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+.coranto-power-layer {
+  font: 700 9px var(--font-brand);
+  letter-spacing: 1.4px;
+}
+.coranto-power-layer[aria-pressed='true'] {
+  border-color: rgba(192, 132, 252, 0.6);
+  color: #d8b4fe;
+}
+.coranto-power-label,
+.coranto-power-callsign {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.coranto-power-count {
+  color: var(--text-dim);
+  font: 500 10px var(--font-mono);
+  letter-spacing: 0;
+}
+.coranto-power-plane {
+  padding: 6px 10px;
+}
+.coranto-power-plane:hover,
+.coranto-power-plane[aria-current] {
+  border-color: rgba(192, 132, 252, 0.6);
+  color: var(--text-primary);
+}
+.coranto-power-callsign {
+  color: var(--text-primary);
+  font: 600 11px var(--font-mono);
+}
+.coranto-power-facts {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font: 9.5px var(--font-mono);
+}
 .coranto-rail-heading {
   margin-bottom: 6px;
   color: var(--text-dim);

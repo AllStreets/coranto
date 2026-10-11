@@ -1,4 +1,4 @@
-# Coranto stage 3, part 1: watches and My Briefing
+# Coranto stage 3, part 1: watches, My Briefing and Watch Power
 
 Date: 2026-10-11
 Status: built
@@ -41,8 +41,30 @@ The briefing is selection only. Order is newest first. No model is involved.
 saving, reloading, duplicates, the limit, damaged storage, new-story counts
 and marking seen.
 
-## 5. Left for the rest of stage 3
+## 5. Watch Power lens
 
-- Good News, Elections and Watch Power lenses.
+`src/ui/corantoPower.js`. A switch at the top of the left rail changes the
+rail from topics and watches to the lens.
+
+- Entering switches on the engine's military aircraft and military
+  installations layers, and sets the feed to the military topic. Plate-reader
+  cameras are offered as a third switch because they load one city at a time.
+- AIRBORNE NOW lists up to 60 military aircraft that have a position, named
+  callsigns first, with class, altitude and speed as broadcast. A blank or
+  junk callsign is replaced by the transponder address.
+- Clicking one flies to it and opens a card with those facts and a link to
+  its live track at adsb.lol, the source of the data.
+- Leaving switches off only the layers the lens switched on, clears its card
+  and returns the feed to all coverage.
+
+Scope: the lens shows aircraft that broadcast their own position and sites
+and cameras already mapped in OpenStreetMap. It does not identify or follow
+individuals.
+
+## 6. Left for the rest of stage 3
+
+
+- An Elections lens from official sources.
+- Government (non-military) aircraft in Watch Power.
 - Markets and live broadcasts from AUSPEX.
 - Exporting or sharing a set of watches.

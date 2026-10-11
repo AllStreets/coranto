@@ -1,5 +1,11 @@
 # Changelog
 
+- Coranto: a Watch Power lens in the news view switches on military aircraft
+  and mapped military sites, offers mapped plate-reader cameras, lists the
+  military aircraft airborne now with what each is broadcasting, and links
+  each to its live public track. The feed shows military news beside it.
+  Leaving the lens switches off only the layers it switched on.
+
 - Coranto: a search, place, topic or publisher filter can be saved as a watch.
   Each watch shows how many stories are new since it was last opened, and My
   Briefing lists the latest stories for every watch, newest first, in the

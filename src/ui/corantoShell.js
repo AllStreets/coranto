@@ -1,4 +1,5 @@
 import { createNewsFeed } from './newsPanel.js';
+import { createPowerLens } from './corantoPower.js';
 import {
   buildBriefing,
   createWatchStore,
@@ -64,6 +65,10 @@ const GUIDE = [
   [
     'Add live layers',
     'The buttons along the top add other public feeds to the same globe: natural hazards, aircraft, military flights, ships, satellites, earthquakes, storms and more. Click a hazard marker to see what it is and open its source.',
+  ],
+  [
+    'Watch power',
+    'WATCH POWER on the left switches on military aircraft, mapped military sites and plate-reader cameras, and lists the aircraft airborne now. Each one links to its live public track. It watches institutions and equipment, not people.',
   ],
   [
     'Go deeper',
@@ -326,6 +331,35 @@ export function createCorantoShell({
     layer.setGoodNewsOnly(next);
   });
   topicList.append(goodBtn);
+  const lensNews = el(document, 'button', {
+    type: 'button',
+    text: 'NEWS',
+    title: 'Topics and your watches',
+    'aria-pressed': 'true',
+  });
+  const lensPower = el(document, 'button', {
+    type: 'button',
+    text: 'WATCH POWER',
+    title:
+      'Military aircraft, military sites and plate readers from public sources',
+    'aria-pressed': 'false',
+  });
+  const lensSwitch = el(
+    document,
+    'div',
+    { class: 'coranto-lens-switch', role: 'group', 'aria-label': 'Lens' },
+    lensNews,
+    lensPower,
+  );
+  const power = createPowerLens({
+    document,
+    getDataManager: () => dataManager,
+    showCard: (detail) => {
+      card.dataset.owner = 'power';
+      showCard(detail);
+    },
+  });
+
   const briefingBtn = el(document, 'button', {
     type: 'button',
     class: 'coranto-rail-btn coranto-rail-briefing',
@@ -361,8 +395,10 @@ export function createCorantoShell({
       homeBtn,
       briefingBtn,
     ),
+    lensSwitch,
     topicList,
     watchSection,
+    power.element,
   );
 
   // ── Feed ────────────────────────────────────────────────────────
@@ -509,26 +545,52 @@ export function createCorantoShell({
   let hazardsLayer = null;
   let unsubscribeHazards = null;
 
+  let cardOnClose = null;
+
+  /** Show the event card for a hazard, an aircraft or anything with a source. */
+  function showCard(detail) {
+    card.hidden = !detail;
+    cardOnClose = detail?.onClose ?? null;
+    if (!detail) return;
+    card.dataset.alert = detail.alert ?? 'none';
+    cardKind.textContent = detail.kind;
+    cardTitle.textContent = detail.title;
+    cardMeta.textContent = detail.meta;
+    cardLink.href = detail.url;
+    cardLink.textContent = detail.linkText;
+  }
+
   function renderCard(view) {
     const item = view?.enabled ? view.selected : null;
-    card.hidden = !item;
-    if (!item) return;
-    card.dataset.alert = item.alert ?? 'none';
-    cardKind.textContent = item.alert
-      ? `${item.kind.toUpperCase()} · ${item.alert.toUpperCase()} ALERT`
-      : item.kind.toUpperCase();
-    cardTitle.textContent = item.title;
-    cardMeta.textContent = hazardMeta(item);
-    cardLink.href = item.url;
+    if (!item) {
+      // Leave a card another lens opened alone.
+      if (card.dataset.owner === 'hazard') showCard(null);
+      return;
+    }
     let host = '';
     try {
       host = new URL(item.url).hostname.replace(/^www\./, '');
     } catch {
       host = 'source';
     }
-    cardLink.textContent = `Open at ${host}`;
+    card.dataset.owner = 'hazard';
+    showCard({
+      alert: item.alert,
+      kind: item.alert
+        ? `${item.kind.toUpperCase()} · ${item.alert.toUpperCase()} ALERT`
+        : item.kind.toUpperCase(),
+      title: item.title,
+      meta: hazardMeta(item),
+      url: item.url,
+      linkText: `Open at ${host}`,
+      onClose: () => hazardsLayer?.select(null),
+    });
   }
-  cardClose.addEventListener('click', () => hazardsLayer?.select(null));
+  cardClose.addEventListener('click', () => {
+    const close = cardOnClose;
+    showCard(null);
+    close?.();
+  });
 
   body.append(header, ticker, rail, feedAside, card, guide, briefing);
 
@@ -689,6 +751,29 @@ export function createCorantoShell({
     );
   }
 
+  let lens = 'news';
+  function setLens(next) {
+    if (next === lens) return;
+    lens = next;
+    const watching = lens === 'power';
+    lensNews.setAttribute('aria-pressed', String(!watching));
+    lensPower.setAttribute('aria-pressed', String(watching));
+    topicList.hidden = watching;
+    watchSection.hidden = watching;
+    if (watching) {
+      // Show the military news beside the aircraft and sites.
+      category = 'military';
+      layer.setGoodNewsOnly(false);
+      feed?.setCategory('military');
+      power.enter();
+    } else {
+      if (card.dataset.owner === 'power') showCard(null);
+      power.leave();
+      category = null;
+      feed?.setCategory(null);
+    }
+  }
+
   function setMode(mode, { remember = true } = {}) {
     const next = mode === 'instruments' ? 'instruments' : 'news';
     body.dataset.corantoMode = next;
@@ -826,6 +911,8 @@ export function createCorantoShell({
   briefing.addEventListener('click', (event) => {
     if (event.target === briefing) closeBriefing();
   });
+  lensNews.addEventListener('click', () => setLens('news'));
+  lensPower.addEventListener('click', () => setLens('power'));
   modeNews.addEventListener('click', () => setMode('news'));
   modeTools.addEventListener('click', () => setMode('instruments'));
   guideBtn.addEventListener('click', () => {
@@ -866,7 +953,11 @@ export function createCorantoShell({
 
   feed = createNewsFeed({ document, body: feedBody, layer, onModel });
   tick();
-  timers.push(setInterval(tick, 1000), setInterval(syncLayers, 1000));
+  timers.push(
+    setInterval(tick, 1000),
+    setInterval(syncLayers, 1000),
+    setInterval(() => power.refresh(), 5000),
+  );
 
   return {
     /** Called once the layer manager exists. */
