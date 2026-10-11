@@ -17,6 +17,15 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: ships are ships. Each vessel is drawn as a top-down hull for its
+  class, from its own AIS type code: cargo and container, tanker, passenger
+  (ferries and cruise ships alike), military and law enforcement, small
+  craft, and a plain hull when no type is broadcast. The map key lists them
+  when SHIPS is on.
+- Coranto: every scrolling panel has a visible scrollbar, including the map
+  key, the story panel, the sources list and Live TV.
+- Coranto: the news view always has its headlines on, even when opened from
+  a link that had every layer switched off.
 - Coranto: LIVE TV plays in the app. The ten channels from AUSPEX play in a
   panel over the globe through YouTube's no-cookie player, each newsroom is
   pinned on the globe while the panel is open, and selecting a pin tunes to

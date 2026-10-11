@@ -10,6 +10,8 @@ import {
   CITY_LABELS,
   COUNTRY_MARKS,
 } from '../data/corantoAtlasStyle.js';
+import { SHIP_CLASS_LABELS, shipSvg } from '../data/corantoShips.js';
+import { vesselTypeCss } from '../data/vesselLabels.js';
 import { HAZARD_COLORS } from '../layers/hazards/model.js';
 import { ELECTION_COLOR } from '../layers/elections/model.js';
 
@@ -41,6 +43,7 @@ const marker = (icon, colour, extra = {}) => ({
  * @param {boolean} state.governmentAircraft
  * @param {boolean} state.nuclear
  * @param {boolean} state.broadcasts
+ * @param {boolean} state.ships
  * @param {boolean} state.borders
  * @param {boolean} state.countries
  * @param {string[]} state.cityTypes City types on the map, or [].
@@ -151,6 +154,21 @@ export function buildMapKeyModel(state) {
           `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" width="72" height="72">${CITY_ICONS[type].replaceAll('currentColor', CITY_COLOURS[type])}</svg>`,
         )}`,
         label: CITY_LABELS[type],
+      })),
+    });
+  if (state.ships)
+    sections.push({
+      heading: 'SHIPS, BY THEIR OWN TYPE CODE',
+      rows: [
+        ['cargo', '70'],
+        ['tanker', '80'],
+        ['passenger', '60'],
+        ['military', '35'],
+        ['small', '30'],
+        ['other', ''],
+      ].map(([cls, code]) => ({
+        image: `data:image/svg+xml,${encodeURIComponent(shipSvg(cls, vesselTypeCss(code)))}`,
+        label: SHIP_CLASS_LABELS[cls],
       })),
     });
   const more = [];

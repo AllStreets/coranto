@@ -2164,42 +2164,6 @@ body[data-coranto-mode='news'] #cesium-credits {
 
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. */
-@supports selector(::-webkit-scrollbar) {
-  #coranto-rail,
-  #coranto-feed-body,
-  .coranto-briefing-card,
-  .coranto-guide-card {
-    scrollbar-width: auto;
-    scrollbar-color: auto;
-  }
-  #coranto-rail::-webkit-scrollbar,
-  #coranto-feed-body::-webkit-scrollbar,
-  .coranto-briefing-card::-webkit-scrollbar,
-  .coranto-guide-card::-webkit-scrollbar {
-    width: 10px;
-  }
-  #coranto-rail::-webkit-scrollbar-track,
-  #coranto-feed-body::-webkit-scrollbar-track,
-  .coranto-briefing-card::-webkit-scrollbar-track,
-  .coranto-guide-card::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.04);
-  }
-  #coranto-rail::-webkit-scrollbar-thumb,
-  #coranto-feed-body::-webkit-scrollbar-thumb,
-  .coranto-briefing-card::-webkit-scrollbar-thumb,
-  .coranto-guide-card::-webkit-scrollbar-thumb {
-    border: 2px solid transparent;
-    border-radius: 6px;
-    background: rgba(180, 124, 255, 0.6);
-    background-clip: padding-box;
-  }
-  #coranto-rail::-webkit-scrollbar-thumb:hover,
-  #coranto-feed-body::-webkit-scrollbar-thumb:hover,
-  .coranto-briefing-card::-webkit-scrollbar-thumb:hover,
-  .coranto-guide-card::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(180, 124, 255, 0.9);
-  }
-}
 
 /* ── One frame: header, ticker, left column, globe, feed ─────────
    On a wide window the rail is a docked column like the feed, not buttons
@@ -3006,4 +2970,64 @@ body[data-coranto-mode='instruments'] #coranto-tv {
 .coranto-rail-btn[aria-pressed='true'] {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+/* Every scrolling area shows a bar a person can see and drag, including on
+   systems that hide scrollbars until the pointer moves. Kept last so no
+   later rule turns one thin or invisible again. */
+@supports selector(::-webkit-scrollbar) {
+  #coranto-rail,
+  #coranto-feed-body,
+  .coranto-briefing-card,
+  .coranto-guide-card,
+  .coranto-key-body,
+  .coranto-story-body,
+  #coranto-sources-menu,
+  #coranto-tv {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+  }
+  #coranto-rail::-webkit-scrollbar,
+  #coranto-feed-body::-webkit-scrollbar,
+  .coranto-briefing-card::-webkit-scrollbar,
+  .coranto-guide-card::-webkit-scrollbar,
+  .coranto-key-body::-webkit-scrollbar,
+  .coranto-story-body::-webkit-scrollbar,
+  #coranto-sources-menu::-webkit-scrollbar,
+  #coranto-tv::-webkit-scrollbar {
+    width: 10px;
+  }
+  #coranto-rail::-webkit-scrollbar-track,
+  #coranto-feed-body::-webkit-scrollbar-track,
+  .coranto-briefing-card::-webkit-scrollbar-track,
+  .coranto-guide-card::-webkit-scrollbar-track,
+  .coranto-key-body::-webkit-scrollbar-track,
+  .coranto-story-body::-webkit-scrollbar-track,
+  #coranto-sources-menu::-webkit-scrollbar-track,
+  #coranto-tv::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  #coranto-rail::-webkit-scrollbar-thumb,
+  #coranto-feed-body::-webkit-scrollbar-thumb,
+  .coranto-briefing-card::-webkit-scrollbar-thumb,
+  .coranto-guide-card::-webkit-scrollbar-thumb,
+  .coranto-key-body::-webkit-scrollbar-thumb,
+  .coranto-story-body::-webkit-scrollbar-thumb,
+  #coranto-sources-menu::-webkit-scrollbar-thumb,
+  #coranto-tv::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: rgba(180, 124, 255, 0.7);
+    background-clip: padding-box;
+  }
+  #coranto-rail::-webkit-scrollbar-thumb:hover,
+  #coranto-feed-body::-webkit-scrollbar-thumb:hover,
+  .coranto-briefing-card::-webkit-scrollbar-thumb:hover,
+  .coranto-guide-card::-webkit-scrollbar-thumb:hover,
+  .coranto-key-body::-webkit-scrollbar-thumb:hover,
+  .coranto-story-body::-webkit-scrollbar-thumb:hover,
+  #coranto-sources-menu::-webkit-scrollbar-thumb:hover,
+  #coranto-tv::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(180, 124, 255, 0.95);
+  }
 }

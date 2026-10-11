@@ -47,9 +47,10 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [~] **T16 Map icon overhaul.** Done: topic icons for stories, event icons
   for hazards, a shared icon module (`src/data/corantoIcons.js`). Open:
   city-type icons, country status marks, elections, quakes, launches.
-- [ ] **T18 Ship icons.** Top-down hulls by class (cargo/container, military,
-  passenger/cruise), rotated to heading.
-- [ ] **T22 Satellite icons**, unless they cost too much to draw.
+- [x] **T18 Ship icons.** Top-down hulls by class, rotated to heading.
+- [ ] **T22 Satellite icons.** The layer draws about 28,000 points and moves
+  them every frame, so icons for all would lag. Plan: icons for the named
+  and selected satellites only; the rest stay points.
 - [ ] **T17 Stories located on the globe** and clickable, alongside the
   instruments tools.
 - [~] **T4 Map key** generated from what is actually drawn. Done for

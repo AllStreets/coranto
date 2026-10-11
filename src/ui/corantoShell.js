@@ -30,7 +30,7 @@ const FIRST_RUN_SESSION_KEY = 'gev:first-run-mission-session:v1';
 const NEWS_LABELS_IN_NEWS = 16;
 
 /** Header layers whose symbols the map key explains itself. */
-const KEYED_LAYERS = new Set(['hazards', 'local-firms']);
+const KEYED_LAYERS = new Set(['hazards', 'local-firms', 'ais-live-vessels']);
 
 /** Live layers offered in the header. Ids are catalog layer ids. */
 const HEADER_LAYERS = [
@@ -712,6 +712,7 @@ export function createCorantoShell({
       governmentAircraft: lens === 'power',
       nuclear: nuclear.shown,
       broadcasts: tv.isOpen,
+      ships: on('ais-live-vessels'),
       borders: atlas.isOn('borders'),
       countries: atlas.isOn('countries'),
       cityTypes: atlas.cityTypes(),
@@ -1275,12 +1276,24 @@ export function createCorantoShell({
     }
   }
 
+  /** The news view always has its headlines on (people only). */
+  function ensureNewsOn() {
+    if (
+      body.dataset.corantoFrame === 'one' &&
+      body.dataset.corantoMode === 'news' &&
+      dataManager?.layers?.has('news') &&
+      !dataManager.isEnabled('news')
+    )
+      Promise.resolve(dataManager.setEnabled('news', true)).catch(() => {});
+  }
+
   function setMode(mode, { remember = true } = {}) {
     const next = mode === 'instruments' ? 'instruments' : 'news';
     body.dataset.corantoMode = next;
     modeNews.setAttribute('aria-pressed', String(next === 'news'));
     modeTools.setAttribute('aria-pressed', String(next === 'instruments'));
     if (remember) writeStored(localStorageRef, MODE_KEY, next);
+    ensureNewsOn();
     // The engine lays its panels out from measured sizes.
     win.dispatchEvent?.(new win.Event('resize'));
   }
@@ -1610,7 +1623,13 @@ export function createCorantoShell({
         );
         return;
       }
-      if (body.dataset.corantoMode !== 'news' || startedWithLink) return;
+      if (body.dataset.corantoMode === 'news' && startedWithLink) {
+        // A link sets the camera and layers, but the news view is nothing
+        // without its headlines: switch them on if the link left them off.
+        timers.push(setTimeout(ensureNewsOn, 1500));
+        return;
+      }
+      if (body.dataset.corantoMode !== 'news') return;
       // A fresh visit in news mode: headlines on, whole Earth in view.
       timers.push(
         setTimeout(() => {
