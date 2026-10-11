@@ -104,3 +104,23 @@ test('text with no place, or no text, is unplaced', () => {
 test('the index is populated', () => {
   assert.ok(GAZETTEER_SIZE > 1200);
 });
+
+test('headlines in French, Spanish, German and Portuguese are placed', () => {
+  const cases = [
+    ['Saudi-Arabien: Viele Tote bei Angriff auf Flughafen in Riad', 'Riyadh', 'city'],
+    ['Face aux drones ukrainiens, des navires liés à la Russie se drapent', 'Russia', 'country'],
+    ['Pourquoi Ceuta et Melilla restent un sujet de discorde entre l’Espagne et le Maroc', 'Spain', 'country'],
+    ['“No ayudes al enemigo”: Kiev alerta a Europa', 'Kyiv', 'city'],
+    ['El Gobierno de Estados Unidos anuncia nuevas sanciones', 'United States', 'country'],
+    ['Deutschland und Frankreich einigen sich in Brüssel', 'Brussels', 'city'],
+    ['Governo dos EUA anuncia acordo com a Arábia Saudita', 'United States', 'country'],
+    ['Séisme: Le Caire envoie de l’aide', 'Cairo', 'city'],
+  ];
+  for (const [title, name, precision] of cases) {
+    const place = matchPlace(title);
+    assert.equal(place?.name, name, title);
+    assert.equal(place.precision, precision, title);
+  }
+  // Lower-case look-alikes are still not places.
+  assert.equal(matchPlace('las damas y los caballeros de roma'), null);
+});

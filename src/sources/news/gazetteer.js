@@ -1,5 +1,6 @@
 import { NEWS_CITIES } from './cities.js';
 import { NEWS_COUNTRIES } from './countries.js';
+import { FOREIGN_CITY_NAMES, FOREIGN_COUNTRY_NAMES } from './placeNames.js';
 import { NEWS_US_STATES } from './usStates.js';
 
 /**
@@ -316,7 +317,10 @@ function buildIndex() {
   }
   for (const [name, lat, lon] of EXTRA_CITIES)
     add(name, { name, lat, lon, precision: 'city' });
-  for (const [alias, canonical] of CITY_ALIASES) {
+  for (const [name, lat, lon] of EXTRA_CITIES)
+    if (!cityByName.has(name))
+      cityByName.set(name, { name, lat, lon, precision: 'city' });
+  for (const [alias, canonical] of [...CITY_ALIASES, ...FOREIGN_CITY_NAMES]) {
     const place = cityByName.get(canonical);
     if (place && !REMOVED_PLACE_NAMES.has(canonical)) add(alias, place);
   }
@@ -329,7 +333,7 @@ function buildIndex() {
     add(name, place);
     if (rawName !== name && !rawName.includes('.')) add(rawName, place);
   }
-  for (const [text, iso2] of COUNTRY_ALIASES) {
+  for (const [text, iso2] of [...COUNTRY_ALIASES, ...FOREIGN_COUNTRY_NAMES]) {
     const place = countryByIso.get(iso2);
     if (place && !REMOVED_PLACE_NAMES.has(place.name)) add(text, place);
   }

@@ -1864,3 +1864,68 @@ body[data-coranto-mode='news'] #cesium-credits {
 #coranto-guide[data-welcome] .coranto-guide-welcome {
   display: block;
 }
+
+/* ── Narrow windows and phones ──────────────────────────────────── */
+#coranto-menu {
+  display: none;
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 600 9px var(--font-mono);
+  letter-spacing: 1.5px;
+  cursor: pointer;
+}
+#coranto-menu[aria-expanded='true'] {
+  border-color: rgba(52, 224, 138, 0.7);
+  color: #34e08a;
+}
+@media (max-width: 1100px) {
+  body[data-coranto-mode='news'] #coranto-menu {
+    display: block;
+  }
+  /* The rail becomes a panel the MENU button opens. */
+  body[data-coranto-mode='news'][data-coranto-menu='open'] #coranto-rail {
+    display: flex;
+    top: calc(var(--coranto-header-h) + var(--coranto-ticker-h));
+    left: 0;
+    bottom: 0;
+    z-index: 380;
+    width: min(280px, 86vw);
+    padding: 14px;
+    overflow-y: auto;
+    border-right: 1px solid var(--coranto-line-2);
+    background: rgba(4, 9, 7, 0.97);
+  }
+}
+@media (max-width: 760px) {
+  #coranto-header {
+    gap: 8px;
+    padding: 0 10px;
+  }
+  /* The control room needs a large screen; phones stay in the news view. */
+  #coranto-mode {
+    display: none;
+  }
+  .coranto-brand img {
+    width: 24px;
+    height: 24px;
+  }
+  #coranto-menu {
+    margin-left: auto;
+  }
+  #coranto-card {
+    right: 10px;
+    left: 10px;
+    bottom: calc(46vh + 10px);
+    width: auto;
+  }
+  .coranto-tv-list {
+    grid-template-columns: 1fr;
+  }
+  .coranto-guide-card {
+    padding: 20px 18px;
+  }
+}

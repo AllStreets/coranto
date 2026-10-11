@@ -1,5 +1,11 @@
 # Changelog
 
+- Coranto: headlines in French, Spanish, German and Portuguese are placed on
+  the globe using those languages' names for countries and major cities. On
+  narrow windows and phones a MENU button opens the lenses, topics and
+  watches, and the header fits the screen. The headline ticker follows the
+  feed's language choice. The loading screen no longer names a city.
+
 - Coranto: SHARE VIEW copies a link that reopens the current lens, search,
   topic, place and language. Selecting an aircraft, ship or mapped site in the
   news view opens a card of what it reports with a link to a public tracker.

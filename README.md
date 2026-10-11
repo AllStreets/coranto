@@ -283,6 +283,7 @@ Coranto has two views, switched at the top right.
 | Add live layers | Use the buttons along the top: hazards, flights, military, ships, satellites, quakes, fires, storms, launches, cables. |
 | Read a hazard | Click its marker. A card shows what it is, the tracker's alert level and a link to the tracker's report. Red means the tracker issued a Red alert, nothing else. |
 | Get back to the whole globe | Click **WHOLE EARTH**. |
+| Use it on a phone | The globe sits above the feed. **MENU** opens the lenses, topics and your watches. The INSTRUMENTS view needs a larger screen. |
 | Move the globe | Drag to spin, scroll to zoom, hold Ctrl or the right button and drag to tilt. |
 
 The **GUIDE** button in the app shows the same instructions.
@@ -364,8 +365,10 @@ Two things to know:
 
 - **Other languages are shown as published.** Seven outlets in French,
   Spanish, German, Portuguese and Arabic are read. The feed shows English by
-  default; the language menu shows the rest, untranslated. Place matching,
-  topics and story grouping work best in English.
+  default; the language menu shows the rest, untranslated. French, Spanish,
+  German and Portuguese headlines are placed on the globe using those
+  languages' own place names; Arabic headlines are not placed yet. Topics
+  and story grouping work best in English.
 - **Some sources will be down.** GDELT rate-limits, and ReliefWeb and UN News
   sometimes refuse or time out. Coranto reports them as down; the feed works
   on the rest.

@@ -250,6 +250,19 @@ export function createCorantoShell({
     modeNews,
     modeTools,
   );
+  const menuBtn = el(document, 'button', {
+    id: 'coranto-menu',
+    type: 'button',
+    text: 'MENU',
+    title: 'Lenses, topics and your watches',
+    'aria-expanded': 'false',
+  });
+  menuBtn.addEventListener('click', () => {
+    const open = body.dataset.corantoMenu !== 'open';
+    if (open) body.dataset.corantoMenu = 'open';
+    else delete body.dataset.corantoMenu;
+    menuBtn.setAttribute('aria-expanded', String(open));
+  });
   const header = el(
     document,
     'header',
@@ -277,6 +290,7 @@ export function createCorantoShell({
       ),
     ),
     liveBtn,
+    menuBtn,
     layerNav,
     count,
     clock,
@@ -1006,8 +1020,16 @@ export function createCorantoShell({
 
     renderWatches();
     if (!briefing.hidden) renderBriefing();
-    const snapshot = layer.getView().snapshot;
-    const latest = (snapshot?.articles ?? []).slice(0, 24);
+    const tickerView = layer.getView();
+    const snapshot = tickerView.snapshot;
+    // The ticker follows the feed's language choice.
+    const latest = (snapshot?.articles ?? [])
+      .filter(
+        (article) =>
+          !tickerView.language ||
+          (article.lang ?? 'en') === tickerView.language,
+      )
+      .slice(0, 24);
     const key = latest.map((article) => article.id).join(',');
     if (key !== tickerKey) {
       tickerKey = key;

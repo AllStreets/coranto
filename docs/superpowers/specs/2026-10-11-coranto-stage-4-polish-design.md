@@ -24,10 +24,20 @@ Status: first part built
   and the last good read is saved to `.gev-cache/elections-v1.json` and served
   as stale when Wikidata is down.
 
+- **Place names in four more languages** (`src/sources/news/placeNames.js`).
+  Country and major city names as written in French, Spanish, German and
+  Portuguese map to places already in the gazetteer. Names that are ambiguous
+  as a capitalised word are left out. On a live run the share of placed
+  headlines rose from 29 to 38 of 41 in German, 24 to 65 of 70 in Portuguese,
+  10 to 25 of 33 in Spanish and 11 to 17 of 20 in French.
+- **Narrow windows and phones.** Below 1100 px a MENU button opens the rail
+  as a panel. Below 760 px the globe sits above the feed and the INSTRUMENTS
+  switch is hidden, since the control room needs a large screen.
+- **Ticker language.** The ticker shows the same language as the feed.
+
 ## Next
 
 - The INSTRUMENTS view still looks like God's Eye View apart from colour and
   type. It needs its own pass.
 - A real logo and wordmark.
-- Phone layout: the feed and globe stack below 760 px but have not been
-  tuned.
+- Arabic place names.
