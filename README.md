@@ -6,7 +6,7 @@
 
 <img alt="news" src="https://img.shields.io/badge/news-real_headlines_·_real_links-B47CFF?style=for-the-badge&labelColor=04070b"/>
 <img alt="sources" src="https://img.shields.io/badge/news_sources-35_named_·_6_languages_·_health_shown-B47CFF?style=for-the-badge&labelColor=04070b"/>
-<img alt="live layers" src="https://img.shields.io/badge/live_layers-33-B47CFF?style=for-the-badge&labelColor=04070b"/>
+<img alt="live layers" src="https://img.shields.io/badge/live_layers-33_·_all_checked-B47CFF?style=for-the-badge&labelColor=04070b"/>
 <img alt="AI text" src="https://img.shields.io/badge/AI_text-optional_·_cited_·_checked_in_code-E879F9?style=for-the-badge&labelColor=04070b"/>
 <img alt="keys" src="https://img.shields.io/badge/API_keys-none_required-B47CFF?style=for-the-badge&labelColor=04070b"/>
 <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-B47CFF?style=for-the-badge&labelColor=04070b"/></a>
@@ -260,17 +260,19 @@ the official election body before relying on a date.
 </tr>
 </table>
 
-**MARKETS** shows exchange rates and crypto prices beside the finance news.
-Exchange rates are the European Central Bank's reference rates, which are set
-once each working day and are not live trading prices; the lens says so.
-Crypto prices come from CoinGecko. Every figure links to its source, and a
-change is shown only when the source itself gave an earlier figure to compare
-with. Stock indices and commodities are not shown, because no keyless public
-source for them is available.
+**MARKETS** shows stock indices, oil, the US 10-year yield, exchange rates and
+crypto prices beside the finance news. Index, oil and yield figures are daily
+closes from the St. Louis Fed; exchange rates are the European Central Bank's
+reference rates. Neither is a live trading price, and each shows the day it
+is for. Crypto prices come from CoinGecko. Every figure links to its source,
+and a change is shown only when the source itself gave an earlier figure to
+compare with.
 
-**LIVE TV** links to live news channels in Doha, Paris, Berlin, Singapore,
-Sydney, New York and elsewhere. Coranto links to each channel and does not
-embed the player, so nothing loads from YouTube until you click.
+**LIVE TV** plays live news channels from Doha, Paris, Berlin, Singapore,
+Sydney, New York and elsewhere in a panel over the globe, and pins each
+newsroom on the map. The player is YouTube's own, from its no-cookie address;
+nothing loads from YouTube until you open the panel, and closing it removes
+the player.
 
 ---
 
@@ -282,21 +284,24 @@ Coranto has two views, switched at the top right.
 
 | To do this | Do this |
 |---|---|
-| Read a story | Click its headline. It opens the original article in a new tab. |
-| See where stories are | Look at the gold markers. A solid dot is a city. A hollow ring is a country or region, so the position is approximate. |
+| Read a story | Click its headline. It opens in the app, with the link to the original at the bottom. |
+| See where stories are | Each marker shows the icon of the topic most stories there share. A solid ring is a city. A dashed ring is a country or region, so the position is approximate. **MAP KEY** explains every symbol. |
 | See one place's stories | Click its marker. Clear the filter with the chip at the top of the feed. |
 | Check why a story is where it is | Read the line under the summary, for example `Kyiv · city · matched "Kyiv" in headline`. Click it to fly there. |
 | See who else reported a story | Click the `N outlets` chip on a card to list every outlet's own headline. |
 | Get a checked summary | Click **AI BRIEF** on a story with several outlets. Needs an OpenAI key. |
 | See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
 | Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
-| Watch power | Click **WATCH POWER** on the left. Click any aircraft in the list to fly to it and open its public track. |
+| Watch power | Click **POWER** on the left. Click any aircraft in the list to fly to it and open its public track. |
 | Check the markets | Click **MARKETS** on the left. Click any figure to open its source. |
-| See who is raising the most money | Click **ELECTIONS**, then **US campaign money**. Choose Senate or House. Click a name to open the FEC record. |
+| See who is raising the most money | Click **VOTES**, then **US campaign money**. Choose Senate or House. Click a name to open the FEC record. |
 | Save a search | Search, pick a topic or select a place, then press **SAVE THIS VIEW** under My Watches. It tells you what it saved. |
 | Watch a newsroom live | Click **LIVE TV** and pick a channel. |
-| Follow elections | Click **ELECTIONS** on the left. Click a polling day to see that country's election news. |
-| Follow something | Set a search, place or topic, then click **＋ SAVE THIS VIEW**. It appears under MY WATCHES. |
+| Follow elections | Click **VOTES** on the left. Click a polling day to see that country's election news. |
+| Follow something | Set a search, place or topic, then click **SAVE THIS VIEW**. It appears under MY WATCHES. |
+| Look further back | Use the time range above the feed: last 24 hours, 3 days or 7 days. |
+| Turn on the atlas | Under **MAP OVERLAYS**, switch on borders, countries or cities. Click a country or city for its card and stories. |
+| Build a picture | Press **PIN TO BOARD** on a story, country or city, then open **BOARD** at the top to see how your pins connect. |
 | Catch up | Click **MY BRIEFING** for the latest stories on every watch. **Copy as text** puts it on the clipboard with every link. |
 | Share what you are looking at | Click **SHARE VIEW**. It copies a link that reopens the same lens, search, topic and place. The link carries the filter only, never news content. |
 | See what an aircraft or ship is | Switch on FLIGHTS, MILITARY or SHIPS and click one. A card shows what it is broadcasting and links to a public tracker. |
@@ -314,8 +319,11 @@ The **GUIDE** button in the app shows the same instructions.
 
 ### INSTRUMENTS
 
-The full God's Eye View control room, for when you want to go past the
-headlines: click any aircraft or ship to track it, ride in a cockpit view,
+The full God's Eye View control room in the same frame and style as the news
+view, for when you want to go past the headlines. All thirty layers were
+switched on and checked; [docs/coranto/INSTRUMENTS.md](docs/coranto/INSTRUMENTS.md)
+lists what each shows, where its data comes from, and the key it needs. Click
+any aircraft or ship to track it, ride in a cockpit view,
 open public cameras, replay weather, change the visual style, talk to the map,
 and copy a share link. Its own guide is in
 [docs/GODS-EYE-VIEW-README.md](docs/GODS-EYE-VIEW-README.md).
@@ -327,7 +335,7 @@ and copy a share link. Its own guide is in
 </tr>
 <tr>
 <td><em>Europe with flights, ships, military aircraft, quakes and hazards on: 5,962 aircraft and 8,143 vessels at the moment of capture. The source list shows 25 of 28 news sources answering.</em></td>
-<td><em>Instruments: the same globe with the full control room around it.</em></td>
+<td><em>Instruments: the same header, ticker and panel style, with the full control room around the globe.</em></td>
 </tr>
 </table>
 
@@ -453,8 +461,8 @@ npm run build
 |---|---|
 | **1. Foundation and truth feed** | Built: sourced feed from 35 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell |
 | **2. Verification** | Built: stories grouped across outlets, outlet counts, outlets by region, differing figures, AI briefs checked sentence by sentence, and seven non-English sources |
-| **3. Lenses and your own feed** | Built: saved watches, My Briefing, the Watch Power, Elections and Markets lenses, and Live TV. Also built: stock indices, oil and the 10-year yield from FRED, and US campaign money from FEC filings in the Elections lens. Next: official election results (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
-| **4. Beauty pass** | Started: first-visit welcome, paged feed, shareable views, tracking cards in the news view. Next: the INSTRUMENTS view and a full visual identity |
+| **3. Lenses and your own feed** | Built: saved watches, My Briefing, the Power, Votes and Markets lenses, government aircraft, US campaign money, stock indices and oil |
+| **4. One product** | Built: one frame and one look for NEWS and INSTRUMENTS, icons everywhere on the globe and in the interface, a map key, stories that open in the app, live TV in the app, AUSPEX's borders, countries and cities, the analyst board, a week of stories. Next: a Relief lens on official humanitarian data, an archive beyond a week |
 | **5. Public site** | A hosted version anyone can open |
 
 Coranto currently runs on your own machine. There is no hosted version yet.
