@@ -35,6 +35,30 @@ test('the same event told by different outlets is one story', () => {
   assert.deepEqual([stories[1].articleIds, stories[1].outlets], [['5'], 1]);
 });
 
+test('a run of related headlines does not chain into one story', () => {
+  // Real headlines from one afternoon. Each shares words with the next, but
+  // they are three events: a ceasefire, a diesel deal, a call for a new
+  // president. Matching any one member used to merge all of them.
+  const stories = clusterArticles([
+    a('1', 'SCMP', 'Trump says Russia, Ukraine agree to ‘energy ceasefire’'),
+    a('2', 'Al Jazeera', 'Trump says Ukraine and Russia agree to ‘energy ceasefire’'),
+    a('3', 'DW', 'Trump announces ‘energy ceasefire’ between Russia and Ukraine'),
+    a('4', 'CNA', 'Trump says Russia and Ukraine agree to ‘energy ceasefire’'),
+    a('5', 'The Hindu', 'Trump says Ukraine should get new President as he blames Zelenskyy for U.S. diesel prices'),
+    a('6', 'BBC', '‘Time for Ukraine to get new president,’ says Trump after Zelensky condemns diesel deal'),
+    a('7', 'SCMP', 'Trump’s Russian diesel deal may be illegal, says prominent Republican senator'),
+    a('8', 'The Straits Times', 'Prominent Republican senator says Trump’s Russian diesel deal may be illegal'),
+  ]);
+  assert.deepEqual(
+    stories.map((s) => s.articleIds),
+    [
+      ['1', '2', '3', '4'],
+      ['5', '6'],
+      ['7', '8'],
+    ],
+  );
+});
+
 test('alike wording about different places stays separate', () => {
   const stories = clusterArticles([
     a('1', 'ABC', 'Pregnant woman among eight killed in Pennsylvania shooting', region('Pennsylvania')),

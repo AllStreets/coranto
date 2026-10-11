@@ -31,6 +31,7 @@ import { hazardsProxy } from './hazards.js';
 import { electionsProxy } from './elections.js';
 import { marketsProxy } from './markets.js';
 import { campaignFinanceProxy } from './campaignFinance.js';
+import { governmentAircraftProxy } from './governmentAircraft.js';
 
 /**
  * Construct the local provider plugins in their established order.
@@ -70,6 +71,7 @@ function localProviderPlugins({ realtime } = {}) {
     electionsProxy(),
     marketsProxy(),
     campaignFinanceProxy(),
+    governmentAircraftProxy(),
     keySetupEndpoint(),
   ];
 }

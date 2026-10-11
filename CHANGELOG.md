@@ -17,6 +17,15 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: Watch Power lists government aircraft: head-of-state, government
+  and international-body aircraft that are broadcasting a position now, each
+  with operator, type, registration and a link to its live track, and a plane
+  marker on the globe. Which aircraft these are comes from the public
+  plane-alert database (ODbL); positions are the aircraft's own ADS-B.
+- Coranto: stories no longer chain together. A headline joins a story only
+  when it matches at least a third of the headlines already in it, and joins
+  the one it matches best. One afternoon's 23-headline Ukraine pile now
+  reads as separate ceasefire, diesel-deal and new-president stories.
 - Coranto: FIRES works without a key. With no `FIRMS_MAP_KEY` the server
   reads NASA's public 24-hour global files for the same four satellite
   products. Fire cells are drawn in amber to red at a strength that shows at

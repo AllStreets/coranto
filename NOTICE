@@ -25,3 +25,8 @@ NASA images, both in the public domain: the Earth from NASA's Blue Marble
 (NASA Earth Observatory) and the near side of the Moon from the Lunar
 Reconnaissance Orbiter Camera (NASA/GSFC/Arizona State University). NASA does
 not endorse Coranto.
+
+The government aircraft list in the Watch Power lens is read at runtime from
+the plane-alert database, (c) SDR-Enthusiasts, Ramon F. Kolb (kx1t) and
+contributors, made available under the Open Database License:
+http://opendatacommons.org/licenses/odbl/1.0/. It is not bundled.

@@ -44,6 +44,9 @@ export function headlineTerms(title) {
   return terms;
 }
 
+/** The share of a story's headlines a new one must match to join it. */
+export const STORY_MATCH_SHARE = 1 / 3;
+
 /** Two headlines are the same story when they share enough of their words. */
 export function sameStory(a, b) {
   let shared = 0;
@@ -84,18 +87,25 @@ export function clusterArticles(articles) {
       pa.name !== pb.name,
     );
   };
+  // An article joins a story only when it matches at least a third of the
+  // headlines already in it, and it joins the story it matches best. Matching
+  // any single member is not enough: that let a run of headlines chain
+  // together ("ceasefire" to "diesel deal" to "new president" to "attack")
+  // until one story held several different events.
   const stories = [];
   for (const item of items) {
     let home = null;
+    let best = 0;
     for (const story of stories) {
-      if (
-        story.members.some(
-          (member) =>
-            !elsewhere(member, item) && sameStory(member.terms, item.terms),
-        )
-      ) {
+      let matched = 0;
+      for (const member of story.members)
+        if (!elsewhere(member, item) && sameStory(member.terms, item.terms))
+          matched++;
+      const share = matched / story.members.length;
+      // The small allowance keeps one-in-three from failing on rounding.
+      if (matched && share >= STORY_MATCH_SHARE - 1e-9 && share > best) {
         home = story;
-        break;
+        best = share;
       }
     }
     if (home) home.members.push(item);

@@ -621,6 +621,8 @@ const NEWS_RUNTIME = [
   'server/providers/campaignFinance.js',
   'src/sources/campaignFinance',
   'src/ui/corantoCampaignMoney.js',
+  'server/providers/governmentAircraft.js',
+  'src/sources/governmentAircraft',
   'src/ui/corantoContact.js',
   'src/ui/corantoLink.js',
 ];

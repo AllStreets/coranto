@@ -34,6 +34,23 @@ CoinGecko's own 24-hour figure. Each figure keeps the time its source gave.
 Live television links (Coranto's LIVE TV list) point to each broadcaster's
 YouTube channel live page. Coranto does not embed or proxy the streams.
 
+### Government aircraft (Coranto)
+
+Read server-side by `/api/government-aircraft`, at most every 90 seconds while
+the Watch Power lens is open.
+
+- **Which aircraft:** the [plane-alert database](https://github.com/sdr-enthusiasts/plane-alert-db)
+  by SDR-Enthusiasts and contributors, made available under the Open Database
+  License (ODbL 1.0), contents under the Database Contents License. Coranto
+  reads it at runtime, once a day, and keeps the rows in its Governments, Head
+  of State, Royal Aircraft, Dictator Alert and Quango categories. It shows
+  each row's operator, type, registration and reference link, under the plain
+  labels Government, Head of state, Royal flight and International body. The
+  database's own category names are not shown.
+- **Where they are:** each aircraft's own ADS-B broadcast, from
+  `api.adsb.lol/v2/hex`. An aircraft that is not broadcasting a position is
+  not shown.
+
 ### US campaign money (Coranto)
 
 Read server-side by `/api/campaign-finance` from the Federal Election

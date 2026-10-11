@@ -10,10 +10,11 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   columns in both views. Done so far: shared header and ticker. Open: the
   engine's floating panels in the shared columns. Automated browsers keep the
   classic layout the CI gates measure.
-- [ ] **P2 Government (non-military) aircraft in Watch Power.** Needs a
-  citable registry of government aircraft; no hand-made list.
-- [ ] **P3 Stories wrongly chained together.** Unrelated headlines must not
-  merge; real multi-outlet stories still must.
+- [x] **P2 Government (non-military) aircraft in Watch Power.** From the
+  public plane-alert database (ODbL) joined to live ADS-B. Open: selecting
+  one by clicking its marker on the globe (rows work).
+- [x] **P3 Stories wrongly chained together.** A headline must match a third
+  of a story's headlines to join it.
 - [ ] **P4 Vercel deployment and public site.** After the overhaul. The AIS
   websocket and on-disk caches need a hosting answer.
 
