@@ -67,6 +67,8 @@ It is built from two projects:
   ├─ figures .......... where outlets give different numbers for the same thing
   ├─ AI brief ......... optional; every sentence cites its sources or is removed
   ├─ search ........... keep only the stories that mention your words
+  ├─ watches .......... save a search, place or topic; see what is new since you looked
+  ├─ my briefing ...... the latest stories for everything you follow, on one page
   ├─ the globe ........ one marker per place the stories name; rings where approximate
   ├─ source health .... which feeds answered, which did not, and when
   ├─ good news ........ headlines tagged as progress: medical, science, space, humanity
@@ -90,8 +92,8 @@ Coranto aims at two things at once:
 - **The whole picture stays available.** Every source, every layer, undigested,
   for anyone who wants to look for themselves.
 - **You can narrow it to what you care about.** Search, topics, places and
-  filters cut the stream down without anything rewriting it for you. Saved
-  searches and personal briefings are on the roadmap.
+  filters cut the stream down without anything rewriting it for you. Save any
+  of them as a watch, and My Briefing gathers the latest for all of them.
 
 ---
 
@@ -157,6 +159,28 @@ Two more things are read straight from the headlines, with no model:
   answering and none has carried it. That is a statement about the outlets
   Coranto reads, not about the whole press of a region.
 
+### Your own feed
+
+<table>
+<tr>
+<td width="50%"><img src="docs/media/coranto/watches.png" alt="Saved watches on the left with counts of new stories" width="100%"/></td>
+<td width="50%"><img src="docs/media/coranto/briefing.png" alt="My Briefing: the latest stories for each watch" width="100%"/></td>
+</tr>
+<tr>
+<td><em>Four watches on the left, each showing how many stories are new since you last looked.</em></td>
+<td><em>My Briefing: the latest stories for every watch on one page, newest first, with outlet counts.</em></td>
+</tr>
+</table>
+
+Hundreds of headlines are too many to read. A **watch** is a search, place,
+topic, publisher or any mix of them that you save. Each watch shows a count of
+stories that are new since you last opened it, and **MY BRIEFING** lists the
+latest stories for all of them on one page.
+
+A watch only selects. The briefing shows the publishers' own headlines,
+newest first, with nothing rewritten and nothing ranked by a model. Watches
+are stored in your browser and are sent nowhere.
+
 ---
 
 ## How to use it
@@ -175,6 +199,8 @@ Coranto has two views, switched at the top right.
 | Get a checked summary | Click **AI BRIEF** on a story with several outlets. Needs an OpenAI key. |
 | See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
 | Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
+| Follow something | Set a search, place or topic, then click **＋ SAVE THIS VIEW**. It appears under MY WATCHES. |
+| Catch up | Click **MY BRIEFING** for the latest stories on every watch. |
 | Search | Type in the box above the feed. Stories must contain every word, in the headline, summary, publisher or place. |
 | Narrow by topic | Use the list on the left. |
 | See only good news | Click **GOOD NEWS**. |
@@ -321,7 +347,7 @@ npm run build
 |---|---|
 | **1. Foundation and truth feed** | Built: sourced feed from 35 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell |
 | **2. Verification** | Built: stories grouped across outlets, outlet counts, outlets by region, differing figures, AI briefs checked sentence by sentence, and seven non-English sources |
-| **3. Lenses and your own feed** | Saved searches and a personal briefing built from them; Good News, Elections (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
+| **3. Lenses and your own feed** | Built: saved watches and My Briefing. Next: Good News, Elections (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
 | **4. Beauty pass** | Full visual identity and a guided first run |
 | **5. Public site** | A hosted version anyone can open |
 

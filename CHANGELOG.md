@@ -1,5 +1,10 @@
 # Changelog
 
+- Coranto: a search, place, topic or publisher filter can be saved as a watch.
+  Each watch shows how many stories are new since it was last opened, and My
+  Briefing lists the latest stories for every watch, newest first, in the
+  publishers' own words. Watches are kept in the browser's storage only.
+
 - Coranto: stories now show how many outlets from each region carried them
   and where the outlets' headline figures differ, both read from the headlines
   with no model. Seven outlets in French, Spanish, German, Portuguese and

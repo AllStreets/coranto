@@ -498,6 +498,22 @@ export function createNewsFeed({
 
   return {
     render,
+    /** The feed's own filters: search words, topic and publisher. */
+    getFilters() {
+      return {
+        query: filters.query,
+        category: filters.category,
+        publisher: filters.publisher,
+      };
+    },
+    /** Replace the feed's own filters, as when a saved watch is opened. */
+    setFilters({ query = '', category = null, publisher = null } = {}) {
+      filters.query = query;
+      filters.category = category;
+      filters.publisher = publisher;
+      search.value = query;
+      render();
+    },
     /** Group headlines into stories, or list every headline. */
     setGrouped(grouped) {
       filters.grouped = Boolean(grouped);

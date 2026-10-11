@@ -1,4 +1,10 @@
 import { createNewsFeed } from './newsPanel.js';
+import {
+  buildBriefing,
+  createWatchStore,
+  hasCriteria,
+  watchStories,
+} from './watches.js';
 
 const MODE_KEY = 'coranto.mode.v1';
 const FIRST_RUN_SESSION_KEY = 'gev:first-run-mission-session:v1';
@@ -52,6 +58,10 @@ const GUIDE = [
     'Type in the search box above the feed to keep only stories that mention your words, in the headline, summary, publisher or place.',
   ],
   [
+    'Follow what matters to you',
+    'Set a search, a place or a topic, then press SAVE THIS VIEW. It becomes a watch on the left with a count of new stories. MY BRIEFING lists the latest stories for every watch on one page. Watches are kept in this browser only.',
+  ],
+  [
     'Add live layers',
     'The buttons along the top add other public feeds to the same globe: natural hazards, aircraft, military flights, ships, satellites, earthquakes, storms and more. Click a hazard marker to see what it is and open its source.',
   ],
@@ -77,6 +87,15 @@ function el(document, tag, attrs = {}, ...children) {
 }
 
 const pad = (n) => String(n).padStart(2, '0');
+
+/** `3 min ago`, `2 h ago`, `1 d ago` */
+function relativeAge(ms) {
+  const minutes = Math.max(0, Math.floor((Date.now() - ms) / 60_000));
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  return hours < 24 ? `${hours} h ago` : `${Math.floor(hours / 24)} d ago`;
+}
 
 const LIVE_LABELS = {
   loading: 'CONNECTING',
@@ -307,10 +326,32 @@ export function createCorantoShell({
     layer.setGoodNewsOnly(next);
   });
   topicList.append(goodBtn);
+  const briefingBtn = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-rail-btn coranto-rail-briefing',
+    text: 'MY BRIEFING',
+    title: 'The latest stories for every watch you have saved',
+  });
+  const saveBtn = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-watch-save',
+    text: '＋ SAVE THIS VIEW',
+    title:
+      'Save the current search, place and topic as a watch. Kept in this browser only.',
+  });
+  const watchList = el(document, 'div', { class: 'coranto-watch-list' });
+  const watchSection = el(
+    document,
+    'div',
+    { class: 'coranto-watches' },
+    el(document, 'div', { class: 'coranto-rail-heading', text: 'MY WATCHES' }),
+    watchList,
+    saveBtn,
+  );
   const rail = el(
     document,
     'nav',
-    { id: 'coranto-rail', 'aria-label': 'Topics' },
+    { id: 'coranto-rail', 'aria-label': 'Topics and watches' },
     el(
       document,
       'div',
@@ -318,8 +359,10 @@ export function createCorantoShell({
       guideBtn,
       sourcesBtn,
       homeBtn,
+      briefingBtn,
     ),
     topicList,
+    watchSection,
   );
 
   // ── Feed ────────────────────────────────────────────────────────
@@ -397,6 +440,47 @@ export function createCorantoShell({
   );
   guide.hidden = true;
 
+  // ── Briefing ────────────────────────────────────────────────────
+  const briefingBody = el(document, 'div', { class: 'coranto-briefing-body' });
+  const briefingClose = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-guide-close',
+    text: 'Close',
+  });
+  const briefingSeen = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-guide-close coranto-briefing-seen',
+    text: 'Mark all as read',
+  });
+  const briefing = el(
+    document,
+    'div',
+    { id: 'coranto-briefing', role: 'dialog', 'aria-label': 'My briefing' },
+    el(
+      document,
+      'div',
+      { class: 'coranto-guide-card coranto-briefing-card' },
+      el(document, 'div', {
+        class: 'coranto-guide-kicker',
+        text: 'CORANTO · MY BRIEFING',
+      }),
+      el(document, 'h2', { text: 'What you follow, right now' }),
+      el(document, 'p', {
+        class: 'coranto-briefing-note',
+        text: 'Publisher headlines selected by your watches. Nothing here is rewritten or ranked; each list is newest first.',
+      }),
+      briefingBody,
+      el(
+        document,
+        'div',
+        { class: 'coranto-briefing-actions' },
+        briefingSeen,
+        briefingClose,
+      ),
+    ),
+  );
+  briefing.hidden = true;
+
   // ── Selected-event card ─────────────────────────────────────────
   const cardKind = el(document, 'span', { class: 'coranto-card-kind' });
   const cardTitle = el(document, 'div', { class: 'coranto-card-title' });
@@ -446,9 +530,165 @@ export function createCorantoShell({
   }
   cardClose.addEventListener('click', () => hazardsLayer?.select(null));
 
-  body.append(header, ticker, rail, feedAside, card, guide);
+  body.append(header, ticker, rail, feedAside, card, guide, briefing);
 
   // ── Behaviour ───────────────────────────────────────────────────
+  const watchStore = createWatchStore({ storage: localStorageRef });
+
+  function currentCriteria() {
+    const view = layer.getView();
+    return {
+      ...(feed?.getFilters() ?? {}),
+      category,
+      placeKey: view.selectedPlaceKey,
+      language: view.language,
+      goodNews: view.goodNewsOnly,
+    };
+  }
+
+  function openWatch(watch) {
+    const c = watch.criteria;
+    category = c.category;
+    layer.setLanguage(c.language);
+    layer.setGoodNewsOnly(c.goodNews);
+    layer.selectPlace(c.placeKey, { focus: Boolean(c.placeKey) });
+    feed?.setFilters({
+      query: c.query,
+      category: c.category,
+      publisher: c.publisher,
+    });
+    watchStore.markSeen([watch.id]);
+    renderWatches();
+  }
+
+  function renderWatches() {
+    const snapshot = layer.getView().snapshot;
+    const watches = watchStore.list();
+    watchList.replaceChildren(
+      ...watches.map((watch) => {
+        const { total, fresh } = watchStories(snapshot, watch);
+        const open = el(document, 'button', {
+          type: 'button',
+          class: 'coranto-watch',
+          title: `Show this watch: ${total} current ${total === 1 ? 'story' : 'stories'}`,
+        });
+        open.append(
+          el(document, 'span', {
+            class: 'coranto-watch-name',
+            text: watch.name,
+          }),
+          el(document, 'span', {
+            class: 'coranto-watch-count',
+            text: fresh ? `${fresh} new` : String(total),
+            ...(fresh ? { 'data-fresh': 'true' } : {}),
+          }),
+        );
+        open.addEventListener('click', () => openWatch(watch));
+        const remove = el(document, 'button', {
+          type: 'button',
+          class: 'coranto-watch-remove',
+          'aria-label': `Remove the watch ${watch.name}`,
+          title: 'Remove this watch',
+          text: '✕',
+        });
+        remove.addEventListener('click', () => {
+          watchStore.remove(watch.id);
+          renderWatches();
+        });
+        return el(
+          document,
+          'div',
+          { class: 'coranto-watch-row' },
+          open,
+          remove,
+        );
+      }),
+    );
+    const freshTotal = watches.reduce(
+      (sum, watch) => sum + watchStories(snapshot, watch).fresh,
+      0,
+    );
+    briefingBtn.textContent = freshTotal
+      ? `MY BRIEFING · ${freshTotal} NEW`
+      : 'MY BRIEFING';
+    briefingBtn.hidden = watches.length === 0;
+    saveBtn.disabled = !hasCriteria(currentCriteria());
+  }
+
+  function renderBriefing() {
+    const sections = buildBriefing(layer.getView().snapshot, watchStore.list());
+    briefingBody.replaceChildren(
+      ...sections.map(({ watch, stories, total, fresh }) => {
+        const head = el(
+          document,
+          'div',
+          { class: 'coranto-briefing-head' },
+          el(document, 'h3', { text: watch.name }),
+          el(document, 'span', {
+            text: fresh
+              ? `${fresh} new · ${total} current`
+              : `${total} current`,
+          }),
+        );
+        const list = el(document, 'ol', { class: 'coranto-briefing-list' });
+        for (const story of stories) {
+          const link = el(document, 'a', {
+            href: story.url,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            text: story.title,
+          });
+          const meta = [
+            story.publisher,
+            relativeAge(story.newest),
+            story.outlets > 1 ? `${story.outlets} outlets` : '',
+            story.differing.length ? 'figures differ' : '',
+          ].filter(Boolean);
+          list.append(
+            el(
+              document,
+              'li',
+              story.fresh ? { 'data-fresh': 'true' } : {},
+              link,
+              el(document, 'span', { text: meta.join(' · ') }),
+            ),
+          );
+        }
+        if (!stories.length)
+          list.append(
+            el(
+              document,
+              'li',
+              { class: 'coranto-briefing-none' },
+              el(document, 'span', {
+                text: 'No current story matches this watch.',
+              }),
+            ),
+          );
+        const openBtn = el(document, 'button', {
+          type: 'button',
+          class: 'coranto-briefing-open',
+          text:
+            total > stories.length
+              ? `Show all ${total} in the feed`
+              : 'Show in the feed',
+        });
+        openBtn.addEventListener('click', () => {
+          briefing.hidden = true;
+          openWatch(watch);
+        });
+        return el(
+          document,
+          'section',
+          { class: 'coranto-briefing-section' },
+          head,
+          list,
+          openBtn,
+        );
+      }),
+    );
+  }
+
   function setMode(mode, { remember = true } = {}) {
     const next = mode === 'instruments' ? 'instruments' : 'news';
     body.dataset.corantoMode = next;
@@ -529,6 +769,8 @@ export function createCorantoShell({
     goodCount.textContent = String(model.goodNewsCount);
     goodBtn.setAttribute('aria-pressed', String(model.goodNewsOnly));
 
+    renderWatches();
+    if (!briefing.hidden) renderBriefing();
     const snapshot = layer.getView().snapshot;
     const latest = (snapshot?.articles ?? []).slice(0, 24);
     const key = latest.map((article) => article.id).join(',');
@@ -560,6 +802,30 @@ export function createCorantoShell({
 
   groupStories.addEventListener('click', () => feed?.setGrouped(true));
   groupAll.addEventListener('click', () => feed?.setGrouped(false));
+  saveBtn.addEventListener('click', () => {
+    watchStore.add(currentCriteria());
+    renderWatches();
+  });
+  briefingBtn.addEventListener('click', () => {
+    renderBriefing();
+    briefing.hidden = false;
+    // Keep the top of the briefing in view.
+    briefingClose.focus({ preventScroll: true });
+    briefing.firstElementChild.scrollTop = 0;
+  });
+  const closeBriefing = () => {
+    briefing.hidden = true;
+    renderWatches();
+  };
+  briefingClose.addEventListener('click', closeBriefing);
+  briefingSeen.addEventListener('click', () => {
+    watchStore.markSeen();
+    renderBriefing();
+    renderWatches();
+  });
+  briefing.addEventListener('click', (event) => {
+    if (event.target === briefing) closeBriefing();
+  });
   modeNews.addEventListener('click', () => setMode('news'));
   modeTools.addEventListener('click', () => setMode('instruments'));
   guideBtn.addEventListener('click', () => {
@@ -574,7 +840,9 @@ export function createCorantoShell({
     if (event.target === guide) guide.hidden = true;
   });
   const onKey = (event) => {
-    if (event.key === 'Escape' && !guide.hidden) guide.hidden = true;
+    if (event.key !== 'Escape') return;
+    if (!guide.hidden) guide.hidden = true;
+    if (!briefing.hidden) closeBriefing();
   };
   document.addEventListener('keydown', onKey);
   const showSources = () => {
@@ -626,7 +894,15 @@ export function createCorantoShell({
       document.removeEventListener('keydown', onKey);
       unsubscribeHazards?.();
       feed?.destroy();
-      for (const node of [header, ticker, rail, feedAside, card, guide])
+      for (const node of [
+        header,
+        ticker,
+        rail,
+        feedAside,
+        card,
+        guide,
+        briefing,
+      ])
         node.remove();
       delete body.dataset.corantoMode;
     },

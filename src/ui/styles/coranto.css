@@ -386,6 +386,197 @@
   border-color: rgba(52, 224, 138, 0.6);
 }
 
+.coranto-rail-heading {
+  margin-bottom: 6px;
+  color: var(--text-dim);
+  font: 700 8.5px var(--font-brand);
+  letter-spacing: 2px;
+}
+.coranto-rail-briefing {
+  border-color: rgba(52, 224, 138, 0.45);
+  color: #34e08a;
+  width: 100%;
+}
+.coranto-watches {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.coranto-watch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 22vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.coranto-watch-row {
+  display: flex;
+  gap: 3px;
+}
+.coranto-watch {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 4px;
+  background: var(--coranto-glass);
+  color: var(--text-secondary);
+  font: 11.5px var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+.coranto-watch:hover {
+  color: var(--text-primary);
+  border-color: var(--coranto-line-2);
+}
+.coranto-watch-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.coranto-watch-count {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font: 500 10px var(--font-mono);
+}
+.coranto-watch-count[data-fresh] {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #34e08a;
+  color: #04070b;
+  font-weight: 600;
+}
+.coranto-watch-remove {
+  flex: 0 0 auto;
+  width: 24px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 4px;
+  background: var(--coranto-glass);
+  color: var(--text-dim);
+  font-size: 9px;
+  cursor: pointer;
+}
+.coranto-watch-remove:hover {
+  color: #ff8a95;
+}
+.coranto-watch-save {
+  padding: 8px 10px;
+  border: 1px dashed rgba(52, 224, 138, 0.5);
+  border-radius: 4px;
+  background: transparent;
+  color: #34e08a;
+  font: 600 9px var(--font-mono);
+  letter-spacing: 1.4px;
+  text-align: left;
+  cursor: pointer;
+}
+.coranto-watch-save:disabled {
+  border-color: var(--coranto-line);
+  color: var(--text-dim);
+  cursor: default;
+}
+
+/* Briefing */
+#coranto-briefing {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(2, 4, 6, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+#coranto-briefing[hidden] {
+  display: none;
+}
+.coranto-briefing-card {
+  width: min(760px, 100%);
+}
+.coranto-briefing-note {
+  margin: -8px 0 16px;
+  color: var(--text-dim);
+  font: 12px/1.5 var(--font-sans);
+}
+.coranto-briefing-body {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.coranto-briefing-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--coranto-line-2);
+}
+.coranto-briefing-head h3 {
+  color: var(--text-primary);
+  font: 700 12px var(--font-brand);
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+.coranto-briefing-head span {
+  color: #34e08a;
+  font: 10px var(--font-mono);
+}
+.coranto-guide-card .coranto-briefing-list {
+  gap: 0;
+  counter-reset: none;
+}
+.coranto-guide-card .coranto-briefing-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 0 9px 12px;
+  border-bottom: 1px solid var(--coranto-line);
+  border-left: 2px solid transparent;
+}
+.coranto-guide-card .coranto-briefing-list li::before {
+  content: none;
+}
+.coranto-guide-card .coranto-briefing-list li[data-fresh] {
+  border-left-color: #34e08a;
+}
+.coranto-briefing-list a {
+  color: var(--text-primary);
+  font: 600 15px/1.3 var(--font-head);
+  text-decoration: none;
+}
+.coranto-briefing-list a:hover {
+  text-decoration: underline;
+}
+.coranto-briefing-list span {
+  color: var(--text-dim);
+  font: 10px var(--font-mono);
+}
+.coranto-briefing-open {
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: 10px var(--font-mono);
+  cursor: pointer;
+}
+.coranto-briefing-actions {
+  display: flex;
+  gap: 10px;
+}
+.coranto-briefing-seen {
+  border-color: var(--coranto-line-2);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
 /* Feed */
 #coranto-feed {
   position: fixed;

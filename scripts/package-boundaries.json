@@ -2213,7 +2213,8 @@
       "src/layers/hazards/model.js",
       "src/layers/hazards/source.js",
       "src/sources/hazards/records.js",
-      "src/sources/news/registry.js"
+      "src/sources/news/registry.js",
+      "src/ui/watches.js"
     ],
     "external": [
       "hls.js",
@@ -2750,7 +2751,8 @@
       "src/layers/hazards/model.js",
       "src/layers/hazards/source.js",
       "src/sources/hazards/records.js",
-      "src/sources/news/registry.js"
+      "src/sources/news/registry.js",
+      "src/ui/watches.js"
     ],
     "external": [
       "hls.js",
