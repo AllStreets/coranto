@@ -32,8 +32,22 @@ const LEVEL_TEXT = {
   medium: 'some written',
   low: 'little written',
 };
+/** The icon for a pinned aircraft, ship or site, from the layer it was on. */
+export function contactIcon(layerName) {
+  const name = String(layerName ?? '').toLowerCase();
+  if (/site|base|camera/.test(name)) return 'target';
+  if (/ship|vessel|ais/.test(name)) return 'ship';
+  if (/satellite/.test(name)) return 'satellite';
+  if (/flight|aircraft|ads-?b|military|government/.test(name))
+    return 'aircraft';
+  return 'target';
+}
 const topicOf = (asset) =>
-  asset.kind === 'story' ? asset.category || 'news' : KIND_ICON[asset.kind];
+  asset.kind === 'story'
+    ? asset.category || 'news'
+    : asset.kind === 'contact'
+      ? contactIcon(asset.publisher)
+      : KIND_ICON[asset.kind];
 const colourOf = (asset) =>
   asset.kind === 'story'
     ? (TOPIC_COLOURS[asset.category] ?? TOPIC_COLOURS.news)
@@ -687,7 +701,12 @@ export function createBoard({
       const open = el(document, 'button', {
         type: 'button',
         class: 'coranto-board-item',
-        title: asset.kind === 'story' ? 'Open this story' : 'Show this place',
+        title:
+          asset.kind === 'story'
+            ? 'Open this story'
+            : asset.kind === 'contact'
+              ? 'Fly to where it was when you pinned it'
+              : 'Show this place',
       });
       open.style.setProperty('--tag', colourOf(asset));
       open.append(
@@ -710,7 +729,11 @@ export function createBoard({
           el(document, 'span', {
             class: 'coranto-board-meta',
             text: [
-              asset.kind === 'story' ? asset.publisher : asset.kind,
+              asset.kind === 'story'
+                ? asset.publisher
+                : asset.kind === 'contact'
+                  ? `${asset.publisher || 'tracked'} · where it was when pinned`
+                  : asset.kind,
               asset.place,
               `${related} related · ${LEVEL_TEXT[level]}`,
             ]

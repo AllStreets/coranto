@@ -338,6 +338,12 @@
 
 ## [Unreleased]
 
+- Pin an aircraft, ship or mapped site to the analyst board from its card,
+  including the military and government aircraft in Watch Power. The board
+  keeps what the card said and where the thing was at the moment of pinning,
+  says so on the row, and counts it in the brief as a tracked object rather
+  than a place.
+
 - Replace the last emoji, arrows and box characters in the INSTRUMENTS panels
   with icons from the shared set: radio and replay transport buttons, the
   key-setup links, panel disclosure arrows, the search button, and the HUD's

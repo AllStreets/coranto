@@ -76,8 +76,9 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   verify, translate, listen, provenance.
 - [x] **T2 Analyst board**, opened from the header in both views. Pins,
   connections, computed brief and timeline, saved boards in the browser.
-  Also done: the 3D connections graph, the topic matrix. Open: history
-  search over a database archive, pinning aircraft and ships.
+  Also done: the 3D connections graph, the topic matrix. Aircraft, ships and
+  sites pin from their cards and are kept as they were at that moment. Open:
+  history search over a database archive.
 - [~] **T15 Category colours and related stories in INSTRUMENTS.** Done:
   story markers with topic icons and a stories card; stories near a
   selected aircraft, ship or site in the news view.

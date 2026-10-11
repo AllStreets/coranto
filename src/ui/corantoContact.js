@@ -86,6 +86,49 @@ export function contactCard(record) {
   };
 }
 
+/**
+ * What the board keeps for an aircraft, ship or site: its name, the layer it
+ * was on, and what its card said and where it was at the moment of pinning.
+ * A moving thing keeps moving; the pin does not follow it, and says so.
+ *
+ * @param {object} record The engine's selected record.
+ * @param {{lat: number, lon: number}|null} at Where it is now.
+ * @param {number} now Milliseconds.
+ */
+export function contactPin(record, at, now) {
+  return cardPin(contactCard(record), record?.id, at, now);
+}
+
+/**
+ * The same, from a card that is already built (Watch Power's aircraft).
+ * @param {{kind: string, title: string, meta: string, url?: string}|null} detail
+ * @param {string} id What identifies the thing, such as a transponder code.
+ */
+export function cardPin(detail, id, at, now) {
+  if (!detail?.title || typeof id !== 'string' || !id) return null;
+  const when = new Date(now).toISOString();
+  const located = Number.isFinite(at?.lat) && Number.isFinite(at?.lon);
+  return {
+    key: `contact:${id}`,
+    kind: 'contact',
+    title: detail.title,
+    publisher: detail.kind,
+    summary: [
+      `When pinned, ${when.slice(0, 16).replace('T', ' ')} UTC`,
+      located
+        ? `at ${Math.abs(at.lat).toFixed(2)}°${at.lat >= 0 ? 'N' : 'S'} ${Math.abs(at.lon).toFixed(2)}°${at.lon >= 0 ? 'E' : 'W'}`
+        : '',
+      detail.meta,
+    ]
+      .filter(Boolean)
+      .join(' · '),
+    url: detail.url || '',
+    publishedAt: when,
+    lat: located ? at.lat : null,
+    lon: located ? at.lon : null,
+  };
+}
+
 /** Where a selected aircraft, ship or site is, if its record says. */
 export function contactPosition(record) {
   const lat = [

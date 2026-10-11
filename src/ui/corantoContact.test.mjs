@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { contactCard, contactLink } from './corantoContact.js';
+import { contactIcon } from './corantoBoard.js';
+import { buildSynthesis, createBoardStore } from './corantoBoardModel.js';
+import { contactCard, contactLink, contactPin } from './corantoContact.js';
 
 test('an aircraft becomes a card of its own fields with a public track link', () => {
   const card = contactCard({
@@ -122,4 +124,54 @@ test('stories near a selected aircraft are found by distance to city-pinned plac
     near.map((entry) => entry.place.name),
     ['Paris', 'Reims'],
   );
+});
+
+test('a pinned aircraft is kept as it was at that moment, and the board says so', () => {
+  const record = {
+    id: 'AE0687',
+    layerId: 'military',
+    layerName: 'Military Flights',
+    source: 'adsb.lol',
+    label: 'RCH443',
+    properties: { altitudeFt: 39000 },
+  };
+  const pin = contactPin(
+    record,
+    { lat: 38.5, lon: -77.25 },
+    Date.parse('2026-10-11T22:55:30Z'),
+  );
+  assert.equal(pin.key, 'contact:AE0687');
+  assert.equal(pin.kind, 'contact');
+  assert.equal(pin.publisher, 'MILITARY FLIGHTS');
+  assert.equal(
+    pin.summary,
+    'When pinned, 2026-10-11 22:55 UTC · at 38.50°N 77.25°W · altitude ft 39000 · source adsb.lol',
+  );
+  assert.equal(pin.url, 'https://adsb.lol/?icao=ae0687');
+  assert.equal(contactPin({ id: 'x' }, null, 0), null, 'no name, no pin');
+
+  const memory = new Map();
+  const store = createBoardStore({
+    storage: {
+      getItem: (key) => memory.get(key) ?? null,
+      setItem: (key, value) => memory.set(key, value),
+      removeItem: (key) => memory.delete(key),
+    },
+  });
+  assert.equal(store.toggle(pin), 'pinned');
+  const [kept] = store.list();
+  assert.equal(kept.kind, 'contact');
+  assert.equal(kept.lat, 38.5);
+
+  const brief = buildSynthesis(store.list(), []);
+  assert.match(brief.summary, /0 stories, 0 places and 1 tracked object/);
+  assert.deepEqual(brief.places, [], 'a callsign is not a location');
+});
+
+test('a pinned contact takes the icon of the layer it was on', () => {
+  assert.equal(contactIcon('MILITARY FLIGHTS'), 'aircraft');
+  assert.equal(contactIcon('Ships'), 'ship');
+  assert.equal(contactIcon('SATELLITES'), 'satellite');
+  assert.equal(contactIcon('Military sites'), 'target');
+  assert.equal(contactIcon('Cameras'), 'target');
 });

@@ -7,6 +7,8 @@ import { createBroadcasts } from './corantoBroadcasts.js';
 import {
   NEARBY_KM,
   contactCard,
+  contactPin,
+  cardPin,
   contactPosition,
   nearbyStoryPlaces,
 } from './corantoContact.js';
@@ -155,7 +157,7 @@ const GUIDE = [
   ],
   [
     'Build a picture',
-    'PIN TO BOARD keeps a story, country or city on the analyst board. BOARD at the top shows what you have pinned, draws the connections between items that mention the same name, and works out a brief and a timeline from them. Nothing on the board is written by a model.',
+    'PIN TO BOARD keeps a story, country or city on the analyst board; an aircraft, ship or site can be pinned from its card, and is kept as it was at that moment. BOARD at the top shows what you have pinned, draws the connections between items that mention the same name, and works out a brief and a timeline from them. Nothing on the board is written by a model.',
   ],
   [
     'Go deeper',
@@ -722,7 +724,12 @@ export function createCorantoShell({
             entry.precision === asset.kind && entry.name === asset.title,
         );
         if (place) layer.selectPlace(place.key, { focus: true });
-        else flyTo(asset.lat, asset.lon, 3_000_000);
+        else if (Number.isFinite(asset.lat) && Number.isFinite(asset.lon))
+          flyTo(
+            asset.lat,
+            asset.lon,
+            asset.kind === 'contact' ? 600_000 : 3_000_000,
+          );
       }
     },
     onChange: () => {
@@ -749,9 +756,27 @@ export function createCorantoShell({
   const power = createPowerLens({
     document,
     getDataManager: () => dataManager,
-    showCard: (detail) => {
+    showCard: function show(detail) {
       card.dataset.owner = 'power';
-      showCard(detail);
+      // An aircraft's card can be pinned to the board as it is now.
+      const subject = detail?.subject;
+      const key = subject ? `contact:${subject.id}` : '';
+      showCard(
+        subject
+          ? {
+              ...detail,
+              pin: {
+                label: pinLabel(boardStore.has(key), boardStore.full),
+                run: () => {
+                  const pin = cardPin(detail, subject.id, subject, Date.now());
+                  if (pin) boardStore.toggle(pin);
+                  syncBoardButton();
+                  show(detail);
+                },
+              },
+            }
+          : detail,
+      );
     },
   });
 
@@ -1129,6 +1154,13 @@ export function createCorantoShell({
   });
   let cardActionRun = null;
   cardAction.addEventListener('click', () => cardActionRun?.());
+  // And a third, for cards that offer both nearby stories and a pin.
+  const cardPinBtn = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-card-action',
+  });
+  let cardPinRun = null;
+  cardPinBtn.addEventListener('click', () => cardPinRun?.());
   const card = el(
     document,
     'aside',
@@ -1137,6 +1169,7 @@ export function createCorantoShell({
     cardTitle,
     cardMeta,
     cardAction,
+    cardPinBtn,
     cardLink,
   );
   card.hidden = true;
@@ -1157,6 +1190,9 @@ export function createCorantoShell({
     cardAction.hidden = !detail.action;
     cardActionRun = detail.action?.run ?? null;
     if (detail.action) cardAction.textContent = detail.action.label;
+    cardPinBtn.hidden = !detail.pin;
+    cardPinRun = detail.pin?.run ?? null;
+    if (detail.pin) cardPinBtn.textContent = detail.pin.label;
     cardLink.hidden = !detail.url;
     if (detail.url) {
       cardLink.href = detail.url;
@@ -1213,6 +1249,7 @@ export function createCorantoShell({
     if (id === contactId && card.dataset.owner !== 'contact') return;
     contactId = id;
     card.dataset.owner = 'contact';
+    const pinKey = `contact:${id}`;
     // Stories near it: the same globe, the other half of the picture.
     const at = contactPosition(record) ?? entityPosition(record.entity);
     const near = at ? nearbyStoryPlaces(layer.getView().places ?? [], at) : [];
@@ -1228,6 +1265,15 @@ export function createCorantoShell({
             },
           }
         : null,
+      pin: {
+        label: pinLabel(boardStore.has(pinKey), boardStore.full),
+        run: () => {
+          const pin = contactPin(record, at, Date.now());
+          if (pin) boardStore.toggle(pin);
+          syncBoardButton();
+          pollContact();
+        },
+      },
       onClose: () => {
         contactDismissed = id;
         contactId = null;

@@ -248,6 +248,7 @@ export function createPowerLens({
         .join(' · '),
       url: `https://adsb.lol/?icao=${encodeURIComponent(record.icao24)}`,
       linkText: 'Open its live track at adsb.lol',
+      subject: { id: record.icao24, lat: record.lat, lon: record.lon },
       onClose: () => {
         selectedId = null;
         refresh();
@@ -377,6 +378,7 @@ export function createPowerLens({
         .join(' · '),
       url: record.trackerUrl,
       linkText: 'Open its live track at adsb.lol',
+      subject: { id: record.icao24, lat: record.lat, lon: record.lon },
       onClose: () => {
         selectedId = null;
         refresh();

@@ -243,21 +243,28 @@ export function matrixShade(score, max) {
   return 0;
 }
 
+/** A pinned country or city. */
+const isPlace = (asset) => asset.kind === 'country' || asset.kind === 'city';
+
+/** `a and b`, `a, b and c`. */
+const counted = (parts) =>
+  `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}`;
+
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 /** The brief built from the pinned items. */
 export function buildSynthesis(assets, articles) {
   const stories = assets.filter((asset) => asset.kind === 'story');
-  const places = assets.filter((asset) => asset.kind !== 'story');
+  const places = assets.filter((asset) => isPlace(asset));
+  // Aircraft, ships and sites: each is where it was when it was pinned.
+  const contacts = assets.filter((asset) => asset.kind === 'contact');
   const topics = [
     ...new Set(assets.map((asset) => asset.category).filter(Boolean)),
   ];
   const where = [
     ...new Set(
       assets
-        .map(
-          (asset) => asset.place || (asset.kind !== 'story' ? asset.title : ''),
-        )
+        .map((asset) => asset.place || (isPlace(asset) ? asset.title : ''))
         .filter(Boolean),
     ),
   ];
@@ -267,7 +274,7 @@ export function buildSynthesis(assets, articles) {
   const links = boardLinks(assets);
   return {
     summary: assets.length
-      ? `${plural(assets.length, 'pinned item')}: ${plural(stories.length, 'story', 'stories')} and ${plural(places.length, 'place')}, across ${plural(topics.length, 'topic')} and ${plural(where.length, 'location')}. ${plural(links.length, 'link')} between them.`
+      ? `${plural(assets.length, 'pinned item')}: ${counted([plural(stories.length, 'story', 'stories'), plural(places.length, 'place'), ...(contacts.length ? [plural(contacts.length, 'tracked object')] : [])])}, across ${plural(topics.length, 'topic')} and ${plural(where.length, 'location')}. ${plural(links.length, 'link')} between them.`
       : '',
     entities,
     places: where,
@@ -285,9 +292,7 @@ export function boardTitle(assets) {
   const where = [
     ...new Set(
       assets
-        .map(
-          (asset) => asset.place || (asset.kind !== 'story' ? asset.title : ''),
-        )
+        .map((asset) => asset.place || (isPlace(asset) ? asset.title : ''))
         .filter(Boolean),
     ),
   ].slice(0, 3);
@@ -329,7 +334,7 @@ function validAsset(value) {
   if (!value || typeof value !== 'object') return null;
   const key = clean(value.key, 200);
   const title = clean(value.title, 300);
-  const kind = ['story', 'country', 'city'].includes(value.kind)
+  const kind = ['story', 'country', 'city', 'contact'].includes(value.kind)
     ? value.kind
     : null;
   if (!key || !title || !kind) return null;
