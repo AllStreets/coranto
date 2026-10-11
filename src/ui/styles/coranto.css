@@ -98,12 +98,12 @@
   flex: 0 0 auto;
 }
 .coranto-brand img {
-  width: 30px;
-  height: 30px;
+  width: 38px;
+  height: 38px;
   filter: drop-shadow(0 0 10px rgba(52, 224, 138, 0.35));
 }
 .coranto-wordmark {
-  font: 800 19px/1 var(--font-brand);
+  font: 800 21px/1 var(--font-brand);
   letter-spacing: 5px;
 }
 .coranto-wordmark em {

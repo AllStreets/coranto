@@ -17,6 +17,10 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: a new logo. The open C, in Coranto green, now holds a photoreal
+  Earth (NASA Blue Marble, the Americas) with the Moon (NASA LRO) in its gap.
+  The whole wordmark is green and the slogan is gone. Favicon, touch icon and
+  README header updated.
 - Coranto: the news view is one frame. The left rail is a docked column like
   the feed, wide enough to read, and the globe sits between the two. The
   headline ticker stays under the header in INSTRUMENTS as well. The map

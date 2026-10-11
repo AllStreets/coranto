@@ -1,8 +1,6 @@
 <div align="center">
 
-# CORANTO
-
-**EVERY STORY HAS A PLACE AND A DATE**
+<img src="docs/media/coranto/coranto-banner.png" alt="Coranto" width="560"/>
 
 <img alt="news" src="https://img.shields.io/badge/news-real_headlines_·_real_links-34E08A?style=for-the-badge&labelColor=04070b"/>
 <img alt="sources" src="https://img.shields.io/badge/news_sources-35_named_·_6_languages_·_health_shown-34E08A?style=for-the-badge&labelColor=04070b"/>
