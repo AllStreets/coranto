@@ -1,7 +1,7 @@
 import { CATEGORY_CODE, createNewsFeed } from './newsPanel.js';
 import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
 import { getContextStore } from '../data/contextStore.js';
-import { createBroadcastsDialog } from './corantoBroadcasts.js';
+import { createBroadcasts } from './corantoBroadcasts.js';
 import { contactCard } from './corantoContact.js';
 import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
 import { TOPIC_COLOURS, iconImage } from '../data/corantoIcons.js';
@@ -123,7 +123,7 @@ const GUIDE = [
   ],
   [
     'Markets and live TV',
-    'MARKETS shows exchange rates and crypto prices with their source and time, beside finance news. LIVE TV links to live news channels from every continent.',
+    'MARKETS shows exchange rates and crypto prices with their source and time, beside finance news. LIVE TV plays live news channels from every continent here in the app and pins each newsroom on the globe.',
   ],
   [
     'Go deeper',
@@ -565,7 +565,10 @@ export function createCorantoShell({
     lensMarkets,
   );
   const markets = createMarketsLens({ document });
-  const tv = createBroadcastsDialog({ document });
+  const tv = createBroadcasts({
+    document,
+    getViewer: () => dataManager?.viewer ?? null,
+  });
   const elections = createElectionsLens({
     document,
     getDataManager: () => dataManager,
@@ -590,7 +593,8 @@ export function createCorantoShell({
     type: 'button',
     class: 'coranto-rail-btn',
     text: 'LIVE TV',
-    title: 'Live television news channels from every continent',
+    title:
+      'Watch live television news here, with each newsroom pinned on the globe',
   });
   const shareBtn = el(document, 'button', {
     type: 'button',
@@ -707,6 +711,7 @@ export function createCorantoShell({
       fires: on('local-firms'),
       governmentAircraft: lens === 'power',
       nuclear: nuclear.shown,
+      broadcasts: tv.isOpen,
       borders: atlas.isOn('borders'),
       countries: atlas.isOn('countries'),
       cityTypes: atlas.cityTypes(),
@@ -1487,7 +1492,11 @@ export function createCorantoShell({
   lensPower.addEventListener('click', () => setLens('power'));
   lensElections.addEventListener('click', () => setLens('elections'));
   lensMarkets.addEventListener('click', () => setLens('markets'));
-  tvBtn.addEventListener('click', () => tv.open());
+  tvBtn.addEventListener('click', () => {
+    tv.toggle();
+    tvBtn.setAttribute('aria-pressed', String(tv.isOpen));
+    renderMapKey();
+  });
   modeNews.addEventListener('click', () => setMode('news'));
   modeTools.addEventListener('click', () => setMode('instruments'));
   guideBtn.addEventListener('click', () => {

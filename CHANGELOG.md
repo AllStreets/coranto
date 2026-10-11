@@ -17,6 +17,12 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: LIVE TV plays in the app. The ten channels from AUSPEX play in a
+  panel over the globe through YouTube's no-cookie player, each newsroom is
+  pinned on the globe while the panel is open, and selecting a pin tunes to
+  it. Nothing loads from YouTube until LIVE TV is opened, and closing it
+  removes the player. A channel that will not play here says so and links to
+  its page; no other video is substituted.
 - Coranto: stories open in the app. Clicking a headline in the feed, a row
   in My Briefing, or a place with a single story opens a panel over the
   globe with the publisher's headline and summary, where it was placed, and

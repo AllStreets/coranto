@@ -60,8 +60,9 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 
 - [x] **T7 Story pop-ups** for feed cards, briefing rows and single-story
   places. Tools so far: AI brief, who covered, figures, fly to, listen.
-- [ ] **T6 Broadcasts in-app**: embedded player and broadcaster markers on
-  the globe.
+- [x] **T6 Broadcasts in-app**: embedded player and newsroom pins on the
+  globe. Open: dragging and resizing the panel; picking the channel that
+  fits the open story, as AUSPEX did.
 - [ ] **T5 Audit every link that leaves the app**; the publisher link stays
   as attribution inside an in-app surface.
 - [ ] **T8 AUSPEX story-popup tools**: pin to analyst, mirrors, blindspot,

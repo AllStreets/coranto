@@ -12,7 +12,13 @@ import {
   MarketsUnavailableError,
   createMarketService,
 } from '../sources/markets/service.js';
-import { BROADCASTERS, broadcastUrl } from './corantoBroadcasts.js';
+import {
+  BROADCASTERS,
+  broadcastEmbedUrl,
+  broadcastUrl,
+  broadcasterPin,
+  isPlayerError,
+} from './corantoBroadcasts.js';
 import { buildMarketsModel } from './corantoMarkets.js';
 
 const NOW = Date.parse('2026-10-11T08:00:00Z');
@@ -172,4 +178,35 @@ test('live TV links go to each channel’s own live page', () => {
     );
   }
   assert.equal(new Set(BROADCASTERS.map((row) => row[3])).size, 10);
+});
+
+test('the in-app player uses the no-cookie address and reports a blocked stream', () => {
+  const url = new URL(
+    broadcastEmbedUrl('UCNye-wNBqNL5ZzHSJj3l8Bg', 'http://localhost:4173'),
+  );
+  assert.equal(url.origin, 'https://www.youtube-nocookie.com');
+  assert.equal(url.pathname, '/embed/live_stream');
+  assert.equal(url.searchParams.get('channel'), 'UCNye-wNBqNL5ZzHSJj3l8Bg');
+  assert.equal(url.searchParams.get('origin'), 'http://localhost:4173');
+  // Every newsroom has a position on the globe and a colour.
+  for (const [name, , , , lat, lon, colour] of BROADCASTERS) {
+    assert.ok(Math.abs(lat) <= 90 && Math.abs(lon) <= 180, name);
+    assert.match(colour, /^#[0-9a-f]{6}$/i, name);
+  }
+  assert.equal(isPlayerError('{"event":"onError","info":150}'), true);
+  assert.equal(
+    isPlayerError({ event: 'infoDelivery', info: { error: 101 } }),
+    true,
+  );
+  assert.equal(
+    isPlayerError({ event: 'infoDelivery', info: { playerState: 1 } }),
+    false,
+  );
+  assert.equal(isPlayerError('not json'), false);
+  assert.match(
+    decodeURIComponent(
+      broadcasterPin('DW News', 'Berlin', '#ff5a5a', true).image,
+    ),
+    />DW NEWS<\/text>/,
+  );
 });

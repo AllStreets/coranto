@@ -108,6 +108,10 @@ export const ICONS = Object.freeze({
     SOLID,
     '<path d="M12 2.4l2.9 6.1 6.7.8-4.95 4.6 1.3 6.6L12 17.3 6.05 20.5l1.3-6.6L2.4 9.3l6.7-.800L12 2.4Z"/>',
   ],
+  broadcast: [
+    STROKE,
+    '<circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M8.2 15.8a5.4 5.4 0 0 1 0-7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.4 18.6a9.3 9.3 0 0 1 0-13.2M18.6 5.4a9.3 9.3 0 0 1 0 13.2"/>',
+  ],
   // Interface
   target: [
     STROKE,

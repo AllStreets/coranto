@@ -40,6 +40,7 @@ const marker = (icon, colour, extra = {}) => ({
  * @param {boolean} state.fires
  * @param {boolean} state.governmentAircraft
  * @param {boolean} state.nuclear
+ * @param {boolean} state.broadcasts
  * @param {boolean} state.borders
  * @param {boolean} state.countries
  * @param {string[]} state.cityTypes City types on the map, or [].
@@ -163,6 +164,11 @@ export function buildMapKeyModel(state) {
       ...marker('nuclear', '#ff9f0a'),
       label:
         'Nuclear-armed state (nine, as listed by the Federation of American Scientists)',
+    });
+  if (state.broadcasts)
+    more.push({
+      image: iconImage('broadcast', '#E8A020'),
+      label: 'Newsroom broadcasting live. Select one to watch it.',
     });
   if (state.governmentAircraft)
     more.push({
