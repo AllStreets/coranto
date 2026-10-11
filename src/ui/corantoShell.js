@@ -7,6 +7,7 @@ import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
 import { createMarketsLens } from './corantoMarkets.js';
 import { createPowerLens } from './corantoPower.js';
 import {
+  briefingText,
   buildBriefing,
   createWatchStore,
   hasCriteria,
@@ -128,6 +129,12 @@ function hazardMeta(item) {
   const started = new Date(item.startedAt);
   const month = started.toLocaleString('en-GB', { month: 'short' });
   return `${item.source} · since ${started.getDate()} ${month} ${started.getFullYear()}`;
+}
+
+/** The briefing copy button's wording before, after and on a failed copy. */
+function briefingCopyLabel(copied) {
+  if (copied === null) return 'Copy as text';
+  return copied ? 'Copied' : 'Copy blocked';
 }
 
 /** The share button's wording before, after and on a failed copy. */
@@ -572,6 +579,12 @@ export function createCorantoShell({
     class: 'coranto-guide-close coranto-briefing-seen',
     text: 'Mark all as read',
   });
+  const briefingCopy = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-guide-close coranto-briefing-seen',
+    text: 'Copy as text',
+    title: 'Copy the briefing with every link, for a note or a message',
+  });
   const briefing = el(
     document,
     'div',
@@ -594,6 +607,7 @@ export function createCorantoShell({
         document,
         'div',
         { class: 'coranto-briefing-actions' },
+        briefingCopy,
         briefingSeen,
         briefingClose,
       ),
@@ -1075,6 +1089,23 @@ export function createCorantoShell({
     renderWatches();
   };
   briefingClose.addEventListener('click', closeBriefing);
+  briefingCopy.addEventListener('click', async () => {
+    const text = briefingText(
+      buildBriefing(layer.getView().snapshot, watchStore.list()),
+      Date.now(),
+    );
+    let copied = false;
+    try {
+      await win.navigator.clipboard.writeText(text);
+      copied = true;
+    } catch {
+      copied = false;
+    }
+    briefingCopy.textContent = briefingCopyLabel(copied);
+    win.setTimeout(() => {
+      briefingCopy.textContent = briefingCopyLabel(null);
+    }, 2200);
+  });
   briefingSeen.addEventListener('click', () => {
     watchStore.markSeen();
     renderBriefing();

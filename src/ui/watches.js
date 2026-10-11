@@ -203,3 +203,33 @@ export function buildBriefing(snapshot, watches) {
     ...watchStories(snapshot, watch, BRIEFING_STORIES_PER_WATCH),
   }));
 }
+
+/**
+ * The briefing as plain text, for pasting into a note or a message: each
+ * watch, then its stories as the publisher's headline, the publisher, the
+ * publish time and the link.
+ */
+export function briefingText(sections, now) {
+  const stamp = new Date(now).toISOString().slice(0, 16).replace('T', ' ');
+  const lines = [`Coranto briefing, ${stamp} UTC`, ''];
+  for (const { watch, stories, total, fresh } of sections) {
+    lines.push(
+      `${watch.name} (${fresh ? `${fresh} new, ` : ''}${total} current)`,
+    );
+    if (!stories.length) lines.push('  No current story matches this watch.');
+    for (const story of stories) {
+      const outlets = story.outlets > 1 ? `, ${story.outlets} outlets` : '';
+      const published = story.publishedAt.slice(0, 16).replace('T', ' ');
+      lines.push(
+        `- ${story.title}`,
+        `  ${story.publisher}, ${published} UTC${outlets}`,
+        `  ${story.url}`,
+      );
+    }
+    lines.push('');
+  }
+  lines.push(
+    'Headlines belong to their publishers. Selected by saved watches; nothing rewritten.',
+  );
+  return lines.join('\n');
+}

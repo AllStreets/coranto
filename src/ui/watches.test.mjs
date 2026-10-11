@@ -4,6 +4,7 @@ import {
   WATCH_LIMIT,
   WATCH_STORAGE_KEY,
   articleMatches,
+  briefingText,
   buildBriefing,
   createWatchStore,
   describeCriteria,
@@ -136,4 +137,35 @@ test('marking seen moves the line for what counts as new', () => {
   store.markSeen();
   assert.deepEqual(store.list().map((w) => w.seenAt), [900, 900]);
   assert.ok(b);
+});
+
+test('the briefing copies as plain text with every link', () => {
+  const snapshot = {
+    articles: [
+      article('1', 'Grain ships leave Odesa', { publishedAt: '2026-10-10T09:00:00.000Z' }),
+      article('2', 'Grain vessels sail from Odesa port', { publisher: 'DW', publishedAt: '2026-10-10T09:30:00.000Z' }),
+    ],
+    stories: [{ id: 's-1', articleIds: ['1', '2'] }],
+  };
+  const watches = [
+    { id: 'w', name: 'Grain', criteria: { query: 'grain' }, seenAt: 0 },
+    { id: 'x', name: 'Rice', criteria: { query: 'rice' }, seenAt: 0 },
+  ];
+  const text = briefingText(buildBriefing(snapshot, watches), Date.parse('2026-10-10T12:00:00Z'));
+  assert.equal(
+    text,
+    [
+      'Coranto briefing, 2026-10-10 12:00 UTC',
+      '',
+      'Grain (1 new, 1 current)',
+      '- Grain vessels sail from Odesa port',
+      '  DW, 2026-10-10 09:30 UTC, 2 outlets',
+      '  https://example.org/2',
+      '',
+      'Rice (0 current)',
+      '  No current story matches this watch.',
+      '',
+      'Headlines belong to their publishers. Selected by saved watches; nothing rewritten.',
+    ].join('\n'),
+  );
 });

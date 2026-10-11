@@ -1,6 +1,10 @@
 import { NEWS_CITIES } from './cities.js';
 import { NEWS_COUNTRIES } from './countries.js';
-import { FOREIGN_CITY_NAMES, FOREIGN_COUNTRY_NAMES } from './placeNames.js';
+import {
+  ARABIC_PLACE_NAMES,
+  FOREIGN_CITY_NAMES,
+  FOREIGN_COUNTRY_NAMES,
+} from './placeNames.js';
 import { NEWS_US_STATES } from './usStates.js';
 
 /**
@@ -341,12 +345,35 @@ function buildIndex() {
     add(name, { name, lat, lon, precision: 'region' });
   for (const [name, lat, lon] of REGIONS)
     add(name, { name, lat, lon, precision: 'region' });
-  return index;
+  // Arabic names resolve to the same places, through their own pattern.
+  const regionByName = new Map(
+    REGIONS.map(([name, lat, lon]) => [
+      name,
+      { name, lat, lon, precision: 'region' },
+    ]),
+  );
+  const arabic = new Map();
+  for (const [text, target] of ARABIC_PLACE_NAMES) {
+    const place =
+      countryByIso.get(target) ??
+      cityByName.get(target) ??
+      regionByName.get(target);
+    if (place && !REMOVED_PLACE_NAMES.has(place.name)) arabic.set(text, place);
+  }
+  return { index, arabic };
 }
 
 const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const INDEX = buildIndex();
+const { index: INDEX, arabic: ARABIC_INDEX } = buildIndex();
+// One of the joined particles (and, in/by, to, so, as) may precede a name.
+const ARABIC_PATTERN = new RegExp(
+  `(?<![\\p{L}\\p{N}])[وبلفك]?(${[...ARABIC_INDEX.keys()]
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp)
+    .join('|')})(?![\\p{L}\\p{N}])`,
+  'gu',
+);
 const BLOCKED = new Set(NON_PLACE_PHRASES);
 // Longest alternatives first, so "Guinea-Bissau" wins over "Guinea" and a
 // blocked phrase such as "New Mexico" wins over "Mexico". Case-sensitive:
@@ -369,6 +396,8 @@ function matchField(text, field) {
     if (BLOCKED.has(match[0])) continue;
     found.push({ place: INDEX.get(match[0]), matched: match[0] });
   }
+  for (const match of text.matchAll(ARABIC_PATTERN))
+    found.push({ place: ARABIC_INDEX.get(match[1]), matched: match[1] });
   // The most precise kind present wins; within it, the earliest mention.
   for (const precision of PRECISION_ORDER) {
     const hit = found.find((entry) => entry.place.precision === precision);

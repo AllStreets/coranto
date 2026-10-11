@@ -35,9 +35,13 @@ Status: first part built
   switch is hidden, since the control room needs a large screen.
 - **Ticker language.** The ticker shows the same language as the feed.
 
+- **Arabic place names.** Arabic has no capitals and joins short particles
+  onto the next word, so these names have their own pattern that allows one
+  leading particle. On a live run 13 of 25 Arabic headlines were placed.
+- **Copy My Briefing as text**, with each headline's publisher, time and link.
+
 ## Next
 
 - The INSTRUMENTS view still looks like God's Eye View apart from colour and
   type. It needs its own pass.
 - A real logo and wordmark.
-- Arabic place names.

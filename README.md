@@ -273,7 +273,7 @@ Coranto has two views, switched at the top right.
 | Watch a newsroom live | Click **LIVE TV** and pick a channel. |
 | Follow elections | Click **ELECTIONS** on the left. Click a polling day to see that country's election news. |
 | Follow something | Set a search, place or topic, then click **＋ SAVE THIS VIEW**. It appears under MY WATCHES. |
-| Catch up | Click **MY BRIEFING** for the latest stories on every watch. |
+| Catch up | Click **MY BRIEFING** for the latest stories on every watch. **Copy as text** puts it on the clipboard with every link. |
 | Share what you are looking at | Click **SHARE VIEW**. It copies a link that reopens the same lens, search, topic and place. The link carries the filter only, never news content. |
 | See what an aircraft or ship is | Switch on FLIGHTS, MILITARY or SHIPS and click one. A card shows what it is broadcasting and links to a public tracker. |
 | Search | Press `/` or type in the box above the feed. Stories must contain every word, in the headline, summary, publisher or place. |
@@ -366,8 +366,8 @@ Two things to know:
 - **Other languages are shown as published.** Seven outlets in French,
   Spanish, German, Portuguese and Arabic are read. The feed shows English by
   default; the language menu shows the rest, untranslated. French, Spanish,
-  German and Portuguese headlines are placed on the globe using those
-  languages' own place names; Arabic headlines are not placed yet. Topics
+  German, Portuguese and Arabic headlines are placed on the globe using
+  those languages' own place names. Topics
   and story grouping work best in English.
 - **Some sources will be down.** GDELT rate-limits, and ReliefWeb and UN News
   sometimes refuse or time out. Coranto reports them as down; the feed works

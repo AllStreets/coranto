@@ -74,3 +74,23 @@ export const FOREIGN_CITY_NAMES = [
   ['Damaskus', 'Damascus'], ['Damasco', 'Damascus'],
   ['La Haye', 'The Hague'], ['La Haya', 'The Hague'], ['Den Haag', 'The Hague'],
 ];
+
+/**
+ * Arabic names. Arabic has no capital letters and joins short words such as
+ * "and", "in" and "to" onto the next word, so these are matched by their own
+ * rule in the gazetteer. Rows: [name, ISO code for a country, or the city's
+ * name in the gazetteer].
+ */
+// prettier-ignore
+export const ARABIC_PLACE_NAMES = [
+  ['الولايات المتحدة', 'US'], ['أمريكا', 'US'], ['بريطانيا', 'GB'], ['فرنسا', 'FR'],
+  ['ألمانيا', 'DE'], ['روسيا', 'RU'], ['أوكرانيا', 'UA'], ['الصين', 'CN'], ['تركيا', 'TR'],
+  ['إيران', 'IR'], ['العراق', 'IQ'], ['سوريا', 'SY'], ['لبنان', 'LB'], ['إسرائيل', 'IL'],
+  ['فلسطين', 'PS'], ['مصر', 'EG'], ['السعودية', 'SA'], ['اليمن', 'YE'], ['السودان', 'SD'],
+  ['ليبيا', 'LY'], ['تونس', 'TN'], ['الجزائر', 'DZ'], ['المغرب', 'MA'], ['قطر', 'QA'],
+  ['الإمارات', 'AE'], ['الكويت', 'KW'], ['باكستان', 'PK'], ['الهند', 'IN'], ['أفغانستان', 'AF'],
+  ['غزة', 'Gaza'], ['القدس', 'Jerusalem'], ['دمشق', 'Damascus'], ['بغداد', 'Baghdad'],
+  ['بيروت', 'Beirut'], ['القاهرة', 'Cairo'], ['الرياض', 'Riyadh'], ['طهران', 'Tehran'],
+  ['صنعاء', 'Sanaa'], ['الخرطوم', 'Khartoum'], ['واشنطن', 'Washington'], ['موسكو', 'Moscow'],
+  ['كييف', 'Kyiv'],
+];

@@ -124,3 +124,20 @@ test('headlines in French, Spanish, German and Portuguese are placed', () => {
   // Lower-case look-alikes are still not places.
   assert.equal(matchPlace('las damas y los caballeros de roma'), null);
 });
+
+test('Arabic headlines are placed, with or without a joined particle', () => {
+  const cases = [
+    ['قتلى في هجوم على مطار الرياض', 'Riyadh', 'city'],
+    ['غارات إسرائيلية جديدة على غزة', 'Gaza', 'region'],
+    ['محادثات بين واشنطن وطهران', 'Washington', 'city'],
+    ['الأمم المتحدة تحذر من مجاعة في السودان', 'Sudan', 'country'],
+    ['وروسيا تعلن موقفها', 'Russia', 'country'],
+  ];
+  for (const [title, name, precision] of cases) {
+    const place = matchPlace(title);
+    assert.equal(place?.name, name, title);
+    assert.equal(place.precision, precision, title);
+  }
+  // A name inside a longer word is not a match.
+  assert.equal(matchPlace('المصريون يحتفلون'), null);
+});

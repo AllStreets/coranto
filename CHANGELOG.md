@@ -1,5 +1,9 @@
 # Changelog
 
+- Coranto: Arabic headlines are placed on the globe from Arabic place names,
+  including names joined to a preceding particle. My Briefing can be copied as
+  plain text with every headline's publisher, time and link.
+
 - Coranto: headlines in French, Spanish, German and Portuguese are placed on
   the globe using those languages' names for countries and major cities. On
   narrow windows and phones a MENU button opens the lenses, topics and
