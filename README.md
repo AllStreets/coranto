@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="docs/media/coranto/coranto-banner.png" alt="Coranto" width="560"/>
-
-**WATCH THE WORLD BACK**
+<img src="docs/media/coranto/coranto-banner.png" alt="Coranto: watch the world back" width="620"/>
 
 <img alt="news" src="https://img.shields.io/badge/news-real_headlines_·_real_links-B47CFF?style=for-the-badge&labelColor=04070b"/>
 <img alt="sources" src="https://img.shields.io/badge/news_sources-35_named_·_6_languages_·_health_shown-B47CFF?style=for-the-badge&labelColor=04070b"/>

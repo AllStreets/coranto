@@ -1,3 +1,4 @@
+import { isRealOnly } from '../../data/corantoPolicy.js';
 import * as Cesium from 'cesium';
 import { MAX_DOTS, roadDotBudget } from './policy.js';
 
@@ -62,7 +63,8 @@ export function createRetention({ state, parts }) {
         record.road.flow?.closure ||
         (state._liveMode &&
           !record.road.flow &&
-          state._uncoveredMode === 'hide')
+          state._uncoveredMode === 'hide') ||
+        (isRealOnly() && !record.road.flow)
       )
         record.target = 0;
       for (let i = record.dots.length - 1; i >= 0 && budget > 0; i--) {

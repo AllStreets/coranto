@@ -1,3 +1,4 @@
+import { isRealOnly } from '../../data/corantoPolicy.js';
 import { DOT_FADE_MS } from './retention.js';
 import { flowBucket, flowSpeedScale } from '../../data/trafficFlowStyle.js';
 import { presetDotOutline } from '../../data/trafficPresetStyle.js';
@@ -41,6 +42,9 @@ export function createAnimation({
     if (flow?.closure) return;
     if (layerState._liveMode && !flow && layerState._uncoveredMode === 'hide')
       return;
+    // Coranto: with real-only on, a road with no measured flow gets no dots,
+    // key or no key. Nothing is simulated.
+    if (isRealOnly() && !flow) return;
 
     const count = Number.isFinite(budgetCount)
       ? Math.max(0, Math.floor(budgetCount))

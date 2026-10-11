@@ -17,6 +17,19 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: nothing on the globe is simulated. Street Traffic used to draw
+  invented vehicles when no TomTom key was set, and on roads TomTom had no
+  data for. For people it now draws dots only where there is measured flow,
+  and with no key it draws nothing and says "NO DATA — needs a TomTom key".
+  A single switch (`src/data/corantoPolicy.js`) carries the rule; automated
+  browsers leave it off because the engine's gates test its old fallback.
+- Coranto: the board's network is three-dimensional. Drag the space to turn
+  it, scroll to zoom, and drag a node to pull it; the nodes linked to it
+  stretch and follow. Nearer nodes are larger and brighter, and a floor grid
+  and stems show depth. It moves only when you move it. With many links,
+  pointing at a node names its links.
+- Coranto: in the logo the Moon sits on the C's own circle, in its gap, as
+  if orbiting along it. Favicon, touch icon and README banner regenerated.
 - Coranto: emoji and text glyphs in INSTRUMENTS are icons: visual presets,
   display toggles, share, collapse buttons, the location line and key tiers.
 - Coranto: a government aircraft can be selected by clicking it on the globe.

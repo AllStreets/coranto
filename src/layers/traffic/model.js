@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium';
+import { isRealOnly } from '../../data/corantoPolicy.js';
 import { roadSurfaceChunks } from './surface.js';
 import {
   flowDensityMult,
@@ -111,6 +112,8 @@ export function createModel({ state: layerState, services, parts, source }) {
     // Strict data-integrity view: uncovered roads spawn nothing when hidden.
     if (layerState._liveMode && !flow && layerState._uncoveredMode === 'hide')
       return 0;
+    // Coranto: real-only means no dots where there is no measured flow.
+    if (isRealOnly() && !flow) return 0;
 
     const lengthM = estimateRoadLengthDeg(road.coords);
 
@@ -292,9 +295,13 @@ export function createModel({ state: layerState, services, parts, source }) {
     return {
       mode,
       error: null,
-      loadingLabel: statusUnavailable
-        ? 'SIMULATED — traffic service unreachable'
-        : 'SIMULATED — add TomTom key for live',
+      loadingLabel: isRealOnly()
+        ? statusUnavailable
+          ? 'NO DATA — the traffic service is unreachable. Nothing is drawn.'
+          : 'NO DATA — needs a TomTom key. Nothing is drawn.'
+        : statusUnavailable
+          ? 'SIMULATED — traffic service unreachable'
+          : 'SIMULATED — add TomTom key for live',
     };
   }
 
@@ -314,7 +321,10 @@ export function createModel({ state: layerState, services, parts, source }) {
     for (const dot of layerState._dots) {
       const flow = dot.road?.source ? dot.road.source.flow : dot.road?.flow;
       dot.road.flow = flow;
-      if (flow?.closure || (!flow && layerState._uncoveredMode === 'hide')) {
+      if (
+        flow?.closure ||
+        (!flow && (layerState._uncoveredMode === 'hide' || isRealOnly()))
+      ) {
         dot.point.show = false;
         dot.mps = 0;
         closedDots += 1;

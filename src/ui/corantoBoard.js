@@ -37,63 +37,131 @@ const colourOf = (asset) =>
     : '#7fb6cf';
 
 /**
- * AUSPEX's entity network, copied: a force-directed graph on a faint grid.
- * Every node drifts toward the centre, nodes push each other apart, and a
+ * AUSPEX's entity network, in three dimensions. The forces are AUSPEX's:
+ * every node drifts toward the centre, nodes push each other apart, and a
  * link pulls its two ends to a set distance, so connected items settle
- * together. Links pulse; each carries the name it rests on.
+ * together. Here they act in depth as well, and the graph can be turned,
+ * zoomed, and pulled about by its nodes.
  *
  * The starting positions are fixed by each item's place in the list, so the
  * same board always settles the same way.
  */
-export function networkNodes(assets, width, height) {
+export function networkNodes(assets) {
   return assets.map((asset, index) => {
-    // A golden-angle spiral: spread out, never two on the same spot.
+    // Points spread evenly over a sphere (a Fibonacci lattice).
+    const n = Math.max(1, assets.length);
+    const y = n === 1 ? 0 : 1 - (2 * (index + 0.5)) / n;
+    const ring = Math.sqrt(Math.max(0, 1 - y * y));
     const angle = index * 2.399963;
-    const reach = 0.12 + 0.16 * Math.sqrt(index + 1);
+    const radius = 60 + 22 * Math.sqrt(n);
     return {
       key: asset.key,
       label: asset.title.slice(0, 22),
-      x: width / 2 + Math.cos(angle) * width * Math.min(0.42, reach),
-      y: height / 2 + Math.sin(angle) * height * Math.min(0.42, reach),
+      x: Math.cos(angle) * ring * radius,
+      y: y * radius,
+      z: Math.sin(angle) * ring * radius,
       vx: 0,
       vy: 0,
+      vz: 0,
+      held: false,
     };
   });
 }
 
-/** One step of the simulation, with AUSPEX's constants. */
-export function networkStep(nodes, edges, width, height) {
+/** How far a node may drift from the centre. */
+export const NETWORK_REACH = 420;
+
+/** One step of the simulation, with AUSPEX's constants, about the origin. */
+export function networkStep(nodes, edges) {
   for (const node of nodes) {
-    node.vx *= 0.86;
-    node.vy *= 0.86;
-    node.vx += (width / 2 - node.x) * 0.003;
-    node.vy += (height / 2 - node.y) * 0.003;
+    node.vx = node.vx * 0.86 - node.x * 0.003;
+    node.vy = node.vy * 0.86 - node.y * 0.003;
+    node.vz = node.vz * 0.86 - node.z * 0.003;
   }
   for (let a = 0; a < nodes.length; a++)
     for (let b = a + 1; b < nodes.length; b++) {
       const dx = nodes[b].x - nodes[a].x;
       const dy = nodes[b].y - nodes[a].y;
-      const distance = Math.sqrt(dx * dx + dy * dy) + 0.1;
-      const force = Math.min(5000 / (distance * distance), 10);
-      nodes[a].vx -= (dx / distance) * force;
-      nodes[a].vy -= (dy / distance) * force;
-      nodes[b].vx += (dx / distance) * force;
-      nodes[b].vy += (dy / distance) * force;
+      const dz = nodes[b].z - nodes[a].z;
+      const distance = Math.sqrt(dx * dx + dy * dy + dz * dz) + 0.1;
+      const force = Math.min(5000 / (distance * distance), 10) / distance;
+      nodes[a].vx -= dx * force;
+      nodes[a].vy -= dy * force;
+      nodes[a].vz -= dz * force;
+      nodes[b].vx += dx * force;
+      nodes[b].vy += dy * force;
+      nodes[b].vz += dz * force;
     }
   for (const edge of edges) {
-    const dx = nodes[edge.j].x - nodes[edge.i].x;
-    const dy = nodes[edge.j].y - nodes[edge.i].y;
-    const distance = Math.sqrt(dx * dx + dy * dy) + 0.1;
-    const force = (distance - 140) * 0.055;
-    nodes[edge.i].vx += (dx / distance) * force;
-    nodes[edge.i].vy += (dy / distance) * force;
-    nodes[edge.j].vx -= (dx / distance) * force;
-    nodes[edge.j].vy -= (dy / distance) * force;
+    const a = nodes[edge.i];
+    const b = nodes[edge.j];
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const dz = b.z - a.z;
+    const distance = Math.sqrt(dx * dx + dy * dy + dz * dz) + 0.1;
+    const force = ((distance - 140) * 0.055) / distance;
+    a.vx += dx * force;
+    a.vy += dy * force;
+    a.vz += dz * force;
+    b.vx -= dx * force;
+    b.vy -= dy * force;
+    b.vz -= dz * force;
   }
   for (const node of nodes) {
-    node.x = Math.max(40, Math.min(width - 40, node.x + node.vx));
-    node.y = Math.max(40, Math.min(height - 40, node.y + node.vy));
+    // A node being held stays where the hand put it; the rest respond.
+    if (node.held) {
+      node.vx = node.vy = node.vz = 0;
+      continue;
+    }
+    node.x += node.vx;
+    node.y += node.vy;
+    node.z += node.vz;
+    const far = Math.sqrt(node.x * node.x + node.y * node.y + node.z * node.z);
+    if (far > NETWORK_REACH) {
+      const pull = NETWORK_REACH / far;
+      node.x *= pull;
+      node.y *= pull;
+      node.z *= pull;
+    }
   }
+}
+
+const FOCAL = 620;
+/** Up to this many links, every line carries its name. */
+const LABEL_ALL_UP_TO = 9;
+
+/** Turn a point by the view's yaw and pitch. */
+export function networkRotate(point, yaw, pitch) {
+  const cy = Math.cos(yaw);
+  const sy = Math.sin(yaw);
+  const cp = Math.cos(pitch);
+  const sp = Math.sin(pitch);
+  const x = point.x * cy + point.z * sy;
+  const z1 = -point.x * sy + point.z * cy;
+  return { x, y: point.y * cp - z1 * sp, z: point.y * sp + z1 * cp };
+}
+
+/** The reverse turn: a movement on the screen back into the graph's space. */
+export function networkUnrotate(point, yaw, pitch) {
+  const cp = Math.cos(pitch);
+  const sp = Math.sin(pitch);
+  const y = point.y * cp + point.z * sp;
+  const z1 = -point.y * sp + point.z * cp;
+  const cy = Math.cos(yaw);
+  const sy = Math.sin(yaw);
+  return { x: point.x * cy - z1 * sy, y, z: point.x * sy + z1 * cy };
+}
+
+/** Where a point lands on the canvas, and how large things there appear. */
+export function networkProject(point, view, width, height) {
+  const turned = networkRotate(point, view.yaw, view.pitch);
+  const scale = (FOCAL / (FOCAL + turned.z)) * view.zoom;
+  return {
+    x: width / 2 + turned.x * scale,
+    y: height / 2 + turned.y * scale,
+    scale,
+    depth: turned.z,
+  };
 }
 
 /**
@@ -197,36 +265,86 @@ export function createBoard({
     return node;
   };
 
-  // The running graph: what is simulated, and the reader's zoom and pan.
+  // The running graph, and how the reader is looking at it.
   let graph = null;
   let frameId = null;
-  let zoom = 1;
-  let panX = 0;
-  let panY = 0;
-  let drag = null;
-  let touched = false;
+  const view = { yaw: 0.5, pitch: -0.28, zoom: 1 };
+  let fitted = false; // the reader has set the zoom
+  let pointer = null;
+  let hovered = null;
+
+  const spot = (event) => {
+    const box = canvas.getBoundingClientRect();
+    return { x: event.clientX - box.left, y: event.clientY - box.top };
+  };
+  const nodeAt = (at) => {
+    if (!graph) return null;
+    let best = null;
+    let bestDistance = 18;
+    for (const node of graph.nodes) {
+      const p = networkProject(node, view, graph.width, graph.height);
+      const distance = Math.hypot(p.x - at.x, p.y - at.y);
+      if (distance < Math.max(bestDistance, 0) && distance < 12 * p.scale + 8) {
+        best = node;
+        bestDistance = distance;
+      }
+    }
+    return best;
+  };
   canvas.addEventListener(
     'wheel',
     (event) => {
       event.preventDefault();
-      touched = true;
-      zoom = Math.max(0.3, Math.min(4, zoom * (event.deltaY > 0 ? 0.9 : 1.1)));
+      fitted = true;
+      view.zoom = Math.max(
+        0.3,
+        Math.min(5, view.zoom * (event.deltaY > 0 ? 0.9 : 1.1)),
+      );
     },
     { passive: false },
   );
-  canvas.addEventListener('mousedown', (event) => {
-    touched = true;
-    drag = { sx: event.clientX, sy: event.clientY, px: panX, py: panY };
+  canvas.addEventListener('pointerdown', (event) => {
+    const at = spot(event);
+    const node = nodeAt(at);
+    pointer = { last: at, node };
+    if (node) node.held = true;
+    canvas.setPointerCapture?.(event.pointerId);
+    canvas.style.cursor = node ? 'grabbing' : 'move';
+    event.preventDefault();
   });
-  canvas.addEventListener('mousemove', (event) => {
-    if (!drag) return;
-    panX = drag.px + event.clientX - drag.sx;
-    panY = drag.py + event.clientY - drag.sy;
+  canvas.addEventListener('pointermove', (event) => {
+    const at = spot(event);
+    if (!pointer) {
+      hovered = nodeAt(at);
+      canvas.style.cursor = hovered ? 'grab' : 'move';
+      return;
+    }
+    const dx = at.x - pointer.last.x;
+    const dy = at.y - pointer.last.y;
+    pointer.last = at;
+    if (pointer.node) {
+      // Move the held node in the plane facing the reader, at its own depth.
+      const p = networkProject(pointer.node, view, graph.width, graph.height);
+      const shift = networkUnrotate(
+        { x: dx / p.scale, y: dy / p.scale, z: 0 },
+        view.yaw,
+        view.pitch,
+      );
+      pointer.node.x += shift.x;
+      pointer.node.y += shift.y;
+      pointer.node.z += shift.z;
+    } else {
+      view.yaw += dx * 0.008;
+      view.pitch = Math.max(-1.45, Math.min(1.45, view.pitch - dy * 0.008));
+    }
   });
-  for (const type of ['mouseup', 'mouseleave'])
-    canvas.addEventListener(type, () => {
-      drag = null;
-    });
+  const release = () => {
+    if (pointer?.node) pointer.node.held = false;
+    pointer = null;
+    canvas.style.cursor = 'move';
+  };
+  for (const type of ['pointerup', 'pointercancel', 'pointerleave'])
+    canvas.addEventListener(type, release);
 
   function stopNetwork() {
     if (frameId !== null) win?.cancelAnimationFrame?.(frameId);
@@ -237,112 +355,167 @@ export function createBoard({
     const { nodes, edges, assets, width, height, context, ratio } = graph;
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
     context.clearRect(0, 0, width, height);
-    // Until the reader zooms or drags, the graph is fitted to the panel.
-    if (!touched && nodes.length > 1) {
-      let minX = Infinity;
-      let maxX = -Infinity;
-      let minY = Infinity;
-      let maxY = -Infinity;
+
+    // Until the reader zooms, the graph is fitted to the panel.
+    if (!fitted && nodes.length > 1) {
+      let wide = 40;
+      let tall = 40;
       for (const node of nodes) {
-        minX = Math.min(minX, node.x);
-        maxX = Math.max(maxX, node.x);
-        minY = Math.min(minY, node.y);
-        maxY = Math.max(maxY, node.y);
+        const p = networkProject(node, { ...view, zoom: 1 }, 0, 0);
+        wide = Math.max(wide, Math.abs(p.x));
+        tall = Math.max(tall, Math.abs(p.y));
       }
       const fit = Math.min(
-        2.4,
-        (width - 150) / Math.max(60, maxX - minX),
-        (height - 110) / Math.max(60, maxY - minY),
+        3.2,
+        (width / 2 - 58) / wide,
+        (height / 2 - 46) / tall,
       );
-      // Ease toward the fit so the view does not jump as the graph settles.
-      zoom += (fit - zoom) * 0.08;
-      panX += ((width / 2 - (minX + maxX) / 2) * zoom - panX) * 0.08;
-      panY += ((height / 2 - (minY + maxY) / 2) * zoom - panY) * 0.08;
-    }
-    context.save();
-    context.translate(width / 2 + panX, height / 2 + panY);
-    context.scale(zoom, zoom);
-    context.translate(-width / 2, -height / 2);
-
-    context.strokeStyle = 'rgba(22,18,40,0.9)';
-    context.lineWidth = 0.5;
-    for (let x = 0; x < width; x += 40) {
-      context.beginPath();
-      context.moveTo(x, 0);
-      context.lineTo(x, height);
-      context.stroke();
-    }
-    for (let y = 0; y < height; y += 40) {
-      context.beginPath();
-      context.moveTo(0, y);
-      context.lineTo(width, y);
-      context.stroke();
+      view.zoom += (fit - view.zoom) * 0.06;
     }
 
-    for (const edge of edges) {
-      const pulse = 0.3 + Math.sin(graph.frame * 0.025 + edge.i) * 0.14;
-      const a = nodes[edge.i];
-      const b = nodes[edge.j];
+    // A floor grid under the graph, so depth and turning are easy to read.
+    const floor = 190;
+    context.lineWidth = 0.6;
+    for (let k = -4; k <= 4; k++) {
+      const fade = 0.34 - Math.abs(k) * 0.05;
+      context.strokeStyle = `rgba(120,96,190,${Math.max(0.06, fade)})`;
+      for (const [from, to] of [
+        [
+          { x: k * 80, y: floor, z: -320 },
+          { x: k * 80, y: floor, z: 320 },
+        ],
+        [
+          { x: -320, y: floor, z: k * 80 },
+          { x: 320, y: floor, z: k * 80 },
+        ],
+      ]) {
+        const a = networkProject(from, view, width, height);
+        const b = networkProject(to, view, width, height);
+        context.beginPath();
+        context.moveTo(a.x, a.y);
+        context.lineTo(b.x, b.y);
+        context.stroke();
+      }
+    }
+
+    const at = nodes.map((node) => networkProject(node, view, width, height));
+    // Nearer things are brighter; farther ones fade.
+    const near = (depth) => Math.max(0.28, Math.min(1, 1 - depth / 620));
+
+    const order = edges
+      .map((edge) => ({
+        edge,
+        depth: (at[edge.i].depth + at[edge.j].depth) / 2,
+      }))
+      .sort((a, b) => b.depth - a.depth);
+    for (const { edge, depth } of order) {
+      const a = at[edge.i];
+      const b = at[edge.j];
+      const light = near(depth);
+      const pulse =
+        (0.32 + Math.sin(graph.frame * 0.025 + edge.i) * 0.14) * light;
       const colour = edge.cross ? '255,159,10' : '180,124,255';
+      const scale = (a.scale + b.scale) / 2;
       // A soft wide stroke under a sharp one, so the link glows.
       context.beginPath();
       context.moveTo(a.x, a.y);
       context.lineTo(b.x, b.y);
       context.strokeStyle = `rgba(${colour},${pulse * 0.35})`;
-      context.lineWidth = 5 + edge.strength * 1.2;
+      context.lineWidth = (5 + edge.strength * 1.2) * scale;
       context.stroke();
       context.beginPath();
       context.moveTo(a.x, a.y);
       context.lineTo(b.x, b.y);
-      context.strokeStyle = `rgba(${colour},${pulse + (edge.cross ? 0.2 : 0.15)})`;
-      context.lineWidth = 0.9 + edge.strength * 0.45;
+      context.strokeStyle = `rgba(${colour},${pulse + 0.18 * light})`;
+      context.lineWidth = (0.9 + edge.strength * 0.45) * scale;
       context.stroke();
-      context.font = '600 8.5px "IBM Plex Mono", monospace';
-      context.fillStyle = edge.cross
-        ? 'rgba(255,190,90,0.95)'
-        : 'rgba(212,186,255,0.95)';
-      context.textAlign = 'center';
-      context.fillText(
-        edge.label.toUpperCase(),
-        (a.x + b.x) / 2,
-        (a.y + b.y) / 2 - 5,
-      );
+      // With many links, a name on every line is unreadable: name only the
+      // lines of the node under the pointer.
+      const focus = pointer?.node ?? hovered;
+      if (
+        edges.length <= LABEL_ALL_UP_TO ||
+        (focus && (nodes[edge.i] === focus || nodes[edge.j] === focus))
+      ) {
+        context.font = `600 ${Math.max(7.5, 8.5 * Math.min(1.5, scale))}px "IBM Plex Mono", monospace`;
+        context.fillStyle = edge.cross
+          ? `rgba(255,190,90,${0.95 * light})`
+          : `rgba(212,186,255,${0.95 * light})`;
+        context.textAlign = 'center';
+        context.fillText(
+          edge.label.toUpperCase(),
+          (a.x + b.x) / 2,
+          (a.y + b.y) / 2 - 5,
+        );
+      }
     }
 
-    nodes.forEach((node, index) => {
+    const drawOrder = nodes
+      .map((node, index) => index)
+      .sort((a, b) => at[b].depth - at[a].depth);
+    for (const index of drawOrder) {
+      const node = nodes[index];
+      const p = at[index];
+      const light = near(p.depth);
       const colour = colourOf(assets[index]);
-      const glow = context.createRadialGradient(
-        node.x,
-        node.y,
-        0,
-        node.x,
-        node.y,
-        24,
+      const radius = 9.5 * p.scale * (node.held ? 1.25 : 1);
+      // A stem down to the floor shows where the node is in depth.
+      const foot = networkProject(
+        { x: node.x, y: floor, z: node.z },
+        view,
+        width,
+        height,
       );
-      glow.addColorStop(0, `${colour}66`);
-      glow.addColorStop(1, 'transparent');
       context.beginPath();
-      context.arc(node.x, node.y, 24, 0, Math.PI * 2);
+      context.moveTo(p.x, p.y);
+      context.lineTo(foot.x, foot.y);
+      context.strokeStyle = `rgba(160,140,220,${0.16 * light})`;
+      context.lineWidth = 0.8;
+      context.stroke();
+      const glow = context.createRadialGradient(
+        p.x,
+        p.y,
+        0,
+        p.x,
+        p.y,
+        radius * 2.6,
+      );
+      glow.addColorStop(0, `${colour}${node.held ? 'aa' : '66'}`);
+      glow.addColorStop(1, 'transparent');
+      context.globalAlpha = light;
+      context.beginPath();
+      context.arc(p.x, p.y, radius * 2.6, 0, Math.PI * 2);
       context.fillStyle = glow;
       context.fill();
+      // A lit sphere: lighter toward the upper left.
+      const ball = context.createRadialGradient(
+        p.x - radius * 0.35,
+        p.y - radius * 0.4,
+        radius * 0.1,
+        p.x,
+        p.y,
+        radius,
+      );
+      ball.addColorStop(0, '#ffffff');
+      ball.addColorStop(0.28, colour);
+      ball.addColorStop(1, `${colour}cc`);
       context.beginPath();
-      context.arc(node.x, node.y, 9.5, 0, Math.PI * 2);
-      context.fillStyle = colour;
+      context.arc(p.x, p.y, radius, 0, Math.PI * 2);
+      context.fillStyle = ball;
       context.fill();
       context.strokeStyle = 'rgba(255,255,255,0.3)';
       context.lineWidth = 1.2;
       context.stroke();
-      context.font = '700 9px "IBM Plex Mono", monospace';
+      context.font = `700 ${Math.max(7, 9 * p.scale)}px "IBM Plex Mono", monospace`;
       context.fillStyle = '#07060c';
       context.textAlign = 'center';
       context.textBaseline = 'middle';
-      context.fillText(String(index + 1), node.x, node.y + 0.5);
+      context.fillText(String(index + 1), p.x, p.y + 0.5);
       context.textBaseline = 'alphabetic';
-      context.font = '8.5px "IBM Plex Mono", monospace';
+      context.font = `${Math.max(7.5, 8.5 * Math.min(1.4, p.scale))}px "IBM Plex Mono", monospace`;
       context.fillStyle = 'rgba(200,192,226,0.92)';
-      context.fillText(node.label, node.x, node.y + 24);
-    });
-    context.restore();
+      context.fillText(node.label, p.x, p.y + radius + 13);
+      context.globalAlpha = 1;
+    }
   }
 
   function drawNetwork(assets, links) {
@@ -355,20 +528,23 @@ export function createBoard({
     const context = canvas.getContext?.('2d');
     if (!context) return;
     const index = new Map(assets.map((asset, i) => [asset.key, i]));
+    const same =
+      (graph?.assets ?? []).map((a) => a.key).join() ===
+      assets.map((a) => a.key).join();
     // A different set of items is a new picture: fit it afresh.
-    if (
-      (graph?.assets ?? []).map((a) => a.key).join() !==
-      assets.map((a) => a.key).join()
-    ) {
-      touched = false;
-    }
+    if (!same) fitted = false;
     // Keep settled positions when the same items are redrawn.
     const before = new Map(
       (graph?.nodes ?? []).map((node) => [node.key, node]),
     );
-    const nodes = networkNodes(assets, width, height).map((node) =>
+    const nodes = networkNodes(assets).map((node) =>
       before.has(node.key)
-        ? { ...node, x: before.get(node.key).x, y: before.get(node.key).y }
+        ? {
+            ...node,
+            x: before.get(node.key).x,
+            y: before.get(node.key).y,
+            z: before.get(node.key).z,
+          }
         : node,
     );
     graph = {
@@ -392,14 +568,14 @@ export function createBoard({
     )?.matches;
     if (still || !win?.requestAnimationFrame) {
       // No motion: settle the layout at once and draw it a single time.
-      for (let i = 0; i < 400; i++)
-        networkStep(graph.nodes, graph.edges, width, height);
-      paintNetwork();
+      for (let i = 0; i < 400; i++) networkStep(graph.nodes, graph.edges);
+      fitted = false;
+      for (let i = 0; i < 80; i++) paintNetwork();
       return;
     }
     const loop = () => {
       if (element.hidden || !graph) return;
-      networkStep(graph.nodes, graph.edges, graph.width, graph.height);
+      networkStep(graph.nodes, graph.edges);
       paintNetwork();
       graph.frame++;
       frameId = win.requestAnimationFrame(loop);
@@ -713,5 +889,5 @@ function networkLegend(items, links) {
   const head = `${items} ${items === 1 ? 'NODE' : 'NODES'} · ${links} ${links === 1 ? 'CONNECTION' : 'CONNECTIONS'}`;
   if (!links)
     return `${head}. No two pinned items mention the same name, so nothing is linked yet.`;
-  return `${head}. A line joins two items that mention the same name, shown on the line. Violet: same topic. Amber: across topics. Scroll to zoom, drag to move.`;
+  return `${head}. A line joins two items that mention the same name, shown on the line. Violet: same topic. Amber: across topics. Drag the space to turn it, scroll to zoom, and drag a node to pull it: the ones linked to it stretch and follow. Point at a node to name its links.`;
 }

@@ -12,6 +12,7 @@ import {
   layerIconCss,
 } from '../data/corantoIcons.js';
 import { ATLAS_OVERLAYS, createAtlas } from './corantoAtlas.js';
+import { setRealOnly } from '../data/corantoPolicy.js';
 import { createMapKey } from './corantoMapKey.js';
 import { createMarketsLens } from './corantoMarkets.js';
 import { createNuclearMarks } from './corantoNuclear.js';
@@ -1707,6 +1708,8 @@ export function createCorantoShell({
   // views. Automated browsers keep the engine's own layout, which its browser
   // gates measure.
   body.dataset.corantoFrame = win.navigator?.webdriver ? 'classic' : 'one';
+  // For people, nothing on the globe is simulated.
+  setRealOnly(body.dataset.corantoFrame === 'one');
   // In the shared frame the engine's layer list shows icons, not emoji.
   const layerIconStyle = el(document, 'style', {
     text: layerIconCss("body[data-coranto-frame='one']"),

@@ -15,7 +15,7 @@ Counts are what it showed at the time.
 | `FEC_API_KEY` | yes | US campaign money |
 | `FIRMS_MAP_KEY` | no | Not needed: fires use NASA's keyless daily files |
 | `MAPILLARY_CLIENT_TOKEN` | no | Street Level photos. The layer says KEY REQUIRED |
-| `TOMTOM_API_KEY` | no | Live road traffic. Without it traffic is SIMULATED |
+| `TOMTOM_API_KEY` | no | Live road traffic. Without it Street Traffic draws nothing |
 | `GOOGLE_MAPS_API_KEY` or `CESIUM_ION_TOKEN` | no | Photoreal 3D cities. Without one the globe is satellite imagery |
 | `TFL_APP_KEY` | no | London transit detail (optional) |
 | `LL2_API_TOKEN` | no | Higher rate limit for launches (optional) |
@@ -31,7 +31,7 @@ Counts are what it showed at the time.
 | Military Flights | Military aircraft broadcasting position | adsb.lol | Works (42) |
 | Local ADS-B | Aircraft from your own radio receiver | RTL-SDR over WebUSB | Needs a receiver plugged in |
 | Live Vessels | Ships, drawn by class | AISStream | Works (12,000) |
-| Street Traffic | Vehicles on roads | OpenStreetMap roads | **SIMULATED without a TomTom key. See note** |
+| Street Traffic | Measured road speed, drawn as moving dots | TomTom flow on OpenStreetMap roads | Needs a TomTom key. Without one it draws nothing and says so |
 | Transit | Buses and trains | GTFS-Realtime feeds | Works (255) |
 | Bike Share | Docks and bikes | GBFS feeds | Works; loads by city |
 | Cameras | Public traffic and weather cameras | Agency feeds, Street View fallback | Works (3,900 listed) |
@@ -46,7 +46,7 @@ Counts are what it showed at the time.
 | Space Missions | Launches, last and next 30 days | Launch Library 2 | Works; slow to start, switches Satellites on while it is on |
 | Earthquakes | Last 24 hours | USGS | Works (44) |
 | Active Fires | Fire detections, last 24 hours | NASA FIRMS | Works (173,700) |
-| Fire Perimeters | US wildfire outlines | NIFC | Works (108). The InciWeb detail feed returned an error |
+| Fire Perimeters | US wildfire outlines | NIFC | Works (108). Incident detail from InciWeb is unavailable: the `wildfire.gov` domain was failing DNS on 2026-10-11, for everyone |
 | Wind | Wind field | NOAA GFS | Works |
 | Rain radar | Radar | NOAA | Works |
 | Satellite clouds | Cloud imagery | NOAA | Works |
@@ -55,11 +55,9 @@ Counts are what it showed at the time.
 | Directions | Routes between two points | OpenStreetMap routing | Works |
 | Radio | Radio stations by place | Radio Browser | Works (750) |
 
-## Note: simulated traffic
+## Note: traffic is real or absent
 
-Street Traffic without a TomTom key draws invented vehicles on real roads and
-labels the layer SIMULATED. That is the one place in Coranto where something
-on the globe is not real. It comes from the engine Coranto is built on. It is
-labelled, it is off by default, and it is only in the INSTRUMENTS layer list.
-Whether to remove it, hide it until a key is set, or leave it labelled is the
-owner's call.
+The engine Coranto is built on can simulate traffic when it has no data.
+Coranto switches that off for people: Street Traffic draws dots only on roads
+with measured flow from TomTom, and with no key it draws nothing. The dots
+show how fast each road is moving; they are not individual vehicles.
