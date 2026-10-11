@@ -338,6 +338,15 @@
 
 ## [Unreleased]
 
+- Add the RELIEF lens. It lists the twenty countries most people have been
+  forced to flee, from the UN refugee agency's figures for the latest year it
+  has published, and the World Health Organization's newest disease outbreak
+  notices, each marked on the globe where its place could be matched and
+  linked to WHO's own notice. The feed narrows to humanitarian news. A figure
+  UNHCR does not publish is left blank rather than counted as zero, a source
+  that is down is named, and the lens says that famine classification is not
+  shown because its source needs a key.
+
 - Add an experimental ChatGPT/Codex OAuth option for cloud voice in Provider
   Settings. API-key voice remains the default. Local sign-in can start from
   the auth button and reports completion, failure, timeout, or expired

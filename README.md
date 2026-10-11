@@ -95,6 +95,7 @@ It is built from two projects:
   ├─ watch power ...... military aircraft airborne now, mapped military sites, plate readers
   ├─ elections ........ polling days in the next 120 days, with election news beside them
   ├─ markets .......... stock indices, oil, the US 10-year yield, exchange rates and crypto, each with its source and day
+  ├─ relief ........... people forced to flee, by country, and disease outbreak notices, from UNHCR and the WHO
   ├─ campaign money ... the biggest US Senate and House fundraisers, from their own FEC filings
   ├─ live TV .......... live news channels from every continent, one click away
   ├─ live layers ...... aircraft, military flights, ships, satellites, storms, launches
@@ -271,6 +272,12 @@ is for. Crypto prices come from CoinGecko. Every figure links to its source,
 and a change is shown only when the source itself gave an earlier figure to
 compare with.
 
+**RELIEF** puts official humanitarian figures beside the humanitarian news:
+the countries most people have been forced to flee, from the UN refugee
+agency, and the World Health Organization's disease outbreak notices, marked
+on the globe and linked to the notice itself. Nothing in it is an estimate of
+Coranto's or written by a model.
+
 **LIVE TV** plays live news channels from Doha, Paris, Berlin, Singapore,
 Sydney, New York and elsewhere in a panel over the globe, and pins each
 newsroom on the map. The player is YouTube's own, from its no-cookie address;
@@ -296,6 +303,7 @@ Coranto has two views, switched at the top right.
 | See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
 | Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
 | Watch power | Click **POWER** on the left. Click any aircraft in the list to fly to it and open its public track. |
+| See where people are fleeing and where disease is spreading | Click **RELIEF** on the left. Choose Displaced people or Outbreaks. Click an outbreak to fly to it and open the WHO notice. |
 | Check the markets | Click **MARKETS** on the left. Click any figure to open its source. |
 | See who is raising the most money | Click **VOTES**, then **US campaign money**. Choose Senate or House. Click a name to open the FEC record. |
 | Save a search | Search, pick a topic or select a place, then press **SAVE THIS VIEW** under My Watches. It tells you what it saved. |

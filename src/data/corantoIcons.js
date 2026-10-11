@@ -172,6 +172,11 @@ export const ICONS = Object.freeze({
     STROKE,
     '<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/>',
   ],
+  outbreak: [STROKE, '<path d="M2 12h4l2-5 3 10 2.5-7 1.5 2H22"/>'],
+  displaced: [
+    STROKE,
+    '<circle cx="8" cy="6.5" r="2.2"/><path d="M4.5 20v-5.5a3.5 3.5 0 0 1 7 0V20"/><path d="M14 12h7M18 9l3 3-3 3"/>',
+  ],
   // Interface
   target: [
     STROKE,

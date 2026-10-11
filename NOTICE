@@ -31,6 +31,11 @@ the plane-alert database, (c) SDR-Enthusiasts, Ramon F. Kolb (kx1t) and
 contributors, made available under the Open Database License:
 http://opendatacommons.org/licenses/odbl/1.0/. It is not bundled.
 
+The Relief lens reads, at runtime, forced displacement figures from the UNHCR
+Refugee Data Finder (https://www.unhcr.org/refugee-statistics/) and Disease
+Outbreak News from the World Health Organization (https://www.who.int). The
+figures and notices are theirs and are shown as published. Neither is bundled.
+
 The atlas overlays (public/coranto-atlas/) come from AUSPEX: its country
 table, city table, conflict list and disputed-line coordinates, (c) 2026
 Connor Evans, Apache-2.0. Border shapes are from world-atlas 110m (ISC),

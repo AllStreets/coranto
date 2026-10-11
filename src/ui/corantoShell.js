@@ -23,6 +23,7 @@ import { createMarketsLens } from './corantoMarkets.js';
 import { createNuclearMarks } from './corantoNuclear.js';
 import { createSatelliteIcons } from './corantoSatelliteIcons.js';
 import { createPowerLens } from './corantoPower.js';
+import { RELIEF_TERMS, createReliefLens } from './corantoRelief.js';
 import {
   WATCH_LIMIT,
   briefingText,
@@ -214,6 +215,8 @@ function hudLensLine(lens, view) {
     return 'WATCH POWER // MILITARY AND GOVERNMENT AIRCRAFT, BASES';
   if (lens === 'elections') return 'ELECTIONS // POLLING DAYS, NEXT 120 DAYS';
   if (lens === 'markets') return 'MARKETS // FINANCE STORIES BY PLACE';
+  if (lens === 'relief')
+    return 'RELIEF // WHO OUTBREAK NOTICES, HUMANITARIAN STORIES';
   const places = view.places?.length ?? 0;
   const range = RANGE_WORDS[view.rangeHours] ?? RANGE_WORDS[24];
   return view.goodNewsOnly
@@ -677,6 +680,14 @@ export function createCorantoShell({
       'Markets: indices, oil, exchange rates and crypto, with finance news',
     'aria-pressed': 'false',
   });
+  const lensRelief = el(document, 'button', {
+    type: 'button',
+    text: 'RELIEF',
+    'data-lens': 'relief',
+    title:
+      'Relief: displaced people and disease outbreaks from official sources, with humanitarian news',
+    'aria-pressed': 'false',
+  });
   const lensSwitch = el(
     document,
     'div',
@@ -685,8 +696,18 @@ export function createCorantoShell({
     lensPower,
     lensElections,
     lensMarkets,
+    lensRelief,
   );
   const markets = createMarketsLens({ document });
+  const relief = createReliefLens({
+    document,
+    getViewer: () => dataManager?.viewer ?? null,
+    showCard: (detail) => {
+      card.dataset.owner = 'relief';
+      showCard(detail);
+    },
+    flyTo: (lat, lon, height) => flyTo(lat, lon, height),
+  });
   const board = createBoard({
     document,
     store: boardStore,
@@ -882,6 +903,7 @@ export function createCorantoShell({
       broadcasts: tv.isOpen,
       ships: on('ais-live-vessels'),
       satellites: satelliteIcons.shown,
+      outbreaks: relief.marked,
       borders: atlas.isOn('borders'),
       countries: atlas.isOn('countries'),
       activity: atlas.isOn('activity'),
@@ -955,6 +977,7 @@ export function createCorantoShell({
     power.element,
     elections.element,
     markets.element,
+    relief.element,
   );
 
   // ── Feed ────────────────────────────────────────────────────────
@@ -1521,11 +1544,17 @@ export function createCorantoShell({
       feed?.setAny([]);
       feed?.setQuery('');
     } else if (lens === 'markets') markets.leave();
+    else if (lens === 'relief') {
+      if (card.dataset.owner === 'relief') showCard(null);
+      relief.leave();
+      feed?.setAny([]);
+    }
     lens = next;
     lensNews.setAttribute('aria-pressed', String(lens === 'news'));
     lensPower.setAttribute('aria-pressed', String(lens === 'power'));
     lensElections.setAttribute('aria-pressed', String(lens === 'elections'));
     lensMarkets.setAttribute('aria-pressed', String(lens === 'markets'));
+    lensRelief.setAttribute('aria-pressed', String(lens === 'relief'));
     topicList.hidden = lens !== 'news';
     watchSection.hidden = lens !== 'news';
     layer.setGoodNewsOnly(false);
@@ -1536,6 +1565,10 @@ export function createCorantoShell({
     applyGlobeText();
     if (lens === 'power') power.enter();
     if (lens === 'markets') markets.enter();
+    if (lens === 'relief') {
+      feed?.setAny(RELIEF_TERMS);
+      relief.enter();
+    }
     if (lens === 'elections') {
       feed?.setAny(ELECTION_TERMS);
       elections.enter();
@@ -1803,6 +1836,7 @@ export function createCorantoShell({
   lensPower.addEventListener('click', () => setLens('power'));
   lensElections.addEventListener('click', () => setLens('elections'));
   lensMarkets.addEventListener('click', () => setLens('markets'));
+  lensRelief.addEventListener('click', () => setLens('relief'));
   tvBtn.addEventListener('click', () => {
     tv.toggle();
     tvBtn.setAttribute('aria-pressed', String(tv.isOpen));

@@ -3510,6 +3510,21 @@ body[data-coranto-frame='one'][data-coranto-mode='instruments']
   border-color: #ffffff;
 }
 
+/* Relief lens */
+#coranto-card[data-owner='relief'] {
+  border-left-color: #ff74a8;
+}
+.coranto-relief .coranto-election-title {
+  white-space: normal;
+  overflow: visible;
+}
+.coranto-relief-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */

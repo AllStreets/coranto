@@ -93,9 +93,12 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [x] **T23 A week of stories.** 7-day retention with merged feed reads and a
   time-range control. Open: a database archive for history beyond a week and
   search across it, as AUSPEX had with Supabase.
-- [ ] **T24 Relief lens on official data** (owner said yes 2026-10-11):
-  ReliefWeb, UNHCR, IPC famine classification, WHO outbreak notices. Not
-  AUSPEX's model-written version.
+- [x] **T24 Relief lens on official data** (owner said yes 2026-10-11).
+  Done: RELIEF lens with UNHCR displacement by country of origin and WHO
+  outbreak notices (listed, marked on the globe, in the map key), beside
+  humanitarian news. Not AUSPEX's model-written version. Open: ReliefWeb
+  reports (its API needs an approved app name) and IPC famine classification
+  (needs a key); the lens says the second is missing.
 
 ## Verify and explain
 
