@@ -2,12 +2,14 @@
 
 <img src="docs/media/coranto/coranto-banner.png" alt="Coranto" width="560"/>
 
-<img alt="news" src="https://img.shields.io/badge/news-real_headlines_·_real_links-34E08A?style=for-the-badge&labelColor=04070b"/>
-<img alt="sources" src="https://img.shields.io/badge/news_sources-35_named_·_6_languages_·_health_shown-34E08A?style=for-the-badge&labelColor=04070b"/>
-<img alt="live layers" src="https://img.shields.io/badge/live_layers-33-34E08A?style=for-the-badge&labelColor=04070b"/>
-<img alt="AI text" src="https://img.shields.io/badge/AI_text-optional_·_cited_·_checked_in_code-A3E635?style=for-the-badge&labelColor=04070b"/>
-<img alt="keys" src="https://img.shields.io/badge/API_keys-none_required-34E08A?style=for-the-badge&labelColor=04070b"/>
-<a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-34E08A?style=for-the-badge&labelColor=04070b"/></a>
+**WATCH THE WORLD BACK**
+
+<img alt="news" src="https://img.shields.io/badge/news-real_headlines_·_real_links-B47CFF?style=for-the-badge&labelColor=04070b"/>
+<img alt="sources" src="https://img.shields.io/badge/news_sources-35_named_·_6_languages_·_health_shown-B47CFF?style=for-the-badge&labelColor=04070b"/>
+<img alt="live layers" src="https://img.shields.io/badge/live_layers-33-B47CFF?style=for-the-badge&labelColor=04070b"/>
+<img alt="AI text" src="https://img.shields.io/badge/AI_text-optional_·_cited_·_checked_in_code-E879F9?style=for-the-badge&labelColor=04070b"/>
+<img alt="keys" src="https://img.shields.io/badge/API_keys-none_required-B47CFF?style=for-the-badge&labelColor=04070b"/>
+<a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-B47CFF?style=for-the-badge&labelColor=04070b"/></a>
 <br/>
 <img alt="globe" src="https://img.shields.io/badge/globe-CesiumJS_·_photoreal_3D-6b7382?style=flat-square&labelColor=04070b"/>
 <img alt="feeds" src="https://img.shields.io/badge/feeds-RSS_·_GDELT_·_GDACS_·_NASA_·_USGS_·_ADS--B_·_AIS_·_NOAA-6b7382?style=flat-square&labelColor=04070b"/>
@@ -114,11 +116,11 @@ These are enforced in code and by tests that fail the build if they are broken.
 
 <table>
 <tr>
-<td width="50%"><img src="docs/media/coranto/place-and-sources.png" alt="A place selected, with the per-source health list open" width="100%"/></td>
+<td width="50%"><img src="docs/media/coranto/place-and-sources.png" alt="The LIVE button open, listing every source and whether it is answering" width="100%"/></td>
 <td width="50%"><img src="docs/media/coranto/good-news.png" alt="The Good news filter" width="100%"/></td>
 </tr>
 <tr>
-<td><em>Click a marker and the feed narrows to that place. The source list shows what answered: here two feeds are down and named as down.</em></td>
+<td><em>Click <strong>LIVE</strong> and every source drops down with its status: the ones not answering are named first, with the reason. Click it again to close.</em></td>
 <td><em>Good news narrows the feed to headlines tagged as progress. The tag is automatic and cautious; it says so on the card.</em></td>
 </tr>
 </table>

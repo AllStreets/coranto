@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="logo-title">
   <title id="logo-title">Coranto</title>
-  <!-- An open C around the Earth, with the Moon in the gap. Earth: NASA Blue Marble. Moon: NASA LRO near side. Both public domain. -->
+  <!-- An open violet C around the Earth, with the Moon in the gap. Earth: NASA Blue Marble. Moon: NASA LRO near side. Both public domain. -->
   <defs>
-    <linearGradient id="c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34e08a"/><stop offset="1" stop-color="#a3e635"/></linearGradient>
+    <linearGradient id="c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#e879f9"/></linearGradient>
     <clipPath id="e"><circle cx="58" cy="60" r="31"/></clipPath>
     <clipPath id="m"><circle cx="96" cy="60" r="9.5"/></clipPath>
     <radialGradient id="es" cx="35%" cy="30%" r="80%"><stop offset="55%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity=".55"/></radialGradient>

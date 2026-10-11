@@ -17,9 +17,17 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
-- Coranto: a new logo. The open C, in Coranto green, now holds a photoreal
+- Coranto: the LIVE button drops down the full list of sources with each
+  one's status, the ones not answering first with the reason. A second click,
+  a click elsewhere or Esc closes it.
+- Coranto: the accent colour is now a living violet (#7c3aed to #e879f9),
+  the mix of red and blue, in the logo, wordmark and interface. Green is kept
+  where it means something: good news, a source that is live, a price that
+  rose. The military topic moved from purple to coral so it stays distinct.
+  The slogan is "Watch the world back".
+- Coranto: a new logo. The open C now holds a photoreal
   Earth (NASA Blue Marble, the Americas) with the Moon (NASA LRO) in its gap.
-  The whole wordmark is green and the slogan is gone. Favicon, touch icon and
+  The whole wordmark takes the accent gradient. Favicon, touch icon and
   README header updated.
 - Coranto: the news view is one frame. The left rail is a docked column like
   the feed, wide enough to read, and the globe sits between the two. The

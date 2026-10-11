@@ -1,26 +1,28 @@
 /* Coranto identity, loaded last. The palette and type come from AUSPEX's
-   "Living Green": a calm near-black, one living accent, red kept for real
-   danger. The upstream cyan literals are retinted by build/corantoTheme.js. */
+   calm layout in a living violet: a near-black, one accent, red kept for real
+   danger. Purple is the mix of red and blue. Green is kept for good news and
+   for "this source is live". The upstream cyan literals are retinted by 
+   build/corantoTheme.js. */
 :root {
   --bg-dark: #04070b;
-  --glass-bg: rgba(7, 18, 12, 0.78);
-  --menu-bg: #0a120d;
-  --accent: #34e08a;
-  --accent-dim: rgba(52, 224, 138, 0.15);
-  --accent-glow: rgba(52, 224, 138, 0.4);
-  --text-primary: #e9f1ec;
-  --text-secondary: rgba(200, 216, 207, 0.62);
-  --text-dim: rgba(159, 179, 168, 0.42);
+  --glass-bg: rgba(12, 10, 20, 0.78);
+  --menu-bg: #0e0b17;
+  --accent: #b47cff;
+  --accent-dim: rgba(180, 124, 255, 0.15);
+  --accent-glow: rgba(180, 124, 255, 0.4);
+  --text-primary: #eeebf5;
+  --text-secondary: rgba(208, 203, 222, 0.66);
+  --text-dim: rgba(168, 162, 186, 0.5);
   --font-mono: 'IBM Plex Mono', 'JetBrains Mono', 'SF Mono', monospace;
   --font-sans:
     'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-brand: 'Syne', 'Manrope', sans-serif;
   --font-head: 'Fraunces', Georgia, serif;
-  --coranto-sig: linear-gradient(90deg, #34e08a, #a3e635);
+  --coranto-sig: linear-gradient(90deg, #7c3aed, #e879f9);
   /* AUSPEX category hues: distinct, cool, never read as danger. */
   --cat-geopolitics: #6e8aff;
   --cat-technology: #22d3ee;
-  --cat-military: #c084fc;
+  --cat-military: #f2917a;
   --cat-finance: #e8b84b;
   --cat-climate: #34d17a;
 }
@@ -45,7 +47,7 @@
 }
 #title-bar .title-logo img,
 .loader-content .loader-logo img {
-  filter: drop-shadow(0 0 10px rgba(52, 224, 138, 0.35));
+  filter: drop-shadow(0 0 10px rgba(180, 124, 255, 0.35));
 }
 
 /* First-run card */
@@ -62,7 +64,7 @@
   --coranto-feed-w: clamp(330px, 23vw, 400px);
   --coranto-line: rgba(255, 255, 255, 0.08);
   --coranto-line-2: rgba(255, 255, 255, 0.14);
-  --coranto-glass: rgba(5, 13, 9, 0.9);
+  --coranto-glass: rgba(10, 8, 17, 0.9);
 }
 
 /* The engine's own title and style badge are replaced by the header. */
@@ -98,9 +100,9 @@
   flex: 0 0 auto;
 }
 .coranto-brand img {
-  width: 38px;
-  height: 38px;
-  filter: drop-shadow(0 0 10px rgba(52, 224, 138, 0.35));
+  width: 36px;
+  height: 36px;
+  filter: drop-shadow(0 0 10px rgba(180, 124, 255, 0.35));
 }
 .coranto-wordmark {
   font: 800 21px/1 var(--font-brand);
@@ -125,10 +127,10 @@
   gap: 7px;
   flex: 0 0 auto;
   padding: 6px 10px;
-  border: 1px solid rgba(52, 224, 138, 0.45);
+  border: 1px solid rgba(180, 124, 255, 0.45);
   border-radius: 4px;
-  background: rgba(52, 224, 138, 0.1);
-  color: #34e08a;
+  background: rgba(180, 124, 255, 0.1);
+  color: #b47cff;
   font: 600 10px var(--font-mono);
   letter-spacing: 1.6px;
   cursor: pointer;
@@ -143,7 +145,7 @@
 }
 #coranto-live[data-state='partial'] {
   /* Some sources are down: still live, said plainly in the count. */
-  border-color: rgba(52, 224, 138, 0.45);
+  border-color: rgba(180, 124, 255, 0.45);
 }
 #coranto-live[data-state='stale'],
 #coranto-live[data-state='loading'] {
@@ -188,9 +190,9 @@
   border-color: rgba(255, 255, 255, 0.28);
 }
 .coranto-layer[aria-pressed='true'] {
-  border-color: rgba(52, 224, 138, 0.7);
-  background: rgba(52, 224, 138, 0.12);
-  color: #34e08a;
+  border-color: rgba(180, 124, 255, 0.7);
+  background: rgba(180, 124, 255, 0.12);
+  color: #b47cff;
 }
 .coranto-layer[data-busy] {
   opacity: 0.55;
@@ -225,7 +227,7 @@
   cursor: pointer;
 }
 #coranto-mode button[aria-pressed='true'] {
-  background: #34e08a;
+  background: #b47cff;
   color: #04070b;
 }
 
@@ -251,8 +253,8 @@
   display: flex;
   align-items: center;
   padding: 0 14px;
-  background: rgba(52, 224, 138, 0.14);
-  color: #34e08a;
+  background: rgba(180, 124, 255, 0.14);
+  color: #b47cff;
   font: 700 9px var(--font-brand);
   letter-spacing: 2px;
 }
@@ -286,7 +288,7 @@
   text-decoration: none;
 }
 .coranto-ticker-track a:hover {
-  color: #34e08a;
+  color: #b47cff;
 }
 .coranto-ticker-source {
   margin-right: 9px;
@@ -415,12 +417,12 @@
   cursor: pointer;
 }
 .coranto-lens-switch button[aria-pressed='true'] {
-  background: rgba(192, 132, 252, 0.18);
+  background: rgba(242, 145, 122, 0.18);
   color: #d8b4fe;
 }
 .coranto-lens-switch button:first-child[aria-pressed='true'] {
-  background: rgba(52, 224, 138, 0.16);
-  color: #34e08a;
+  background: rgba(180, 124, 255, 0.16);
+  color: #b47cff;
 }
 #coranto-rail [hidden] {
   display: none !important;
@@ -504,7 +506,7 @@
   border-left-color: #6e8aff;
 }
 #coranto-card[data-owner='power'] {
-  border-left-color: #c084fc;
+  border-left-color: #f2917a;
 }
 .coranto-lens-switch {
   display: grid;
@@ -519,7 +521,7 @@
   color: #a9b9ff;
 }
 .coranto-lens-switch button:nth-child(2)[aria-pressed='true'] {
-  background: rgba(192, 132, 252, 0.18);
+  background: rgba(242, 145, 122, 0.18);
   color: #d8b4fe;
 }
 .coranto-rail-actions {
@@ -620,7 +622,7 @@
   text-decoration: none;
 }
 .coranto-tv:hover {
-  border-color: rgba(52, 224, 138, 0.6);
+  border-color: rgba(180, 124, 255, 0.6);
 }
 .coranto-tv strong {
   color: var(--text-primary);
@@ -653,7 +655,7 @@
   max-height: 34vh;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(192, 132, 252, 0.75) rgba(255, 255, 255, 0.05);
+  scrollbar-color: rgba(242, 145, 122, 0.75) rgba(255, 255, 255, 0.05);
 }
 .coranto-power-layer,
 .coranto-power-plane {
@@ -674,7 +676,7 @@
   letter-spacing: 1.4px;
 }
 .coranto-power-layer[aria-pressed='true'] {
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: rgba(242, 145, 122, 0.6);
   color: #d8b4fe;
 }
 .coranto-power-label,
@@ -692,7 +694,7 @@
 }
 .coranto-power-plane:hover,
 .coranto-power-plane[aria-current] {
-  border-color: rgba(192, 132, 252, 0.6);
+  border-color: rgba(242, 145, 122, 0.6);
   color: var(--text-primary);
 }
 .coranto-power-callsign {
@@ -711,8 +713,8 @@
   letter-spacing: 2px;
 }
 .coranto-rail-briefing {
-  border-color: rgba(52, 224, 138, 0.45);
-  color: #34e08a;
+  border-color: rgba(180, 124, 255, 0.45);
+  color: #b47cff;
   width: 100%;
 }
 .coranto-watches {
@@ -766,7 +768,7 @@
 .coranto-watch-count[data-fresh] {
   padding: 1px 6px;
   border-radius: 999px;
-  background: #34e08a;
+  background: #b47cff;
   color: #04070b;
   font-weight: 600;
 }
@@ -785,10 +787,10 @@
 }
 .coranto-watch-save {
   padding: 8px 10px;
-  border: 1px dashed rgba(52, 224, 138, 0.5);
+  border: 1px dashed rgba(180, 124, 255, 0.5);
   border-radius: 4px;
   background: transparent;
-  color: #34e08a;
+  color: #b47cff;
   font: 600 9px var(--font-mono);
   letter-spacing: 1.4px;
   text-align: left;
@@ -796,7 +798,7 @@
 }
 .coranto-watch-save:hover,
 .coranto-watch-save:focus-visible {
-  background: rgba(52, 224, 138, 0.08);
+  background: rgba(180, 124, 255, 0.08);
 }
 .coranto-watch-save[data-ready='false'] {
   border-color: var(--coranto-line);
@@ -858,7 +860,7 @@
   text-transform: uppercase;
 }
 .coranto-briefing-head span {
-  color: #34e08a;
+  color: #b47cff;
   font: 10px var(--font-mono);
 }
 .coranto-guide-card .coranto-briefing-list {
@@ -921,7 +923,11 @@
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--coranto-line);
-  background: linear-gradient(90deg, rgba(4, 9, 7, 0.86), rgba(4, 9, 7, 0.95));
+  background: linear-gradient(
+    90deg,
+    rgba(7, 6, 12, 0.86),
+    rgba(7, 6, 12, 0.95)
+  );
   backdrop-filter: blur(20px) saturate(1.3);
   -webkit-backdrop-filter: blur(20px) saturate(1.3);
 }
@@ -949,7 +955,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: rgba(52, 224, 138, 0.75) rgba(255, 255, 255, 0.05);
+  scrollbar-color: rgba(180, 124, 255, 0.75) rgba(255, 255, 255, 0.05);
 }
 #coranto-feed-body [hidden] {
   display: none !important;
@@ -1020,7 +1026,7 @@
   border: 1px solid var(--coranto-line);
   border-radius: 8px;
   background:
-    linear-gradient(180deg, rgba(52, 224, 138, 0.045), transparent 60%),
+    linear-gradient(180deg, rgba(180, 124, 255, 0.045), transparent 60%),
     rgba(255, 255, 255, 0.02);
 }
 .news-source-heading {
@@ -1059,7 +1065,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #34e08a;
+  background: #b47cff;
 }
 .news-source[data-state='down'] .news-source-dot {
   background: #ff4d5e;
@@ -1274,28 +1280,28 @@
 }
 .news-card-brief {
   padding: 3px 8px;
-  border: 1px solid rgba(52, 224, 138, 0.45);
+  border: 1px solid rgba(180, 124, 255, 0.45);
   border-radius: 999px;
-  background: rgba(52, 224, 138, 0.08);
-  color: #34e08a;
+  background: rgba(180, 124, 255, 0.08);
+  color: #b47cff;
   font: 600 9px var(--font-mono);
   letter-spacing: 1px;
   cursor: pointer;
 }
 .news-card-brief:hover {
-  background: rgba(52, 224, 138, 0.18);
+  background: rgba(180, 124, 255, 0.18);
 }
 .news-brief {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 11px 12px;
-  border: 1px solid rgba(52, 224, 138, 0.28);
+  border: 1px solid rgba(180, 124, 255, 0.28);
   border-radius: 6px;
-  background: rgba(52, 224, 138, 0.045);
+  background: rgba(180, 124, 255, 0.045);
 }
 .news-brief-label {
-  color: #34e08a;
+  color: #b47cff;
   font: 700 8.5px var(--font-brand);
   letter-spacing: 1.8px;
 }
@@ -1313,16 +1319,16 @@
   min-width: 15px;
   margin: 0 1px;
   padding: 0 3px;
-  border: 1px solid rgba(52, 224, 138, 0.45);
+  border: 1px solid rgba(180, 124, 255, 0.45);
   border-radius: 3px;
-  color: #34e08a;
+  color: #b47cff;
   font: 600 9px/14px var(--font-mono);
   text-align: center;
   text-decoration: none;
   vertical-align: 1px;
 }
 .news-brief-cite:hover {
-  background: #34e08a;
+  background: #b47cff;
   color: #04070b;
 }
 .news-brief-claims {
@@ -1345,7 +1351,7 @@
   letter-spacing: 1px;
 }
 .news-brief-claim[data-outlets='several'] .news-brief-count {
-  color: #34e08a;
+  color: #b47cff;
 }
 .news-brief-claim-text {
   color: var(--text-secondary);
@@ -1424,8 +1430,8 @@
   cursor: pointer;
 }
 .coranto-group-switch button[aria-pressed='true'] {
-  background: rgba(52, 224, 138, 0.16);
-  color: #34e08a;
+  background: rgba(180, 124, 255, 0.16);
+  color: #b47cff;
 }
 .news-card-foot {
   display: flex;
@@ -1480,7 +1486,7 @@ button.news-card-place:hover {
   color: var(--text-dim);
 }
 .news-search:focus {
-  border-color: rgba(52, 224, 138, 0.6);
+  border-color: rgba(180, 124, 255, 0.6);
   outline: none;
 }
 
@@ -1571,13 +1577,13 @@ button.news-card-place:hover {
   max-height: 100%;
   overflow-y: auto;
   padding: 28px 30px 24px;
-  border: 1px solid rgba(52, 224, 138, 0.3);
+  border: 1px solid rgba(180, 124, 255, 0.3);
   border-radius: 12px;
-  background: #060d09;
+  background: #0a0812;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
 }
 .coranto-guide-kicker {
-  color: #34e08a;
+  color: #b47cff;
   font: 600 10px var(--font-mono);
   letter-spacing: 3px;
 }
@@ -1604,7 +1610,7 @@ button.news-card-place:hover {
 .coranto-guide-card li::before {
   content: counter(guide);
   grid-row: span 2;
-  color: #34e08a;
+  color: #b47cff;
   font: 600 12px var(--font-mono);
   padding-top: 2px;
 }
@@ -1617,10 +1623,10 @@ button.news-card-place:hover {
 .coranto-guide-close {
   margin-top: 20px;
   padding: 9px 18px;
-  border: 1px solid rgba(52, 224, 138, 0.6);
+  border: 1px solid rgba(180, 124, 255, 0.6);
   border-radius: 999px;
-  background: rgba(52, 224, 138, 0.12);
-  color: #34e08a;
+  background: rgba(180, 124, 255, 0.12);
+  color: #b47cff;
   font: 600 11px var(--font-mono);
   letter-spacing: 1.5px;
   cursor: pointer;
@@ -1750,9 +1756,9 @@ body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
 /* HUD readouts in the living accent. Style presets and the Cyber theme set
    their own HUD colours with higher specificity and keep them. */
 #intel-hud {
-  --hud-color: rgba(52, 224, 138, 0.66);
-  --hud-glow: rgba(52, 224, 138, 0.35);
-  --hud-border: rgba(52, 224, 138, 0.15);
+  --hud-color: rgba(180, 124, 255, 0.66);
+  --hud-glow: rgba(180, 124, 255, 0.35);
+  --hud-border: rgba(180, 124, 255, 0.15);
 }
 
 /* Map credits stay on screen and readable, as their terms require, but
@@ -1876,16 +1882,16 @@ body[data-coranto-mode='news'] #cesium-credits {
   cursor: pointer;
 }
 .news-more:hover {
-  border-color: rgba(52, 224, 138, 0.6);
-  color: #34e08a;
+  border-color: rgba(180, 124, 255, 0.6);
+  color: #b47cff;
 }
 
 .coranto-guide-welcome {
   display: none;
   margin: -6px 0 16px;
   padding: 11px 13px;
-  border-left: 2px solid #34e08a;
-  background: rgba(52, 224, 138, 0.07);
+  border-left: 2px solid #b47cff;
+  background: rgba(180, 124, 255, 0.07);
   color: var(--text-primary);
   font: 13.5px/1.55 var(--font-sans);
 }
@@ -1907,8 +1913,8 @@ body[data-coranto-mode='news'] #cesium-credits {
   cursor: pointer;
 }
 #coranto-menu[aria-expanded='true'] {
-  border-color: rgba(52, 224, 138, 0.7);
-  color: #34e08a;
+  border-color: rgba(180, 124, 255, 0.7);
+  color: #b47cff;
 }
 @media (max-width: 1100px) {
   body[data-coranto-mode='news'] #coranto-menu {
@@ -1925,7 +1931,7 @@ body[data-coranto-mode='news'] #cesium-credits {
     padding: 14px;
     overflow-y: auto;
     border-right: 1px solid var(--coranto-line-2);
-    background: rgba(4, 9, 7, 0.97);
+    background: rgba(7, 6, 12, 0.97);
   }
 }
 @media (max-width: 760px) {
@@ -1980,14 +1986,15 @@ body[data-coranto-mode='news'] #cesium-credits {
   z-index: 1;
   margin-top: 16px;
   padding: 12px 0 4px;
-  background: linear-gradient(180deg, transparent, #060d09 38%);
+  background: linear-gradient(180deg, transparent, #0a0812 38%);
 }
 .coranto-guide-card > .coranto-guide-close {
   display: block;
   width: 100%;
   border-radius: 8px;
   background:
-    linear-gradient(rgba(52, 224, 138, 0.14), rgba(52, 224, 138, 0.14)), #060d09;
+    linear-gradient(rgba(180, 124, 255, 0.14), rgba(180, 124, 255, 0.14)),
+    #0a0812;
   padding: 11px 18px;
 }
 @media (max-height: 760px) {
@@ -2012,7 +2019,7 @@ body[data-coranto-mode='news'] #cesium-credits {
   overflow-x: hidden;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: rgba(52, 224, 138, 0.75) rgba(255, 255, 255, 0.05);
+  scrollbar-color: rgba(180, 124, 255, 0.75) rgba(255, 255, 255, 0.05);
   padding-right: 4px;
 }
 #coranto-rail > * {
@@ -2147,14 +2154,14 @@ body[data-coranto-mode='news'] #cesium-credits {
   .coranto-guide-card::-webkit-scrollbar-thumb {
     border: 2px solid transparent;
     border-radius: 6px;
-    background: rgba(52, 224, 138, 0.6);
+    background: rgba(180, 124, 255, 0.6);
     background-clip: padding-box;
   }
   #coranto-rail::-webkit-scrollbar-thumb:hover,
   #coranto-feed-body::-webkit-scrollbar-thumb:hover,
   .coranto-briefing-card::-webkit-scrollbar-thumb:hover,
   .coranto-guide-card::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(52, 224, 138, 0.9);
+    background-color: rgba(180, 124, 255, 0.9);
   }
 }
 
@@ -2176,8 +2183,8 @@ body[data-coranto-mode='news'] #cesium-credits {
     border-right: 1px solid var(--coranto-line);
     background: linear-gradient(
       270deg,
-      rgba(4, 9, 7, 0.86),
-      rgba(4, 9, 7, 0.95)
+      rgba(7, 6, 12, 0.86),
+      rgba(7, 6, 12, 0.95)
     );
     backdrop-filter: blur(20px) saturate(1.3);
     -webkit-backdrop-filter: blur(20px) saturate(1.3);
@@ -2228,4 +2235,72 @@ body[data-coranto-mode='instruments'][data-coranto-frame='one']
 body[data-coranto-mode='instruments'][data-coranto-frame='one']
   :is(#traffic-sync-chip, #cctv-sync-chip) {
   top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 104px);
+}
+
+/* Sources list that drops down from the LIVE button */
+#coranto-sources-menu {
+  position: fixed;
+  z-index: 420;
+  box-sizing: border-box;
+  width: min(380px, calc(100vw - 16px));
+  max-height: calc(100vh - 96px);
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px 12px 12px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 8px;
+  background: rgba(9, 8, 15, 0.97);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+}
+#coranto-sources-menu[hidden] {
+  display: none;
+}
+.coranto-sources-heading {
+  margin: 10px 0 4px;
+  color: var(--text-dim);
+  font: 600 9px var(--font-mono);
+  letter-spacing: 1.8px;
+}
+.coranto-sources-heading:first-child {
+  margin-top: 2px;
+}
+.coranto-source-row {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--coranto-line);
+}
+.coranto-source-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34d17a;
+}
+.coranto-source-row[data-state='down'] .coranto-source-dot {
+  background: #ff4d5e;
+}
+.coranto-source-row[data-state='off'] .coranto-source-dot {
+  background: transparent;
+  border: 1px solid var(--text-dim);
+}
+.coranto-source-name {
+  overflow: hidden;
+  color: var(--text-primary);
+  font: 600 12px var(--font-sans);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.coranto-source-detail {
+  color: var(--text-secondary);
+  font: 10px var(--font-mono);
+  text-align: right;
+}
+.coranto-source-row[data-state='down'] .coranto-source-detail {
+  color: #ff8d98;
+}
+#coranto-live[aria-expanded='true'] {
+  background: rgba(180, 124, 255, 0.22);
 }

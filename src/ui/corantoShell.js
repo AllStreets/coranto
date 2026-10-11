@@ -214,8 +214,74 @@ export function createCorantoShell({
   const liveBtn = el(document, 'button', {
     id: 'coranto-live',
     type: 'button',
-    title: 'Show which sources answered',
+    title: 'Show or hide the list of sources and whether each is answering',
+    'aria-expanded': 'false',
+    'aria-controls': 'coranto-sources-menu',
   });
+  // The list of sources that drops down from the LIVE button.
+  const sourcesMenu = el(document, 'div', {
+    id: 'coranto-sources-menu',
+    role: 'region',
+    'aria-label': 'News sources and whether each is answering',
+  });
+  sourcesMenu.hidden = true;
+  let sourceRowsShown = [];
+  function renderSourcesMenu() {
+    if (sourcesMenu.hidden) return;
+    const rows = sourceRowsShown;
+    const groups = [
+      ['down', 'NOT ANSWERING'],
+      ['ok', 'LIVE'],
+      ['off', 'NOT SET UP'],
+    ];
+    const nodes = [];
+    for (const [state, heading] of groups) {
+      const members = rows.filter((row) => row.state === state);
+      if (!members.length) continue;
+      nodes.push(
+        el(document, 'div', {
+          class: 'coranto-sources-heading',
+          text: `${heading} · ${members.length}`,
+        }),
+      );
+      for (const row of members)
+        nodes.push(
+          el(
+            document,
+            'div',
+            { class: 'coranto-source-row', 'data-state': row.state },
+            el(document, 'span', { class: 'coranto-source-dot' }),
+            el(document, 'span', {
+              class: 'coranto-source-name',
+              text: row.name,
+            }),
+            el(document, 'span', {
+              class: 'coranto-source-detail',
+              text: row.detail,
+            }),
+          ),
+        );
+    }
+    if (!nodes.length)
+      nodes.push(
+        el(document, 'p', {
+          class: 'coranto-power-none',
+          text: 'Still connecting to the sources…',
+        }),
+      );
+    sourcesMenu.replaceChildren(...nodes);
+  }
+  function setSourcesMenu(open) {
+    sourcesMenu.hidden = !open;
+    liveBtn.setAttribute('aria-expanded', String(open));
+    if (open) {
+      // Sit directly under the button, wherever the header has put it.
+      const box = liveBtn.getBoundingClientRect();
+      sourcesMenu.style.left = `${Math.max(8, Math.round(box.left))}px`;
+      sourcesMenu.style.top = `${Math.round(box.bottom + 6)}px`;
+      renderSourcesMenu();
+    }
+  }
   const liveDot = el(document, 'span', { class: 'coranto-live-dot' });
   const liveText = el(document, 'span', { text: 'CONNECTING' });
   liveBtn.append(liveDot, liveText);
@@ -300,6 +366,10 @@ export function createCorantoShell({
           { class: 'coranto-wordmark' },
           el(document, 'em', { text: 'CORANTO' }),
         ),
+        el(document, 'div', {
+          class: 'coranto-tagline',
+          text: 'WATCH THE WORLD BACK',
+        }),
       ),
     ),
     liveBtn,
@@ -744,6 +814,7 @@ export function createCorantoShell({
 
   body.append(
     header,
+    sourcesMenu,
     ticker,
     rail,
     feedAside,
@@ -1019,6 +1090,8 @@ export function createCorantoShell({
     }
     const state = model.healthState;
     liveBtn.dataset.state = state;
+    sourceRowsShown = model.sources;
+    renderSourcesMenu();
     const sources = model.sources.filter((source) => source.state !== 'off');
     const live = sources.filter((source) => source.state === 'ok').length;
     liveText.textContent = liveLabel(state, live, sources.length);
@@ -1186,6 +1259,7 @@ export function createCorantoShell({
       return;
     }
     if (event.key !== 'Escape') return;
+    setSourcesMenu(false);
     if (!guide.hidden) guide.hidden = true;
     if (!briefing.hidden) closeBriefing();
     tv.close();
@@ -1195,7 +1269,15 @@ export function createCorantoShell({
     feed?.showSources(true);
     feedBody.scrollTop = 0;
   };
-  liveBtn.addEventListener('click', showSources);
+  liveBtn.addEventListener('click', () => setSourcesMenu(sourcesMenu.hidden));
+  // A click anywhere else closes the list.
+  const onOutside = (event) => {
+    if (sourcesMenu.hidden) return;
+    if (liveBtn.contains(event.target) || sourcesMenu.contains(event.target))
+      return;
+    setSourcesMenu(false);
+  };
+  document.addEventListener('pointerdown', onOutside);
   sourcesBtn.addEventListener('click', showSources);
   homeBtn.addEventListener('click', wholeEarth);
 
@@ -1272,10 +1354,12 @@ export function createCorantoShell({
         clearTimeout(timer);
       }
       document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onOutside);
       unsubscribeHazards?.();
       feed?.destroy();
       for (const node of [
         header,
+        sourcesMenu,
         ticker,
         rail,
         feedAside,
