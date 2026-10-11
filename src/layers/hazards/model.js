@@ -20,9 +20,9 @@ export const hazardColor = (item) => HAZARD_COLORS[item.alert ?? 'none'];
 
 /** Marker diameter in pixels by alert level. */
 export function hazardMarkerSize(item) {
-  if (item.alert === 'Red') return 15;
-  if (item.alert === 'Orange') return 12;
-  return 8;
+  if (item.alert === 'Red') return 34;
+  if (item.alert === 'Orange') return 28;
+  return 22;
 }
 
 /** Short upper-case kind for labels and cards. */

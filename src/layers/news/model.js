@@ -48,10 +48,32 @@ export function groupNewsByPlace(articles) {
 
 /** Marker diameter in pixels: four steps by story count. */
 export function newsMarkerSize(count) {
-  if (count >= 10) return 20;
-  if (count >= 5) return 16;
-  if (count >= 2) return 12;
-  return 9;
+  if (count >= 10) return 40;
+  if (count >= 5) return 34;
+  if (count >= 2) return 29;
+  return 24;
+}
+
+/**
+ * The topic a place's marker shows: the one most of its stories carry. A tie
+ * goes to the topic of the newest story. Stories with no topic count as
+ * general news.
+ */
+export function dominantTopic(articles) {
+  const counts = new Map();
+  let best = 'news';
+  let bestCount = 0;
+  // Articles arrive newest first, so the first to reach a count wins a tie.
+  for (const article of articles ?? []) {
+    const topic = article?.category || 'news';
+    const count = (counts.get(topic) ?? 0) + 1;
+    counts.set(topic, count);
+    if (count > bestCount) {
+      best = topic;
+      bestCount = count;
+    }
+  }
+  return best;
 }
 
 /** The label drawn beside a place marker. */

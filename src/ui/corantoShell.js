@@ -4,6 +4,7 @@ import { getContextStore } from '../data/contextStore.js';
 import { createBroadcastsDialog } from './corantoBroadcasts.js';
 import { contactCard } from './corantoContact.js';
 import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
+import { createMapKey } from './corantoMapKey.js';
 import { createMarketsLens } from './corantoMarkets.js';
 import { createPowerLens } from './corantoPower.js';
 import {
@@ -19,12 +20,15 @@ const MODE_KEY = 'coranto.mode.v1';
 const WELCOME_KEY = 'coranto.welcomed.v1';
 const FIRST_RUN_SESSION_KEY = 'gev:first-run-mission-session:v1';
 
+/** Header layers whose symbols the map key explains itself. */
+const KEYED_LAYERS = new Set(['hazards', 'local-firms']);
+
 /** Live layers offered in the header. Ids are catalog layer ids. */
 const HEADER_LAYERS = [
   ['hazards', 'HAZARDS', 'Cyclones, floods, volcanoes and more (GDACS, NASA)'],
   ['flights', 'FLIGHTS', 'Live civil aircraft'],
   ['military', 'MILITARY', 'Military aircraft broadcasting their position'],
-  ['ais-live-vessels', 'SHIPS', 'Live vessels from AIS (needs a key)'],
+  ['ais-live-vessels', 'SHIPS', 'Live vessels broadcasting over AIS'],
   ['satellites', 'SATELLITES', 'Satellites from public orbital elements'],
   ['earthquakes', 'QUAKES', 'USGS earthquakes, last 24 hours'],
   [
@@ -523,6 +527,45 @@ export function createCorantoShell({
     text: 'SHARE VIEW',
     title: 'Copy a link that reopens this lens, search and place',
   });
+  const keyBtn = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-rail-btn',
+    text: 'MAP KEY',
+    title: 'Show or hide what each marker on the globe means',
+    'aria-expanded': 'false',
+    'aria-controls': 'coranto-key',
+  });
+  const mapKey = createMapKey({
+    document,
+    onClose: () => setMapKey(false),
+  });
+  function renderMapKey() {
+    if (mapKey.element.hidden || !dataManager) return;
+    const on = (id) =>
+      Boolean(dataManager.layers?.has(id) && dataManager.isEnabled(id));
+    const view = layer.getView();
+    mapKey.render({
+      news: on('news'),
+      goodNewsOnly: Boolean(view.goodNewsOnly),
+      hazardKinds: on('hazards')
+        ? (hazardsLayer?.getView?.()?.snapshot?.events ?? []).map(
+            (event) => event.kind,
+          )
+        : [],
+      elections: on('elections'),
+      fires: on('local-firms'),
+      governmentAircraft: lens === 'power',
+      otherLayers: HEADER_LAYERS.filter(
+        ([id]) => !KEYED_LAYERS.has(id) && on(id),
+      ).map(([, label]) => label),
+    });
+  }
+  function setMapKey(open) {
+    mapKey.element.hidden = !open;
+    keyBtn.setAttribute('aria-expanded', String(open));
+    renderMapKey();
+  }
+  keyBtn.addEventListener('click', () => setMapKey(mapKey.element.hidden));
   const briefingBtn = el(document, 'button', {
     type: 'button',
     class: 'coranto-rail-btn coranto-rail-briefing',
@@ -564,6 +607,7 @@ export function createCorantoShell({
       homeBtn,
       tvBtn,
       shareBtn,
+      keyBtn,
       briefingBtn,
     ),
     lensSwitch,
@@ -819,6 +863,7 @@ export function createCorantoShell({
   body.append(
     header,
     sourcesMenu,
+    mapKey.element,
     ticker,
     rail,
     feedAside,
@@ -1042,6 +1087,7 @@ export function createCorantoShell({
       if (known)
         button.setAttribute('aria-pressed', String(dataManager.isEnabled(id)));
     }
+    renderMapKey();
   }
 
   function tick() {
@@ -1368,6 +1414,7 @@ export function createCorantoShell({
       for (const node of [
         header,
         sourcesMenu,
+        mapKey.element,
         ticker,
         rail,
         feedAside,

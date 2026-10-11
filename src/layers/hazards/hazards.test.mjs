@@ -17,7 +17,14 @@ import { hazardColor, hazardHasLabel, hazardStats } from './model.js';
 import { createHazardSource } from './source.js';
 
 const NOW = Date.parse('2026-10-10T12:00:00Z');
-const gdacsItem = ({ type = 'TC', id = '1001', level = 'Orange', lat = '18.2', lon = '-66.1', from = 'Tue, 06 Oct 2026 00:00:00 GMT' } = {}) => `<item>
+const gdacsItem = ({
+  type = 'TC',
+  id = '1001',
+  level = 'Orange',
+  lat = '18.2',
+  lon = '-66.1',
+  from = 'Tue, 06 Oct 2026 00:00:00 GMT',
+} = {}) => `<item>
   <title>${level} notification for tropical cyclone ISAIAS-26</title>
   <link>https://www.gdacs.org/report.aspx?eventid=${id}</link>
   <gdacs:eventtype>${type}</gdacs:eventtype><gdacs:eventid>${id}</gdacs:eventid>
@@ -30,16 +37,34 @@ const eonet = {
       id: 'EONET_1',
       title: 'Taal Volcano, Philippines',
       categories: [{ id: 'volcanoes' }],
-      sources: [{ id: 'SIVolcano', url: 'https://volcano.si.edu/volcano.cfm?vn=273070' }],
-      geometry: [{ date: '2026-10-08T00:00:00Z', type: 'Point', coordinates: [120.993, 14.002] }],
+      sources: [
+        {
+          id: 'SIVolcano',
+          url: 'https://volcano.si.edu/volcano.cfm?vn=273070',
+        },
+      ],
+      geometry: [
+        {
+          date: '2026-10-08T00:00:00Z',
+          type: 'Point',
+          coordinates: [120.993, 14.002],
+        },
+      ],
     },
-    { id: 'EONET_2', title: 'No geometry', categories: [{ id: 'floods' }], geometry: [] },
+    {
+      id: 'EONET_2',
+      title: 'No geometry',
+      categories: [{ id: 'floods' }],
+      geometry: [],
+    },
     {
       id: 'EONET_3',
       title: 'Polygon storm',
       categories: [{ id: 'severeStorms' }],
       sources: [{ url: 'https://example.org' }],
-      geometry: [{ date: '2026-10-08T00:00:00Z', type: 'Polygon', coordinates: [] }],
+      geometry: [
+        { date: '2026-10-08T00:00:00Z', type: 'Polygon', coordinates: [] },
+      ],
     },
   ],
 };
@@ -85,14 +110,24 @@ test('merging orders by alert level, drops old events and caps wildfires', () =>
     gdacs(
       gdacsItem({ id: '1', level: 'Green' }),
       gdacsItem({ id: '2', level: 'Red' }),
-      gdacsItem({ id: '3', level: 'Orange', from: 'Mon, 01 Jun 2026 00:00:00 GMT' }),
+      gdacsItem({
+        id: '3',
+        level: 'Orange',
+        from: 'Mon, 01 Jun 2026 00:00:00 GMT',
+      }),
       ...fires,
     ),
   );
   const merged = mergeHazards([list, parseEonet(eonet)], NOW);
   assert.equal(merged.events[0].alert, 'Red');
-  assert.equal(merged.events.some((e) => e.id === 'gdacs:TC:3'), false);
-  assert.equal(merged.events.filter((e) => e.kind === 'wildfire').length, HAZARD_WILDFIRE_CAP);
+  assert.equal(
+    merged.events.some((e) => e.id === 'gdacs:TC:3'),
+    false,
+  );
+  assert.equal(
+    merged.events.filter((e) => e.kind === 'wildfire').length,
+    HAZARD_WILDFIRE_CAP,
+  );
   assert.equal(merged.wildfiresLeftOut, 5);
 });
 
@@ -104,13 +139,20 @@ test('red is used only for a Red alert; only Orange and Red are labelled', () =>
   assert.equal(hazardColor(red), '#ff4d5e');
   for (const item of [orange, green, untracked])
     assert.notEqual(hazardColor(item), '#ff4d5e');
-  assert.deepEqual([red, orange, green, untracked].map(hazardHasLabel), [true, true, false, false]);
+  assert.deepEqual([red, orange, green, untracked].map(hazardHasLabel), [
+    true,
+    true,
+    false,
+    false,
+  ]);
 });
 
 const routes = (map) => async (url) => {
   const value = map[new URL(url).hostname];
   if (!value) return new Response('', { status: 500 });
-  return new Response(typeof value === 'string' ? value : JSON.stringify(value));
+  return new Response(
+    typeof value === 'string' ? value : JSON.stringify(value),
+  );
 };
 
 test('one tracker down is reported; both down with nothing cached is an error', async () => {
@@ -135,20 +177,31 @@ test('one tracker down is reported; both down with nothing cached is an error', 
 test('the browser source validates the payload and maps stats to feed states', async () => {
   const payload = await createHazardService({
     now: () => NOW,
-    fetchImpl: routes({ 'www.gdacs.org': gdacs(gdacsItem()), 'eonet.gsfc.nasa.gov': eonet }),
+    fetchImpl: routes({
+      'www.gdacs.org': gdacs(gdacsItem()),
+      'eonet.gsfc.nasa.gov': eonet,
+    }),
   }).getPayload();
   const snapshot = await createHazardSource({
-    fetchImpl: async () => Response.json({ ...payload, events: [...payload.events, { id: 'bad' }] }),
+    fetchImpl: async () =>
+      Response.json({ ...payload, events: [...payload.events, { id: 'bad' }] }),
   }).getSnapshot();
   assert.equal(snapshot.events.length, 2);
   assert.equal(layerFeedState(hazardStats({ snapshot })), 'nominal');
-  assert.equal(layerFeedState(hazardStats({ snapshot: null, error: 'down' })), 'unavailable');
+  assert.equal(
+    layerFeedState(hazardStats({ snapshot: null, error: 'down' })),
+    'unavailable',
+  );
   await assert.rejects(
-    createHazardSource({ fetchImpl: async () => Response.json({}, { status: 503 }) }).getSnapshot(),
+    createHazardSource({
+      fetchImpl: async () => Response.json({}, { status: 503 }),
+    }).getSnapshot(),
     (error) => error.unavailable === true,
   );
   await assert.rejects(
-    createHazardSource({ fetchImpl: async () => Response.json({ nope: 1 }) }).getSnapshot(),
+    createHazardSource({
+      fetchImpl: async () => Response.json({ nope: 1 }),
+    }).getSnapshot(),
     /Malformed/,
   );
 });
@@ -163,7 +216,16 @@ test('searching the feed keeps stories that contain every word', () => {
     sourceId: 'x',
     publishedAt: '2026-10-10T11:00:00.000Z',
     fetchedAt: '2026-10-10T11:58:00.000Z',
-    place: place ? { name: place, lat: 1, lon: 1, precision: 'city', matched: place, field: 'title' } : null,
+    place: place
+      ? {
+          name: place,
+          lat: 1,
+          lon: 1,
+          precision: 'city',
+          matched: place,
+          field: 'title',
+        }
+      : null,
     category: null,
     progress: null,
   });
@@ -181,7 +243,8 @@ test('searching the feed keeps stories that contain every word', () => {
       ],
     },
   };
-  const ids = (query) => buildNewsPanelModel(view, { query }, NOW).cards.map((c) => c.id);
+  const ids = (query) =>
+    buildNewsPanelModel(view, { query }, NOW).cards.map((c) => c.id);
   assert.deepEqual(ids('grain'), ['a', 'b']);
   assert.deepEqual(ids('GRAIN  strike'), ['a']);
   assert.deepEqual(ids('lagos'), ['c']);

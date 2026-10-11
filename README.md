@@ -27,6 +27,11 @@
 <p align="center"><em>569 current stories from 25 live sources, pinned to the places they name, with an erupting volcano selected from the hazards layer. Every card is the publisher's own headline and opens the original.</em></p>
 
 <p align="center">
+  <img src="docs/media/coranto/map-key.png" alt="The globe with topic and hazard icons and the map key open" width="100%"/>
+</p>
+<p align="center"><em>Every marker is an icon: the topic most stories at a place share, or the kind of hazard. MAP KEY explains whatever is on the globe right now.</em></p>
+
+<p align="center">
 <a href="#what-this-is">What this is</a> ·
 <a href="#why-it-exists">Why it exists</a> ·
 <a href="#the-honesty-rules">The honesty rules</a> ·

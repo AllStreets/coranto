@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium';
+import { TOPIC_COLOURS, markerImage } from '../../data/corantoIcons.js';
 import {
   NEWS_ACCENT,
   NEWS_FOCUS_HEIGHT_M,
@@ -7,6 +8,7 @@ import {
   NEWS_OVERLAY_COLLISION_CAPACITY,
   NEWS_OVERLAY_SOURCE_ID,
   createNewsOverlayEntry,
+  dominantTopic,
   groupNewsByPlace,
   newsMarkerSize,
   newsStats,
@@ -17,8 +19,9 @@ export { createNewsSource, NewsFeedUnavailableError } from './source.js';
 const ENTITY_PREFIX = 'news:';
 
 /**
- * Headlines on the globe: one marker per place that current stories name.
- * City matches are solid; country and region matches are hollow rings, so an
+ * Headlines on the globe: one marker per place that current stories name,
+ * showing the icon and colour of the topic most of its stories carry. City
+ * matches have a solid ring; country and region matches a dashed one, so an
  * approximate placement is visible as approximate.
  */
 export function createNewsLayer({
@@ -46,9 +49,6 @@ export function createNewsLayer({
   let _language = 'en';
   const _listeners = new Set();
 
-  const newsColor = Cesium.Color.fromCssColorString(NEWS_ACCENT);
-  const goodColor = Cesium.Color.fromCssColorString(NEWS_GOOD_ACCENT);
-
   function regroup() {
     const articles = (_snapshot?.articles ?? []).filter(
       (a) => !_language || (a.lang ?? 'en') === _language,
@@ -73,22 +73,26 @@ export function createNewsLayer({
   function render() {
     if (!_dataSource) return;
     _dataSource.entities.removeAll();
-    const accent = _goodNewsOnly ? goodColor : newsColor;
     const accentCss = _goodNewsOnly ? NEWS_GOOD_ACCENT : NEWS_ACCENT;
     const entries = [];
     for (const group of _groups) {
       const position = Cesium.Cartesian3.fromDegrees(group.lon, group.lat);
       const selected = group.key === _selectedKey;
       const exact = group.precision === 'city';
-      const size = newsMarkerSize(group.articles.length) + (selected ? 4 : 0);
+      const size = newsMarkerSize(group.articles.length) + (selected ? 6 : 0);
+      const topic = _goodNewsOnly ? 'good' : dominantTopic(group.articles);
       _dataSource.entities.add({
         id: ENTITY_PREFIX + group.key,
         position,
-        point: {
-          pixelSize: size,
-          color: exact ? accent.withAlpha(0.95) : accent.withAlpha(0.12),
-          outlineColor: selected ? Cesium.Color.WHITE : accent,
-          outlineWidth: exact ? (selected ? 2 : 1) : 2,
+        billboard: {
+          image: markerImage({
+            icon: topic,
+            colour: TOPIC_COLOURS[topic] ?? TOPIC_COLOURS.news,
+            approximate: !exact,
+            selected,
+          }),
+          width: size,
+          height: size,
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           disableDepthTestDistance: 50_000,
         },
@@ -98,7 +102,9 @@ export function createNewsLayer({
           group,
           position,
           selected,
-          accent: accentCss,
+          accent: _goodNewsOnly
+            ? accentCss
+            : (TOPIC_COLOURS[dominantTopic(group.articles)] ?? accentCss),
         }),
       );
     }

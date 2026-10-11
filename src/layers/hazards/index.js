@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium';
+import { hazardIcon, markerImage } from '../../data/corantoIcons.js';
 import {
   HAZARD_OVERLAY_COHORT_LIMIT,
   HAZARD_OVERLAY_SOURCE_ID,
@@ -55,17 +56,18 @@ export function createHazardsLayer({
     for (const item of _snapshot?.events ?? []) {
       const position = Cesium.Cartesian3.fromDegrees(item.lon, item.lat);
       const selected = item.id === _selectedId;
-      const color = Cesium.Color.fromCssColorString(hazardColor(item));
+      const size = hazardMarkerSize(item) + (selected ? 6 : 0);
       _dataSource.entities.add({
         id: ENTITY_PREFIX + item.id,
         position,
-        point: {
-          pixelSize: hazardMarkerSize(item) + (selected ? 4 : 0),
-          color: color.withAlpha(0.9),
-          outlineColor: selected
-            ? Cesium.Color.WHITE
-            : Cesium.Color.BLACK.withAlpha(0.7),
-          outlineWidth: selected ? 2 : 1,
+        billboard: {
+          image: markerImage({
+            icon: hazardIcon(item.kind),
+            colour: hazardColor(item),
+            selected,
+          }),
+          width: size,
+          height: size,
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           disableDepthTestDistance: 50_000,
         },

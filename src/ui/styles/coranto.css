@@ -2348,3 +2348,100 @@ body[data-coranto-mode='instruments'][data-coranto-frame='one']
 .coranto-power-gov .coranto-power-callsign {
   color: #e8d5a3;
 }
+
+/* Map key: a small panel over the globe's lower-left corner */
+#coranto-key {
+  position: fixed;
+  left: calc(var(--coranto-rail-w) + 14px);
+  bottom: 38px;
+  z-index: 310;
+  box-sizing: border-box;
+  width: min(270px, calc(100vw - 28px));
+  max-height: calc(100vh - 200px);
+  max-height: calc(100dvh - 200px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 8px;
+  background: rgba(9, 8, 15, 0.95);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55);
+}
+#coranto-key[hidden] {
+  display: none;
+}
+body[data-coranto-mode='instruments'] #coranto-key {
+  display: none;
+}
+@media (max-width: 1100px) {
+  #coranto-key {
+    left: 14px;
+    z-index: 390;
+  }
+}
+.coranto-key-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 8px 8px 12px;
+  border-bottom: 1px solid var(--coranto-line);
+  color: var(--accent);
+  font: 700 9.5px var(--font-brand);
+  letter-spacing: 2.2px;
+}
+.coranto-key-close {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--coranto-line);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+}
+.coranto-key-close:hover,
+.coranto-key-close:focus-visible {
+  border-color: var(--accent);
+}
+.coranto-key-close img {
+  width: 13px;
+  height: 13px;
+}
+.coranto-key-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 12px 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180, 124, 255, 0.75) rgba(255, 255, 255, 0.05);
+}
+.coranto-key-heading {
+  margin: 12px 0 5px;
+  color: var(--text-dim);
+  font: 600 8.5px var(--font-mono);
+  letter-spacing: 1.7px;
+}
+.coranto-key-row {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  padding: 3px 0;
+  color: var(--text-secondary);
+  font: 11.5px/1.35 var(--font-sans);
+}
+.coranto-key-row img {
+  width: 24px;
+  height: 24px;
+}
+.coranto-key-swatch {
+  justify-self: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.coranto-key-square {
+  border-radius: 2px;
+}

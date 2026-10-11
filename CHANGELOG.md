@@ -17,6 +17,14 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: the globe uses icons, not dots. A story marker shows the icon and
+  colour of the topic most stories at that place carry; hazards show a
+  cyclone, earthquake, flood, fire, volcano, drought or ice icon in their
+  alert colour. A dashed ring still marks a country or region placement.
+  The topic, hazard and aircraft glyphs are AUSPEX's own set.
+- Coranto: MAP KEY in the left rail opens a key built from what is switched
+  on: story topics, how a story is placed, the hazard kinds in the current
+  feed and their alert colours, and any other layer on the map.
 - Coranto: Watch Power lists government aircraft: head-of-state, government
   and international-body aircraft that are broadcasting a position now, each
   with operator, type, registration and a link to its live track, and a plane

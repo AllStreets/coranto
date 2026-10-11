@@ -8,6 +8,7 @@ import { buildNewsPanelModel, placeLine } from '../../ui/newsPanelModel.js';
 import { newsProxy } from '../../../server/providers/news.js';
 import {
   groupNewsByPlace,
+  dominantTopic,
   newsMarkerSize,
   newsPlaceLabel,
   newsStats,
@@ -144,7 +145,17 @@ test('stories at one place share one marker at the exact table coordinate', () =
   );
   assert.equal(newsPlaceLabel(groups[0]), 'Doha · 2');
   assert.equal(newsPlaceLabel(groups[1]), 'France');
-  assert.deepEqual([1, 2, 5, 10].map(newsMarkerSize), [9, 12, 16, 20]);
+  assert.deepEqual([1, 2, 5, 10].map(newsMarkerSize), [24, 29, 34, 40]);
+  // The marker shows the topic most stories at the place carry; a tie goes
+  // to the newest story, and a story with no topic counts as general news.
+  const topics = (...list) => list.map((category) => ({ category }));
+  assert.equal(
+    dominantTopic(topics('military', 'finance', 'finance')),
+    'finance',
+  );
+  assert.equal(dominantTopic(topics('military', 'finance')), 'military');
+  assert.equal(dominantTopic(topics(null, undefined, 'climate')), 'news');
+  assert.equal(dominantTopic([]), 'news');
 });
 
 test('layer stats map onto the standard feed states', () => {

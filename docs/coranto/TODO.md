@@ -20,8 +20,7 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 
 ## Quick fixes
 
-- [x] **T1 Rail button gap.** SHARE VIEW spans the row. Becomes a MAP KEY
-  button when T4 lands.
+- [x] **T1 Rail button gap.** Filled by the MAP KEY button.
 - [x] **T3 Briefing rows use their topic colour** and show the topic code.
 - [x] **T19 Fires.** Works without a key from NASA's public 24-hour files;
   heat cells are now visible at whole-Earth zoom.
@@ -40,15 +39,17 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 
 ## Globe and map language
 
-- [ ] **T16 Map icon overhaul.** Replace dots with AUSPEX's icon vocabulary:
-  category icons for stories, event icons for hazards, city-type icons,
-  country status marks.
+- [~] **T16 Map icon overhaul.** Done: topic icons for stories, event icons
+  for hazards, a shared icon module (`src/data/corantoIcons.js`). Open:
+  city-type icons, country status marks, elections, quakes, launches.
 - [ ] **T18 Ship icons.** Top-down hulls by class (cargo/container, military,
   passenger/cruise), rotated to heading.
 - [ ] **T22 Satellite icons**, unless they cost too much to draw.
 - [ ] **T17 Stories located on the globe** and clickable, alongside the
   instruments tools.
-- [ ] **T4 Map key** generated from what is actually drawn.
+- [~] **T4 Map key** generated from what is actually drawn. Done for
+  stories, hazards, elections, fires and government aircraft. Open: the
+  engine's own layers (flights, ships, satellites, quakes, launches).
 
 ## In-app, not out of app
 
