@@ -33,10 +33,148 @@ export function createNewsFeed({
   layer,
   onModel = () => {},
   now = () => Date.now(),
+  fetchImpl = (...args) => globalThis.fetch(...args),
 }) {
   if (!document?.createElement || !body) return null;
 
-  const filters = { category: null, publisher: null, query: '' };
+  const filters = {
+    category: null,
+    publisher: null,
+    query: '',
+    grouped: true,
+  };
+  const openStories = new Set();
+  /** storyId -> { status: 'loading'|'done'|'off'|'error', data? } */
+  const briefs = new Map();
+
+  async function requestBrief(storyId) {
+    briefs.set(storyId, { status: 'loading' });
+    render();
+    try {
+      const response = await fetchImpl('/api/news/brief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storyId }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data) briefs.set(storyId, { status: 'error' });
+      else if (data.available === false) briefs.set(storyId, { status: 'off' });
+      else briefs.set(storyId, { status: 'done', data });
+    } catch {
+      briefs.set(storyId, { status: 'error' });
+    }
+    render();
+  }
+
+  function renderBrief(storyId) {
+    const state = briefs.get(storyId);
+    const box = el(document, 'div', 'news-brief');
+    box.dataset.status = state.status;
+    box.append(
+      el(
+        document,
+        'div',
+        'news-brief-label',
+        'AI-WRITTEN · CHECKED AGAINST THE SOURCES',
+      ),
+    );
+    if (state.status === 'loading') {
+      box.append(
+        el(document, 'p', 'news-brief-note', 'Reading the outlets’ headlines…'),
+      );
+      return box;
+    }
+    if (state.status === 'off') {
+      box.append(
+        el(
+          document,
+          'p',
+          'news-brief-note',
+          'AI briefs need an OpenAI key in .env. They are optional.',
+        ),
+      );
+      return box;
+    }
+    if (state.status === 'error') {
+      box.append(
+        el(
+          document,
+          'p',
+          'news-brief-note',
+          'The brief could not be written. Nothing is shown.',
+        ),
+      );
+      return box;
+    }
+    const { data } = state;
+    const sourceByNumber = new Map(
+      data.sources.map((source) => [source.n, source]),
+    );
+    const cite = (n) => {
+      const source = sourceByNumber.get(n);
+      const link = el(document, 'a', 'news-brief-cite', String(n));
+      link.href = source.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.title = `${source.publisher}: ${source.title}`;
+      return link;
+    };
+    if (!data.supported) {
+      box.append(
+        el(
+          document,
+          'p',
+          'news-brief-note',
+          'Nothing the model wrote could be matched to the sources, so nothing is shown.',
+        ),
+      );
+    }
+    if (data.sentences.length) {
+      const text = el(document, 'p', 'news-brief-text');
+      for (const sentence of data.sentences) {
+        text.append(`${sentence.text} `);
+        for (const n of sentence.cites) text.append(cite(n));
+        text.append(' ');
+      }
+      box.append(text);
+    }
+    if (data.claims.length) {
+      const claims = el(document, 'ul', 'news-brief-claims');
+      for (const claim of data.claims) {
+        const row = el(document, 'li', 'news-brief-claim');
+        row.dataset.outlets = claim.outlets > 1 ? 'several' : 'one';
+        const tag = el(
+          document,
+          'span',
+          'news-brief-count',
+          claim.outlets > 1 ? `${claim.outlets} OUTLETS` : '1 OUTLET',
+        );
+        const body = el(
+          document,
+          'span',
+          'news-brief-claim-text',
+          `${claim.text} `,
+        );
+        for (const n of claim.cites) body.append(cite(n));
+        row.append(tag, body);
+        claims.append(row);
+      }
+      box.append(claims);
+    }
+    const removed =
+      data.removed > 0
+        ? `${data.removed} ${data.removed === 1 ? 'statement' : 'statements'} removed: not supported by the cited sources. `
+        : '';
+    box.append(
+      el(
+        document,
+        'p',
+        'news-brief-foot',
+        `${removed}Written by ${data.model} from ${data.sources.length} headlines. Numbers link to the articles.`,
+      ),
+    );
+    return box;
+  }
   let sourcesOpen = false;
   let droppedOpen = false;
 
@@ -154,6 +292,68 @@ export function createNewsFeed({
     if (card.summary)
       item.append(el(document, 'p', 'news-card-summary', card.summary));
 
+    if (card.outletsText) {
+      const open = openStories.has(card.storyId);
+      const more = el(
+        document,
+        'button',
+        'news-card-outlets',
+        `${card.outletsText} · ${card.others.length + 1} headlines`,
+      );
+      more.type = 'button';
+      more.title =
+        'Grouped automatically by shared headline words. Show every headline.';
+      more.setAttribute('aria-expanded', String(open));
+      more.addEventListener('click', () => {
+        if (open) openStories.delete(card.storyId);
+        else openStories.add(card.storyId);
+        render();
+      });
+      const actions = el(document, 'div', 'news-card-actions');
+      actions.append(more);
+      if (card.outlets > 1) {
+        const briefButton = el(
+          document,
+          'button',
+          'news-card-brief',
+          briefs.has(card.storyId) ? 'HIDE BRIEF' : 'AI BRIEF',
+        );
+        briefButton.type = 'button';
+        briefButton.title =
+          'An AI summary of these outlets’ headlines. Every sentence cites its sources and unsupported sentences are removed.';
+        briefButton.addEventListener('click', () => {
+          if (briefs.has(card.storyId)) {
+            briefs.delete(card.storyId);
+            render();
+          } else requestBrief(card.storyId);
+        });
+        actions.append(briefButton);
+      }
+      item.append(actions);
+      if (briefs.has(card.storyId)) item.append(renderBrief(card.storyId));
+      if (open) {
+        const others = el(document, 'ul', 'news-card-others');
+        for (const other of card.others) {
+          const row = el(document, 'li', 'news-card-other');
+          const otherLink = el(document, 'a', '', other.title);
+          otherLink.href = other.url;
+          otherLink.target = '_blank';
+          otherLink.rel = 'noopener noreferrer';
+          row.append(
+            el(
+              document,
+              'span',
+              'news-card-other-meta',
+              `${other.publisher} · ${other.published}`,
+            ),
+            otherLink,
+          );
+          others.append(row);
+        }
+        item.append(others);
+      }
+    }
+
     const foot = el(document, 'div', 'news-card-foot');
     const place = el(
       document,
@@ -239,6 +439,11 @@ export function createNewsFeed({
 
   return {
     render,
+    /** Group headlines into stories, or list every headline. */
+    setGrouped(grouped) {
+      filters.grouped = Boolean(grouped);
+      render();
+    },
     /** Narrow to one automatic tag, or null for every story. */
     setCategory(category) {
       filters.category = category || null;

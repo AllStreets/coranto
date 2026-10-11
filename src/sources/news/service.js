@@ -1,4 +1,5 @@
 import { readResponseTextCapped } from '../httpBody.js';
+import { clusterArticles } from './cluster.js';
 import { parseFeed, parseGdelt, parseNewsApi } from './feeds.js';
 import {
   NEWS_DROP_REASONS,
@@ -199,6 +200,7 @@ export function createNewsService({
       fetchedAt: new Date(fetchedAt).toISOString(),
       stale,
       articles,
+      stories: clusterArticles(articles),
       sources: report,
       dropped,
     };

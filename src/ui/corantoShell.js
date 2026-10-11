@@ -324,6 +324,25 @@ export function createCorantoShell({
 
   // ── Feed ────────────────────────────────────────────────────────
   const feedCount = el(document, 'span', { class: 'coranto-feed-count' });
+  const groupStories = el(document, 'button', {
+    type: 'button',
+    text: 'STORIES',
+    title: 'One card per story, with every outlet that carried it',
+    'aria-pressed': 'true',
+  });
+  const groupAll = el(document, 'button', {
+    type: 'button',
+    text: 'EVERY HEADLINE',
+    title: 'Every headline on its own, ungrouped',
+    'aria-pressed': 'false',
+  });
+  const groupSwitch = el(
+    document,
+    'div',
+    { class: 'coranto-group-switch', role: 'group', 'aria-label': 'Grouping' },
+    groupStories,
+    groupAll,
+  );
   const feedBody = el(document, 'div', { id: 'coranto-feed-body' });
   const feedAside = el(
     document,
@@ -334,6 +353,7 @@ export function createCorantoShell({
       'div',
       { class: 'coranto-feed-head' },
       el(document, 'span', { class: 'coranto-feed-title', text: 'THE FEED' }),
+      groupSwitch,
       feedCount,
     ),
     feedBody,
@@ -486,9 +506,13 @@ export function createCorantoShell({
     const live = sources.filter((source) => source.state === 'ok').length;
     liveText.textContent = liveLabel(state, live, sources.length);
     count.textContent = model.total ? `${model.total} STORIES` : '';
-    feedCount.textContent = model.total
-      ? `${model.shown} OF ${model.total}`
-      : '';
+    feedCount.textContent = !model.total
+      ? ''
+      : model.grouped
+        ? `${model.shown} STORIES · ${model.headlines} HEADLINES`
+        : `${model.shown} OF ${model.total}`;
+    groupStories.setAttribute('aria-pressed', String(model.grouped));
+    groupAll.setAttribute('aria-pressed', String(!model.grouped));
 
     const byCategory = new Map(
       model.categories.map((row) => [row.value, row.count]),
@@ -534,6 +558,8 @@ export function createCorantoShell({
     }
   }
 
+  groupStories.addEventListener('click', () => feed?.setGrouped(true));
+  groupAll.addEventListener('click', () => feed?.setGrouped(false));
   modeNews.addEventListener('click', () => setMode('news'));
   modeTools.addEventListener('click', () => setMode('instruments'));
   guideBtn.addEventListener('click', () => {

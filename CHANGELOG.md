@@ -1,5 +1,12 @@
 # Changelog
 
+- Coranto: the feed groups headlines about the same event into one story and
+  counts the distinct outlets that carried it, with a switch back to every
+  headline. `POST /api/news/brief` asks a model to summarise a story from the
+  outlets' own headlines and summaries and returns only sentences that cite
+  their sources and whose figures and names appear in those sources; removed
+  statements are counted and shown.
+
 - Coranto: sixteen more news sources across Asia, Africa, the Americas,
   science and international bodies; a search box that narrows the feed to
   stories containing every word; a Natural Hazards layer from GDACS and NASA

@@ -7,7 +7,7 @@
 <img alt="news" src="https://img.shields.io/badge/news-real_headlines_·_real_links-34E08A?style=for-the-badge&labelColor=04070b"/>
 <img alt="sources" src="https://img.shields.io/badge/news_sources-28_named_·_health_shown-34E08A?style=for-the-badge&labelColor=04070b"/>
 <img alt="live layers" src="https://img.shields.io/badge/live_layers-32-34E08A?style=for-the-badge&labelColor=04070b"/>
-<img alt="AI text" src="https://img.shields.io/badge/AI--written_text-none-A3E635?style=for-the-badge&labelColor=04070b"/>
+<img alt="AI text" src="https://img.shields.io/badge/AI_text-optional_·_cited_·_checked_in_code-A3E635?style=for-the-badge&labelColor=04070b"/>
 <img alt="keys" src="https://img.shields.io/badge/API_keys-none_required-34E08A?style=for-the-badge&labelColor=04070b"/>
 <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-34E08A?style=for-the-badge&labelColor=04070b"/></a>
 <br/>
@@ -62,6 +62,8 @@ It is built from two projects:
 ```
   the instrument
   ├─ the feed ......... publisher headlines, newest first, each linked to its source
+  ├─ stories .......... the same event across outlets, with how many carried it
+  ├─ AI brief ......... optional; every sentence cites its sources or is removed
   ├─ search ........... keep only the stories that mention your words
   ├─ the globe ........ one marker per place the stories name; rings where approximate
   ├─ source health .... which feeds answered, which did not, and when
@@ -101,7 +103,7 @@ These are enforced in code and by tests that fail the build if they are broken.
 | **No seeded content** | The code contains no sample or fallback stories. When feeds are down the screen says so and shows nothing in their place. |
 | **No randomness in data** | A story sits on a real coordinate with its precision shown, or it is not placed. No position is ever nudged. |
 | **Inference is labelled** | A story's location and topic are worked out from its text. The card shows the exact words that were matched, and topics are marked as automatic tags. |
-| **No AI-written text** | Every word of news on screen is the publisher's own headline or summary. |
+| **AI text is optional, cited and checked** | The feed is the publishers' own words. If you ask for an AI brief, every sentence must cite the articles it rests on, and code removes any sentence whose figures or names are not in those articles. |
 
 <table>
 <tr>
@@ -113,6 +115,26 @@ These are enforced in code and by tests that fail the build if they are broken.
 <td><em>Good news narrows the feed to headlines tagged as progress. The tag is automatic and cautious; it says so on the card.</em></td>
 </tr>
 </table>
+
+### Stories and checked briefs
+
+<p align="center">
+  <img src="docs/media/coranto/story-brief.png" alt="One story from 13 outlets with a checked AI brief" width="100%"/>
+</p>
+
+<p align="center"><em>One story carried by 13 outlets, 25 headlines. The brief's numbered boxes link to the articles each sentence rests on, and each claim shows how many outlets reported it.</em></p>
+
+The feed groups headlines about the same event into one story and counts the
+distinct outlets that carried it. Grouping uses shared headline words only,
+and you can switch it off with **EVERY HEADLINE**.
+
+For a story with more than one outlet you can ask for an **AI BRIEF**. The
+model is given only those outlets' headlines and summaries. Before anything
+is shown, code checks each sentence: it must cite sources, and every figure
+and name in it must appear in the sources it cites. Sentences that fail are
+removed and counted. The check proves a sentence's figures and names come
+from the cited articles; it does not prove the outlets are right, which is
+why every sentence links to them.
 
 ---
 
@@ -128,6 +150,9 @@ Coranto has two views, switched at the top right.
 | See where stories are | Look at the gold markers. A solid dot is a city. A hollow ring is a country or region, so the position is approximate. |
 | See one place's stories | Click its marker. Clear the filter with the chip at the top of the feed. |
 | Check why a story is where it is | Read the line under the summary, for example `Kyiv · city · matched "Kyiv" in headline`. Click it to fly there. |
+| See who else reported a story | Click the `N outlets` chip on a card to list every outlet's own headline. |
+| Get a checked summary | Click **AI BRIEF** on a story with several outlets. Needs an OpenAI key. |
+| See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
 | Search | Type in the box above the feed. Stories must contain every word, in the headline, summary, publisher or place. |
 | Narrow by topic | Use the list on the left. |
 | See only good news | Click **GOOD NEWS**. |
@@ -187,7 +212,7 @@ the project folder (it is gitignored; see `.env.example`), or paste them into
 | `NEWS_API_KEY` | One more news source |
 | `FIRMS_MAP_KEY` | NASA active-fire detections |
 | `CESIUM_ION_TOKEN` or `GOOGLE_MAPS_API_KEY` | Photoreal 3D cities |
-| `OPENAI_API_KEY` | Voice control |
+| `OPENAI_API_KEY` | Checked AI briefs and voice control |
 
 ---
 
@@ -247,6 +272,7 @@ is documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 | Part | Where |
 |---|---|
 | Record rules, place matching, topic and good-news tags | `src/sources/news/` |
+| Story grouping and the brief checker | `src/sources/news/cluster.js`, `src/sources/news/brief.js` |
 | News route | `server/providers/news.js` |
 | News globe layer | `src/layers/news/` |
 | Hazard records, route and layer | `src/sources/hazards/`, `server/providers/hazards.js`, `src/layers/hazards/` |
@@ -268,7 +294,7 @@ npm run build
 | Stage | Status |
 |---|---|
 | **1. Foundation and truth feed** | Built: sourced feed from 28 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell |
-| **2. Verification** | Next: the same story across outlets, a count of independent sources, claim-by-claim checks, AI briefs where every sentence cites its source |
+| **2. Verification** | Partly built: stories grouped across outlets with outlet counts, and AI briefs checked sentence by sentence. Next: comparing coverage across regions, flagging differing figures, non-English sources |
 | **3. Lenses and your own feed** | Saved searches and a personal briefing built from them; Good News, Elections (from official sources) and Watch Power (government aircraft, plate-reader locations, public cameras); markets and live broadcasts from AUSPEX |
 | **4. Beauty pass** | Full visual identity and a guided first run |
 | **5. Public site** | A hosted version anyone can open |

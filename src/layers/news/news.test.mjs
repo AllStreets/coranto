@@ -315,6 +315,140 @@ test('the route refuses other methods and any query', async () => {
   assert.equal((await callRoute(plugin, { url: '/?url=https://evil.example' })).status, 400);
 });
 
+// ── The brief route ─────────────────────────────────────────────────
+
+const twoOutlets = (url) =>
+  url.includes('bbci')
+    ? new Response(
+        `<rss><channel><item><title>Twelve killed and 300 injured in attack on airport in Saudi capital Riyadh</title>
+         <link>https://example.org/bbc</link><pubDate>Sat, 10 Oct 2026 11:00:00 GMT</pubDate></item></channel></rss>`,
+      )
+    : url.includes('theguardian')
+      ? new Response(
+          `<rss><channel><item><title>Twelve killed and hundreds injured in attack at Riyadh airport</title>
+           <link>https://example.org/guardian</link><pubDate>Sat, 10 Oct 2026 11:05:00 GMT</pubDate></item></channel></rss>`,
+        )
+      : new Response('', { status: 500 });
+
+function briefPlugin(modelReply, options = {}) {
+  const calls = [];
+  const plugin = newsProxy({
+    cachePath: null,
+    now: () => NOW,
+    sleep: async () => {},
+    fetchImpl: async (url) => twoOutlets(url),
+    gateBrief: false,
+    briefKey: () => 'test-key',
+    briefFetch: async (url, init) => {
+      calls.push({ url, init });
+      return typeof modelReply === 'function'
+        ? modelReply()
+        : Response.json({ output_text: JSON.stringify(modelReply) });
+    },
+    ...options,
+  });
+  const routes = new Map();
+  plugin.configureServer({ middlewares: { use: (route, fn) => routes.set(route, fn) } });
+  const call = (route, { method = 'GET', body } = {}) =>
+    new Promise((resolve) => {
+      const res = {
+        writeHead(status) {
+          this.status = status;
+        },
+        end(text) {
+          resolve({ status: this.status, body: JSON.parse(text) });
+        },
+        setHeader() {},
+      };
+      const req = {
+        method,
+        url: '/',
+        headers: {},
+        on(event, listener) {
+          if (event === 'data' && body) listener(Buffer.from(JSON.stringify(body)));
+          if (event === 'end') listener();
+          return req;
+        },
+      };
+      routes.get(route)(req, res);
+    });
+  return { call, calls };
+}
+
+test('a brief returns only cited, supported sentences, with the outlet count', async () => {
+  const { call, calls } = briefPlugin({
+    sentences: [
+      { text: 'An attack on Riyadh airport killed twelve people.', cites: [1, 2] },
+      { text: 'The attackers were led by General Hassan.', cites: [1] },
+      { text: 'Oil prices rose 9% in response.', cites: [] },
+    ],
+    // Source 2 (BBC) gives the figure 300; source 1 says only "hundreds".
+    claims: [
+      { text: 'About 300 people were injured.', cites: [2] },
+      { text: 'About 300 people were injured.', cites: [1] },
+    ],
+  });
+  const news = await call('/api/news');
+  const story = news.body.stories.find((entry) => entry.outlets === 2);
+  assert.ok(story, 'the two outlets are grouped as one story');
+  const { status, body } = await call('/api/news/brief', {
+    method: 'POST',
+    body: { storyId: story.id },
+  });
+  assert.equal(status, 200);
+  assert.deepEqual(
+    body.sentences.map((s) => [s.text, s.cites, s.outlets]),
+    [['An attack on Riyadh airport killed twelve people.', [1, 2], 2]],
+  );
+  assert.deepEqual(
+    body.claims.map((c) => [c.cites, c.outlets]),
+    [[[2], 1]],
+  );
+  assert.equal(body.removed, 3);
+  assert.equal(body.sources.length, 2);
+  // The model is sent the outlets' words and nothing else; the key is a header.
+  const sent = JSON.parse(calls[0].init.body);
+  assert.match(sent.input, /^\[1\] /);
+  assert.doesNotMatch(sent.input, /https?:|test-key/);
+  assert.equal(calls[0].init.headers.Authorization, 'Bearer test-key');
+  // A second request for the same story is served from memory.
+  await call('/api/news/brief', { method: 'POST', body: { storyId: story.id } });
+  assert.equal(calls.length, 1);
+});
+
+test('a brief the checker rejects whole shows nothing', async () => {
+  const { call } = briefPlugin({
+    sentences: [{ text: 'The death toll reached 4,000 in Tehran.', cites: [1] }],
+  });
+  const news = await call('/api/news');
+  const story = news.body.stories.find((entry) => entry.outlets === 2);
+  const { body } = await call('/api/news/brief', { method: 'POST', body: { storyId: story.id } });
+  assert.equal(body.supported, false);
+  assert.deepEqual(body.sentences, []);
+  assert.deepEqual(body.claims, []);
+});
+
+test('brief failures say so and never relay provider text', async () => {
+  const failing = briefPlugin(() =>
+    Response.json({ error: { message: 'org-123 quota exceeded' } }, { status: 429 }),
+  );
+  const news = await failing.call('/api/news');
+  const story = news.body.stories[0];
+  const failed = await failing.call('/api/news/brief', { method: 'POST', body: { storyId: story.id } });
+  assert.equal(failed.status, 502);
+  assert.deepEqual(failed.body, { error: 'brief_failed' });
+
+  const keyless = briefPlugin({}, { briefKey: () => '' });
+  const off = await keyless.call('/api/news/brief', { method: 'POST', body: { storyId: 'x' } });
+  assert.deepEqual(off.body, { available: false, reason: 'not-configured' });
+  assert.equal(keyless.calls.length, 0);
+
+  const { call } = briefPlugin({});
+  assert.equal((await call('/api/news/brief')).status, 405);
+  assert.equal((await call('/api/news/brief', { method: 'POST', body: { storyId: 'nope' } })).status, 404);
+  assert.equal((await call('/api/news/brief', { method: 'POST', body: {} })).status, 400);
+});
+
 // ── Honesty gates: these fail the build if the rules are broken later ──
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));

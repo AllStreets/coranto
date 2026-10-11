@@ -150,7 +150,47 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
       ((text) => terms.every((term) => text.includes(term)))(
         haystack(article),
       ));
-  const cards = all.filter(matches).map((article) => card(article, now));
+  const matching = all.filter(matches);
+  const grouped = filters.grouped !== false;
+  let cards;
+  if (!grouped) cards = matching.map((article) => card(article, now));
+  else {
+    // One card per story: its newest matching headline leads, and the other
+    // outlets' own headlines are listed beneath it.
+    const byId = new Map(matching.map((article) => [article.id, article]));
+    const stories =
+      snapshot?.stories ??
+      matching.map((article) => ({
+        id: `s-${article.id}`,
+        articleIds: [article.id],
+      }));
+    cards = [];
+    for (const story of stories) {
+      const members = story.articleIds
+        .map((id) => byId.get(id))
+        .filter(Boolean)
+        .sort((x, y) => Date.parse(y.publishedAt) - Date.parse(x.publishedAt));
+      if (!members.length) continue;
+      const [lead, ...rest] = members;
+      const outlets = new Set(members.map((article) => article.publisher)).size;
+      cards.push({
+        ...card(lead, now),
+        storyId: story.id,
+        outlets,
+        outletsText:
+          outlets > 1 ? `${outlets} outlets` : rest.length ? '1 outlet' : '',
+        others: rest.map((article) => ({
+          id: article.id,
+          publisher: article.publisher,
+          title: article.title,
+          url: article.url,
+          published: relativeTime(Date.parse(article.publishedAt), now),
+        })),
+        newest: Date.parse(lead.publishedAt),
+      });
+    }
+    cards.sort((x, y) => y.newest - x.newest);
+  }
 
   const dropped = Object.entries(snapshot?.dropped ?? {})
     .filter(([reason, count]) => count > 0 && DROP_TEXT[reason])
@@ -212,6 +252,8 @@ export function buildNewsPanelModel(view, filters = {}, now = Date.now()) {
     categories: count('category'),
     publishers: count('publisher'),
     filters: { category, publisher, query: terms.join(' ') },
+    grouped,
+    headlines: matching.length,
     goodNewsOnly,
     goodNewsCount,
     cards,
