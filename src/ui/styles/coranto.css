@@ -787,6 +787,11 @@ body[data-coranto-mode='instruments'] #coranto-header {
 body[data-coranto-mode='instruments'] #coranto-header :is(button, a) {
   pointer-events: auto;
 }
+/* The control room renders the globe only when something changes. A looping
+   animation in the bar would keep the whole page compositing every frame. */
+body[data-coranto-mode='instruments'] .coranto-live-dot {
+  animation: none;
+}
 body[data-coranto-mode='instruments'] #top-center-actions {
   top: calc(var(--coranto-header-h) + 14px);
 }
