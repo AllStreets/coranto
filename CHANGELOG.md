@@ -17,6 +17,18 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: stories open in the app. Clicking a headline in the feed, a row
+  in My Briefing, or a place with a single story opens a panel over the
+  globe with the publisher's headline and summary, where it was placed, and
+  its tools: AI brief, who covered it, differing figures, fly to the place,
+  and listen (the device's own voice). The publisher's link stays inside.
+- Coranto: AUSPEX's atlas overlays, copied as they were. MAP OVERLAYS in the
+  rail switches on country borders (red for countries on AUSPEX's conflict
+  list, blue elsewhere) with seventeen front lines and disputed lines drawn
+  dashed; every country's name with its status marks; and a thousand cities
+  with an icon for what each is known as. Selecting a country or city opens
+  its card and narrows the feed to its stories. Status marks are icons, not
+  text glyphs. Borders are on by default.
 - Coranto: a week of stories, as AUSPEX kept. Headlines are held for 7 days
   instead of 48 hours, and each source's earlier reads are merged with its
   new ones, so a story no longer disappears when it scrolls out of the

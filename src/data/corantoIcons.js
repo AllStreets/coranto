@@ -102,7 +102,33 @@ export const ICONS = Object.freeze({
     SOLID,
     '<circle cx="12" cy="12" r="2.1"/><path d="M9.9 8.36L7.2 3.69A9.6 9.6 0 0 1 16.8 3.69L14.1 8.36A4.2 4.2 0 0 0 9.9 8.36ZM16.2 12L21.6 12A9.6 9.6 0 0 1 16.8 20.31L14.1 15.64A4.2 4.2 0 0 0 16.2 12ZM9.9 15.64L7.2 20.31A9.6 9.6 0 0 1 2.4 12L7.8 12A4.2 4.2 0 0 0 9.9 15.64Z"/>',
   ],
+  conflict: [SOLID, '<path d="M12 3.2 21.5 20h-19L12 3.2Z"/>'],
+  sanction: [STROKE, '<circle cx="12" cy="12" r="8.5"/><path d="M6 18 18 6"/>'],
+  star: [
+    SOLID,
+    '<path d="M12 2.4l2.9 6.1 6.7.8-4.95 4.6 1.3 6.6L12 17.3 6.05 20.5l1.3-6.6L2.4 9.3l6.7-.800L12 2.4Z"/>',
+  ],
   // Interface
+  target: [
+    STROKE,
+    '<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M12 2v3.5M12 18.5V22M2 12h3.5M18.5 12H22"/>',
+  ],
+  speaker: [
+    STROKE,
+    '<path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.6 7.6 0 0 1 0 11"/>',
+  ],
+  outlets: [
+    STROKE,
+    '<rect x="3.5" y="5" width="11" height="14" rx="1.2"/><path d="M17.5 8.5h3v9a1.5 1.5 0 0 1-3 0"/><path d="M6.5 9h5M6.5 12h5M6.5 15h3"/>',
+  ],
+  figures: [
+    STROKE,
+    '<path d="M4 19.5h16"/><path d="M7 19.5v-6M12 19.5V7M17 19.5v-9"/><path d="M5.5 9.5 10.5 5l3 2.5L19 4"/>',
+  ],
+  link: [
+    STROKE,
+    '<path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M17.5 13.5V18a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 18V8A1.5 1.5 0 0 1 6 6.5h4.5"/>',
+  ],
   close: [STROKE, '<path d="M6 6l12 12M18 6 6 18"/>'],
   plus: [STROKE, '<path d="M12 5v14M5 12h14"/>'],
   key: [

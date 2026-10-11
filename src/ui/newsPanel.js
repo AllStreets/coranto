@@ -1,3 +1,4 @@
+import { TOPIC_COLOURS, iconImage, markerImage } from '../data/corantoIcons.js';
 import { NEWS_LANGUAGES } from '../sources/news/registry.js';
 import { buildNewsPanelModel } from './newsPanelModel.js';
 
@@ -18,6 +19,20 @@ export const CATEGORY_CODE = {
   finance: 'FIN',
   climate: 'CLM',
 };
+
+/** The strip at the top of a story: what it is and where it was placed. */
+function storyWhere(place) {
+  if (!place) return 'STORY // NO LOCATION';
+  return `STORY // ${place.name.toUpperCase()} · ${place.precision.toUpperCase()}`;
+}
+
+/** Coordinates and the reason for the placement, or that there is none. */
+function storyPlaced(card, place) {
+  if (!place) return card.place;
+  const part = (value, pos, neg) =>
+    `${Math.abs(value).toFixed(3)}°${value >= 0 ? pos : neg}`;
+  return `${part(place.lat, 'N', 'S')} ${part(place.lon, 'E', 'W')} · ${card.place}`;
+}
 
 /** Why a brief shows nothing, in one sentence. */
 function emptyBriefText(data) {
@@ -343,7 +358,15 @@ export function createNewsFeed({
     title.href = card.url;
     title.target = '_blank';
     title.rel = 'noopener noreferrer';
-    title.title = card.linkText;
+    title.title = 'Open this story here';
+    // A plain click opens the story in the app. The link itself still
+    // works for a new tab, and the publisher link stays in the card's foot.
+    title.addEventListener('click', (event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.button)
+        return;
+      event.preventDefault();
+      openStory(card.storyId ?? card.id);
+    });
     item.append(meta, title);
     if (card.summary)
       item.append(el(document, 'p', 'news-card-summary', card.summary));
@@ -466,6 +489,253 @@ export function createNewsFeed({
     return item;
   }
 
+  // ── Story pop-up ─────────────────────────────────────────────────
+  // One story, opened in the app: what the publisher said, where it was
+  // placed, and the tools that work on it. The publisher's link is inside.
+  const story = el(document, 'aside', 'coranto-story');
+  story.id = 'coranto-story';
+  story.setAttribute('aria-label', 'Story');
+  story.hidden = true;
+  document.body.append(story);
+  /** storyId or article id of the open story, and which sections are open. */
+  let storyKey = null;
+  let lastPlaceKey = null;
+  let storyCard = null;
+  const storyOpen = new Set();
+  let speaking = false;
+  const speech = () => document.defaultView?.speechSynthesis ?? null;
+
+  function stopSpeaking() {
+    speech()?.cancel();
+    speaking = false;
+  }
+
+  function closeStory() {
+    storyKey = null;
+    storyCard = null;
+    storyOpen.clear();
+    stopSpeaking();
+    story.hidden = true;
+  }
+
+  function openStory(key) {
+    if (storyKey !== key) {
+      storyOpen.clear();
+      stopSpeaking();
+    }
+    storyKey = key;
+    render();
+  }
+
+  function toolButton(icon, label, { active = false, title = '' } = {}) {
+    const button = el(document, 'button', 'coranto-story-tool');
+    button.type = 'button';
+    if (title) button.title = title;
+    button.setAttribute('aria-pressed', String(active));
+    const image = el(document, 'img');
+    image.src = iconImage(icon, active ? '#b47cff' : '#cfc8e6');
+    image.alt = '';
+    button.append(image, el(document, 'span', '', label));
+    return button;
+  }
+
+  function renderStory(cards) {
+    if (!storyKey) return;
+    // The story may have left the feed (a filter, a refresh); keep showing
+    // what was opened rather than closing under the reader.
+    storyCard =
+      cards.find((card) => (card.storyId ?? card.id) === storyKey) ?? storyCard;
+    const card = storyCard;
+    if (!card) return closeStory();
+    const topic = card.goodNews ? 'good' : card.categoryId || 'news';
+    const colour = TOPIC_COLOURS[topic] ?? TOPIC_COLOURS.news;
+    const place = card.placeKey
+      ? (layer.getView().places ?? []).find((p) => p.key === card.placeKey)
+      : null;
+
+    const head = el(document, 'div', 'coranto-story-head');
+    const mark = el(document, 'img');
+    mark.src = markerImage({
+      icon: topic,
+      colour,
+      approximate: Boolean(place && place.precision !== 'city'),
+    });
+    mark.alt = '';
+    const close = el(document, 'button', 'coranto-story-close');
+    close.type = 'button';
+    close.setAttribute('aria-label', 'Close this story');
+    const closeIcon = el(document, 'img');
+    closeIcon.src = iconImage('close', '#d5d0e2');
+    closeIcon.alt = '';
+    close.append(closeIcon);
+    close.addEventListener('click', closeStory);
+    head.append(
+      mark,
+      el(document, 'span', 'coranto-story-where', storyWhere(place)),
+      el(document, 'span', 'coranto-story-count', card.outletsText ?? ''),
+      close,
+    );
+
+    const body = el(document, 'div', 'coranto-story-body');
+    const meta = el(document, 'div', 'news-card-meta');
+    const code = el(
+      document,
+      'span',
+      'news-card-code',
+      card.goodNews ? 'GOOD' : (CATEGORY_CODE[card.categoryId] ?? 'NEWS'),
+    );
+    code.style.color = colour;
+    const time = el(document, 'time', 'news-card-time', card.published);
+    time.dateTime = card.publishedIso;
+    meta.append(
+      code,
+      el(document, 'span', 'news-card-publisher', card.publisher),
+      time,
+    );
+    body.append(meta, el(document, 'h3', 'coranto-story-title', card.title));
+    if (card.summary)
+      body.append(el(document, 'p', 'coranto-story-summary', card.summary));
+
+    const tools = el(document, 'div', 'coranto-story-tools');
+    const toggle = (name) => () => {
+      if (storyOpen.has(name)) storyOpen.delete(name);
+      else storyOpen.add(name);
+      render();
+    };
+    if (card.outlets > 1) {
+      const brief = toolButton('news', 'AI BRIEF', {
+        active: briefs.has(card.storyId),
+        title:
+          'An AI summary of these outlets’ headlines. Every sentence cites its sources and unsupported sentences are removed.',
+      });
+      brief.addEventListener('click', () => {
+        if (briefs.has(card.storyId)) {
+          briefs.delete(card.storyId);
+          render();
+        } else requestBrief(card.storyId);
+      });
+      const who = toolButton('outlets', 'WHO COVERED', {
+        active: storyOpen.has('who'),
+        title:
+          'Every outlet’s own headline for this story, and which regions carried it',
+      });
+      who.addEventListener('click', toggle('who'));
+      tools.append(brief, who);
+    }
+    if (card.differing?.length) {
+      const figures = toolButton('figures', 'FIGURES', {
+        active: storyOpen.has('figures'),
+        title: 'Where the outlets’ headline figures differ',
+      });
+      figures.addEventListener('click', toggle('figures'));
+      tools.append(figures);
+    }
+    if (card.placeKey) {
+      const fly = toolButton('target', 'FLY TO', {
+        title: 'Move the globe to where this story was placed',
+      });
+      fly.addEventListener('click', () =>
+        layer.selectPlace(card.placeKey, { focus: true }),
+      );
+      tools.append(fly);
+    }
+    if (speech()) {
+      const listen = toolButton('speaker', speaking ? 'STOP' : 'LISTEN', {
+        active: speaking,
+        title:
+          'Read the headline and summary aloud with your device’s own voice',
+      });
+      listen.addEventListener('click', () => {
+        if (speaking) stopSpeaking();
+        else {
+          const Utterance = document.defaultView.SpeechSynthesisUtterance;
+          const utterance = new Utterance(
+            `${card.publisher}. ${card.title}. ${card.summary ?? ''}`,
+          );
+          if (card.lang) utterance.lang = card.lang;
+          utterance.onend = () => {
+            speaking = false;
+            render();
+          };
+          speaking = true;
+          speech().speak(utterance);
+        }
+        render();
+      });
+      tools.append(listen);
+    }
+    if (tools.childElementCount) body.append(tools);
+
+    if (card.storyId && briefs.has(card.storyId))
+      body.append(renderBrief(card.storyId));
+    if (storyOpen.has('figures'))
+      for (const row of card.differing ?? []) {
+        const note = el(document, 'p', 'news-card-differ');
+        note.append(
+          el(
+            document,
+            'span',
+            'news-card-differ-label',
+            `FIGURES DIFFER · ${row.what.toUpperCase()}`,
+          ),
+          ` ${row.text}`,
+        );
+        body.append(note);
+      }
+    if (storyOpen.has('who')) {
+      if (card.coverage?.length) {
+        const coverage = el(document, 'div', 'news-card-coverage');
+        coverage.append(
+          el(document, 'span', 'news-card-coverage-label', 'OUTLETS BY REGION'),
+        );
+        for (const row of card.coverage) {
+          const chip = el(document, 'span', 'news-card-region', row.text);
+          chip.dataset.state = row.state;
+          chip.title = row.title;
+          coverage.append(chip);
+        }
+        body.append(coverage);
+      }
+      const others = el(document, 'ul', 'news-card-others');
+      for (const other of card.others ?? []) {
+        const row = el(document, 'li', 'news-card-other');
+        const otherLink = el(document, 'a', '', other.title);
+        otherLink.href = other.url;
+        otherLink.target = '_blank';
+        otherLink.rel = 'noopener noreferrer';
+        row.append(
+          el(
+            document,
+            'span',
+            'news-card-other-meta',
+            `${other.publisher} · ${other.published}`,
+          ),
+          otherLink,
+        );
+        others.append(row);
+      }
+      body.append(others);
+    }
+
+    const foot = el(document, 'div', 'coranto-story-foot');
+    const read = el(document, 'a', 'coranto-story-read');
+    read.href = card.url;
+    read.target = '_blank';
+    read.rel = 'noopener noreferrer';
+    const readIcon = el(document, 'img');
+    readIcon.src = iconImage('link', '#b47cff');
+    readIcon.alt = '';
+    read.append(
+      el(document, 'span', '', card.linkText.replace(/^Open/, 'Read')),
+      readIcon,
+    );
+    foot.append(el(document, 'span', '', storyPlaced(card, place)), read);
+    body.append(foot);
+
+    story.replaceChildren(head, body);
+    story.hidden = false;
+  }
+
   function render() {
     const model = buildNewsPanelModel(layer.getView(), filters, now());
 
@@ -517,6 +787,14 @@ export function createNewsFeed({
     more.hidden = remaining <= 0;
     more.textContent = `Show ${Math.min(PAGE_SIZE, remaining)} more of ${remaining}`;
     onModel(model);
+    // Selecting a place that has a single story opens that story.
+    const placeKey = layer.getView().selectedPlaceKey ?? null;
+    if (placeKey !== lastPlaceKey) {
+      lastPlaceKey = placeKey;
+      if (placeKey && model.cards?.length === 1)
+        storyKey = model.cards[0].storyId ?? model.cards[0].id;
+    }
+    renderStory(model.cards ?? []);
   }
 
   healthBtn.addEventListener('click', () => {
@@ -559,6 +837,13 @@ export function createNewsFeed({
 
   return {
     render,
+    /** Open one story in the app, by story id or article id. */
+    openStory,
+    closeStory,
+    /** True while a story is open. */
+    get storyOpen() {
+      return storyKey !== null;
+    },
     /** Put the cursor in the search box. */
     focusSearch() {
       search.focus();
@@ -607,6 +892,8 @@ export function createNewsFeed({
       render();
     },
     destroy() {
+      closeStory();
+      story.remove();
       unsubscribe();
       clearInterval(timer);
       body.replaceChildren();

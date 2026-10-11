@@ -58,7 +58,8 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 
 ## In-app, not out of app
 
-- [ ] **T7 Story pop-ups** for feed cards, briefing rows and globe markers.
+- [x] **T7 Story pop-ups** for feed cards, briefing rows and single-story
+  places. Tools so far: AI brief, who covered, figures, fly to, listen.
 - [ ] **T6 Broadcasts in-app**: embedded player and broadcaster markers on
   the globe.
 - [ ] **T5 Audit every link that leaves the app**; the publisher link stays
@@ -67,6 +68,13 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   verify, translate, listen, provenance.
 - [ ] **T2 Analyst board**, housed in INSTRUMENTS.
 - [ ] **T15 Category colours and related stories in INSTRUMENTS.**
+
+## Atlas (copied from AUSPEX, 2026-10-11)
+
+- [x] **T25 Borders, front lines, countries and cities overlays**, as AUSPEX
+  drew them (`src/ui/corantoAtlas.js`, data in `public/coranto-atlas/`).
+  Open: live conflict detection from headlines, the AUSPEX city panel's two
+  briefs, regions/threat overlay, pinning countries and cities to the board.
 
 ## More data
 

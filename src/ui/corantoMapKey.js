@@ -4,6 +4,12 @@ import {
   iconImage,
   markerImage,
 } from '../data/corantoIcons.js';
+import {
+  CITY_COLOURS,
+  CITY_ICONS,
+  CITY_LABELS,
+  COUNTRY_MARKS,
+} from '../data/corantoAtlasStyle.js';
 import { HAZARD_COLORS } from '../layers/hazards/model.js';
 import { ELECTION_COLOR } from '../layers/elections/model.js';
 
@@ -34,6 +40,9 @@ const marker = (icon, colour, extra = {}) => ({
  * @param {boolean} state.fires
  * @param {boolean} state.governmentAircraft
  * @param {boolean} state.nuclear
+ * @param {boolean} state.borders
+ * @param {boolean} state.countries
+ * @param {string[]} state.cityTypes City types on the map, or [].
  * @param {string[]} state.otherLayers Names of other layers switched on.
  * @returns {Array<{heading: string, rows: Array<{image?: string, swatch?: string, label: string}>}>}
  */
@@ -102,6 +111,47 @@ export function buildMapKeyModel(state) {
       ],
     });
   }
+  if (state.borders)
+    sections.push({
+      heading: 'BORDERS AND LINES',
+      rows: [
+        {
+          swatch: 'rgba(100,180,255,0.85)',
+          bar: true,
+          label: 'Country border',
+        },
+        {
+          swatch: 'rgba(255,45,85,0.7)',
+          bar: true,
+          label: 'Border of a country on the conflict list',
+        },
+        { swatch: '#FF2D55', bar: true, dashed: true, label: 'Front line' },
+        {
+          swatch: '#FF9F0A',
+          bar: true,
+          dashed: true,
+          label: 'Disputed or frozen line',
+        },
+      ],
+    });
+  if (state.countries)
+    sections.push({
+      heading: 'COUNTRY MARKS',
+      rows: COUNTRY_MARKS.map(([, icon, colour, label]) => ({
+        image: iconImage(icon, colour),
+        label,
+      })),
+    });
+  if (state.cityTypes?.length)
+    sections.push({
+      heading: 'CITY ICONS',
+      rows: state.cityTypes.map((type) => ({
+        image: `data:image/svg+xml,${encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" width="72" height="72">${CITY_ICONS[type].replaceAll('currentColor', CITY_COLOURS[type])}</svg>`,
+        )}`,
+        label: CITY_LABELS[type],
+      })),
+    });
   const more = [];
   if (state.elections)
     more.push({
@@ -211,10 +261,12 @@ export function createMapKey({ document, onClose }) {
                 ? el(document, 'img', { src: row.image, alt: '' })
                 : row.swatch
                   ? el(document, 'span', {
-                      class: row.square
-                        ? 'coranto-key-swatch coranto-key-square'
-                        : 'coranto-key-swatch',
-                      style: `background:${row.swatch}`,
+                      class: row.bar
+                        ? `coranto-key-swatch coranto-key-bar${row.dashed ? ' coranto-key-dashed' : ''}`
+                        : row.square
+                          ? 'coranto-key-swatch coranto-key-square'
+                          : 'coranto-key-swatch',
+                      style: `color:${row.swatch};background:${row.swatch}`,
                     })
                   : el(document, 'span', { class: 'coranto-key-gap' }),
               el(document, 'span', { text: row.label }),

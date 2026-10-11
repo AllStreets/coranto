@@ -5,6 +5,7 @@ import { createBroadcastsDialog } from './corantoBroadcasts.js';
 import { contactCard } from './corantoContact.js';
 import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
 import { TOPIC_COLOURS, iconImage } from '../data/corantoIcons.js';
+import { ATLAS_OVERLAYS, createAtlas } from './corantoAtlas.js';
 import { createMapKey } from './corantoMapKey.js';
 import { createMarketsLens } from './corantoMarkets.js';
 import { createNuclearMarks } from './corantoNuclear.js';
@@ -19,6 +20,9 @@ import {
 } from './watches.js';
 
 const MODE_KEY = 'coranto.mode.v1';
+const ATLAS_KEY = 'coranto.atlas.v1';
+/** Borders are on unless switched off, as in AUSPEX. */
+const ATLAS_DEFAULTS = { borders: true, countries: false, cities: false };
 const WELCOME_KEY = 'coranto.welcomed.v1';
 const FIRST_RUN_SESSION_KEY = 'gev:first-run-mission-session:v1';
 
@@ -610,6 +614,78 @@ export function createCorantoShell({
       showCard(detail);
     },
   });
+  // AUSPEX's atlas overlays: borders, countries, cities.
+  const atlas = createAtlas({
+    getViewer: () => dataManager?.viewer ?? null,
+    showCard: (detail) => {
+      card.dataset.owner = 'atlas';
+      showCard(detail);
+    },
+    // Narrow the feed to the place when current stories name it.
+    selectPlace: (kind, name) => {
+      const group = (layer.getView().places ?? []).find(
+        (place) => place.precision === kind && place.name === name,
+      );
+      if (group) layer.selectPlace(group.key);
+      return group ? group.articles.length : 0;
+    },
+  });
+  let atlasWanted = { ...ATLAS_DEFAULTS };
+  try {
+    atlasWanted = {
+      ...ATLAS_DEFAULTS,
+      ...JSON.parse(readStored(localStorageRef, ATLAS_KEY) ?? '{}'),
+    };
+  } catch {
+    atlasWanted = { ...ATLAS_DEFAULTS };
+  }
+  const atlasButtons = new Map();
+  const atlasList = el(document, 'div', { class: 'coranto-switches' });
+  async function setAtlas(name, on, { remember = true } = {}) {
+    atlasWanted[name] = Boolean(on);
+    if (remember)
+      writeStored(localStorageRef, ATLAS_KEY, JSON.stringify(atlasWanted));
+    const button = atlasButtons.get(name);
+    button.setAttribute('aria-pressed', String(Boolean(on)));
+    button.dataset.busy = 'true';
+    const now = await atlas.set(name, on);
+    delete button.dataset.busy;
+    button.setAttribute('aria-pressed', String(now));
+    // The full country markers carry the nuclear mark themselves.
+    if (name === 'countries') {
+      if (now) nuclear.hide();
+      else if (body.dataset.corantoFrame === 'one') nuclear.show();
+    }
+    renderMapKey();
+  }
+  for (const [name, label] of ATLAS_OVERLAYS) {
+    const button = el(
+      document,
+      'button',
+      {
+        type: 'button',
+        class: 'coranto-switch',
+        'aria-pressed': String(Boolean(atlasWanted[name])),
+      },
+      el(document, 'span', { class: 'coranto-switch-label', text: label }),
+      el(document, 'span', { class: 'coranto-switch-knob' }),
+    );
+    button.addEventListener('click', () =>
+      setAtlas(name, button.getAttribute('aria-pressed') !== 'true'),
+    );
+    atlasButtons.set(name, button);
+    atlasList.append(button);
+  }
+  const atlasSection = el(
+    document,
+    'div',
+    { class: 'coranto-overlays coranto-bracket' },
+    el(document, 'div', {
+      class: 'coranto-rail-heading',
+      text: 'MAP OVERLAYS',
+    }),
+    atlasList,
+  );
   const mapKey = createMapKey({
     document,
     onClose: () => setMapKey(false),
@@ -631,6 +707,9 @@ export function createCorantoShell({
       fires: on('local-firms'),
       governmentAircraft: lens === 'power',
       nuclear: nuclear.shown,
+      borders: atlas.isOn('borders'),
+      countries: atlas.isOn('countries'),
+      cityTypes: atlas.cityTypes(),
       otherLayers: HEADER_LAYERS.filter(
         ([id]) => !KEYED_LAYERS.has(id) && on(id),
       ).map(([, label]) => label),
@@ -689,6 +768,7 @@ export function createCorantoShell({
       briefingBtn,
     ),
     lensSwitch,
+    atlasSection,
     topicList,
     watchSection,
     power.element,
@@ -1079,6 +1159,14 @@ export function createCorantoShell({
             target: '_blank',
             rel: 'noopener noreferrer',
             text: story.title,
+            title: 'Open this story here',
+          });
+          // A plain click opens the story in the app, over the globe.
+          link.addEventListener('click', (event) => {
+            if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+            event.preventDefault();
+            closeBriefing();
+            feed?.openStory(story.id);
           });
           const meta = [
             CATEGORY_CODE[story.category] ?? 'NEWS',
@@ -1428,6 +1516,7 @@ export function createCorantoShell({
     }
     if (event.key !== 'Escape') return;
     setSourcesMenu(false);
+    feed?.closeStory();
     if (!guide.hidden) guide.hidden = true;
     if (!briefing.hidden) closeBriefing();
     tv.close();
@@ -1488,7 +1577,11 @@ export function createCorantoShell({
     attachDataManager(manager) {
       dataManager = manager;
       // People only: automated browsers keep the engine's own scene.
-      if (body.dataset.corantoFrame === 'one') nuclear.show();
+      if (body.dataset.corantoFrame === 'one') {
+        nuclear.show();
+        for (const [name] of ATLAS_OVERLAYS)
+          if (atlasWanted[name]) setAtlas(name, true, { remember: false });
+      }
       syncLayers();
       hazardsLayer = manager.layers?.get('hazards')?.module ?? null;
       applyGlobeText();
@@ -1526,6 +1619,7 @@ export function createCorantoShell({
       }
       document.removeEventListener('keydown', onKey);
       nuclear.hide();
+      atlas.destroy();
       document.removeEventListener('pointerdown', onOutside);
       unsubscribeHazards?.();
       feed?.destroy();

@@ -31,6 +31,17 @@
 </p>
 <p align="center"><em>Every marker is an icon: the topic most stories at a place share, or the kind of hazard. MAP KEY explains whatever is on the globe right now.</em></p>
 
+<table>
+<tr>
+<td width="50%"><img src="docs/media/coranto/story-popup.png" alt="A story opened in the app with its AI brief and tools" width="100%"/></td>
+<td width="50%"><img src="docs/media/coranto/atlas.png" alt="Borders, country names with status marks, and city icons on the globe" width="100%"/></td>
+</tr>
+<tr>
+<td><em>Stories open in the app: headline, summary, where it was placed, and tools for a checked AI brief, who covered it and more. The publisher's link stays inside.</em></td>
+<td><em>AUSPEX's atlas: borders and front lines, every country with its status marks, and a thousand cities with an icon for what each is known as.</em></td>
+</tr>
+</table>
+
 <p align="center">
 <a href="#what-this-is">What this is</a> ·
 <a href="#why-it-exists">Why it exists</a> ·
