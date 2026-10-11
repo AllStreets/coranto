@@ -1,7 +1,7 @@
 # Coranto stage 1: foundation and truth feed
 
 Date: 2026-10-10
-Status: awaiting review
+Status: approved 2026-10-10; built, with the changes listed in section 13
 Branch: `stage-1-truth-feed`
 
 ## 1. What Coranto is
@@ -540,3 +540,33 @@ runtime has no fixture mode.
 - **Upstream drift.** God's Eye View changes quickly (its pull request
   numbers have passed 980). The registration-point edits in section 9 are the conflict surface
   on each merge.
+
+## 13. Changes made during the build
+
+- **Shell, not a rail panel.** The news panel was first built in the engine's
+  right rail as section 8 describes. It was replaced by Coranto's own frame,
+  modelled on AUSPEX: a header with a live badge and layer switches, a
+  headline ticker, a topic list and a full-height feed
+  (`src/ui/corantoShell.js`). The engine's panels are the INSTRUMENTS mode.
+  Automated browsers default to INSTRUMENTS so the engine's browser gates run
+  unchanged.
+- **Good news tagging** from AUSPEX's breakthroughs sense was brought forward
+  from stage 3 as an automatic tag and a filter.
+- **Palette and type** from AUSPEX were brought forward from stage 4. Upstream
+  cyan literals are retinted at build time by `build/corantoTheme.js`.
+- **HUD readouts.** The engine's invented classification, mission, sensor,
+  orbit and pass values were removed.
+- **Share links.** The news layer is `local-only`, not `enabled-only`. A token
+  from upstream's ledger would collide with the next upstream layer.
+- **Voice.** The news layer can be switched by voice; the voice tool
+  descriptions name the app Coranto.
+- **Camera focus** uses a direct flight sized by match precision. The shared
+  focus service frames only close-up targets.
+- **Article ids** use a small built-in hash, so the record code has no Node
+  dependency.
+- **Feed parsing** lives in `src/sources/news/feeds.js` and the refresh logic
+  in `src/sources/news/service.js`, both portable, not under `server/`.
+- **US states** were added to place matching from the bundled Natural Earth
+  data, at region precision.
+- **Not built:** the `qa:news` browser gate in section 10. The server route,
+  layer, panel model and honesty rules are covered by unit tests.
