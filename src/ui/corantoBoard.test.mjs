@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { networkLayout } from './corantoBoard.js';
+import { networkNodes, networkStep } from './corantoBoard.js';
 import {
   BOARD_LIMIT,
   boardLinks,
@@ -164,13 +164,48 @@ test('the board survives a reload, has a limit, and saved boards can be loaded',
   assert.equal(store.toggle(story('extra', 'One more')), 'full');
 });
 
-test('the same board always draws the same way', () => {
-  const assets = [story('a', 'A'), story('b', 'B'), story('c', 'C')];
-  const links = [{ a: 'a', b: 'b', terms: ['US'], sameTopic: true }];
-  const one = networkLayout(assets, links, 400, 300);
-  assert.deepEqual(one, networkLayout(assets, links, 400, 300));
-  assert.equal(one.length, 3);
-  assert.deepEqual(networkLayout([assets[0]], [], 400, 300), [
-    { key: 'a', x: 200, y: 150 },
+test('the network settles the same way every time, linked items together', () => {
+  const assets = [
+    story('a', 'A story'),
+    story('b', 'B story'),
+    story('c', 'C story'),
+  ];
+  const edges = [{ i: 0, j: 1, strength: 1, label: 'US', cross: false }];
+  const run = () => {
+    const nodes = networkNodes(assets, 600, 400);
+    for (let i = 0; i < 500; i++) networkStep(nodes, edges, 600, 400);
+    return nodes;
+  };
+  const one = run();
+  assert.deepEqual(one, run());
+  const gap = (p, q) => Math.hypot(one[p].x - one[q].x, one[p].y - one[q].y);
+  // The linked pair ends closer together than either is to the third.
+  assert.ok(gap(0, 1) < gap(0, 2) && gap(0, 1) < gap(1, 2));
+  for (const node of one) {
+    assert.ok(node.x >= 40 && node.x <= 560 && node.y >= 40 && node.y <= 360);
+    assert.ok(Number.isFinite(node.x) && Number.isFinite(node.y));
+  }
+});
+
+test('items link through any name they both use, not only the fixed list', () => {
+  const links = boardLinks([
+    story(
+      'a',
+      'Saudi health minister visits survivors of deadly Riyadh airport attack',
+      { category: 'geopolitics' },
+    ),
+    story(
+      'b',
+      'Trump weighs joining the fight against Houthis after Riyadh airport attack',
+      { category: 'military' },
+    ),
+    story(
+      'c',
+      'Andy Burnham to publish all details of his dealings with Manchester City',
+      { category: 'geopolitics' },
+    ),
+  ]);
+  assert.deepEqual(links, [
+    { a: 'a', b: 'b', terms: ['Riyadh'], sameTopic: false },
   ]);
 });

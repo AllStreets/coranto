@@ -36,38 +36,64 @@ const colourOf = (asset) =>
     ? (TOPIC_COLOURS[asset.category] ?? TOPIC_COLOURS.news)
     : '#7fb6cf';
 
-/** Lay the items out on a ring, linked ones pulled a little together. */
-export function networkLayout(assets, links, width, height) {
-  const cx = width / 2;
-  const cy = height / 2;
-  const radius = Math.max(20, Math.min(width, height) / 2 - 46);
-  const nodes = assets.map((asset, index) => {
-    const angle =
-      (index / Math.max(1, assets.length)) * Math.PI * 2 - Math.PI / 2;
+/**
+ * AUSPEX's entity network, copied: a force-directed graph on a faint grid.
+ * Every node drifts toward the centre, nodes push each other apart, and a
+ * link pulls its two ends to a set distance, so connected items settle
+ * together. Links pulse; each carries the name it rests on.
+ *
+ * The starting positions are fixed by each item's place in the list, so the
+ * same board always settles the same way.
+ */
+export function networkNodes(assets, width, height) {
+  return assets.map((asset, index) => {
+    // A golden-angle spiral: spread out, never two on the same spot.
+    const angle = index * 2.399963;
+    const reach = 0.12 + 0.16 * Math.sqrt(index + 1);
     return {
       key: asset.key,
-      x: assets.length === 1 ? cx : cx + Math.cos(angle) * radius,
-      y: assets.length === 1 ? cy : cy + Math.sin(angle) * radius,
+      label: asset.title.slice(0, 22),
+      x: width / 2 + Math.cos(angle) * width * Math.min(0.42, reach),
+      y: height / 2 + Math.sin(angle) * height * Math.min(0.42, reach),
+      vx: 0,
+      vy: 0,
     };
   });
-  const byKey = new Map(nodes.map((node) => [node.key, node]));
-  // A fixed number of small steps: the same board always draws the same way.
-  for (let step = 0; step < 60; step++)
-    for (const link of links) {
-      const a = byKey.get(link.a);
-      const b = byKey.get(link.b);
-      if (!a || !b) continue;
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const distance = Math.hypot(dx, dy) || 1;
-      if (distance < 110) continue;
-      const pull = 0.012;
-      a.x += dx * pull;
-      a.y += dy * pull;
-      b.x -= dx * pull;
-      b.y -= dy * pull;
+}
+
+/** One step of the simulation, with AUSPEX's constants. */
+export function networkStep(nodes, edges, width, height) {
+  for (const node of nodes) {
+    node.vx *= 0.86;
+    node.vy *= 0.86;
+    node.vx += (width / 2 - node.x) * 0.003;
+    node.vy += (height / 2 - node.y) * 0.003;
+  }
+  for (let a = 0; a < nodes.length; a++)
+    for (let b = a + 1; b < nodes.length; b++) {
+      const dx = nodes[b].x - nodes[a].x;
+      const dy = nodes[b].y - nodes[a].y;
+      const distance = Math.sqrt(dx * dx + dy * dy) + 0.1;
+      const force = Math.min(5000 / (distance * distance), 10);
+      nodes[a].vx -= (dx / distance) * force;
+      nodes[a].vy -= (dy / distance) * force;
+      nodes[b].vx += (dx / distance) * force;
+      nodes[b].vy += (dy / distance) * force;
     }
-  return nodes;
+  for (const edge of edges) {
+    const dx = nodes[edge.j].x - nodes[edge.i].x;
+    const dy = nodes[edge.j].y - nodes[edge.i].y;
+    const distance = Math.sqrt(dx * dx + dy * dy) + 0.1;
+    const force = (distance - 140) * 0.055;
+    nodes[edge.i].vx += (dx / distance) * force;
+    nodes[edge.i].vy += (dy / distance) * force;
+    nodes[edge.j].vx -= (dx / distance) * force;
+    nodes[edge.j].vy -= (dy / distance) * force;
+  }
+  for (const node of nodes) {
+    node.x = Math.max(40, Math.min(width - 40, node.x + node.vx));
+    node.y = Math.max(40, Math.min(height - 40, node.y + node.vy));
+  }
 }
 
 /**
@@ -171,7 +197,156 @@ export function createBoard({
     return node;
   };
 
+  // The running graph: what is simulated, and the reader's zoom and pan.
+  let graph = null;
+  let frameId = null;
+  let zoom = 1;
+  let panX = 0;
+  let panY = 0;
+  let drag = null;
+  let touched = false;
+  canvas.addEventListener(
+    'wheel',
+    (event) => {
+      event.preventDefault();
+      touched = true;
+      zoom = Math.max(0.3, Math.min(4, zoom * (event.deltaY > 0 ? 0.9 : 1.1)));
+    },
+    { passive: false },
+  );
+  canvas.addEventListener('mousedown', (event) => {
+    touched = true;
+    drag = { sx: event.clientX, sy: event.clientY, px: panX, py: panY };
+  });
+  canvas.addEventListener('mousemove', (event) => {
+    if (!drag) return;
+    panX = drag.px + event.clientX - drag.sx;
+    panY = drag.py + event.clientY - drag.sy;
+  });
+  for (const type of ['mouseup', 'mouseleave'])
+    canvas.addEventListener(type, () => {
+      drag = null;
+    });
+
+  function stopNetwork() {
+    if (frameId !== null) win?.cancelAnimationFrame?.(frameId);
+    frameId = null;
+  }
+
+  function paintNetwork() {
+    const { nodes, edges, assets, width, height, context, ratio } = graph;
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    context.clearRect(0, 0, width, height);
+    // Until the reader zooms or drags, the graph is fitted to the panel.
+    if (!touched && nodes.length > 1) {
+      let minX = Infinity;
+      let maxX = -Infinity;
+      let minY = Infinity;
+      let maxY = -Infinity;
+      for (const node of nodes) {
+        minX = Math.min(minX, node.x);
+        maxX = Math.max(maxX, node.x);
+        minY = Math.min(minY, node.y);
+        maxY = Math.max(maxY, node.y);
+      }
+      const fit = Math.min(
+        2.4,
+        (width - 150) / Math.max(60, maxX - minX),
+        (height - 110) / Math.max(60, maxY - minY),
+      );
+      // Ease toward the fit so the view does not jump as the graph settles.
+      zoom += (fit - zoom) * 0.08;
+      panX += ((width / 2 - (minX + maxX) / 2) * zoom - panX) * 0.08;
+      panY += ((height / 2 - (minY + maxY) / 2) * zoom - panY) * 0.08;
+    }
+    context.save();
+    context.translate(width / 2 + panX, height / 2 + panY);
+    context.scale(zoom, zoom);
+    context.translate(-width / 2, -height / 2);
+
+    context.strokeStyle = 'rgba(22,18,40,0.9)';
+    context.lineWidth = 0.5;
+    for (let x = 0; x < width; x += 40) {
+      context.beginPath();
+      context.moveTo(x, 0);
+      context.lineTo(x, height);
+      context.stroke();
+    }
+    for (let y = 0; y < height; y += 40) {
+      context.beginPath();
+      context.moveTo(0, y);
+      context.lineTo(width, y);
+      context.stroke();
+    }
+
+    for (const edge of edges) {
+      const pulse = 0.3 + Math.sin(graph.frame * 0.025 + edge.i) * 0.14;
+      const a = nodes[edge.i];
+      const b = nodes[edge.j];
+      const colour = edge.cross ? '255,159,10' : '180,124,255';
+      // A soft wide stroke under a sharp one, so the link glows.
+      context.beginPath();
+      context.moveTo(a.x, a.y);
+      context.lineTo(b.x, b.y);
+      context.strokeStyle = `rgba(${colour},${pulse * 0.35})`;
+      context.lineWidth = 5 + edge.strength * 1.2;
+      context.stroke();
+      context.beginPath();
+      context.moveTo(a.x, a.y);
+      context.lineTo(b.x, b.y);
+      context.strokeStyle = `rgba(${colour},${pulse + (edge.cross ? 0.2 : 0.15)})`;
+      context.lineWidth = 0.9 + edge.strength * 0.45;
+      context.stroke();
+      context.font = '600 8.5px "IBM Plex Mono", monospace';
+      context.fillStyle = edge.cross
+        ? 'rgba(255,190,90,0.95)'
+        : 'rgba(212,186,255,0.95)';
+      context.textAlign = 'center';
+      context.fillText(
+        edge.label.toUpperCase(),
+        (a.x + b.x) / 2,
+        (a.y + b.y) / 2 - 5,
+      );
+    }
+
+    nodes.forEach((node, index) => {
+      const colour = colourOf(assets[index]);
+      const glow = context.createRadialGradient(
+        node.x,
+        node.y,
+        0,
+        node.x,
+        node.y,
+        24,
+      );
+      glow.addColorStop(0, `${colour}66`);
+      glow.addColorStop(1, 'transparent');
+      context.beginPath();
+      context.arc(node.x, node.y, 24, 0, Math.PI * 2);
+      context.fillStyle = glow;
+      context.fill();
+      context.beginPath();
+      context.arc(node.x, node.y, 9.5, 0, Math.PI * 2);
+      context.fillStyle = colour;
+      context.fill();
+      context.strokeStyle = 'rgba(255,255,255,0.3)';
+      context.lineWidth = 1.2;
+      context.stroke();
+      context.font = '700 9px "IBM Plex Mono", monospace';
+      context.fillStyle = '#07060c';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText(String(index + 1), node.x, node.y + 0.5);
+      context.textBaseline = 'alphabetic';
+      context.font = '8.5px "IBM Plex Mono", monospace';
+      context.fillStyle = 'rgba(200,192,226,0.92)';
+      context.fillText(node.label, node.x, node.y + 24);
+    });
+    context.restore();
+  }
+
   function drawNetwork(assets, links) {
+    stopNetwork();
     const ratio = win?.devicePixelRatio || 1;
     const width = canvas.clientWidth || 320;
     const height = canvas.clientHeight || 320;
@@ -179,46 +354,57 @@ export function createBoard({
     canvas.height = Math.round(height * ratio);
     const context = canvas.getContext?.('2d');
     if (!context) return;
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    context.clearRect(0, 0, width, height);
-    const nodes = networkLayout(assets, links, width, height);
-    const at = new Map(nodes.map((node) => [node.key, node]));
-    for (const link of links) {
-      const a = at.get(link.a);
-      const b = at.get(link.b);
-      context.strokeStyle = link.sameTopic
-        ? 'rgba(180,124,255,0.75)'
-        : 'rgba(255,159,10,0.7)';
-      context.lineWidth = Math.min(3, 0.8 + link.terms.length * 0.6);
-      context.beginPath();
-      context.moveTo(a.x, a.y);
-      context.lineTo(b.x, b.y);
-      context.stroke();
-      context.fillStyle = 'rgba(207,200,230,0.85)';
-      context.font = '600 9px "IBM Plex Mono", monospace';
-      context.textAlign = 'center';
-      context.fillText(
-        link.terms.slice(0, 2).join(' · '),
-        (a.x + b.x) / 2,
-        (a.y + b.y) / 2 - 3,
-      );
+    const index = new Map(assets.map((asset, i) => [asset.key, i]));
+    // A different set of items is a new picture: fit it afresh.
+    if (
+      (graph?.assets ?? []).map((a) => a.key).join() !==
+      assets.map((a) => a.key).join()
+    ) {
+      touched = false;
     }
-    assets.forEach((asset, index) => {
-      const node = at.get(asset.key);
-      context.fillStyle = '#07060c';
-      context.strokeStyle = colourOf(asset);
-      context.lineWidth = 2;
-      context.beginPath();
-      context.arc(node.x, node.y, 11, 0, Math.PI * 2);
-      context.fill();
-      context.stroke();
-      context.fillStyle = colourOf(asset);
-      context.font = '700 10px "IBM Plex Mono", monospace';
-      context.textAlign = 'center';
-      context.textBaseline = 'middle';
-      context.fillText(String(index + 1), node.x, node.y + 0.5);
-      context.textBaseline = 'alphabetic';
-    });
+    // Keep settled positions when the same items are redrawn.
+    const before = new Map(
+      (graph?.nodes ?? []).map((node) => [node.key, node]),
+    );
+    const nodes = networkNodes(assets, width, height).map((node) =>
+      before.has(node.key)
+        ? { ...node, x: before.get(node.key).x, y: before.get(node.key).y }
+        : node,
+    );
+    graph = {
+      assets,
+      nodes,
+      edges: links.map((link) => ({
+        i: index.get(link.a),
+        j: index.get(link.b),
+        strength: link.terms.length,
+        label: link.terms[0],
+        cross: !link.sameTopic,
+      })),
+      width,
+      height,
+      context,
+      ratio,
+      frame: 0,
+    };
+    const still = win?.matchMedia?.(
+      '(prefers-reduced-motion: reduce)',
+    )?.matches;
+    if (still || !win?.requestAnimationFrame) {
+      // No motion: settle the layout at once and draw it a single time.
+      for (let i = 0; i < 400; i++)
+        networkStep(graph.nodes, graph.edges, width, height);
+      paintNetwork();
+      return;
+    }
+    const loop = () => {
+      if (element.hidden || !graph) return;
+      networkStep(graph.nodes, graph.edges, graph.width, graph.height);
+      paintNetwork();
+      graph.frame++;
+      frameId = win.requestAnimationFrame(loop);
+    };
+    loop();
   }
 
   function render() {
@@ -492,9 +678,11 @@ export function createBoard({
     },
     close() {
       element.hidden = true;
+      stopNetwork();
     },
     render,
     destroy() {
+      stopNetwork();
       unsubscribe();
       element.remove();
     },
@@ -522,7 +710,8 @@ function loadedNote(title) {
 }
 function networkLegend(items, links) {
   if (!items) return '';
+  const head = `${items} ${items === 1 ? 'NODE' : 'NODES'} · ${links} ${links === 1 ? 'CONNECTION' : 'CONNECTIONS'}`;
   if (!links)
-    return 'No two pinned items mention the same entity from the common list, so nothing is linked.';
-  return 'A line joins two items that mention the same entity. Violet: same topic. Amber: different topics. Numbers match the pinned list.';
+    return `${head}. No two pinned items mention the same name, so nothing is linked yet.`;
+  return `${head}. A line joins two items that mention the same name, shown on the line. Violet: same topic. Amber: across topics. Scroll to zoom, drag to move.`;
 }

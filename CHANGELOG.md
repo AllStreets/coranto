@@ -17,6 +17,11 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: the board's connections are AUSPEX's entity network, copied: a
+  force-directed graph on a faint grid, with glowing links that pulse and
+  carry the name they rest on. It fits itself to the panel; scroll zooms and
+  drag moves it. Items now link through any name they both use (a person,
+  group or place), not only AUSPEX's fixed list of thirty-six.
 - Coranto: INSTRUMENTS shares the frame and the look. Its panels have the
   same square edges, bracket corners and dark surface as the news panels; its
   readouts take the brand colour and sit below the ticker; the layer list

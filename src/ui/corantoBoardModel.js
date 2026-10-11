@@ -71,9 +71,35 @@ export function entitiesOf(asset) {
   );
 }
 
-/** Pairs of items that mention the same entity. */
+/**
+ * Names an item mentions beyond the fixed list: capitalised words of four
+ * letters or more that are not the first word of a sentence ("Trump",
+ * "Houthi", "Riyadh"). Two items that both use one are about the same
+ * person, group or place.
+ */
+export function namesOf(asset) {
+  const out = new Set();
+  for (const sentence of text(asset).split(/(?<=[.!?:;])\s+|\s+[-–—]\s+/)) {
+    const tokens = sentence.match(/[\p{L}][\p{L}'’-]*/gu) ?? [];
+    tokens.slice(1).forEach((token) => {
+      const word = token.replace(/['’]s$/, '');
+      if (/^\p{Lu}\p{Ll}/u.test(word) && word.length >= 4) out.add(word);
+    });
+  }
+  if (asset.place) out.add(asset.place);
+  if (asset.kind !== 'story') out.add(asset.title);
+  return [...out];
+}
+
+/**
+ * Pairs of items that mention the same thing: an entity from AUSPEX's list
+ * first, then any name both use. Each link carries the terms it rests on.
+ */
 export function boardLinks(assets) {
-  const tagged = assets.map((asset) => ({ asset, terms: entitiesOf(asset) }));
+  const tagged = assets.map((asset) => ({
+    asset,
+    terms: [...new Set([...entitiesOf(asset), ...namesOf(asset)])],
+  }));
   const links = [];
   for (let i = 0; i < tagged.length; i++)
     for (let j = i + 1; j < tagged.length; j++) {
