@@ -184,21 +184,28 @@ test('FIRMS retains a large successful source during partial failure and filters
         current_transactions: 3,
         transaction_limit: 5000,
       });
-    return url.pathname.includes('VIIRS_NOAA20')
+    return url.pathname.includes('VIIRS_NOAA20') ||
+      url.pathname.includes('J1_VIIRS')
       ? new Response(csv)
       : new Response('offline', { status: 503 });
   });
   const request = install(firmsProxy());
-  assert.equal((await request()).status, 503);
+  // With no key the proxy reads NASA's public 24-hour files instead.
+  const keyless = json(await request());
+  assert.equal(keyless.keyless, true);
+  assert.equal(keyless.count, 130001);
+  assert.equal(keyless.sources.filter((s) => s.ok).length, 1);
   assert.equal(json(await request('/status')).hasKey, false);
-  assert.equal(calls, 0);
+  assert.equal(calls, 4);
   process.env.FIRMS_MAP_KEY = 'fixture-key';
+  now += 31 * 60000;
   const first = json(await request());
+  assert.equal(first.keyless, false);
   assert.equal(first.count, 130001);
   assert.equal(first.sources.filter((s) => s.ok).length, 1);
-  assert.equal(calls, 4);
+  assert.equal(calls, 8);
   assert.equal(json(await request()).count, 130001);
-  assert.equal(calls, 4);
+  assert.equal(calls, 8);
   assert.deepEqual(json(await request('/status')).transactions, {
     used: 3,
     limit: 5000,

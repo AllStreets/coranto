@@ -17,6 +17,12 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: FIRES works without a key. With no `FIRMS_MAP_KEY` the server
+  reads NASA's public 24-hour global files for the same four satellite
+  products. Fire cells are drawn in amber to red at a strength that shows at
+  whole-Earth zoom; they used to be pale yellow at 16% and invisible.
+- Coranto: My Briefing rows carry their topic's colour and code, like the
+  feed cards. A lone button in the rail's action grid spans the row.
 - Coranto: the LIVE button drops down the full list of sources with each
   one's status, the ones not answering first with the reason. A second click,
   a click elsewhere or Esc closes it.

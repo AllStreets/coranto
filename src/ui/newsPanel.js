@@ -4,7 +4,7 @@ import { buildNewsPanelModel } from './newsPanelModel.js';
 /** Cards drawn at once; the rest are one click away. */
 const PAGE_SIZE = 60;
 
-const CATEGORY_CODE = {
+export const CATEGORY_CODE = {
   geopolitics: 'GEO',
   technology: 'TEC',
   military: 'MIL',

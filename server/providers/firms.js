@@ -21,8 +21,10 @@ import { filterTrailing24h, parseFirmsCsv } from '../../src/data/firmsCsv.js';
  *   GET /api/firms        → {fetchedAt, stale, ttlMs, sources, count, fires}
  *   GET /api/firms/status → {hasKey, lastFetch, count, stale, ttlMs, transactions}
  *
- * Keyless (no FIRMS_MAP_KEY): /api/firms → 503 {error:'no_key'}; status →
- * {hasKey:false}. Upstream is never touched without a key.
+ * Keyless (no FIRMS_MAP_KEY): /api/firms reads NASA's public 24-hour global
+ * files for the same four products, so the layer works without a key. A key
+ * adds the area API's two-day window and quota reporting; status →
+ * {hasKey:false}.
  *
  * @returns {import('vite').Plugin}
  */
@@ -35,6 +37,14 @@ export function firmsProxy() {
     'VIIRS_SNPP_NRT',
     'MODIS_NRT',
   ];
+  // The same four products as NASA publishes them without a key: one global
+  // file per satellite covering the last 24 hours, rebuilt through the day.
+  const PUBLIC_FILES = {
+    VIIRS_NOAA20_NRT: 'noaa-20-viirs-c2/csv/J1_VIIRS_C2_Global_24h.csv',
+    VIIRS_NOAA21_NRT: 'noaa-21-viirs-c2/csv/J2_VIIRS_C2_Global_24h.csv',
+    VIIRS_SNPP_NRT: 'suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_Global_24h.csv',
+    MODIS_NRT: 'modis-c6.1/csv/MODIS_C6_1_Global_24h.csv',
+  };
   const CACHE_DIR = path.join(process.cwd(), '.gev-cache');
   const CACHE_PATH = path.join(CACHE_DIR, 'firms.json');
 
@@ -82,7 +92,10 @@ export function firmsProxy() {
    * it embeds the MAP_KEY.
    */
   async function fetchSource(key, source) {
-    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${encodeURIComponent(key)}/${source}/world/2`;
+    // With no MAP_KEY, read NASA's public 24-hour file for the same product.
+    const url = key
+      ? `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${encodeURIComponent(key)}/${source}/world/2`
+      : `https://firms.modaps.eosdis.nasa.gov/data/active_fire/${PUBLIC_FILES[source]}`;
     const res = await fetch(url, { signal: AbortSignal.timeout(60_000) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const records = parseFirmsCsv(await res.text());
@@ -117,7 +130,7 @@ export function firmsProxy() {
       }
     }
     if (!sources.some((s) => s.ok)) throw new Error('all FIRMS sources failed');
-    return { at: now, sources, fires };
+    return { at: now, keyless: !key, sources, fires };
   }
 
   /**
@@ -130,6 +143,7 @@ export function firmsProxy() {
       fetchedAt: entry.at,
       stale,
       ttlMs: TTL_MS,
+      keyless: Boolean(entry.keyless),
       sources: entry.sources,
       count: fires.length,
       fires,
@@ -209,11 +223,6 @@ export function firmsProxy() {
             ttlMs: TTL_MS,
             transactions,
           });
-          return;
-        }
-
-        if (!key) {
-          sendJson(503, { error: 'no_key' });
           return;
         }
 

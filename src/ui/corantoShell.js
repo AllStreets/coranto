@@ -1,4 +1,4 @@
-import { createNewsFeed } from './newsPanel.js';
+import { CATEGORY_CODE, createNewsFeed } from './newsPanel.js';
 import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
 import { getContextStore } from '../data/contextStore.js';
 import { createBroadcastsDialog } from './corantoBroadcasts.js';
@@ -27,7 +27,11 @@ const HEADER_LAYERS = [
   ['ais-live-vessels', 'SHIPS', 'Live vessels from AIS (needs a key)'],
   ['satellites', 'SATELLITES', 'Satellites from public orbital elements'],
   ['earthquakes', 'QUAKES', 'USGS earthquakes, last 24 hours'],
-  ['local-firms', 'FIRES', 'NASA FIRMS active fires (needs a key)'],
+  [
+    'local-firms',
+    'FIRES',
+    'Active fires seen by NASA satellites in the last 24 hours',
+  ],
   ['weather-cyclones', 'STORMS', 'NOAA tropical cyclones'],
   ['rocket-launches', 'LAUNCHES', 'Recent and upcoming rocket launches'],
   ['telegeography-submarine-cables', 'CABLES', 'Undersea cables'],
@@ -931,6 +935,7 @@ export function createCorantoShell({
             text: story.title,
           });
           const meta = [
+            CATEGORY_CODE[story.category] ?? 'NEWS',
             story.publisher,
             relativeAge(story.newest),
             story.outlets > 1 ? `${story.outlets} outlets` : '',
@@ -940,7 +945,10 @@ export function createCorantoShell({
             el(
               document,
               'li',
-              story.fresh ? { 'data-fresh': 'true' } : {},
+              {
+                'data-category': story.category || 'none',
+                ...(story.fresh ? { 'data-fresh': 'true' } : {}),
+              },
               link,
               el(document, 'span', { text: meta.join(' · ') }),
             ),

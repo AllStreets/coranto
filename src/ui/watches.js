@@ -176,6 +176,7 @@ export function watchStories(snapshot, watch, limit = Infinity) {
       id: story.id,
       title: lead.title,
       publisher: lead.publisher,
+      category: lead.category ?? '',
       url: lead.url,
       publishedAt: lead.publishedAt,
       newest,

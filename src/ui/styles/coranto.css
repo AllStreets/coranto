@@ -878,8 +878,44 @@
 .coranto-guide-card .coranto-briefing-list li::before {
   content: none;
 }
+/* Each row carries its topic's colour, as the feed cards do. A story that is
+   new since the last look is marked by a brighter bar and a dot, not by a
+   different colour. */
+.coranto-guide-card .coranto-briefing-list li {
+  --tag: rgba(255, 255, 255, 0.35);
+  border-left: 3px solid color-mix(in srgb, var(--tag) 45%, transparent);
+}
+.coranto-briefing-list li[data-category='geopolitics'] {
+  --tag: var(--cat-geopolitics);
+}
+.coranto-briefing-list li[data-category='technology'] {
+  --tag: var(--cat-technology);
+}
+.coranto-briefing-list li[data-category='military'] {
+  --tag: var(--cat-military);
+}
+.coranto-briefing-list li[data-category='finance'] {
+  --tag: var(--cat-finance);
+}
+.coranto-briefing-list li[data-category='climate'] {
+  --tag: var(--cat-climate);
+}
 .coranto-guide-card .coranto-briefing-list li[data-fresh] {
-  border-left-color: #34e08a;
+  border-left-color: var(--tag);
+}
+.coranto-briefing-list li[data-fresh] span::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--tag);
+  vertical-align: 1px;
+}
+/* The last action button spans the row when it would otherwise sit alone. */
+.coranto-rail-actions .coranto-rail-btn:nth-child(odd):nth-last-child(2) {
+  grid-column: 1 / -1;
 }
 .coranto-briefing-list a {
   color: var(--text-primary);

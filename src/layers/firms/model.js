@@ -120,7 +120,8 @@ export function createModel({
   function heatColor(value, alpha) {
     if (value > 0.72) return Cesium.Color.RED.withAlpha(alpha);
     if (value > 0.42) return Cesium.Color.ORANGE.withAlpha(alpha);
-    return Cesium.Color.YELLOW.withAlpha(alpha);
+    // Coranto: amber, not pale yellow, so low-heat cells still read as fire.
+    return Cesium.Color.fromBytes(255, 176, 32).withAlpha(alpha);
   }
 
   /**

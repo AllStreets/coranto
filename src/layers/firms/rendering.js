@@ -143,7 +143,9 @@ export function createRendering({
     for (const cell of cells) {
       const score = components.model.heatScore(cell);
       const normalized = Math.min(1, Math.sqrt(score / maxScore));
-      const alpha = 0.16 + normalized * 0.5;
+      // Coranto: a floor high enough to read against bright imagery from
+      // orbit; the faintest cells used to vanish at whole-Earth zoom.
+      const alpha = 0.42 + normalized * 0.4;
       const color = components.model.heatColor(normalized, alpha);
       const centerLon = cell.lonCell + lod.gridDegrees / 2;
       const centerLat = cell.latCell + lod.gridDegrees / 2;
