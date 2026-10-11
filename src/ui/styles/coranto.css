@@ -779,6 +779,10 @@ body[data-coranto-mode='instruments'] #coranto-feed {
 body[data-coranto-mode='instruments'] #coranto-header {
   z-index: 40;
   pointer-events: none;
+  /* A full-width blur over the globe is costly on software renderers. */
+  background: rgba(4, 7, 11, 0.95);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 body[data-coranto-mode='instruments'] #coranto-header :is(button, a) {
   pointer-events: auto;
