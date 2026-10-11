@@ -94,6 +94,16 @@ export function hideOsmCredit(viewer, owner) {
 export const DATA_CREDITS = [
   // ── Live sources ────────────────────────────────────────────────
   {
+    key: 'news',
+    html:
+      'News headlines and summaries belong to their publishers: BBC, ' +
+      'The Guardian, Al Jazeera, NPR, DW, France 24, UN News, ReliefWeb, ' +
+      'ScienceDaily, Ars Technica; article index by ' +
+      '<a href="https://www.gdeltproject.org" target="_blank" rel="noopener">the GDELT Project</a>. ' +
+      'Story locations are inferred from the text. City table: ' +
+      '<a href="https://www.geonames.org" target="_blank" rel="noopener">GeoNames</a> (CC BY 4.0)',
+  },
+  {
     key: 'opensky',
     html:
       'Flights: OpenSky Network — Schäfer et al., ' +
