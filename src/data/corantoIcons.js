@@ -178,6 +178,15 @@ export const ICONS = Object.freeze({
     '<circle cx="8" cy="6.5" r="2.2"/><path d="M4.5 20v-5.5a3.5 3.5 0 0 1 7 0V20"/><path d="M14 12h7M18 9l3 3-3 3"/>',
   ],
   // Interface
+  play: [SOLID, '<path d="M7 4.5v15l12.5-7.5z"/>'],
+  pause: [SOLID, '<path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/>'],
+  prev: [SOLID, '<path d="M11.5 12 21 5.5v13zM2.5 12 12 5.5v13z"/>'],
+  next: [SOLID, '<path d="M12.5 12 3 5.5v13zM21.5 12 12 5.5v13z"/>'],
+  external: [STROKE, '<path d="M9 5H5v14h14v-4M13 4h7v7M20 4l-9 9"/>'],
+  chevronRight: [STROKE, '<path d="m9 5 7 7-7 7"/>'],
+  chevronDown: [STROKE, '<path d="m5 9 7 7 7-7"/>'],
+  chevronLeft: [STROKE, '<path d="m15 5-7 7 7 7"/>'],
+  rotate: [STROKE, '<path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/>'],
   target: [
     STROKE,
     '<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M12 2v3.5M12 18.5V22M2 12h3.5M18.5 12H22"/>',
@@ -337,6 +346,7 @@ export const CONTROL_ICONS = Object.freeze({
   '#bloom-toggle .pp-icon': 'sparkle',
   '#sharpen-toggle .pp-icon': 'search',
   '#share-btn .share-icon': 'link',
+  '#search-toggle > span': 'search',
 });
 
 /**
@@ -344,6 +354,52 @@ export const CONTROL_ICONS = Object.freeze({
  * icons. `scope` is a selector the rules sit under, so only the intended
  * view changes; the engine's markup is left as it is.
  */
+/** Elements whose whole text is one glyph, and the icon that stands in. */
+export const GLYPH_ICONS = Object.freeze({
+  '#cockpit-radio-prev-btn': 'prev',
+  '#context-radio-mini-prev-btn': 'prev',
+  '.ui-glyph-prev': 'prev',
+  '#cockpit-radio-next-btn': 'next',
+  '#context-radio-mini-next-btn': 'next',
+  '.ui-glyph-next': 'next',
+  '#cockpit-radio-play-btn': 'play',
+  '#context-radio-mini-play-btn': 'play',
+  '[data-mission-replay-toggle]': 'pause',
+  "#cockpit-radio-play-btn[aria-label^='Pause']": 'pause',
+  "#context-radio-mini-play-btn[aria-label^='Pause']": 'pause',
+  "[data-mission-replay-toggle][aria-label^='Resume']": 'play',
+  '.cockpit-utility-glyph': 'chevronLeft',
+  ".cockpit-utility-glyph[aria-expanded='true']": 'chevronRight',
+  '.rail-card-disclosure': 'chevronRight',
+  "[data-open='true'] .rail-card-disclosure": 'chevronDown',
+  '.orbit-icon': 'rotate',
+  '.ui-glyph-external': 'external',
+  '#sl-error > span[aria-hidden]': 'hazard',
+  '#tr3b-toggle': 'aircraft',
+});
+
+function glyphCss(scope, colour) {
+  const selectors = Object.keys(GLYPH_ICONS);
+  return (
+    `${selectors.map((s) => `${scope} ${s}`).join(',')}{font-size:0!important;background-position:center;background-repeat:no-repeat;background-size:12px}` +
+    `${scope} .ui-glyph,${scope} .orbit-icon,${scope} .rail-card-disclosure,${scope} #sl-error > span[aria-hidden]{display:inline-block;width:12px;height:12px;vertical-align:-2px}` +
+    selectors
+      .map(
+        (s) =>
+          `${scope} ${s}{background-image:url("${iconImage(GLYPH_ICONS[s], colour)}")}`,
+      )
+      .join('') +
+    // The HUD drew its corners with box characters and its live mark with a
+    // bullet: draw the same shapes as lines and a disc.
+    `${scope} .hud-bracket{font-size:0!important;width:16px;height:16px;border:0 solid currentColor}` +
+    `${scope} .hud-top-left .hud-bracket{border-width:2px 0 0 2px}` +
+    `${scope} .hud-top-right .hud-bracket{border-width:2px 2px 0 0}` +
+    `${scope} .hud-bottom-left .hud-bracket{border-width:0 0 2px 2px}` +
+    `${scope} .hud-bottom-right .hud-bracket{border-width:0 2px 2px 0}` +
+    `${scope} #hud-rec-dot{font-size:0!important;display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff3333;box-shadow:0 0 6px rgba(255,51,51,.8)}`
+  );
+}
+
 export function layerIconCss(scope, colour = '#cfc8e6') {
   const rows = Object.entries(LAYER_ICONS).map(
     ([id, icon]) =>
@@ -351,21 +407,22 @@ export function layerIconCss(scope, colour = '#cfc8e6') {
   );
   const controls = Object.entries(CONTROL_ICONS).map(
     ([selector, icon]) =>
-      `${scope} ${selector}{font-size:0;display:inline-block;width:16px;height:16px;background:url("${iconImage(icon, colour)}") center/contain no-repeat}`,
+      `${scope} ${selector}{font-size:0!important;display:inline-block;width:16px;height:16px;background:url("${iconImage(icon, colour)}") center/contain no-repeat}`,
   );
   return (
-    `${scope} .data-toggle-row .data-icon{font-size:0;width:16px;height:16px;flex:0 0 16px;background:center/contain no-repeat}` +
+    `${scope} .data-toggle-row .data-icon{font-size:0!important;width:16px;height:16px;flex:0 0 16px;background:center/contain no-repeat}` +
     rows.join('') +
     controls.join('') +
     // The location line starts with a pin emoji: hide that one character
     // and show the pin icon in its place.
     `${scope} #location-mini-city{padding-left:17px;background:url("${iconImage('pin', colour)}") left center/13px no-repeat}` +
-    `${scope} #location-mini-city::first-letter{font-size:0}` +
+    `${scope} #location-mini-city::first-letter{font-size:0!important}` +
     // Collapse buttons used plus, minus and triangle characters.
-    `${scope} .panel-collapse-btn{font-size:0;background:url("${iconImage('plus', colour)}") center/11px no-repeat}` +
+    `${scope} .panel-collapse-btn{font-size:0!important;background:url("${iconImage('plus', colour)}") center/11px no-repeat}` +
     `${scope} .panel-collapse-btn[aria-expanded='true']{background-image:url("${iconImage('minus', colour)}")}` +
     // Key tiers were coloured emoji dots.
-    `${scope} .key-setup-tier{font-size:0;display:inline-block;width:8px;height:8px;border-radius:50%;background:#e8b84b}` +
-    `${scope} .key-setup-tier[title^='Metered']{background:#ff4d5e}`
+    `${scope} .key-setup-tier{font-size:0!important;display:inline-block;width:8px;height:8px;border-radius:50%;background:#e8b84b}` +
+    `${scope} .key-setup-tier[title^='Metered']{background:#ff4d5e}` +
+    glyphCss(scope, colour)
   );
 }

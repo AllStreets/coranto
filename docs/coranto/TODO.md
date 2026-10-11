@@ -10,8 +10,7 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   the same panel chrome, brand-coloured readouts kept below the ticker,
   icons in the layer list, headlines on in both views. The panels still
   float where the engine puts them rather than sitting in fixed columns;
-  its layout solver is left alone on purpose. Open: emoji in the visual
-  presets, display panel and key-setup panel; panels dragged under the
+  its layout solver is left alone on purpose. Open: panels dragged under the
   header.
 - [x] **P2 Government (non-military) aircraft in Watch Power.** From the
   public plane-alert database (ODbL) joined to live ADS-B. Open: selecting
@@ -41,11 +40,14 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   with BOARD, the story pop-up, restyling INSTRUMENTS panels to match.
 - [ ] **T14 Carry the military HUD styling the owner likes** into the news
   side (part of T12).
-- [~] **T13 No emojis or text glyphs.** One SVG icon set of 53 icons. Done:
-  the news view, the layer list, visual presets, display toggles, share
-  button, collapse buttons, location line, key tiers. Open: arrows in a few
-  button labels (MANAGE, GET KEY, radio transport), the engine's corner
-  brackets drawn with box characters, emoji in voice and directions text.
+- [x] **T13 No emojis or text glyphs.** One SVG icon set of 62 icons. Done:
+  the news view, the layer list, visual presets, display toggles, share and
+  search buttons, collapse buttons, location line, key tiers, radio and
+  replay transport, key-setup links, panel disclosure arrows, the HUD's
+  corners and live mark. A scan of the rendered INSTRUMENTS view finds no
+  emoji, arrow or box character left on screen. Open: the coloured bullet in
+  the radio category menu (a menu option cannot hold an icon), and emoji
+  inside spoken or written directions text.
 
 ## Globe and map language
 

@@ -173,7 +173,10 @@ function buildRow(documentRef, key) {
   get.href = key.getUrl;
   get.target = '_blank';
   get.rel = 'noopener noreferrer';
-  get.textContent = key.set ? 'MANAGE ↗' : 'GET KEY ↗';
+  const arrow = documentRef.createElement('span');
+  arrow.className = 'ui-glyph ui-glyph-external';
+  arrow.textContent = '↗';
+  get.append(key.set ? 'MANAGE ' : 'GET KEY ', arrow);
   head.append(get);
 
   const unlocks = documentRef.createElement('p');

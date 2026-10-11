@@ -338,6 +338,11 @@
 
 ## [Unreleased]
 
+- Replace the last emoji, arrows and box characters in the INSTRUMENTS panels
+  with icons from the shared set: radio and replay transport buttons, the
+  key-setup links, panel disclosure arrows, the search button, and the HUD's
+  corner brackets and live mark, which are now drawn as lines and a disc.
+
 - Add the RELIEF lens. It lists the twenty countries most people have been
   forced to flee, from the UN refugee agency's figures for the latest year it
   has published, and the World Health Organization's newest disease outbreak
