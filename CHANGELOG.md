@@ -338,6 +338,11 @@
 
 ## [Unreleased]
 
+- Live TV now has a newsroom on every inhabited continent. Todo Noticias in
+  Buenos Aires (Spanish) and CNN Brasil in São Paulo (Portuguese) join the
+  list, each pinned on the globe. Both were checked live on YouTube and
+  playing in the in-app player on 2026-10-11.
+
 - Add NEAREST LIVE TV to the story pop-up. It opens, inside the app, the live
   channel whose newsroom is closest to where the story was placed, and says
   how far away that is and that the channel shows its own live output, which

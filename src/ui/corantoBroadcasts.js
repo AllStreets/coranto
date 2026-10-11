@@ -5,9 +5,9 @@ import { cullBeyondHorizon } from './corantoHorizon.js';
 
 /**
  * Live television news, as AUSPEX had it: a player inside the app and a pin
- * on the globe for each newsroom. The channels are AUSPEX's list, one or two
- * for each inhabited continent, all of which allow their stream to be shown
- * on other sites.
+ * on the globe for each newsroom. The channels are AUSPEX's list plus two in
+ * South America, so every inhabited continent has a newsroom of its own. All
+ * allow their stream to be shown on other sites.
  *
  * Nothing is loaded from YouTube until the reader opens LIVE TV. The player
  * is YouTube's own, from its no-cookie address. A channel that will not play
@@ -89,6 +89,27 @@ export const BROADCASTERS = Object.freeze([
     40.7589,
     -73.9851,
     '#8e78ff',
+  ],
+  // South America. AUSPEX had no newsroom on the continent; these two were
+  // added on 2026-10-11, when both were live on YouTube and allowed their
+  // stream to be shown on other sites.
+  [
+    'Todo Noticias',
+    'Buenos Aires',
+    'Argentina and South America, in Spanish',
+    'UCj6PcyLvpnIRT_2W_mwa9Aw',
+    -34.6037,
+    -58.3816,
+    '#2fb5e8',
+  ],
+  [
+    'CNN Brasil',
+    'São Paulo',
+    'Brazil and South America, in Portuguese',
+    'UCvdwhh_fDyWccR42-rReZLw',
+    -23.5505,
+    -46.6333,
+    '#e5484d',
   ],
   [
     'DW Español',

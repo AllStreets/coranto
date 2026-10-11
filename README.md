@@ -260,7 +260,7 @@ the official election body before relying on a date.
 </tr>
 <tr>
 <td><em>Markets: three stock indices, Brent and WTI oil, the US 10-year yield, eight exchange rates and three crypto prices, each with its source and the day or time the source gave it, beside the finance news.</em></td>
-<td><em>Live TV: ten news channels across every continent, from AUSPEX's broadcaster list.</em></td>
+<td><em>Live TV: twelve news channels with a newsroom on every inhabited continent. Ten are AUSPEX's list; Buenos Aires and São Paulo were added for South America.</em></td>
 </tr>
 </table>
 
@@ -278,8 +278,9 @@ agency, and the World Health Organization's disease outbreak notices, marked
 on the globe and linked to the notice itself. Nothing in it is an estimate of
 Coranto's or written by a model.
 
-**LIVE TV** plays live news channels from Doha, Paris, Berlin, Singapore,
-Sydney, New York and elsewhere in a panel over the globe, and pins each
+**LIVE TV** plays live news channels from Doha, Paris, Berlin, Pointe-Noire,
+Singapore, Sydney, New York, Buenos Aires and São Paulo in a panel over the
+globe, and pins each
 newsroom on the map. The player is YouTube's own, from its no-cookie address;
 nothing loads from YouTube until you open the panel, and closing it removes
 the player.

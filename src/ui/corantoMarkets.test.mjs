@@ -170,7 +170,7 @@ test('an outage shows one sentence and no figures', () => {
 });
 
 test('live TV links go to each channel’s own live page', () => {
-  assert.equal(BROADCASTERS.length, 10);
+  assert.equal(BROADCASTERS.length, 12);
   for (const [name, , , channelId] of BROADCASTERS) {
     assert.ok(name);
     assert.match(
@@ -178,7 +178,7 @@ test('live TV links go to each channel’s own live page', () => {
       /^https:\/\/www\.youtube\.com\/channel\/UC[\w-]{22}\/live$/,
     );
   }
-  assert.equal(new Set(BROADCASTERS.map((row) => row[3])).size, 10);
+  assert.equal(new Set(BROADCASTERS.map((row) => row[3])).size, 12);
 });
 
 test('the in-app player uses the no-cookie address and reports a blocked stream', () => {
@@ -218,6 +218,15 @@ test('the nearest newsroom is found by distance, and nothing is offered without 
   assert.equal(paris.city, 'Paris');
   assert.ok(paris.km < 10);
   assert.equal(nearestBroadcaster({ lat: 25.3, lon: 51.5 }).city, 'Doha');
+  // Every inhabited continent has a newsroom of its own.
+  assert.equal(
+    nearestBroadcaster({ lat: -22.9, lon: -43.2 }).city,
+    'São Paulo',
+  );
+  assert.equal(
+    nearestBroadcaster({ lat: -33.45, lon: -70.67 }).city,
+    'Buenos Aires',
+  );
   assert.equal(nearestBroadcaster(null), null);
   assert.equal(nearestBroadcaster({ lat: Number.NaN, lon: 0 }), null);
 });
