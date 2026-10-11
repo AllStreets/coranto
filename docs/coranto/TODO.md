@@ -66,10 +66,12 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 ## In-app, not out of app
 
 - [x] **T7 Story pop-ups** for feed cards, briefing rows and single-story
-  places. Tools so far: AI brief, who covered, figures, fly to, listen.
+  places. Tools so far: AI brief, who covered, figures, fly to, nearest live
+  TV, pin to board, listen.
 - [x] **T6 Broadcasts in-app**: embedded player and newsroom pins on the
-  globe. Open: dragging and resizing the panel; picking the channel that
-  fits the open story, as AUSPEX did.
+  globe. Also done: dragging and resizing the panel; NEAREST
+  LIVE TV on a story opens the channel whose newsroom is closest to the
+  story's place, and says that is all it means.
 - [ ] **T5 Audit every link that leaves the app**; the publisher link stays
   as attribution inside an in-app surface.
 - [ ] **T8 AUSPEX story-popup tools**: pin to analyst, mirrors, blindspot,

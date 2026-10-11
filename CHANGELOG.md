@@ -338,6 +338,11 @@
 
 ## [Unreleased]
 
+- Add NEAREST LIVE TV to the story pop-up. It opens, inside the app, the live
+  channel whose newsroom is closest to where the story was placed, and says
+  how far away that is and that the channel shows its own live output, which
+  may not be about the story.
+
 - Pin an aircraft, ship or mapped site to the analyst board from its card,
   including the military and government aircraft in Watch Power. The board
   keeps what the card said and where the thing was at the moment of pinning,

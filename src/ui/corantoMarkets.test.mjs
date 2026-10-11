@@ -18,6 +18,7 @@ import {
   broadcastUrl,
   broadcasterPin,
   isPlayerError,
+  nearestBroadcaster,
 } from './corantoBroadcasts.js';
 import { buildMarketsModel } from './corantoMarkets.js';
 
@@ -209,4 +210,14 @@ test('the in-app player uses the no-cookie address and reports a blocked stream'
     ),
     />DW NEWS<\/text>/,
   );
+});
+
+test('the nearest newsroom is found by distance, and nothing is offered without a place', () => {
+  const paris = nearestBroadcaster({ lat: 48.85, lon: 2.35 });
+  assert.equal(paris.name, 'France 24 English');
+  assert.equal(paris.city, 'Paris');
+  assert.ok(paris.km < 10);
+  assert.equal(nearestBroadcaster({ lat: 25.3, lon: 51.5 }).city, 'Doha');
+  assert.equal(nearestBroadcaster(null), null);
+  assert.equal(nearestBroadcaster({ lat: Number.NaN, lon: 0 }), null);
 });

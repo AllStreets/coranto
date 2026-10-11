@@ -71,6 +71,7 @@ export function createNewsFeed({
   now = () => Date.now(),
   fetchImpl = (...args) => globalThis.fetch(...args),
   board = null,
+  watch = null,
 }) {
   if (!document?.createElement || !body) return null;
 
@@ -639,6 +640,17 @@ export function createNewsFeed({
         layer.selectPlace(card.placeKey, { focus: true }),
       );
       tools.append(fly);
+      const place = (layer.getView().places ?? []).find(
+        (entry) => entry.key === card.placeKey,
+      );
+      const near = watch?.nearest(place ?? null);
+      if (near) {
+        const live = toolButton('broadcast', 'NEAREST LIVE TV', {
+          title: `Open ${near.name} live, here. Its newsroom in ${near.city} is the nearest to this story's place, ${near.km.toLocaleString('en-GB')} km away. It shows that channel's own live output, which may not be about this story.`,
+        });
+        live.addEventListener('click', () => watch.open(near.index));
+        tools.append(live);
+      }
     }
     if (board) {
       const key = card.storyId ?? card.id;

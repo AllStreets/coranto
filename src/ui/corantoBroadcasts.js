@@ -1,5 +1,6 @@
 import * as Cesium from 'cesium';
 import { iconImage } from '../data/corantoIcons.js';
+import { distanceKm } from './corantoContact.js';
 import { cullBeyondHorizon } from './corantoHorizon.js';
 
 /**
@@ -110,6 +111,23 @@ export const BROADCASTERS = Object.freeze([
 ]);
 
 /** The channel's live page on the video site. */
+/**
+ * The broadcaster whose newsroom is nearest a point, with the distance.
+ * Nearness is all it means: the channel shows its own live output, which may
+ * or may not be about a story placed there.
+ * @param {{lat: number, lon: number}|null} at
+ * @returns {{index: number, name: string, city: string, km: number}|null}
+ */
+export function nearestBroadcaster(at) {
+  if (!Number.isFinite(at?.lat) || !Number.isFinite(at?.lon)) return null;
+  let best = null;
+  BROADCASTERS.forEach(([name, city, , , lat, lon], index) => {
+    const km = distanceKm(at, { lat, lon });
+    if (!best || km < best.km) best = { index, name, city, km };
+  });
+  return best && { ...best, km: Math.round(best.km) };
+}
+
 export const broadcastUrl = (channelId) =>
   `https://www.youtube.com/channel/${channelId}/live`;
 
@@ -386,6 +404,12 @@ export function createBroadcasts({ document, getViewer = () => null }) {
     },
     toggle() {
       if (isOpen) api.close();
+      else api.open();
+    },
+    /** Open the panel on one channel, by its row in `BROADCASTERS`. */
+    openChannel(index) {
+      current = Math.max(0, Math.min(BROADCASTERS.length - 1, index));
+      if (isOpen) tune(current);
       else api.open();
     },
   };

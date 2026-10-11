@@ -3,7 +3,7 @@ import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
 import { getContextStore } from '../data/contextStore.js';
 import { createBoard } from './corantoBoard.js';
 import { createBoardStore } from './corantoBoardModel.js';
-import { createBroadcasts } from './corantoBroadcasts.js';
+import { createBroadcasts, nearestBroadcaster } from './corantoBroadcasts.js';
 import {
   NEARBY_KM,
   contactCard,
@@ -1967,6 +1967,10 @@ export function createCorantoShell({
     layer,
     onModel,
     board: boardStore,
+    watch: {
+      nearest: nearestBroadcaster,
+      open: (index) => tv.openChannel(index),
+    },
   });
   // First visit: open the guide once. Automated browsers are left alone.
   if (
