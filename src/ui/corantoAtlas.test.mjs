@@ -135,3 +135,67 @@ test('the map key lists atlas overlays only when they are on', () => {
     ['City', 'Capital'],
   );
 });
+
+test('live conflict needs three military headlines that name the country and use fighting words', async () => {
+  const { liveConflictCodes, headlineActivity } =
+    await import('./corantoCountrySignals.js');
+  const countries = [
+    { iso2: 'NE', name: 'Niger' },
+    { iso2: 'NG', name: 'Nigeria' },
+    { iso2: 'SD', name: 'Sudan' },
+    { iso2: 'TD', name: 'Chad' },
+  ];
+  const mil = (title, summary = '') => ({
+    title,
+    summary,
+    category: 'military',
+  });
+  const articles = [
+    mil('Sudan army shelling kills dozens in Darfur'),
+    mil('Rebel offensive pushes toward Sudan capital'),
+    mil('Sudan militia accused of war crimes'),
+    mil('Nigeria troops free hostages'),
+    mil('Nigeria gunmen attack village'),
+    // Names the country but is not military, or has no fighting words.
+    { title: 'Nigeria militia talks collapse', category: 'geopolitics' },
+    mil('Nigeria unveils new parade uniform'),
+    // "Chad" is only in the summary: a passing mention.
+    mil('Rebels cross the border', 'They came from Chad.'),
+  ];
+  // Sudan has three; Nigeria has two; "Niger" is not matched inside "Nigeria".
+  assert.deepEqual([...liveConflictCodes(countries, articles)], ['SD']);
+  const activity = headlineActivity(countries, articles);
+  assert.deepEqual(activity.get('NG'), { count: 4, level: 'high' });
+  assert.deepEqual(activity.get('SD'), { count: 3, level: 'high' });
+  assert.deepEqual(activity.get('TD'), { count: 1, level: 'medium' });
+  assert.equal(activity.has('NE'), false);
+});
+
+test('a country card says where its conflict mark comes from', () => {
+  const live = countryCard(
+    { name: 'Sudan', conflict_active: true, conflict_live: true },
+    0,
+    {
+      activity: { count: 12, level: 'high' },
+    },
+  );
+  assert.match(live.meta, /three or more current military headlines name it/);
+  assert.match(live.meta, /Named in 12 current headlines \(high activity\)/);
+  const both = countryCard(
+    {
+      name: 'Ukraine',
+      conflict_active: true,
+      conflict_listed: true,
+      conflict_live: true,
+    },
+    0,
+  );
+  assert.match(both.meta, /AUSPEX’s list, and current military headlines/);
+  assert.match(
+    decodeURIComponent(
+      countryImage({ iso2: 'SD', name: 'Sudan' }, { nameColour: '#ff6b81' })
+        .image,
+    ),
+    /fill="#ff6b81"/,
+  );
+});

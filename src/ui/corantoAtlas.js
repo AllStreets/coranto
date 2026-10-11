@@ -9,6 +9,11 @@ import {
   LINE_COLOURS,
 } from '../data/corantoAtlasStyle.js';
 import { ICONS } from '../data/corantoIcons.js';
+import {
+  ACTIVITY_COLOURS,
+  headlineActivity,
+  liveConflictCodes,
+} from './corantoCountrySignals.js';
 import { cullBeyondHorizon } from './corantoHorizon.js';
 
 /**
@@ -29,6 +34,7 @@ export const ATLAS_OVERLAYS = Object.freeze([
   ['borders', 'Borders and front lines'],
   ['countries', 'Countries'],
   ['cities', 'Cities'],
+  ['activity', 'Headline activity'],
 ]);
 
 const dataUri = (svg) => `data:image/svg+xml,${encodeURIComponent(svg)}`;
@@ -59,12 +65,12 @@ export function textImage(text, { size = 7, colour = '#ffffff' } = {}) {
 }
 
 /** A country's marker: its status marks in a row above its name. */
-export function countryImage(country) {
+export function countryImage(
+  country,
+  { nameColour = COUNTRY_NAME_COLOUR } = {},
+) {
   const marks = COUNTRY_MARKS.filter(([flag]) => country[flag]);
-  const name = textImage(country.name, {
-    size: 7,
-    colour: COUNTRY_NAME_COLOUR,
-  });
+  const name = textImage(country.name, { size: 7, colour: nameColour });
   const mark = 13;
   const gap = 4;
   const row = marks.length * mark + Math.max(0, marks.length - 1) * gap;
@@ -91,7 +97,7 @@ export function countryImage(country) {
     height,
     image: dataUri(
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width * SCALE}" height="${height * SCALE}">${glyphs}` +
-        `<text x="${width / 2}" y="${top + size + 1}" text-anchor="middle" font-family="${MONO}" font-size="${size}" font-weight="600" letter-spacing="${size * 0.09}" fill="${COUNTRY_NAME_COLOUR}" stroke="#04050a" stroke-width="2.2" stroke-linejoin="round" paint-order="stroke">${escapeXml(label)}</text></svg>`,
+        `<text x="${width / 2}" y="${top + size + 1}" text-anchor="middle" font-family="${MONO}" font-size="${size}" font-weight="600" letter-spacing="${size * 0.09}" fill="${nameColour}" stroke="#04050a" stroke-width="2.2" stroke-linejoin="round" paint-order="stroke">${escapeXml(label)}</text></svg>`,
     ),
   };
 }
@@ -108,11 +114,13 @@ export function cityImage(type) {
 }
 
 /** What a country's card says. */
-export function countryCard(country, storyCount) {
+export function countryCard(country, storyCount, signals = {}) {
   const status = COUNTRY_MARKS.filter(([flag]) => country[flag]).map(
-    ([, , , label]) => label,
+    ([flag, , , label]) =>
+      flag === 'conflict_active' ? conflictLabel(country) : label,
   );
   if (country.nato_member) status.push('NATO member');
+  const activity = signals.activity;
   return {
     kind: country.strategic_tier
       ? `COUNTRY · TIER ${country.strategic_tier}`
@@ -122,12 +130,26 @@ export function countryCard(country, storyCount) {
       status.length
         ? `Status: ${status.join(' · ')}`
         : 'No special strategic designations on record',
+      activity
+        ? `Named in ${activity.count} current ${activity.count === 1 ? 'headline' : 'headlines'} (${activity.level} activity)`
+        : '',
       storyCount
         ? `${storyCount} current ${storyCount === 1 ? 'story names' : 'stories name'} it; the feed now shows ${storyCount === 1 ? 'it' : 'them'}`
         : 'No current story names it',
       'Designations are AUSPEX’s own table, not a live feed',
-    ].join(' · '),
+    ]
+      .filter(Boolean)
+      .join(' · '),
   };
+}
+
+/** Says where an active-conflict mark comes from. */
+function conflictLabel(country) {
+  if (country.conflict_listed && country.conflict_live)
+    return 'Active conflict (AUSPEX’s list, and current military headlines)';
+  return country.conflict_live
+    ? 'Active conflict (three or more current military headlines name it)'
+    : 'Active conflict';
 }
 
 /** What a city's card says. */
@@ -168,7 +190,14 @@ export function createAtlas({
   selectPlace,
   fetchImpl = (...args) => globalThis.fetch(...args),
 }) {
-  const state = { borders: false, countries: false, cities: false };
+  const state = {
+    borders: false,
+    countries: false,
+    cities: false,
+    activity: false,
+  };
+  // What the current headlines say about countries; see corantoCountrySignals.
+  let signals = { conflict: new Set(), activity: new Map(), key: '' };
   const drawn = { borders: null, countries: null, cities: null };
   const stopCulling = { countries: null, cities: null };
   const data = {};
@@ -194,7 +223,9 @@ export function createAtlas({
       const count = selectPlace(record.kind, record.item.name);
       showCard({
         ...(record.kind === 'country'
-          ? countryCard(record.item, count)
+          ? countryCard(record.item, count, {
+              activity: signals.activity.get(record.item.iso2),
+            })
           : cityCard(record.item, count)),
         // What the analyst board keeps if this is pinned.
         pin: {
@@ -238,8 +269,21 @@ export function createAtlas({
 
   function drawCountries(viewer, countries) {
     const marks = new Cesium.BillboardCollection({ scene: viewer.scene });
-    for (const country of countries) {
-      const { image, width, height } = countryImage(country);
+    for (const base of countries) {
+      const live = signals.conflict.has(base.iso2);
+      // The mark is AUSPEX's list or a live signal; the card says which.
+      const country = {
+        ...base,
+        conflict_listed: Boolean(base.conflict_active),
+        conflict_live: live,
+        conflict_active: Boolean(base.conflict_active) || live,
+      };
+      const level = state.activity
+        ? signals.activity.get(base.iso2)?.level
+        : null;
+      const { image, width, height } = countryImage(country, {
+        nameColour: ACTIVITY_COLOURS[level] ?? undefined,
+      });
       const id = `atlas:country:${country.iso2}`;
       records.set(id, { kind: 'country', item: country });
       marks.add({
@@ -326,6 +370,16 @@ export function createAtlas({
     cities: drawCities,
   };
 
+  async function redrawCountries() {
+    const viewer = getViewer();
+    if (!viewer || !drawn.countries || !data.countries) return;
+    stopCulling.countries?.();
+    viewer.scene.primitives.remove(drawn.countries);
+    drawn.countries = drawCountries(viewer, data.countries);
+    stopCulling.countries = cullBeyondHorizon(viewer, drawn.countries);
+    viewer.scene.requestRender?.();
+  }
+
   return {
     isOn: (name) => Boolean(state[name]),
     /** City types on the map, most common first, for the key. */
@@ -340,10 +394,29 @@ export function createAtlas({
         .filter((type) => CITY_ICONS[type]);
     },
     /** Switch an overlay on or off. Resolves to whether it is now on. */
+    /** Recompute the country signals from the current headlines. */
+    async setArticles(articles) {
+      if (!data.countries) return;
+      const conflict = liveConflictCodes(data.countries, articles);
+      const activity = headlineActivity(data.countries, articles);
+      const key = `${[...conflict].sort().join()}|${[...activity]
+        .map(([code, entry]) => code + entry.level)
+        .sort()
+        .join()}`;
+      if (key === signals.key) return;
+      signals = { conflict, activity, key };
+      if (state.countries) await redrawCountries();
+    },
     async set(name, on) {
       if (!(name in state)) return false;
       const viewer = getViewer();
       if (!viewer) return false;
+      if (name === 'activity') {
+        // Activity colours the country names; it needs them drawn.
+        state.activity = Boolean(on);
+        if (state.countries) await redrawCountries();
+        return state.activity;
+      }
       state[name] = Boolean(on);
       if (!on) {
         stopCulling[name]?.();

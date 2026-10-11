@@ -17,6 +17,13 @@
   A first visit opens the guide once. The election calendar query is several
   times faster, retries once and keeps its last good read on disk.
 
+- Coranto: countries follow the headlines, by AUSPEX's two rules. A country
+  gains the conflict mark when three or more current military headlines name
+  it in the headline and use fighting vocabulary, in addition to AUSPEX's
+  list; its card says which applies. A new Headline activity switch colours
+  country names by how often they are named: red for the most named, amber
+  for often. It is a count of mentions, and the map key says it is not a
+  threat level.
 - Coranto: nothing on the globe is simulated. Street Traffic used to draw
   invented vehicles when no TomTom key was set, and on roads TomTom had no
   data for. For people it now draws dots only where there is measured flow,

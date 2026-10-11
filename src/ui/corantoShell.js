@@ -29,7 +29,12 @@ import {
 const MODE_KEY = 'coranto.mode.v1';
 const ATLAS_KEY = 'coranto.atlas.v1';
 /** Borders are on unless switched off, as in AUSPEX. */
-const ATLAS_DEFAULTS = { borders: true, countries: false, cities: false };
+const ATLAS_DEFAULTS = {
+  borders: true,
+  countries: false,
+  cities: false,
+  activity: false,
+};
 const WELCOME_KEY = 'coranto.welcomed.v1';
 const FIRST_RUN_SESSION_KEY = 'gev:first-run-mission-session:v1';
 
@@ -748,12 +753,19 @@ export function createCorantoShell({
   const atlasList = el(document, 'div', { class: 'coranto-switches' });
   async function setAtlas(name, on, { remember = true } = {}) {
     atlasWanted[name] = Boolean(on);
+    // Headline activity colours country names, so it brings them with it.
+    if (name === 'activity' && on && !atlas.isOn('countries'))
+      await setAtlas('countries', true, { remember });
+    if (name === 'countries' && !on && atlas.isOn('activity'))
+      await setAtlas('activity', false, { remember });
     if (remember)
       writeStored(localStorageRef, ATLAS_KEY, JSON.stringify(atlasWanted));
     const button = atlasButtons.get(name);
     button.setAttribute('aria-pressed', String(Boolean(on)));
     button.dataset.busy = 'true';
     const now = await atlas.set(name, on);
+    if (name === 'countries' && now)
+      await atlas.setArticles(layer.getView().snapshot?.articles ?? []);
     delete button.dataset.busy;
     button.setAttribute('aria-pressed', String(now));
     // The full country markers carry the nuclear mark themselves.
@@ -816,6 +828,7 @@ export function createCorantoShell({
       ships: on('ais-live-vessels'),
       borders: atlas.isOn('borders'),
       countries: atlas.isOn('countries'),
+      activity: atlas.isOn('activity'),
       cityTypes: atlas.cityTypes(),
       otherLayers: HEADER_LAYERS.filter(
         ([id]) => !KEYED_LAYERS.has(id) && on(id),
@@ -1504,6 +1517,8 @@ export function createCorantoShell({
     liveBtn.dataset.state = state;
     sourceRowsShown = model.sources;
     renderSourcesMenu();
+    // Country marks that depend on the headlines follow the headlines.
+    atlas.setArticles(layer.getView().snapshot?.articles ?? []);
     const sources = model.sources.filter((source) => source.state !== 'off');
     const live = sources.filter((source) => source.state === 'ok').length;
     liveText.textContent = liveLabel(state, live, sources.length);

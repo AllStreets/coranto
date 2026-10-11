@@ -83,8 +83,9 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 
 - [x] **T25 Borders, front lines, countries and cities overlays**, as AUSPEX
   drew them (`src/ui/corantoAtlas.js`, data in `public/coranto-atlas/`).
-  Open: live conflict detection from headlines, the AUSPEX city panel's two
-  briefs, regions/threat overlay, pinning countries and cities to the board.
+  Also done: live conflict marks and headline activity from current
+  headlines, pinning countries and cities to the board. Open: the AUSPEX
+  city panel's two briefs, the regions/threat overlay.
 
 ## More data
 

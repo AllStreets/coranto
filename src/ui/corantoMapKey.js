@@ -46,6 +46,7 @@ const marker = (icon, colour, extra = {}) => ({
  * @param {boolean} state.ships
  * @param {boolean} state.borders
  * @param {boolean} state.countries
+ * @param {boolean} state.activity
  * @param {string[]} state.cityTypes City types on the map, or [].
  * @param {string[]} state.otherLayers Names of other layers switched on.
  * @returns {Array<{heading: string, rows: Array<{image?: string, swatch?: string, label: string}>}>}
@@ -145,6 +146,22 @@ export function buildMapKeyModel(state) {
         image: iconImage(icon, colour),
         label,
       })),
+    });
+  if (state.activity)
+    sections.push({
+      heading: 'HEADLINE ACTIVITY',
+      rows: [
+        {
+          swatch: '#ff6b81',
+          label:
+            'Country name in red: among the most named in current headlines',
+        },
+        { swatch: '#ffb84d', label: 'In amber: named often' },
+        {
+          label:
+            'A count of mentions, relative to the most-named country. It is not a threat level.',
+        },
+      ],
     });
   if (state.cityTypes?.length)
     sections.push({
