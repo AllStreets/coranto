@@ -72,8 +72,12 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   globe. Also done: dragging and resizing the panel; NEAREST
   LIVE TV on a story opens the channel whose newsroom is closest to the
   story's place, and says that is all it means.
-- [ ] **T5 Audit every link that leaves the app**; the publisher link stays
-  as attribution inside an in-app surface.
+- [x] **T5 Audit every link that leaves the app** (2026-10-11). A headline
+  click opens the story pop-up in the app. The 16 links that still open
+  another site are all sources: the publisher's article, other outlets'
+  headlines in a story, brief citations, the board's source links, a market
+  figure's source, FEC, UNHCR and WHO records, an aircraft's public track and
+  a channel's YouTube page.
 - [ ] **T8 AUSPEX story-popup tools**: pin to analyst, mirrors, blindspot,
   verify, translate, listen, provenance.
 - [x] **T2 Analyst board**, opened from the header in both views. Pins,
@@ -90,8 +94,11 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [x] **T25 Borders, front lines, countries and cities overlays**, as AUSPEX
   drew them (`src/ui/corantoAtlas.js`, data in `public/coranto-atlas/`).
   Also done: live conflict marks and headline activity from current
-  headlines, pinning countries and cities to the board. Open: the AUSPEX
-  city panel's two briefs, the regions/threat overlay.
+  headlines, pinning countries and cities to the board. Open: a checked AI
+  brief for a whole place (AUSPEX's city panel briefs were model-written, so
+  this goes through the same citation check as story briefs). Needs the
+  database: the regions/threat overlay, whose rows lived in AUSPEX's Supabase
+  `regions` table; Headline activity is the computed stand-in until then.
 
 ## More data
 
