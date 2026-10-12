@@ -52,9 +52,11 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 
 ## Globe and map language
 
-- [~] **T16 Map icon overhaul.** Done: topic icons for stories, event icons
-  for hazards, a shared icon module (`src/data/corantoIcons.js`). Also done: earthquake icons by
-  magnitude, a rocket at each launch site. Open: country status marks.
+- [x] **T16 Map icon overhaul.** Topic icons for stories, event icons for
+  hazards, city-type icons, country status marks (nuclear-armed, active
+  conflict, under sanctions), elections, earthquake icons by magnitude, a
+  rocket at each launch site, satellites drawn as a small picture of one.
+  All from the shared icon module (`src/data/corantoIcons.js`).
 - [x] **T18 Ship icons.** Top-down hulls by class, rotated to heading.
 - [x] **T22 Satellite icons** on the named catalogue (about a thousand); the
   Starlink shell stays as dots. No frame-rate cost measured.
