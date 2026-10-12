@@ -338,6 +338,12 @@ Coranto has two views, switched at the top right.
 | Narrow by topic | Use the list on the left. |
 | See only good news | Click **GOOD NEWS**. |
 | Check the sources | Click the **LIVE** badge. It lists every source and whether it answered. |
+| See everything about one country | Search its name and pick **COUNTRY SHEET**, or click the country and choose **Open the country sheet**. |
+| See what is near a story | Open the story and click **AROUND HERE**. Rows fly to what they name. |
+| Be shown the day | Click **TOUR TODAY** on the left. |
+| See what was reported earlier in the week | Click **REPLAY WEEK** on the left and drag the slider. |
+| Be told when something arrives | Save a watch. A notice appears when it has more new stories. Switch on **Notify me outside this tab** under My Watches for a browser notification. |
+| Use your voice | Click the microphone under the globe and ask. Needs a microphone and an OpenAI key. |
 | Do anything from one box | Press **Ctrl+K** (**Cmd+K** on a Mac) or click **SEARCH**. Type a place, a story, a layer, a channel, a preset or a tool. Each result says what it will do; press Enter to run it. |
 | Add live layers | Click **LAYERS** at the top and switch on any of: hazards, flights, military, ships, satellites, quakes, fires, storms, launches, cables. |
 | Read a hazard | Click its marker. A card shows what it is, the tracker's alert level and a link to the tracker's report. Red means the tracker issued a Red alert, nothing else. |

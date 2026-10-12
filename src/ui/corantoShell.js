@@ -188,6 +188,26 @@ const GUIDE = [
     'PIN TO BOARD keeps a story, country or city on the analyst board; an aircraft, ship or site can be pinned from its card, and is kept as it was at that moment. BOARD at the top shows what you have pinned, draws the connections between items that mention the same name, and works out a brief and a timeline from them. Nothing on the board is written by a model.',
   ],
   [
+    'Be shown the news',
+    'TOUR TODAY flies through the places with the most stories and pauses on each. REPLAY WEEK steps back through the week of headlines held, so you can see what was being reported at any moment. Either stops with its own stop button or Escape.',
+  ],
+  [
+    'One country, everything',
+    'Search a country and choose COUNTRY SHEET, or open it from the country’s card. It joins that country’s headlines, people forced to flee, outbreak notices, next election, currency and nearest live channel, each with its source.',
+  ],
+  [
+    'Around a story',
+    'AROUND HERE on a story lists what the live layers hold near it right now: quakes, fires, storms, aircraft, ships, launch sites. If the story is about one of those and that layer is off, it offers to switch it on.',
+  ],
+  [
+    'Be told',
+    'A notice appears over the globe when one of your watches has more new stories, when a disaster tracker raises an Orange or Red alert, or when the World Health Organization posts an outbreak notice. Under My Watches you can also ask for a browser notification while this tab is in the background.',
+  ],
+  [
+    'Talk to it',
+    'The microphone under the globe starts voice control. It can do what search does: "show me the relief lens", "country sheet for Japan", "turn on flights", "play France 24". It needs a microphone and an OpenAI key.',
+  ],
+  [
     'Find anything',
     'SEARCH at the top, or Ctrl+K (Cmd+K on a Mac), reaches everything from one box: fly to a country or city, open a story, switch a layer, change lens, watch a channel, pick a visual preset or open a tool in INSTRUMENTS. Each result says what it will do. When several things fit, pick the one you mean.',
   ],

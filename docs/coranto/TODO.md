@@ -140,6 +140,14 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   FEC. Not set: Google Maps, Cesium ion, Mapillary, TomTom, TfL, Launch
   Library, NASA FIRMS (no longer required).
 - [x] **T9 Plain inventory of INSTRUMENTS**: `docs/coranto/INSTRUMENTS.md`.
+- [x] **Seven joins between NEWS and INSTRUMENTS** (owner, 2026-10-12), all
+  on sources already wired in: the country sheet; AROUND HERE on a story;
+  the story offering the layer it is about; voice in the news view with
+  `run_app_command`; TOUR TODAY; REPLAY WEEK; notices for watches, Orange
+  and Red disaster alerts and WHO notices.
+- [x] **Launches** (owner, 2026-10-12): the camera stays put in the news
+  view with "Show the flight path" on the card; real catalogued payloads
+  only, for launches flown in the last week; no estimated orbits.
 - [x] **Search over everything** (2026-10-11): SEARCH / Ctrl+K reaches views,
   lenses, layers, overlays, topics, time ranges, presets, channels, places,
   stories and the INSTRUMENTS tools from one box (`corantoCommands.js`).
