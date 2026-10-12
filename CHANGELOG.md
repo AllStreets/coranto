@@ -338,6 +338,19 @@
 
 ## [Unreleased]
 
+- In the news view, a launch click no longer pulls the camera back. The card
+  opens where you are and offers "Show the flight path", which opens the
+  engine's mission view when you ask; closing the card leaves it. Switching
+  LAUNCHES on no longer moves the camera either. INSTRUMENTS keeps the
+  engine's behaviour.
+- Mark the satellite a launch actually put up: only for launches flown in
+  the last week, and only where the launch is matched to a satellite in the
+  published catalogue. Its card names the launch and links to its orbital
+  elements. A launch still to come has nothing in orbit and shows nothing.
+- No estimated orbits. Where a launch is not matched to a catalogued
+  satellite, the engine used to draw an approximate orbit and an "EST. ORBIT
+  POSITION" label. Under the real-only rule neither is drawn.
+
 - Stop markers and the orbit ring showing through the Earth. Zoomed in on
   one town, story, hazard, election and government-aircraft markers from the
   far side of the globe were drawn over the ground, and the space station's

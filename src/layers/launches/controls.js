@@ -46,9 +46,29 @@ export function createControls({ state: layerState, services, parts, source }) {
           hoursUntil: Number.isFinite(at)
             ? Math.round(((at - now) / 3_600_000) * 10) / 10
             : null,
+          // The catalogued satellite it carried, or null. Never an estimate.
+          payload: launch.payload ?? null,
         });
       }
       return result;
+    },
+
+    /** Open the mission view for one launch, as a click on it would. */
+    openMission(launchId) {
+      const launch = (layerState._launches || []).find(
+        (entry) => entry.id === launchId,
+      );
+      if (!launch || !layerState._enabled) return false;
+      parts.selection.setSelectedMission(launch.id, true);
+      parts.selection.focusMission(launch);
+      return true;
+    },
+
+    /** Leave the mission view and show every launch again. */
+    closeMission() {
+      if (!layerState._selectedLaunchId) return false;
+      parts.selection.setSelectedMission(null);
+      return true;
     },
 
     getStats() {

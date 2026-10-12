@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium';
+import { doLaunchClicksOpenMission } from '../../data/corantoPolicy.js';
 import { isPointerFree } from '../../data/inputOwnership.js';
 
 export function createLifecycle({
@@ -30,6 +31,8 @@ export function createLifecycle({
         // A tool owns the pointer (src/data/inputOwnership.js): yield the click.
         if (!isPointerFree()) return;
         if (!layerState._enabled || !layerState._dataSource?.show) return;
+        // The host may answer a launch click itself (Coranto's news view).
+        if (!doLaunchClicksOpenMission()) return;
         const entity = viewer.scene
           .drillPick(movement.position, 12)
           .map((picked) => picked?.id)
@@ -87,7 +90,9 @@ export function createLifecycle({
       layerState._updateDirty = false;
       if (layerState._dataSource) layerState._dataSource.show = true;
       parts.orbitRendering.syncMissionOrbitPrimitiveVisibility();
-      parts.selection.focusFullGlobe(layerState._viewer);
+      // Switching the layer on does not move the camera in the news view.
+      if (doLaunchClicksOpenMission())
+        parts.selection.focusFullGlobe(layerState._viewer);
       document.getElementById('cockpit-context')?.setAttribute('hidden', '');
       if (layerState._selectedLaunchId)
         parts.selection.setSelectedMission(

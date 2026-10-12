@@ -1001,6 +1001,7 @@
   "launches-layer": {
     "exports": ["./layers/launches"],
     "modules": [
+      "src/data/corantoPolicy.js",
       "src/cyberSonar.js",
       "src/layers/launches/camera.js",
       "src/layers/launches/controls.js",

@@ -27,6 +27,7 @@ import {
 } from '../data/corantoIcons.js';
 import { ATLAS_OVERLAYS, createAtlas } from './corantoAtlas.js';
 import {
+  setLaunchClicksOpenMission,
   setObjectBrackets,
   setOrbitsThroughEarth,
   setRealOnly,
@@ -1380,6 +1381,7 @@ export function createCorantoShell({
   // A rocket at each launch site, while the launches layer is on.
   const launchIcons = createLaunchIcons({
     getManager: () => dataManager,
+    isNewsView: () => body.dataset.corantoMode === 'news',
     showCard: (detail) => {
       card.dataset.owner = 'launch';
       showCard(detail);
@@ -1514,6 +1516,7 @@ export function createCorantoShell({
       satellites: satelliteIcons.shown,
       quakes: quakeIcons.shown,
       launches: launchIcons.shown,
+      payloads: launchIcons.shown && launchIcons.payloadCount() > 0,
       outbreaks: relief.marked,
       borders: atlas.isOn('borders'),
       countries: atlas.isOn('countries'),
@@ -2225,6 +2228,12 @@ export function createCorantoShell({
   function setMode(mode, { remember = true } = {}) {
     const next = mode === 'instruments' ? 'instruments' : 'news';
     body.dataset.corantoMode = next;
+    // A launch click opens a card in the news view and the engine's mission
+    // view in the control room. Automated browsers keep the engine's way.
+    setLaunchClicksOpenMission(
+      next !== 'news' || body.dataset.corantoFrame !== 'one',
+    );
+    if (next !== 'news' && card.dataset.owner === 'launch') showCard(null);
     modeNews.setAttribute('aria-pressed', String(next === 'news'));
     modeTools.setAttribute('aria-pressed', String(next === 'instruments'));
     if (remember) writeStored(localStorageRef, MODE_KEY, next);

@@ -40,3 +40,17 @@ export const showsOrbitsThroughEarth = () => orbitsThroughEarth;
 export function setOrbitsThroughEarth(value) {
   orbitsThroughEarth = Boolean(value);
 }
+
+/**
+ * Whether a click on a launch opens the engine's mission view, which pulls
+ * the camera back until the whole flight path fits. That suits the control
+ * room. In the news view it is switched off: the click opens a card, and the
+ * card offers the flight path as a choice.
+ */
+let launchClicksOpenMission = true;
+
+export const doLaunchClicksOpenMission = () => launchClicksOpenMission;
+
+export function setLaunchClicksOpenMission(value) {
+  launchClicksOpenMission = Boolean(value);
+}

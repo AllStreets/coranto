@@ -1,5 +1,5 @@
 import * as Cesium from 'cesium';
-import { markerImage } from '../data/corantoIcons.js';
+import { markerImage, satelliteImage } from '../data/corantoIcons.js';
 import { cullBeyondHorizon } from './corantoHorizon.js';
 
 /**
@@ -13,6 +13,10 @@ import { cullBeyondHorizon } from './corantoHorizon.js';
 const PREFIX = 'launch-icon:';
 // The engine's own mark for a launch, which sits over the icon.
 const ENGINE_PREFIX = 'rocket-launch:';
+const PAYLOAD_PREFIX = 'launch-payload:';
+/** A launch's satellite is marked for a week after it flies. */
+export const PAYLOAD_DAYS = 7;
+export const PAYLOAD_COLOUR = '#7ef0c8';
 const REFRESH_MS = 30_000;
 export const LAUNCH_UPCOMING = '#4fd8ff';
 export const LAUNCH_FLOWN = '#9fb3c4';
@@ -64,6 +68,48 @@ function when(hours) {
   return hours >= 0 ? `in ${amount}` : `${amount} ago`;
 }
 
+/**
+ * The satellites that recent launches put up: only launches that have flown
+ * in the last week, and only where the launch is matched to a satellite in
+ * the published catalogue. A launch still to come has nothing in orbit, and
+ * an unmatched one is not guessed at.
+ */
+export function launchPayloads(rows) {
+  return (rows ?? [])
+    .filter(
+      (row) =>
+        row?.payload?.noradId &&
+        Number.isFinite(row.hoursUntil) &&
+        row.hoursUntil < 0 &&
+        row.hoursUntil >= -PAYLOAD_DAYS * 24,
+    )
+    .map((row) => ({
+      launchId: row.id,
+      launchName: row.name ?? row.missionName ?? 'Launch',
+      noradId: String(row.payload.noradId),
+      name:
+        String(row.payload.name ?? '').trim() || `NORAD ${row.payload.noradId}`,
+      hoursUntil: row.hoursUntil,
+    }));
+}
+
+/** The card for a satellite a recent launch carried. */
+export function payloadCard(payload) {
+  if (!payload) return null;
+  return {
+    kind: `SATELLITE · LAUNCHED ${when(payload.hoursUntil).toUpperCase()}`,
+    title: payload.name,
+    meta: [
+      `carried by ${payload.launchName}`,
+      `catalogue number ${payload.noradId}`,
+      'where it is now, from its published orbital elements',
+      'Launch Library 2 · CelesTrak',
+    ].join(' · '),
+    url: `https://celestrak.org/NORAD/elements/gp.php?CATNR=${encodeURIComponent(payload.noradId)}&FORMAT=TLE`,
+    linkText: 'Open its orbital elements at celestrak.org',
+  };
+}
+
 /** The card for one launch site. */
 export function launchCard(site) {
   if (!site?.lead) return null;
@@ -98,13 +144,21 @@ export function launchCard(site) {
  * @param {() => object|null} options.getManager The layer manager.
  * @param {(detail: object|null) => void} options.showCard
  */
-export function createLaunchIcons({ getManager, showCard }) {
+export function createLaunchIcons({
+  getManager,
+  showCard,
+  isNewsView = () => true,
+}) {
   let icons = null;
   let stopCulling = null;
+  let stopMoving = null;
   let clicks = null;
   let timer = null;
   let sites = new Map();
   let signature = '';
+  let payloads = new Map();
+  let payloadIcons = new Map();
+  let lastMove = 0;
 
   const layer = () =>
     getManager()?.layers?.get('rocket-launches')?.module ?? null;
@@ -131,7 +185,57 @@ export function createLaunchIcons({ getManager, showCard }) {
         height: site.upcoming ? 28 : 24,
         disableDepthTestDistance: 50_000,
       });
+    // The satellites those launches carried, where the catalogue has them.
+    payloads = new Map();
+    payloadIcons = new Map();
+    for (const payload of launchPayloads(
+      list.flatMap((site) => site.launches),
+    )) {
+      payloads.set(payload.launchId, payload);
+      payloadIcons.set(
+        payload.launchId,
+        icons.add({
+          id: PAYLOAD_PREFIX + payload.launchId,
+          position: Cesium.Cartesian3.ZERO,
+          image: satelliteImage(PAYLOAD_COLOUR),
+          width: 26,
+          height: 26,
+          show: false,
+        }),
+      );
+    }
+    lastMove = 0;
     viewer.scene.requestRender?.();
+  }
+
+  /** Move each payload icon to where its satellite is now. */
+  function movePayloads(viewer) {
+    if (!payloadIcons.size) return;
+    const now = Date.now();
+    if (now - lastMove < 1000) return;
+    lastMove = now;
+    const satellites = getManager()?.layers?.get('satellites')?.module;
+    const occluder = new Cesium.EllipsoidalOccluder(
+      viewer.scene.globe?.ellipsoid ?? Cesium.Ellipsoid.WGS84,
+      viewer.camera.positionWC,
+    );
+    for (const [launchId, icon] of payloadIcons) {
+      const found = satellites?.findByQuery?.(payloads.get(launchId).noradId);
+      if (!found?.position) {
+        icon.show = false;
+        continue;
+      }
+      icon.position = found.position;
+      icon.show = occluder.isPointVisible(found.position);
+    }
+  }
+
+  /** The launch whose mission view the card opened, to close with the card. */
+  let openedMission = null;
+  function closeMission() {
+    if (!openedMission) return;
+    openedMission = null;
+    layer()?.closeMission?.();
   }
 
   return {
@@ -139,6 +243,9 @@ export function createLaunchIcons({ getManager, showCard }) {
       return icons !== null;
     },
     count: () => sites.size,
+    payloadCount: () => payloads.size,
+    /** Leave any mission view this opened (the view changed). */
+    closeMission,
     start() {
       const viewer = getManager()?.viewer;
       if (!viewer || icons) return;
@@ -166,9 +273,34 @@ export function createLaunchIcons({ getManager, showCard }) {
             if (lead) site = { ...entry, lead };
           }
         }
+        // In the control room the engine's own mission panel answers.
+        if (!isNewsView()) return;
+        if (id.startsWith(PAYLOAD_PREFIX)) {
+          const detail = payloadCard(
+            payloads.get(id.slice(PAYLOAD_PREFIX.length)),
+          );
+          if (detail) showCard(detail);
+          return;
+        }
         const detail = launchCard(site);
-        if (detail) showCard(detail);
+        if (!detail) return;
+        closeMission();
+        const launchId = site.lead.id;
+        showCard({
+          ...detail,
+          // The camera stays where it is; the flight path is a choice.
+          action: {
+            label: 'Show the flight path',
+            run: () => {
+              if (layer()?.openMission?.(launchId)) openedMission = launchId;
+            },
+          },
+          onClose: closeMission,
+        });
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+      stopMoving = viewer.scene.preRender.addEventListener(() =>
+        movePayloads(viewer),
+      );
     },
     stop() {
       const viewer = getManager()?.viewer;
@@ -176,11 +308,16 @@ export function createLaunchIcons({ getManager, showCard }) {
       timer = null;
       stopCulling?.();
       stopCulling = null;
+      stopMoving?.();
+      stopMoving = null;
+      closeMission();
       clicks?.destroy();
       clicks = null;
       if (icons) viewer?.scene?.primitives?.remove(icons);
       icons = null;
       sites = new Map();
+      payloads = new Map();
+      payloadIcons = new Map();
       viewer?.scene?.requestRender?.();
     },
   };

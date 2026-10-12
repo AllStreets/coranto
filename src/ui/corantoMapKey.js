@@ -49,6 +49,7 @@ const marker = (icon, colour, extra = {}) => ({
  * @param {boolean} state.satellites
  * @param {boolean} state.quakes
  * @param {boolean} state.launches
+ * @param {boolean} state.payloads
  * @param {boolean} state.borders
  * @param {boolean} state.countries
  * @param {boolean} state.activity
@@ -242,6 +243,12 @@ export function buildMapKeyModel(state) {
         label: 'Launch site whose listed launches have flown',
       },
     );
+  if (state.payloads)
+    more.push({
+      image: satelliteImage('#7ef0c8'),
+      label:
+        'Satellite put up by a launch in the last week, where the catalogue has it',
+    });
   if (state.satellites)
     more.push(
       {

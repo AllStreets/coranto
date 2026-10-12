@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { launchCard, launchSites } from './corantoLaunchIcons.js';
+import {
+  launchCard,
+  launchPayloads,
+  launchSites,
+  payloadCard,
+} from './corantoLaunchIcons.js';
 
 const row = (id, hoursUntil, extra = {}) => ({
   id,
@@ -49,4 +54,24 @@ test("a launch card is the list's own record and names its source", () => {
     'LAUNCH · FLOWN 3 DAYS AGO',
   );
   assert.equal(launchCard(null), null);
+});
+
+test('only a flown launch from the last week with a catalogued satellite has a payload', () => {
+  const payload = { noradId: 65432, name: ' CREW DRAGON 13 ' };
+  const rows = [
+    row('flown', -30, { payload }),
+    row('old', -24 * 9, { payload }),
+    row('ahead', 12, { payload }),
+    row('unmatched', -5, { payload: null }),
+  ];
+  const found = launchPayloads(rows);
+  assert.deepEqual(
+    found.map((entry) => [entry.launchId, entry.noradId, entry.name]),
+    [['flown', '65432', 'CREW DRAGON 13']],
+  );
+  const card = payloadCard(found[0]);
+  assert.equal(card.kind, 'SATELLITE · LAUNCHED 30 H AGO');
+  assert.match(card.meta, /carried by Rocket flown · catalogue number 65432/);
+  assert.match(card.url, /^https:\/\/celestrak\.org\/.*CATNR=65432/);
+  assert.equal(payloadCard(null), null);
 });
