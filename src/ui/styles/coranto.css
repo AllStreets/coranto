@@ -4242,6 +4242,102 @@ body:not([data-coranto-mode='news']) #coranto-transport {
   display: none;
 }
 
+/* Notices: something arrived */
+#coranto-notices {
+  position: fixed;
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 44px);
+  right: calc(var(--coranto-feed-w) + 26px);
+  z-index: 326;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(
+    320px,
+    calc(100vw - var(--coranto-rail-w) - var(--coranto-feed-w) - 52px)
+  );
+  pointer-events: none;
+}
+/* Below the tour and replay bar while one is running. */
+body:is([data-coranto-transport='tour'], [data-coranto-transport='replay'])
+  #coranto-notices {
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 140px);
+}
+body[data-coranto-mode='instruments'] #coranto-notices {
+  right: 26px;
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 12px);
+}
+body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
+  #coranto-notices {
+  display: none;
+}
+.coranto-notice {
+  pointer-events: auto;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--coranto-line-2);
+  border-left: 2px solid var(--accent);
+  background: rgba(9, 8, 15, 0.96);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
+}
+.coranto-notice[data-kind='hazard'] {
+  border-left-color: #fb923c;
+}
+.coranto-notice[data-kind='outbreak'] {
+  border-left-color: #ff74a8;
+}
+.coranto-notice-open {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.coranto-notice-open img {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+}
+.coranto-notice-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.coranto-notice-title {
+  color: var(--text-primary);
+  font: 600 12.5px/1.3 var(--font-sans);
+  overflow-wrap: anywhere;
+}
+.coranto-notice-detail {
+  color: var(--text-secondary);
+  font: 11px/1.35 var(--font-sans);
+}
+.coranto-notice-open:hover .coranto-notice-title {
+  text-decoration: underline;
+}
+.coranto-notice-close {
+  flex: 0 0 30px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-left: 1px solid var(--coranto-line);
+  background: transparent;
+  cursor: pointer;
+}
+.coranto-notice-close img {
+  width: 11px;
+  height: 11px;
+}
+.coranto-outside-switch {
+  width: 100%;
+  margin-top: 6px;
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */

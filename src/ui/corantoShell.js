@@ -1,6 +1,14 @@
 import { CATEGORY_CODE, createNewsFeed } from './newsPanel.js';
 import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
 import { getContextStore } from '../data/contextStore.js';
+import {
+  ALERT_KEY,
+  createNotices,
+  hazardNotices,
+  outbreakNotices,
+  unseen,
+  watchAlerts,
+} from './corantoAlerts.js';
 import { aroundStory } from './corantoAround.js';
 import { createBoard } from './corantoBoard.js';
 import { createBoardStore } from './corantoBoardModel.js';
@@ -1200,6 +1208,11 @@ export function createCorantoShell({
     }
     return { ok: true, ran: command.title, does: command.kind };
   };
+  // WHO notices are checked on opening and every half hour after.
+  const outbreakTimer = win.navigator?.webdriver
+    ? null
+    : win.setInterval(checkOutbreakNotices, 30 * 60 * 1000);
+  if (!win.navigator?.webdriver) win.setTimeout(checkOutbreakNotices, 20_000);
   searchBtn.addEventListener('click', () => {
     loadAtlasPlaces();
     palette.open();
@@ -1788,6 +1801,150 @@ export function createCorantoShell({
   });
   saveNote.hidden = true;
   const watchList = el(document, 'div', { class: 'coranto-watch-list' });
+  // Notices: a watch with more new stories, a new disaster alert, a new
+  // WHO notice. See corantoAlerts.js.
+  let alertState = { hazards: null, who: null, outside: false };
+  try {
+    const saved = JSON.parse(readStored(localStorageRef, ALERT_KEY) ?? 'null');
+    if (saved && typeof saved === 'object')
+      alertState = {
+        hazards: Array.isArray(saved.hazards) ? new Set(saved.hazards) : null,
+        who: Array.isArray(saved.who) ? new Set(saved.who) : null,
+        outside: saved.outside === true,
+      };
+  } catch {
+    alertState = { hazards: null, who: null, outside: false };
+  }
+  const saveAlertState = () =>
+    writeStored(
+      localStorageRef,
+      ALERT_KEY,
+      JSON.stringify({
+        hazards: alertState.hazards ? [...alertState.hazards] : null,
+        who: alertState.who ? [...alertState.who] : null,
+        outside: alertState.outside,
+      }),
+    );
+  const notices = createNotices({
+    document,
+    win,
+    outsideTab: () => alertState.outside,
+    onOpen: (notice) => {
+      setMode('news');
+      if (notice.kind === 'watch') {
+        const watch = watchStore
+          .list()
+          .find((entry) => entry.id === notice.watchId);
+        if (watch) {
+          setLens('news');
+          openWatch(watch);
+        }
+      } else if (notice.kind === 'hazard') {
+        hazardsLayer?.select?.(notice.hazardId);
+        if (Number.isFinite(notice.lat) && Number.isFinite(notice.lon))
+          flyTo(notice.lat, notice.lon, 2_500_000);
+      } else if (notice.kind === 'outbreak') setLens('relief');
+    },
+  });
+  let watchFreshBefore = null;
+  let watchContext = '';
+  function checkWatchNotices(current) {
+    const view = layer.getView();
+    // A count can also change because the reader changed what is shown: a
+    // longer range, another language, a replayed moment. Only a fresh read
+    // of the same view is an arrival, and the first read of a view is not.
+    const context = view.snapshot
+      ? `${view.rangeHours}|${view.language ?? ''}|${view.goodNewsOnly}|${view.asOf ?? ''}`
+      : '';
+    if (!context || context !== watchContext || view.asOf != null) {
+      watchContext = context;
+      watchFreshBefore = context
+        ? new Map(current.map((watch) => [watch.id, watch.fresh]))
+        : null;
+      return;
+    }
+    for (const notice of watchAlerts(watchFreshBefore, current))
+      notices.show(notice);
+    watchFreshBefore = new Map(current.map((watch) => [watch.id, watch.fresh]));
+  }
+  // With no record yet, the first minute only records what is already there:
+  // the trackers answer one after another, and none of it is an arrival.
+  const hazardsFirstSeenAt = alertState.hazards ? 0 : Date.now();
+  function checkHazardNotices(view) {
+    const events = view?.snapshot?.events;
+    if (!events?.length) return;
+    const { fresh, seen } = unseen(alertState.hazards, hazardNotices(events));
+    alertState.hazards = seen;
+    saveAlertState();
+    if (hazardsFirstSeenAt && Date.now() - hazardsFirstSeenAt < 60_000) return;
+    fresh.forEach((notice) => notices.show(notice));
+  }
+  async function checkOutbreakNotices() {
+    try {
+      const response = await win.fetch('/api/relief', {
+        headers: { Accept: 'application/json' },
+      });
+      if (!response.ok) return;
+      const payload = await response.json();
+      const { fresh, seen } = unseen(
+        alertState.who,
+        outbreakNotices(payload.outbreaks),
+      );
+      alertState.who = seen;
+      saveAlertState();
+      fresh.forEach((notice) => notices.show(notice));
+    } catch {
+      // A source that is down raises nothing; the Relief lens says it is down.
+    }
+  }
+  // Outside the tab: off until asked for, and it says what the browser said.
+  const outsideBtn = el(
+    document,
+    'button',
+    {
+      type: 'button',
+      class: 'coranto-switch coranto-outside-switch',
+      'aria-pressed': 'false',
+      title:
+        'Also send a browser notification when a watch, a disaster alert or a WHO notice arrives while this tab is in the background',
+    },
+    el(document, 'span', {
+      class: 'coranto-switch-label',
+      text: 'Notify me outside this tab',
+    }),
+    el(document, 'span', { class: 'coranto-switch-knob' }),
+  );
+  const outsideNote = el(document, 'p', { class: 'coranto-save-note' });
+  outsideNote.hidden = true;
+  function syncOutside(message = '') {
+    const allowed = win.Notification?.permission === 'granted';
+    outsideBtn.setAttribute(
+      'aria-pressed',
+      String(alertState.outside && allowed),
+    );
+    outsideNote.hidden = !message;
+    outsideNote.textContent = message;
+  }
+  outsideBtn.addEventListener('click', async () => {
+    if (!win.Notification)
+      return syncOutside('This browser has no notifications to switch on.');
+    if (alertState.outside && win.Notification.permission === 'granted') {
+      alertState.outside = false;
+      saveAlertState();
+      return syncOutside('Off. Notices still appear here in the page.');
+    }
+    let permission = win.Notification.permission;
+    if (permission === 'default')
+      permission = await win.Notification.requestPermission();
+    alertState.outside = permission === 'granted';
+    saveAlertState();
+    syncOutside(
+      permission === 'granted'
+        ? 'On. You will be told while this tab is in the background.'
+        : 'Your browser has notifications blocked for this page. Allow them in its site settings, then switch this on.',
+    );
+  });
+  syncOutside();
   const watchSection = el(
     document,
     'div',
@@ -1796,6 +1953,8 @@ export function createCorantoShell({
     saveBtn,
     saveNote,
     watchList,
+    outsideBtn,
+    outsideNote,
   );
   for (const node of [topicList, watchSection])
     node.classList.add('coranto-bracket');
@@ -2206,6 +2365,7 @@ export function createCorantoShell({
     palette.element,
     dossier.element,
     transport.element,
+    notices.element,
     mapKey.element,
     board.element,
     ticker,
@@ -2301,6 +2461,13 @@ export function createCorantoShell({
       ? `MY BRIEFING · ${freshTotal} NEW`
       : 'MY BRIEFING';
     briefingBtn.hidden = watches.length === 0;
+    checkWatchNotices(
+      watches.map((watch) => ({
+        id: watch.id,
+        name: watch.name,
+        fresh: watchStories(snapshot, watch).fresh,
+      })),
+    );
     saveBtn.dataset.ready = String(hasCriteria(currentCriteria()));
   }
 
@@ -2910,7 +3077,11 @@ export function createCorantoShell({
       syncLayers();
       hazardsLayer = manager.layers?.get('hazards')?.module ?? null;
       applyGlobeText();
-      unsubscribeHazards = hazardsLayer?.subscribe?.(renderCard) ?? null;
+      unsubscribeHazards =
+        hazardsLayer?.subscribe?.((view) => {
+          renderCard(view);
+          checkHazardNotices(view);
+        }) ?? null;
       if (sharedView) {
         // A shared Coranto view always opens in the news view with news on.
         setMode('news', { remember: false });
@@ -2957,6 +3128,8 @@ export function createCorantoShell({
       satelliteIcons.stop();
       sceneRestore?.destroy();
       delete win.__corantoRunCommand;
+      win.clearInterval(outbreakTimer);
+      notices.clear();
       quakeIcons.stop();
       nuclear.hide();
       atlas.destroy();

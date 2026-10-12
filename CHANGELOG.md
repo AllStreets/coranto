@@ -338,6 +338,15 @@
 
 ## [Unreleased]
 
+- Add notices. A small stack over the globe tells you when a saved watch
+  has more new stories, when the disaster trackers raise an Orange or Red
+  alert, and when the World Health Organization posts an outbreak notice.
+  Selecting one goes to it. What is already there when the page opens is
+  recorded, not announced, and a count that changes because you changed the
+  range or the language is not treated as an arrival. "Notify me outside
+  this tab" under My Watches adds a browser notification while the tab is in
+  the background; it is off until you switch it on.
+
 - Add TOUR TODAY. It flies through the eight places with the most stories
   right now, pausing ten seconds on each with its newest headline and its
   stories in the feed. A bar at the top of the globe has back, pause,
