@@ -222,7 +222,7 @@ export function setVisionMode(mode, { revealParameters = false } = {}) {
     crt: 'CRT',
     nvg: 'NVG',
     thermal: 'FLIR',
-    anime: 'ANIME',
+    anime: 'COMIC',
     noir: 'NOIR',
     snow: 'SNOW',
   };
@@ -231,7 +231,7 @@ export function setVisionMode(mode, { revealParameters = false } = {}) {
     crt: 'CRT',
     nvg: 'Night vision',
     thermal: 'Thermal',
-    anime: 'Anime',
+    anime: 'Comic',
     noir: 'Noir',
     snow: 'Snow',
   };

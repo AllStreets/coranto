@@ -150,7 +150,7 @@ export const STYLE_STATUS_LABELS = {
   retro: 'CRT',
   surveillance: 'NVG',
   thermal: 'FLIR',
-  anime: 'ANIME',
+  anime: 'COMIC',
   noir: 'NOIR',
   snow: 'SNOW',
 };

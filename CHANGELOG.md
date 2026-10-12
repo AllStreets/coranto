@@ -338,6 +338,10 @@
 
 ## [Unreleased]
 
+- Rename the Anime visual preset to Comic, in the presets tray and the
+  cockpit's vision control. Links and voice commands that say `anime` still
+  work.
+
 - Draw satellites on the globe as a small picture of one: a pale body with a
   dish and two solar wings divided into cells, in the satellite's class
   colour, with a dark edge so it reads over ocean, land and space. It

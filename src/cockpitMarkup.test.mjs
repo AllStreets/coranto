@@ -93,7 +93,7 @@ test('Cockpit vision cycle exposes every map preset exactly once', () => {
   );
   assert.match(
     setVisionMode.toString(),
-    /const labels = \{\s*optical: 'NORMAL',\s*crt: 'CRT',\s*nvg: 'NVG',\s*thermal: 'FLIR',\s*anime: 'ANIME',\s*noir: 'NOIR',\s*snow: 'SNOW',?\s*\};/,
+    /const labels = \{\s*optical: 'NORMAL',\s*crt: 'CRT',\s*nvg: 'NVG',\s*thermal: 'FLIR',\s*anime: 'COMIC',\s*noir: 'NOIR',\s*snow: 'SNOW',?\s*\};/,
   );
   assert.doesNotMatch(setVisionMode.toString(), /none: 'NONE'/);
   assert.doesNotMatch(ui, /getInheritedVisionLabel/);

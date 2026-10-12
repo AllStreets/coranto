@@ -1638,9 +1638,9 @@ try {
     };
   });
   const cycleModes = ['optical', 'crt', 'nvg', 'thermal', 'anime', 'noir', 'snow', 'optical'];
-  const cycleLabels = ['NORMAL', 'CRT', 'NVG', 'FLIR', 'ANIME', 'NOIR', 'SNOW', 'NORMAL'];
+  const cycleLabels = ['NORMAL', 'CRT', 'NVG', 'FLIR', 'COMIC', 'NOIR', 'SNOW', 'NORMAL'];
   check(
-    'Cockpit vision control exposes Normal, CRT, NVG, FLIR, Anime, Noir and Snow before wrapping',
+    'Cockpit vision control exposes Normal, CRT, NVG, FLIR, Comic, Noir and Snow before wrapping',
     JSON.stringify(visionCycle.states.map((state) => state.mode)) === JSON.stringify(cycleModes)
       && JSON.stringify(visionCycle.states.map((state) => state.label)) === JSON.stringify(cycleLabels)
       && visionCycle.states[5]?.aria === 'Current cockpit vision style: Noir. Activate for next style.'
