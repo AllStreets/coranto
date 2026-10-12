@@ -338,6 +338,11 @@
 
 ## [Unreleased]
 
+- Put a rocket icon at each launch site while LAUNCHES is on: brighter where
+  a launch is still to come. Selecting one opens the site's next launch, or
+  its most recent, from Launch Library 2, and says how many other launches
+  the list holds for that site. The map key lists both.
+
 - Clear the header: the row of layer chips is gone, and LAYERS holds every
   layer with what it is and a switch. The header is now LIVE, LAYERS, the
   headline count, the clock, BOARD and the NEWS / INSTRUMENTS switch.

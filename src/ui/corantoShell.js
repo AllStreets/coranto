@@ -25,6 +25,7 @@ import { createMarketsLens } from './corantoMarkets.js';
 import { createNuclearMarks } from './corantoNuclear.js';
 import { createSatelliteIcons } from './corantoSatelliteIcons.js';
 import { createPowerLens } from './corantoPower.js';
+import { createLaunchIcons } from './corantoLaunchIcons.js';
 import { createQuakeIcons } from './corantoQuakeIcons.js';
 import { RELIEF_TERMS, createReliefLens } from './corantoRelief.js';
 import {
@@ -891,6 +892,14 @@ export function createCorantoShell({
       showCard(detail);
     },
   });
+  // A rocket at each launch site, while the launches layer is on.
+  const launchIcons = createLaunchIcons({
+    getManager: () => dataManager,
+    showCard: (detail) => {
+      card.dataset.owner = 'launch';
+      showCard(detail);
+    },
+  });
   // Icons over the named satellites, while the satellites layer is on.
   const satelliteIcons = createSatelliteIcons({
     getManager: () => dataManager,
@@ -1019,6 +1028,7 @@ export function createCorantoShell({
       ships: on('ais-live-vessels'),
       satellites: satelliteIcons.shown,
       quakes: quakeIcons.shown,
+      launches: launchIcons.shown,
       outbreaks: relief.marked,
       borders: atlas.isOn('borders'),
       countries: atlas.isOn('countries'),
@@ -1763,9 +1773,16 @@ export function createCorantoShell({
       const quakes =
         dataManager.layers?.has('earthquakes') &&
         dataManager.isEnabled('earthquakes');
+      const launches = layerShown('rocket-launches');
+      if (launches && !launchIcons.shown) launchIcons.start();
+      else if (!launches && launchIcons.shown) {
+        launchIcons.stop();
+        if (card.dataset.owner === 'launch') showCard(null);
+      }
       if (quakes && !quakeIcons.shown) quakeIcons.start();
       else if (!quakes && quakeIcons.shown) {
         quakeIcons.stop();
+        launchIcons.stop();
         if (card.dataset.owner === 'quake') showCard(null);
       }
     }

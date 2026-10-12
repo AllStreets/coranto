@@ -48,6 +48,7 @@ const marker = (icon, colour, extra = {}) => ({
  * @param {boolean} state.ships
  * @param {boolean} state.satellites
  * @param {boolean} state.quakes
+ * @param {boolean} state.launches
  * @param {boolean} state.borders
  * @param {boolean} state.countries
  * @param {boolean} state.activity
@@ -228,6 +229,17 @@ export function buildMapKeyModel(state) {
         ...marker('earthquake', '#f2c14e'),
         label:
           'Smaller earthquake. The circle on the ground under each is its true scale.',
+      },
+    );
+  if (state.launches)
+    more.push(
+      {
+        ...marker('launch', '#4fd8ff'),
+        label: 'Launch site with a launch still to come',
+      },
+      {
+        ...marker('launch', '#9fb3c4'),
+        label: 'Launch site whose listed launches have flown',
       },
     );
   if (state.satellites)
