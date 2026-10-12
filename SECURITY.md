@@ -1,12 +1,12 @@
 # Security
 
-God's Eye View is a local-first client for **public** data. It is built for exploration, demos, and learning — not as a hardened production service. This document explains the security model so you can run it safely and report issues responsibly.
+Coranto is a local-first client for **public** data. It is built on God's Eye View, and this security model is that project's, kept current for Coranto. It is built for exploration, demos, and learning — not as a hardened production service. This document explains the security model so you can run it safely and report issues responsibly.
 
 ## Reporting a vulnerability
 
 Please report security issues **privately** — do not open a public issue for anything exploitable.
 
-- Use GitHub's [private vulnerability reporting](https://github.com/bilawalsidhu/gods-eye-view/security/advisories/new) (Security tab → "Report a vulnerability"), or
+- Use GitHub's [private vulnerability reporting](https://github.com/AllStreets/coranto/security/advisories/new) (Security tab → "Report a vulnerability"), or
 - Reach the maintainer directly via the contact on the GitHub profile.
 
 Include repro steps and impact. We'll acknowledge, investigate, and credit you (if you'd like) once a fix ships.
@@ -97,7 +97,7 @@ The dev server is a **key broker**: every server-side key above is spendable by 
 
 ## MCP server and panel
 
-God's Eye View's tools are also served to MCP clients: over stdio (`npm run mcp`) and at `/mcp` on the development and preview servers.
+The engine's tools are also served to MCP clients: over stdio (`npm run mcp`) and at `/mcp` on the development and preview servers.
 
 - **`/mcp` answers only direct local requests**: a loopback connection naming a loopback host on the port it reached, a browser `Origin` (when sent) from that same host, no proxy forwarding headers, and launcher sharing off. It accepts only JSON, so a web page cannot post to it cross-site. This is transport safety, not authentication: any program on your machine can use the tools, and some of them spend the same provider quotas as the app.
 - **What the panel's requests can reach.** In clients that display MCP Apps, the panel loads the app through the `panel_request` tool, which requests paths on the app's server. It is marked for the panel only and requires a key that each MCP server puts in its panel page, which keeps it from clients that list tools to the model without loading the panel. That key is not access control: any MCP client can read the panel page, key included, and then reach the app's files and data routes through `panel_request`, much as its other tools reach the data. Provider Settings, credential and model endpoints, `/mcp` and the development server's internal routes are refused to every caller.

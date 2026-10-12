@@ -338,6 +338,15 @@
 
 ## [Unreleased]
 
+- Give Scope, Draw and Celestial in the DISPLAY panel light icons from the
+  shared set. They were drawn in black on a dark panel.
+- Tidy the repository's front page. The upstream contributing guide, which
+  named another project and its maintainers, is replaced by a short
+  Contributing section in the README. God's Eye View's MIT licence text moves
+  to `licenses/gods-eye-view-MIT.txt`, so the repository shows one licence
+  and still carries the text MIT requires. Security reports, issue links and
+  code owners now point at this repository rather than upstream.
+
 - Fill the story pop-up's tool rows. The main tools share one even row (two
   even rows past five), and TRANSLATE and LISTEN split a row of their own,
   so no row ends in empty space.

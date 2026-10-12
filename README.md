@@ -499,6 +499,23 @@ Coranto currently runs on your own machine. There is no hosted version yet.
 
 ---
 
+## Contributing
+
+Issues and pull requests are welcome. Before opening one, run what CI runs:
+
+```bash
+npm test                 # unit tests
+npm run format:check     # formatting
+npm run check:boundaries # module ownership
+npm run qa:news          # the honesty gate for the feed
+```
+
+One rule is not negotiable: nothing invented. Every item on screen needs a
+publisher or source, a link and a time, and a source that is down is named
+rather than filled in. A change that adds seeded, simulated or model-written
+content without a code check will not be merged. Security issues go through
+the Security tab, not a public issue.
+
 ## Credits
 
 Coranto is a fork of **[God's Eye View](https://github.com/bilawalsidhu/gods-eye-view)**
@@ -508,7 +525,7 @@ of **[AUSPEX](https://github.com/AllStreets/AUSPEX)** by Connor Evans
 
 Coranto's own code is Apache-2.0: see [LICENSE](LICENSE) and [NOTICE](NOTICE).
 God's Eye View's licence and its note on third-party data are kept in
-[LICENSE-gods-eye-view](LICENSE-gods-eye-view). Some bundled datasets, notably
+[licenses/gods-eye-view-MIT.txt](licenses/gods-eye-view-MIT.txt). Some bundled datasets, notably
 the TeleGeography submarine cable map, are licensed for non-commercial use
 only.
 

@@ -143,6 +143,11 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [x] **Search over everything** (2026-10-11): SEARCH / Ctrl+K reaches views,
   lenses, layers, overlays, topics, time ranges, presets, channels, places,
   stories and the INSTRUMENTS tools from one box (`corantoCommands.js`).
+- [x] **Dark icons on dark panels** (owner, 2026-10-11): Scope, Draw and
+  Celestial in DISPLAY used the engine's icon font in black. They now use
+  light icons from the shared set. A scan of INSTRUMENTS finds no other
+  dark text or icon on a dark background; the only dark text left is on
+  bright violet buttons, where it is meant to be.
 - [x] **T21 Quality bar.** Default view is globe, feed and rail; every
   advanced tool is one search away (SEARCH / Ctrl+K) and the INSTRUMENTS
   panels that the layout hid (SCENES, CONTEXT) stay visible as headers. The

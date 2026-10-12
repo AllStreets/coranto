@@ -179,6 +179,14 @@ export const ICONS = Object.freeze({
     '<circle cx="8" cy="6.5" r="2.2"/><path d="M4.5 20v-5.5a3.5 3.5 0 0 1 7 0V20"/><path d="M14 12h7M18 9l3 3-3 3"/>',
   ],
   // Interface
+  pencil: [
+    STROKE,
+    '<path d="M4 20l1-4.5L16.5 4a2.1 2.1 0 0 1 3 0l.5.5a2.1 2.1 0 0 1 0 3L8.5 19 4 20Z"/><path d="M14.5 6l3.5 3.5"/>',
+  ],
+  sun: [
+    STROKE,
+    '<circle cx="12" cy="12" r="3.6"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/>',
+  ],
   translate: [
     STROKE,
     '<path d="M3.5 6h9.5M8.2 4v2M5.6 6c.7 3 2.8 5.4 6.2 6.8M10.9 6c-.8 3.3-3.1 5.7-6.7 7"/><path d="m12.6 20 4-9 4 9M14 17h5.2"/>',
@@ -366,6 +374,9 @@ export const CONTROL_ICONS = Object.freeze({
   '#hud-toggle .pp-icon': 'target',
   '#detection-toggle .pp-icon': 'grid',
   '#models3d-toggle .pp-icon': 'aircraft',
+  '#scope-toggle .pp-icon': 'target',
+  '#draw-toggle .pp-icon': 'pencil',
+  '#celestial-toggle .pp-icon': 'sun',
   '#clean-view-toggle .pp-icon': 'square',
   '#bloom-toggle .pp-icon': 'sparkle',
   '#sharpen-toggle .pp-icon': 'search',
