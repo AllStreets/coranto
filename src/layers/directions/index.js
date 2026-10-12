@@ -115,7 +115,7 @@ export function directionsRowControls(state) {
   }));
   chips.push({
     id: 'set-a',
-    label: armed === 'a' ? 'CLICK MAP' : a ? 'A ✓' : 'SET A',
+    label: armed === 'a' ? 'CLICK MAP' : a ? 'A SET' : 'SET A',
     active: armed === 'a',
     state: armed === 'a' ? 'active' : 'idle',
     title:
@@ -126,7 +126,7 @@ export function directionsRowControls(state) {
   });
   chips.push({
     id: 'set-b',
-    label: armed === 'b' ? 'CLICK MAP' : b ? 'B ✓' : 'SET B',
+    label: armed === 'b' ? 'CLICK MAP' : b ? 'B SET' : 'SET B',
     active: armed === 'b',
     state: armed === 'b' ? 'active' : 'idle',
     title:
@@ -137,7 +137,7 @@ export function directionsRowControls(state) {
   });
   chips.push({
     id: 'swap',
-    label: '⇄',
+    label: 'SWAP',
     disabled: !(a && b) || routing,
     state: 'idle',
     title: 'Swap A and B',

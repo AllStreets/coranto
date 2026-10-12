@@ -338,6 +338,9 @@
 
 ## [Unreleased]
 
+- Use words where the directions chips had a check mark and a swap arrow
+  (A SET, B SET, SWAP), and drop the bullet from the radio category menu.
+
 - Show who owns an outlet in the story pop-up, with its funding type (state,
   public, private or nonprofit), from AUSPEX's outlet table. An outlet not in
   the table shows nothing, names are matched whole, and AUSPEX's political

@@ -127,7 +127,7 @@ export function renderRadioState(state) {
         ...state.categories.map((category) => {
           const option = document.createElement('option');
           option.value = category.id;
-          option.textContent = `● ${category.label} (${category.count})`;
+          option.textContent = `${category.label} (${category.count})`;
           option.dataset.radioColor = category.color;
           option.style.color = category.color;
           option.setAttribute(

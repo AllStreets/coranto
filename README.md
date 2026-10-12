@@ -282,6 +282,12 @@ agency, and the World Health Organization's disease outbreak notices, marked
 on the globe and linked to the notice itself. Nothing in it is an estimate of
 Coranto's or written by a model.
 
+<p align="center">
+  <img src="docs/media/coranto/relief.png" alt="The Relief lens: World Health Organization outbreak notices listed and marked on the globe, with humanitarian news" width="100%"/>
+</p>
+
+<p align="center"><em>The Relief lens on outbreaks: the World Health Organization's notice of Ebola in the Democratic Republic of the Congo, marked at the country and linked to who.int, with humanitarian news beside it.</em></p>
+
 **LIVE TV** plays live news channels from Doha, Paris, Berlin, Pointe-Noire,
 Singapore, Sydney, New York, Buenos Aires and São Paulo in a panel over the
 globe, and pins each

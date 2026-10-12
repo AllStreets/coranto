@@ -45,9 +45,8 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   search buttons, collapse buttons, location line, key tiers, radio and
   replay transport, key-setup links, panel disclosure arrows, the HUD's
   corners and live mark. A scan of the rendered INSTRUMENTS view finds no
-  emoji, arrow or box character left on screen. Open: the coloured bullet in
-  the radio category menu (a menu option cannot hold an icon), and emoji
-  inside spoken or written directions text.
+  emoji, arrow or box character left on screen. The directions chips and
+  the radio category menu now use words.
 
 ## Globe and map language
 
