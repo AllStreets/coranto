@@ -132,8 +132,10 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   opens and lists its six scenes, but only shows once DATA LAYERS is
   collapsed. Also checked: a scene
   played through and stopped (the look and camera are now restored
-  afterwards); cockpit view entered on a live military aircraft and exited.
-  Open: voice.
+  afterwards); cockpit view entered on a live military aircraft and exited;
+  voice started, got its session token and asked for the microphone, then
+  was switched off. Open: a spoken command, which needs the owner to allow
+  the microphone.
 - [x] **T11 Key audit** (table in `docs/coranto/INSTRUMENTS.md`). In `.env`: NewsAPI, OpenAI, OpenSky, AISStream,
   FEC. Not set: Google Maps, Cesium ion, Mapillary, TomTom, TfL, Launch
   Library, NASA FIRMS (no longer required).
