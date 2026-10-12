@@ -338,6 +338,9 @@
 
 ## [Unreleased]
 
+- Hold floating INSTRUMENTS panels below the header and ticker. A panel
+  could be dragged, or restored from a saved position, underneath them.
+
 - Add TRANSLATE to the story pop-up: a machine translation of the headline
   and summary into English or one of ten other languages, shown under the
   original and labelled as written by a model. Code checks that every number

@@ -46,6 +46,22 @@ const FLOATING_STYLE_PROPERTIES = [
   'z-index',
 ];
 
+/**
+ * Space at the top of the window that a panel may not be moved into, in
+ * pixels. A host page that keeps a bar there says so with the
+ * `--ui-top-inset` custom property on `body`; without it the inset is zero.
+ */
+function topInset() {
+  try {
+    const value = parseFloat(
+      window.getComputedStyle(document.body).getPropertyValue('--ui-top-inset'),
+    );
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  } catch {
+    return 0;
+  }
+}
+
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
@@ -170,7 +186,8 @@ export class PanelPositionControls {
       window.innerHeight - height - VIEWPORT_MARGIN_PX,
     );
     const x = clamp(left, VIEWPORT_MARGIN_PX, maxLeft);
-    let y = clamp(top, VIEWPORT_MARGIN_PX, maxTop);
+    const minTop = Math.min(maxTop, VIEWPORT_MARGIN_PX + topInset());
+    let y = clamp(top, minTop, maxTop);
     const obstacles = this._panelObstacles();
     for (let pass = 0; pass < obstacles.length; pass++) {
       const hit = obstacles.find(
@@ -183,7 +200,7 @@ export class PanelPositionControls {
       if (!hit) break;
       const above = hit.top - header - VIEWPORT_MARGIN_PX;
       y =
-        above >= VIEWPORT_MARGIN_PX
+        above >= minTop
           ? above
           : Math.min(maxTop, hit.bottom + VIEWPORT_MARGIN_PX);
     }
@@ -418,7 +435,7 @@ export class PanelPositionControls {
     const maxTop = Math.max(6, window.innerHeight - rect.height - 6);
     return {
       left: Math.max(6, Math.min(maxLeft, left)),
-      top: Math.max(6, Math.min(maxTop, top)),
+      top: Math.max(Math.min(maxTop, 6 + topInset()), Math.min(maxTop, top)),
     };
   }
 
@@ -560,7 +577,10 @@ export class PanelPositionControls {
           const maxLeft = Math.max(6, window.innerWidth - rect.width - 6);
           const maxTop = Math.max(6, window.innerHeight - rect.height - 6);
           const nextLeft = Math.max(6, Math.min(maxLeft, nextLeftRaw));
-          const nextTop = Math.max(6, Math.min(maxTop, nextTopRaw));
+          const nextTop = Math.max(
+            Math.min(maxTop, 6 + topInset()),
+            Math.min(maxTop, nextTopRaw),
+          );
           panelEl.style.left = `${nextLeft}px`;
           panelEl.style.top = `${nextTop}px`;
           if (panelId === 'pp-toggles') {

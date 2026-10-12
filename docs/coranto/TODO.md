@@ -10,8 +10,8 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   the same panel chrome, brand-coloured readouts kept below the ticker,
   icons in the layer list, headlines on in both views. The panels still
   float where the engine puts them rather than sitting in fixed columns;
-  its layout solver is left alone on purpose. Open: panels dragged under the
-  header.
+  its layout solver is left alone on purpose. Floating panels are now held
+  below the header and ticker.
 - [x] **P2 Government (non-military) aircraft in Watch Power.** From the
   public plane-alert database (ODbL) joined to live ADS-B. Open: selecting
   one by clicking its marker on the globe (rows work).
