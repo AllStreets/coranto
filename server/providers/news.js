@@ -4,6 +4,8 @@ import {
   BRIEF_INSTRUCTIONS,
   BRIEF_SCHEMA,
   briefInput,
+  BRIEF_PLACE_INSTRUCTIONS,
+  placeBriefArticles,
   briefSources,
   checkBrief,
 } from '../../src/sources/news/brief.js';
@@ -158,14 +160,18 @@ export function newsProxy({
       return json(200, { available: false, reason: 'not-configured' });
     if (gateBrief && !enforceRateLimit(openAiRateLimiter(), req, res)) return;
     let storyId;
+    let placeKey;
     try {
-      storyId = JSON.parse(
+      ({ storyId, placeKey } = JSON.parse(
         (await readRequestBody(req, 4 * 1024)) || '{}',
-      ).storyId;
+      ));
     } catch {
       return json(400, { error: 'invalid_brief_request' });
     }
-    if (typeof storyId !== 'string' || !storyId)
+    // A brief is of one story, or of one place: never both.
+    const ofPlace = typeof placeKey === 'string' && placeKey.length > 0;
+    const ofStory = typeof storyId === 'string' && storyId.length > 0;
+    if (ofPlace === ofStory || (ofPlace && placeKey.length > 200))
       return json(400, { error: 'invalid_brief_request' });
     let payload;
     try {
@@ -173,15 +179,23 @@ export function newsProxy({
     } catch {
       return json(503, { error: 'news_unavailable' });
     }
-    const story = payload.stories?.find((entry) => entry.id === storyId);
-    if (!story) return json(404, { error: 'unknown_story' });
-    const byId = new Map(
-      payload.articles.map((article) => [article.id, article]),
-    );
-    const sources = briefSources(
-      story.articleIds.map((id) => byId.get(id)).filter(Boolean),
-    );
-    const cacheKey = `${storyId}|${sources.map((source) => source.id).join(',')}`;
+    let sources;
+    if (ofPlace) {
+      sources = briefSources(
+        placeBriefArticles(payload.articles, payload.stories, placeKey),
+      );
+      if (!sources.length) return json(404, { error: 'unknown_place' });
+    } else {
+      const story = payload.stories?.find((entry) => entry.id === storyId);
+      if (!story) return json(404, { error: 'unknown_story' });
+      const byId = new Map(
+        payload.articles.map((article) => [article.id, article]),
+      );
+      sources = briefSources(
+        story.articleIds.map((id) => byId.get(id)).filter(Boolean),
+      );
+    }
+    const cacheKey = `${ofPlace ? `place:${placeKey}` : storyId}|${sources.map((source) => source.id).join(',')}`;
     const clock = now ? now() : Date.now();
     const cached = briefCache.get(cacheKey);
     if (
@@ -210,7 +224,9 @@ export function newsProxy({
             },
             body: JSON.stringify({
               model,
-              instructions: BRIEF_INSTRUCTIONS,
+              instructions: ofPlace
+                ? BRIEF_PLACE_INSTRUCTIONS
+                : BRIEF_INSTRUCTIONS,
               input: briefInput(sources),
               reasoning: { effort: 'minimal' },
               max_output_tokens: 2000,
@@ -244,7 +260,7 @@ export function newsProxy({
     );
     const value = {
       available: true,
-      storyId,
+      ...(ofPlace ? { placeKey } : { storyId }),
       model,
       supported,
       // Why nothing is shown, when nothing is.

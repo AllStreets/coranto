@@ -547,6 +547,52 @@ test('a brief returns only cited, supported sentences, with the outlet count', a
   assert.equal(calls.length, 1);
 });
 
+test("a place brief is written from that place's stories and checked the same way", async () => {
+  const { call, calls } = briefPlugin({
+    sentences: [
+      { text: 'An attack on Riyadh airport killed twelve people.', cites: [1] },
+      { text: 'The attack was ordered from Tehran.', cites: [1] },
+    ],
+    claims: [],
+  });
+  const news = await call('/api/news');
+  const placed = news.body.articles.find((article) => article.place);
+  assert.ok(placed, 'the headlines were placed');
+  const placeKey = `${placed.place.precision}:${placed.place.name}`;
+  const { status, body } = await call('/api/news/brief', {
+    method: 'POST',
+    body: { placeKey },
+  });
+  assert.equal(status, 200);
+  assert.equal(body.placeKey, placeKey);
+  assert.equal(body.storyId, undefined);
+  // Both outlets report one story, so the place has one source, not two.
+  assert.equal(body.sources.length, 1);
+  assert.deepEqual(
+    body.sentences.map((sentence) => sentence.text),
+    ['An attack on Riyadh airport killed twelve people.'],
+  );
+  assert.equal(
+    body.removed,
+    1,
+    'Tehran is in no source, so that sentence goes',
+  );
+  const sent = JSON.parse(calls[0].init.body);
+  assert.match(sent.instructions, /about one place/);
+  assert.match(sent.instructions, /Do not link two events/);
+
+  const unknown = await call('/api/news/brief', {
+    method: 'POST',
+    body: { placeKey: 'city:Nowhere' },
+  });
+  assert.equal(unknown.status, 404);
+  const both = await call('/api/news/brief', {
+    method: 'POST',
+    body: { placeKey, storyId: 'x' },
+  });
+  assert.equal(both.status, 400, 'a brief is of a story or a place, not both');
+});
+
 test('a brief the checker rejects whole shows nothing', async () => {
   const { call } = briefPlugin({
     sentences: [

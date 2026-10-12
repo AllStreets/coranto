@@ -3549,6 +3549,25 @@ body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
   display: none;
 }
 
+/* A brief of a whole place */
+.news-chip-brief {
+  border-color: rgba(180, 124, 255, 0.55);
+  color: var(--accent);
+  cursor: pointer;
+}
+.news-chip-brief[aria-pressed='true'] {
+  background: rgba(180, 124, 255, 0.16);
+}
+.news-chip-brief[hidden] {
+  display: none;
+}
+.news-place-brief:empty {
+  display: none;
+}
+.news-place-brief {
+  padding: 0 14px 4px;
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */

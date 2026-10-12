@@ -165,6 +165,10 @@ removed and counted. The check proves a sentence's figures and names come
 from the cited articles; it does not prove the outlets are right, which is
 why every sentence links to them.
 
+Select a place and **AI BRIEF OF THIS PLACE** does the same for everything
+reported from there, using the newest headline of each story. The model is
+told to report each event on its own and not to link them.
+
 <p align="center">
   <img src="docs/media/coranto/figures-and-regions.png" alt="A story from 12 outlets showing differing death tolls and outlets by region" width="100%"/>
 </p>
@@ -301,6 +305,7 @@ Coranto has two views, switched at the top right.
 | Check why a story is where it is | Read the line under the summary, for example `Kyiv · city · matched "Kyiv" in headline`. Click it to fly there. |
 | See who else reported a story | Click the `N outlets` chip on a card to list every outlet's own headline. |
 | Get a checked summary | Click **AI BRIEF** on a story with several outlets. Needs an OpenAI key. |
+| Get a checked summary of a place | Click a marker with several stories, then **AI BRIEF OF THIS PLACE** above the feed. Needs an OpenAI key. |
 | See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
 | Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
 | Watch power | Click **POWER** on the left. Click any aircraft in the list to fly to it and open its public track. |

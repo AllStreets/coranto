@@ -30,6 +30,44 @@ export const BRIEF_INSTRUCTIONS = [
 ].join('\n');
 
 /**
+ * The same rules for a whole place: its sources may be about different
+ * events, and the model must not join them up itself.
+ */
+export const BRIEF_PLACE_INSTRUCTIONS = [
+  BRIEF_INSTRUCTIONS.replace(
+    'You summarise one news story for a reader, using ONLY the numbered sources supplied.',
+    'You summarise, for a reader, what the numbered sources report about one place. Use ONLY the numbered sources supplied.',
+  ),
+  'The sources may be about different events. Report each on its own. Do not link two events, or say one caused another, unless a single cited source says so.',
+].join('\n');
+
+/**
+ * The articles a place brief is written from: the newest headline of each
+ * story at that place, so twelve sources cover twelve stories and not one.
+ * @param {object[]} articles Newest first, each with `place` and `id`.
+ * @param {Array<{articleIds: string[]}>} stories
+ * @param {string} placeKey `precision:name`, as the globe keys its markers.
+ */
+export function placeBriefArticles(articles, stories, placeKey) {
+  const storyOf = new Map();
+  (stories ?? []).forEach((story, index) => {
+    for (const id of story.articleIds ?? []) storyOf.set(id, index);
+  });
+  const seen = new Set();
+  const out = [];
+  for (const article of articles ?? []) {
+    const place = article?.place;
+    if (!place || `${place.precision}:${place.name}` !== placeKey) continue;
+    const story = storyOf.get(article.id) ?? `single:${article.id}`;
+    if (seen.has(story)) continue;
+    seen.add(story);
+    out.push(article);
+    if (out.length >= BRIEF_MAX_SOURCES) break;
+  }
+  return out;
+}
+
+/**
  * The reply shape, enforced by the model API where it supports a schema, so
  * the reply is always readable JSON.
  */

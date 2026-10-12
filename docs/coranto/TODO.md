@@ -94,9 +94,10 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [x] **T25 Borders, front lines, countries and cities overlays**, as AUSPEX
   drew them (`src/ui/corantoAtlas.js`, data in `public/coranto-atlas/`).
   Also done: live conflict marks and headline activity from current
-  headlines, pinning countries and cities to the board. Open: a checked AI
-  brief for a whole place (AUSPEX's city panel briefs were model-written, so
-  this goes through the same citation check as story briefs). Needs the
+  headlines, pinning countries and cities to the board. Also done: AI BRIEF OF
+  THIS PLACE, a brief of a selected place's stories through the same citation
+  check as story briefs (AUSPEX's city panel briefs were model-written and
+  unchecked). Needs the
   database: the regions/threat overlay, whose rows lived in AUSPEX's Supabase
   `regions` table; Headline activity is the computed stand-in until then.
 

@@ -51,6 +51,9 @@ function el(document, tag, className, text) {
   return node;
 }
 
+/** Marks a brief of a whole place among the briefs of single stories. */
+const PLACE_BRIEF = 'place:';
+
 /**
  * The headline feed. It renders exactly what `buildNewsPanelModel` returns:
  * publisher headlines with their links, the source-health line, and one
@@ -82,7 +85,7 @@ export function createNewsFeed({
     grouped: true,
   };
   const openStories = new Set();
-  /** storyId -> { status: 'loading'|'done'|'off'|'error', data? } */
+  /** storyId, or `place:` and a place key -> { status: 'loading'|'done'|'off'|'error', data? } */
   const briefs = new Map();
 
   async function requestBrief(storyId) {
@@ -92,7 +95,12 @@ export function createNewsFeed({
       const response = await fetchImpl('/api/news/brief', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyId }),
+        // A brief of a whole place is asked for by the place's key.
+        body: JSON.stringify(
+          storyId.startsWith(PLACE_BRIEF)
+            ? { placeKey: storyId.slice(PLACE_BRIEF.length) }
+            : { storyId },
+        ),
       });
       const data = await response.json().catch(() => null);
       if (!response.ok || !data) briefs.set(storyId, { status: 'error' });
@@ -258,9 +266,28 @@ export function createNewsFeed({
   rangeSelect.addEventListener('change', () =>
     layer.setRangeHours?.(Number(rangeSelect.value)),
   );
+  // A checked brief of everything reported from the selected place.
+  const placeBriefBtn = el(document, 'button', 'news-chip news-chip-brief');
+  placeBriefBtn.type = 'button';
+  placeBriefBtn.title =
+    'An AI-written brief of what the outlets report from this place. Every sentence is checked against the headlines it cites, and removed if it says more than they do.';
+  const placeBrief = el(document, 'div', 'news-place-brief');
+  const placeBriefId = () => {
+    const key = layer.getView().selectedPlaceKey;
+    return key ? PLACE_BRIEF + key : null;
+  };
+  placeBriefBtn.addEventListener('click', () => {
+    const id = placeBriefId();
+    if (!id) return;
+    if (briefs.has(id)) {
+      briefs.delete(id);
+      render();
+    } else requestBrief(id);
+  });
   filterRow.append(
     search,
     placeChip,
+    placeBriefBtn,
     rangeSelect,
     languageSelect,
     publisherSelect,
@@ -272,7 +299,7 @@ export function createNewsFeed({
   const empty = el(document, 'p', 'news-empty');
   const list = el(document, 'ol', 'news-list');
   list.setAttribute('aria-label', 'Headlines');
-  body.replaceChildren(status, filterRow, empty, list, more);
+  body.replaceChildren(status, filterRow, placeBrief, empty, list, more);
 
   function fillSelect(select, label, options, selected) {
     const nodes = [new Option(label, '')];
@@ -806,6 +833,17 @@ export function createNewsFeed({
       clear.alt = 'Clear';
       placeChip.replaceChildren(model.place.name, clear);
     } else placeChip.replaceChildren();
+    // One story at a place opens as that story; a brief is for several.
+    const briefId = model.place ? placeBriefId() : null;
+    const briefOn = Boolean(briefId && briefs.has(briefId));
+    placeBriefBtn.hidden = !briefId || (model.cards?.length ?? 0) < 2;
+    placeBriefBtn.textContent = briefOn
+      ? 'HIDE BRIEF'
+      : 'AI BRIEF OF THIS PLACE';
+    placeBriefBtn.setAttribute('aria-pressed', String(briefOn));
+    placeBrief.replaceChildren(
+      ...(briefOn && !placeBriefBtn.hidden ? [renderBrief(briefId)] : []),
+    );
     fillSelect(
       publisherSelect,
       'All publishers',

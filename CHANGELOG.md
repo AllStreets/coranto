@@ -338,6 +338,12 @@
 
 ## [Unreleased]
 
+- Add AI BRIEF OF THIS PLACE. With a place selected, it briefs what the
+  outlets report from there, taking the newest headline of each story so the
+  sources cover different events. It goes through the same check as a story
+  brief: every sentence cites its sources and is removed if it says more than
+  they do, and the model is told not to link separate events.
+
 - Keep the engine's tracking widgets over the globe. The view switcher shown
   while following an aircraft or satellite, and the orbit indicator, were
   placed against the whole window and sat under the feed column or the
