@@ -1,3 +1,4 @@
+import { cullEntitiesBeyondHorizon } from '../data/corantoHorizonCull.js';
 import * as Cesium from 'cesium';
 
 /**
@@ -183,6 +184,7 @@ export function createPowerLens({
   let government = { status: 'idle', aircraft: [], listed: 0 };
   let governmentTimer = null;
   const governmentMarkers = [];
+  let stopGovernmentCulling = null;
   let governmentClicks = null;
   const govHeading = el(document, 'div', {
     class: 'coranto-rail-heading',
@@ -260,6 +262,8 @@ export function createPowerLens({
   function clearGovernmentMarkers() {
     const entities = getDataManager()?.viewer?.entities;
     for (const marker of governmentMarkers.splice(0)) entities?.remove(marker);
+    stopGovernmentCulling?.();
+    stopGovernmentCulling = null;
     governmentClicks?.destroy();
     governmentClicks = null;
   }
@@ -297,6 +301,11 @@ export function createPowerLens({
         }),
       );
     }
+    // An aircraft on the far side of the Earth must not show through it.
+    stopGovernmentCulling ??= cullEntitiesBeyondHorizon(
+      viewer,
+      () => governmentMarkers,
+    );
     // Selecting a marker on the globe opens the same card as its row.
     if (government.aircraft.length) {
       governmentClicks = new Cesium.ScreenSpaceEventHandler(

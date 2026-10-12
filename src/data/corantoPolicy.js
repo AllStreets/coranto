@@ -26,3 +26,17 @@ export const showsObjectBrackets = () => objectBrackets;
 export function setObjectBrackets(value) {
   objectBrackets = Boolean(value);
 }
+
+/**
+ * Whether orbit rings are also drawn, dimmed, where the Earth is in front of
+ * them. The engine does this so a whole orbit reads from space. Zoomed in on
+ * a town it puts a line across the ground that is really on the far side of
+ * the planet, so Coranto switches it off for people.
+ */
+let orbitsThroughEarth = true;
+
+export const showsOrbitsThroughEarth = () => orbitsThroughEarth;
+
+export function setOrbitsThroughEarth(value) {
+  orbitsThroughEarth = Boolean(value);
+}

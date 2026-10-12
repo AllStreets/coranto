@@ -26,7 +26,11 @@ import {
   layerIconCss,
 } from '../data/corantoIcons.js';
 import { ATLAS_OVERLAYS, createAtlas } from './corantoAtlas.js';
-import { setObjectBrackets, setRealOnly } from '../data/corantoPolicy.js';
+import {
+  setObjectBrackets,
+  setOrbitsThroughEarth,
+  setRealOnly,
+} from '../data/corantoPolicy.js';
 import { createMapKey } from './corantoMapKey.js';
 import { createMarketsLens } from './corantoMarkets.js';
 import { createNuclearMarks } from './corantoNuclear.js';
@@ -2566,6 +2570,8 @@ export function createCorantoShell({
   // Coranto's own icons mark what is tracked; the engine's corner brackets
   // around each object are switched off for people.
   setObjectBrackets(body.dataset.corantoFrame !== 'one');
+  // Nor is an orbit drawn across the ground from the far side of the Earth.
+  setOrbitsThroughEarth(body.dataset.corantoFrame !== 'one');
   // In the shared frame the engine's layer list shows icons, not emoji.
   const layerIconStyle = el(document, 'style', {
     text: layerIconCss("body[data-coranto-frame='one']"),

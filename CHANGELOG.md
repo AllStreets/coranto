@@ -338,6 +338,13 @@
 
 ## [Unreleased]
 
+- Stop markers and the orbit ring showing through the Earth. Zoomed in on
+  one town, story, hazard, election and government-aircraft markers from the
+  far side of the globe were drawn over the ground, and the space station's
+  orbit ran across it as a line. A marker is now hidden whenever the Earth
+  is between it and the camera, and the ring is drawn only where it is
+  actually in view.
+
 - Give Scope, Draw and Celestial in the DISPLAY panel light icons from the
   shared set. They were drawn in black on a dark panel.
 - Tidy the repository's front page. The upstream contributing guide, which

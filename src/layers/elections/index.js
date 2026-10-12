@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium';
+import { cullEntitiesBeyondHorizon } from '../../data/corantoHorizonCull.js';
 import {
   ELECTION_COLOR,
   ELECTION_OVERLAY_SOURCE_ID,
@@ -98,6 +99,10 @@ export function createElectionsLayer({
       _dataSource = new Cesium.CustomDataSource('elections');
       _dataSource.show = false;
       viewer.dataSources.add(_dataSource);
+      // A marker on the far side of the Earth must not show through it.
+      cullEntitiesBeyondHorizon(viewer, () =>
+        _dataSource?.show ? _dataSource.entities.values : null,
+      );
       overlayHost.setVisible(ELECTION_OVERLAY_SOURCE_ID, false);
     },
 

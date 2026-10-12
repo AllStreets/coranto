@@ -1,3 +1,4 @@
+import { showsOrbitsThroughEarth } from '../../data/corantoPolicy.js';
 import * as Cesium from 'cesium';
 import { gstime } from 'satellite.js';
 import { ISS_NORAD, POSITION_UPDATE_MS, RING_ROTATION_MS } from './policy.js';
@@ -65,9 +66,14 @@ export function createRendering({
         },
       }),
       appearance: new Cesium.PolylineColorAppearance({ translucent: true }),
-      depthFailAppearance: new Cesium.PolylineColorAppearance({
-        translucent: true,
-      }),
+      // Drawn behind the Earth too, unless the host has asked for it not to.
+      ...(showsOrbitsThroughEarth()
+        ? {
+            depthFailAppearance: new Cesium.PolylineColorAppearance({
+              translucent: true,
+            }),
+          }
+        : {}),
       asynchronous: false, // build this frame — no async-rebuild blink window
       allowPicking: false, // ring clicks fall through to satellites/deselect
     });

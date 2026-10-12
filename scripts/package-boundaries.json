@@ -974,6 +974,7 @@
   "satellites-layer": {
     "exports": ["./layers/satellites"],
     "modules": [
+      "src/data/corantoPolicy.js",
       "src/data/issPass.js",
       "src/data/satelliteClass.js",
       "src/data/satellitePass.js",
@@ -1095,6 +1096,7 @@
       "src/data/trafficBounds.js",
       "src/data/trafficFlowStyle.js",
       "src/data/corantoPolicy.js",
+      "src/data/corantoHorizonCull.js",
       "src/data/trafficPresetStyle.js",
       "src/data/trafficQueue.js",
       "src/layers/traffic/animation.js",
@@ -1601,6 +1603,7 @@
       "src/data/trafficBounds.js",
       "src/data/trafficFlowStyle.js",
       "src/data/corantoPolicy.js",
+      "src/data/corantoHorizonCull.js",
       "src/data/trafficPresetStyle.js",
       "src/data/trafficQueue.js",
       "src/data/trailRenderer.js",
@@ -2386,6 +2389,7 @@
       "src/data/trafficBounds.js",
       "src/data/trafficFlowStyle.js",
       "src/data/corantoPolicy.js",
+      "src/data/corantoHorizonCull.js",
       "src/data/trafficPresetStyle.js",
       "src/data/trafficQueue.js",
       "src/data/trailRenderer.js",

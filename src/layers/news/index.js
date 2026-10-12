@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium';
+import { cullEntitiesBeyondHorizon } from '../../data/corantoHorizonCull.js';
 import { TOPIC_COLOURS, markerImage } from '../../data/corantoIcons.js';
 import {
   NEWS_ACCENT,
@@ -170,6 +171,10 @@ export function createNewsLayer({
       _dataSource = new Cesium.CustomDataSource('news');
       _dataSource.show = false;
       viewer.dataSources.add(_dataSource);
+      // A marker on the far side of the Earth must not show through it.
+      cullEntitiesBeyondHorizon(viewer, () =>
+        _dataSource?.show ? _dataSource.entities.values : null,
+      );
       overlayHost.setVisible(NEWS_OVERLAY_SOURCE_ID, false);
     },
 
