@@ -21,13 +21,20 @@ export const NEWS_RANGES_H = Object.freeze([24, 72, 168]);
  * dropped. Nothing is recomputed that the server worked out from the whole
  * story, so a trimmed story loses its coverage and figure comparison rather
  * than showing ones that no longer match.
+ *
+ * `asOf` moves the end of the range back from now, to replay what was held
+ * at an earlier moment: the headlines published in the `hours` before it.
  */
-export function windowSnapshot(snapshot, hours) {
+export function windowSnapshot(snapshot, hours, asOf = null) {
   if (!snapshot || !Number.isFinite(hours)) return snapshot;
-  const cutoff = Date.parse(snapshot.fetchedAt) - hours * 3_600_000;
-  const articles = (snapshot.articles ?? []).filter(
-    (article) => Date.parse(article.publishedAt) >= cutoff,
-  );
+  const end = Number.isFinite(asOf) ? asOf : Infinity;
+  const cutoff =
+    (Number.isFinite(asOf) ? asOf : Date.parse(snapshot.fetchedAt)) -
+    hours * 3_600_000;
+  const articles = (snapshot.articles ?? []).filter((article) => {
+    const at = Date.parse(article.publishedAt);
+    return at >= cutoff && at <= end;
+  });
   if (articles.length === (snapshot.articles ?? []).length) return snapshot;
   const kept = new Map(articles.map((article) => [article.id, article]));
   const stories = [];

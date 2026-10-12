@@ -4164,6 +4164,84 @@ body[data-coranto-frame='one'][data-coranto-mode='news']
   }
 }
 
+/* Tour and replay: one bar at the top of the globe */
+#coranto-transport {
+  position: fixed;
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 44px);
+  left: calc(
+    var(--coranto-rail-w) +
+      (100vw - var(--coranto-rail-w) - var(--coranto-feed-w)) / 2
+  );
+  transform: translateX(-50%);
+  z-index: 325;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 14px;
+  width: min(
+    560px,
+    calc(100vw - var(--coranto-rail-w) - var(--coranto-feed-w) - 60px)
+  );
+  padding: 10px 12px;
+  border: 1px solid var(--coranto-line-2);
+  border-top: 2px solid var(--accent);
+  background: rgba(9, 8, 15, 0.94);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55);
+}
+#coranto-transport[hidden],
+body:not([data-coranto-mode='news']) #coranto-transport {
+  display: none;
+}
+.coranto-transport-text {
+  min-width: 0;
+}
+.coranto-transport-title {
+  color: var(--accent);
+  font: 700 9px var(--font-mono);
+  letter-spacing: 1.7px;
+}
+.coranto-transport-detail {
+  margin-top: 4px;
+  color: var(--text-primary);
+  font: 12.5px/1.4 var(--font-sans);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.coranto-transport-controls {
+  display: flex;
+  gap: 5px;
+}
+.coranto-transport-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 2px;
+  background: transparent;
+  cursor: pointer;
+}
+.coranto-transport-btn:hover,
+.coranto-transport-btn:focus-visible {
+  border-color: var(--accent);
+}
+.coranto-transport-btn img {
+  width: 13px;
+  height: 13px;
+}
+.coranto-transport-slider {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: #b47cff;
+}
+.coranto-transport-slider[hidden] {
+  display: none;
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */

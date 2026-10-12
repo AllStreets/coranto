@@ -338,6 +338,15 @@
 
 ## [Unreleased]
 
+- Add TOUR TODAY. It flies through the eight places with the most stories
+  right now, pausing ten seconds on each with its newest headline and its
+  stories in the feed. A bar at the top of the globe has back, pause,
+  forward and stop; Escape stops it and returns to the whole Earth.
+- Add REPLAY WEEK. It steps back through the week of headlines Coranto holds,
+  three hours at a time, so the globe and the feed show what was being
+  reported at each moment. A slider moves to any point; stop returns to now.
+  It shows only what had been published by that moment.
+
 - Voice works from the news view. The voice control now sits under the globe
   there as well as in INSTRUMENTS, and voice gains one tool,
   `run_app_command`, that reaches everything search does: lenses, country

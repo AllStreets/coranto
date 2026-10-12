@@ -46,6 +46,8 @@ export function createNewsLayer({
   // Everything the server holds (a week); `_snapshot` is the range in view.
   let _full = null;
   let _rangeHours = NEWS_RANGES_H[0];
+  // When replaying, the moment the range ends at; null means now.
+  let _asOf = null;
   // How many place names to draw; the selected place is always named.
   let _labelLimit = NEWS_OVERLAY_COHORT_LIMIT;
   let _error = null;
@@ -209,7 +211,7 @@ export function createNewsLayer({
         const snapshot = await source.getSnapshot({ signal: request.signal });
         if (!current()) return false;
         _full = snapshot;
-        _snapshot = windowSnapshot(_full, _rangeHours);
+        _snapshot = windowSnapshot(_full, _rangeHours, _asOf);
         _error = null;
         _unavailable = null;
         regroup();
@@ -280,6 +282,12 @@ export function createNewsLayer({
         goodNewsOnly: _goodNewsOnly,
         language: _language,
         rangeHours: _rangeHours,
+        asOf: _asOf,
+        // The oldest headline held, for the replay's starting point.
+        heldSince: (_full?.articles ?? []).reduce((oldest, article) => {
+          const at = Date.parse(article.publishedAt);
+          return Number.isFinite(at) && at < oldest ? at : oldest;
+        }, Infinity),
         // How many headlines the server holds across the whole week.
         heldTotal: _full?.articles?.length ?? 0,
       };
@@ -315,7 +323,19 @@ export function createNewsLayer({
     /** Show the last day, three days or week of stories. */
     setRangeHours(hours) {
       _rangeHours = NEWS_RANGES_H.includes(hours) ? hours : NEWS_RANGES_H[0];
-      _snapshot = windowSnapshot(_full, _rangeHours);
+      _snapshot = windowSnapshot(_full, _rangeHours, _asOf);
+      regroup();
+      render();
+      emit();
+    },
+
+    /**
+     * Replay: end the range at an earlier moment, or pass null for now. The
+     * stories shown are the ones published in the range before that moment.
+     */
+    setAsOf(ms) {
+      _asOf = Number.isFinite(ms) ? ms : null;
+      _snapshot = windowSnapshot(_full, _rangeHours, _asOf);
       regroup();
       render();
       emit();

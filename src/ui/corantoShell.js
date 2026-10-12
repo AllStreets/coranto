@@ -41,6 +41,7 @@ import { createMarketsLens } from './corantoMarkets.js';
 import { createNuclearMarks } from './corantoNuclear.js';
 import { createSatelliteIcons } from './corantoSatelliteIcons.js';
 import { createSceneRestore } from './corantoSceneRestore.js';
+import { createTransport } from './corantoTransport.js';
 import { createPowerLens } from './corantoPower.js';
 import { createLaunchIcons } from './corantoLaunchIcons.js';
 import { createQuakeIcons } from './corantoQuakeIcons.js';
@@ -862,6 +863,24 @@ export function createCorantoShell({
           }),
         },
         {
+          title: 'Tour today’s stories',
+          detail:
+            'Fly through the places with the most stories, pausing on each',
+          kind: 'START',
+          icon: 'play',
+          keywords: 'tour today top stories fly through show me',
+          pinned: true,
+          run: () => runTransport('tour'),
+        },
+        {
+          title: 'Replay the week',
+          detail: 'Step back through the week of headlines held',
+          kind: 'START',
+          icon: 'rotate',
+          keywords: 'replay week playback time history timeline scrub',
+          run: () => runTransport('replay'),
+        },
+        {
           title: 'Cockpit view',
           detail: followingAircraft()
             ? 'Ride along with the aircraft you are following'
@@ -1517,6 +1536,55 @@ export function createCorantoShell({
     'aria-expanded': 'false',
     'aria-controls': 'coranto-key',
   });
+  // Being shown the news: a tour of today's places, and the week replayed.
+  const tourBtn = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-rail-btn',
+    text: 'TOUR TODAY',
+    title:
+      'Fly through the places with the most stories right now, pausing on each with its newest headline',
+    'aria-pressed': 'false',
+  });
+  const replayBtn = el(document, 'button', {
+    type: 'button',
+    class: 'coranto-rail-btn',
+    text: 'REPLAY WEEK',
+    title:
+      'Step back through the week of headlines Coranto holds, to see what was being reported at each moment',
+    'aria-pressed': 'false',
+  });
+  const transport = createTransport({
+    document,
+    win,
+    layer,
+    flyHome: () => wholeEarth(),
+    onChange: (mode) => {
+      tourBtn.setAttribute('aria-pressed', String(mode === 'tour'));
+      replayBtn.setAttribute('aria-pressed', String(mode === 'replay'));
+      body.dataset.corantoTransport = mode ?? 'off';
+    },
+  });
+  /** Start or stop a tour or a replay, from the news lens. */
+  function runTransport(mode) {
+    if (transport.mode === mode) return transport.stop();
+    setMode('news');
+    setLens('news');
+    feed?.closeStory();
+    dossier.close();
+    feed?.setFilters({});
+    const started =
+      mode === 'tour' ? transport.startTour() : transport.startReplay();
+    if (!started) {
+      const button = mode === 'tour' ? tourBtn : replayBtn;
+      const was = button.textContent;
+      // Say why nothing happened, on the button itself.
+      button.textContent =
+        mode === 'tour' ? 'TOO FEW PLACES' : 'TOO LITTLE HELD';
+      win.setTimeout(() => (button.textContent = was), 2400);
+    }
+  }
+  tourBtn.addEventListener('click', () => runTransport('tour'));
+  replayBtn.addEventListener('click', () => runTransport('replay'));
   // Icons over the quakes, while the earthquakes layer is on.
   const quakeIcons = createQuakeIcons({
     getManager: () => dataManager,
@@ -1745,6 +1813,8 @@ export function createCorantoShell({
       tvBtn,
       shareBtn,
       keyBtn,
+      tourBtn,
+      replayBtn,
       briefingBtn,
     ),
     lensSwitch,
@@ -2135,6 +2205,7 @@ export function createCorantoShell({
     layersMenu,
     palette.element,
     dossier.element,
+    transport.element,
     mapKey.element,
     board.element,
     ticker,
@@ -2709,6 +2780,7 @@ export function createCorantoShell({
     setSourcesMenu(false);
     feed?.closeStory();
     dossier.close();
+    transport.stop();
     if (!guide.hidden) guide.hidden = true;
     if (!briefing.hidden) closeBriefing();
     tv.close();
