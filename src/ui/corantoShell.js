@@ -3,7 +3,13 @@ import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
 import { getContextStore } from '../data/contextStore.js';
 import { createBoard } from './corantoBoard.js';
 import { createBoardStore } from './corantoBoardModel.js';
-import { createBroadcasts, nearestBroadcaster } from './corantoBroadcasts.js';
+import {
+  BROADCASTERS,
+  createBroadcasts,
+  nearestBroadcaster,
+} from './corantoBroadcasts.js';
+import { buildCommands } from './corantoCommandList.js';
+import { createCommandPalette } from './corantoCommands.js';
 import {
   NEARBY_KM,
   contactCard,
@@ -14,6 +20,7 @@ import {
 } from './corantoContact.js';
 import { buildViewUrl, readViewFromSearch } from './corantoLink.js';
 import {
+  LAYER_ICONS,
   TOPIC_COLOURS,
   iconImage,
   layerIconCss,
@@ -160,6 +167,10 @@ const GUIDE = [
   [
     'Build a picture',
     'PIN TO BOARD keeps a story, country or city on the analyst board; an aircraft, ship or site can be pinned from its card, and is kept as it was at that moment. BOARD at the top shows what you have pinned, draws the connections between items that mention the same name, and works out a brief and a timeline from them. Nothing on the board is written by a model.',
+  ],
+  [
+    'Find anything',
+    'SEARCH at the top, or Ctrl+K (Cmd+K on a Mac), reaches everything from one box: fly to a country or city, open a story, switch a layer, change lens, watch a channel, pick a visual preset or open a tool in INSTRUMENTS. Each result says what it will do. When several things fit, pick the one you mean.',
   ],
   [
     'Go deeper',
@@ -554,6 +565,385 @@ export function createCorantoShell({
     setLayersMenu(false);
   });
 
+  // Search over everything the app can do: see corantoCommands.js.
+  const onMac = /mac|iphone|ipad/i.test(
+    win.navigator?.userAgentData?.platform ?? win.navigator?.platform ?? '',
+  );
+  const searchBtn = el(
+    document,
+    'button',
+    {
+      id: 'coranto-search-all',
+      type: 'button',
+      title:
+        'Search everything: places, stories, layers, tools, channels and views',
+    },
+    el(document, 'img', { src: iconImage('search', '#c9c2de'), alt: '' }),
+    el(document, 'span', { text: 'SEARCH' }),
+    el(document, 'kbd', { text: onMac ? 'CMD K' : 'CTRL K' }),
+  );
+  // Countries and cities to fly to, read once when the search first opens.
+  let atlasPlaces = [];
+  let atlasPlacesAsked = false;
+  async function loadAtlasPlaces() {
+    if (atlasPlacesAsked) return;
+    atlasPlacesAsked = true;
+    try {
+      const [countries, cities] = await Promise.all(
+        ['countries', 'cities'].map(async (name) => {
+          const response = await win.fetch(`/coranto-atlas/${name}.json`);
+          return response.ok ? response.json() : [];
+        }),
+      );
+      const byCode = new Map(countries.map((row) => [row.iso2, row.name]));
+      atlasPlaces = [
+        ...countries.map((row) => ({
+          kind: 'country',
+          name: row.name,
+          detail: 'Country',
+          run: () => flyTo(row.lat, row.lng, 4_500_000),
+        })),
+        ...cities.map((row) => ({
+          kind: 'city',
+          name: row.name,
+          detail: byCode.get(row.iso2) ?? '',
+          keywords: byCode.get(row.iso2) ?? '',
+          run: () => flyTo(row.lat, row.lng, 600_000),
+        })),
+      ];
+    } catch {
+      atlasPlaces = [];
+    }
+  }
+  /** Press a control that lives in the engine's own panels. */
+  const pressEngine = (selector) =>
+    win.setTimeout(() => document.querySelector(selector)?.click(), 350);
+  const inNews = (run) => () => {
+    setMode('news');
+    run();
+  };
+  const inTools = (run) => () => {
+    setMode('instruments');
+    run();
+  };
+  function commandApp() {
+    const view = layer.getView();
+    return {
+      mode: body.dataset.corantoMode,
+      setMode,
+      setLens: (id) => {
+        setMode('news');
+        setLens(id);
+      },
+      lenses: [
+        [
+          'news',
+          'News lens',
+          'Every story, on the globe and in the feed',
+          'news',
+          'stories headlines',
+        ],
+        [
+          'power',
+          'Watch Power',
+          'Military and government aircraft, bases and plate readers',
+          'military',
+          'military government aircraft',
+        ],
+        [
+          'elections',
+          'Votes',
+          'Polling days and US campaign money',
+          'election',
+          'elections campaign money fec',
+        ],
+        [
+          'markets',
+          'Markets',
+          'Indices, oil, yields, exchange rates and crypto',
+          'finance',
+          'finance stocks oil',
+        ],
+        [
+          'relief',
+          'Relief',
+          'Displaced people and disease outbreaks',
+          'displaced',
+          'humanitarian refugees outbreaks who unhcr',
+        ],
+      ].map(([id, title, detail, icon, keywords]) => ({
+        id,
+        title,
+        detail,
+        icon,
+        keywords,
+      })),
+      panels: [
+        {
+          title: 'Whole Earth',
+          detail: 'Pull back to see the whole globe',
+          kind: 'VIEW',
+          icon: 'target',
+          keywords: 'home reset zoom out',
+          pinned: true,
+          run: wholeEarth,
+        },
+        {
+          title: 'My briefing',
+          detail: 'What is new since you last looked',
+          icon: 'news',
+          keywords: 'new since briefing',
+          pinned: true,
+          run: inNews(() => briefingBtn.click()),
+        },
+        {
+          title: 'Analyst board',
+          detail: 'What you have pinned and how it connects',
+          icon: 'key',
+          keywords: 'board pins connections graph matrix',
+          pinned: true,
+          run: () => board.open(),
+        },
+        {
+          title: 'Live TV',
+          detail: 'Live news channels from every continent',
+          icon: 'broadcast',
+          keywords: 'television channels watch',
+          pinned: true,
+          run: inNews(() => tv.open()),
+        },
+        {
+          title: 'Map key',
+          detail: 'What every mark on the globe means',
+          icon: 'pin',
+          keywords: 'legend icons meaning',
+          run: inNews(() => setMapKey(true)),
+        },
+        {
+          title: 'Sources',
+          detail: 'Every source and whether it is answering',
+          icon: 'outlets',
+          keywords: 'publishers feeds live status',
+          run: inNews(() => sourcesBtn.click()),
+        },
+        {
+          title: 'Guide',
+          detail: 'How Coranto works',
+          icon: 'compass',
+          keywords: 'help how to',
+          run: inNews(() => guideBtn.click()),
+        },
+        {
+          title: 'Share this view',
+          detail: 'Copy a link that reopens what you see',
+          kind: 'COPY LINK',
+          icon: 'link',
+          keywords: 'share link url copy',
+          run: inNews(() => shareBtn.click()),
+        },
+        {
+          title: 'Save this view',
+          detail: 'Keep this search, topic or place under My Watches',
+          kind: 'SAVE',
+          icon: 'plus',
+          keywords: 'watch save',
+          run: inNews(() => saveBtn.click()),
+        },
+        {
+          title: 'Good news',
+          detail: 'Stories tagged as good news',
+          kind: 'TOPIC',
+          icon: 'good',
+          keywords: 'positive',
+          run: inNews(() => goodBtn.click()),
+        },
+        {
+          title: 'Every layer',
+          detail: 'The list of live layers with switches',
+          icon: 'grid',
+          keywords: 'layers list',
+          run: () => setLayersMenu(true),
+        },
+        {
+          title: 'Scenes',
+          detail: 'Recorded camera tours of the globe',
+          icon: 'camera',
+          keywords: 'scene tour playback director',
+          run: inTools(() => {
+            pressEngine(
+              "#data-panel .panel-collapse-btn[aria-expanded='true']",
+            );
+            win.setTimeout(
+              () =>
+                document
+                  .querySelector(
+                    "#scene-panel .panel-collapse-btn[aria-expanded='false']",
+                  )
+                  ?.click(),
+              900,
+            );
+          }),
+        },
+        {
+          title: 'Visual presets tray',
+          detail: 'Normal, CRT, night vision, thermal, comic, noir, snow',
+          icon: 'contrast',
+          keywords: 'style look filter',
+          run: inTools(() =>
+            pressEngine("#control-panel-toggle[aria-expanded='false']"),
+          ),
+        },
+        {
+          title: 'Voice control',
+          detail:
+            'Start or stop listening. Needs a microphone and an OpenAI key',
+          kind: 'START / STOP',
+          icon: 'speaker',
+          keywords: 'voice speak talk microphone',
+          run: inTools(() => pressEngine('#gev-voice-button')),
+        },
+        {
+          title: 'Find a street address or landmark',
+          detail: 'The engine’s own location search',
+          icon: 'search',
+          keywords: 'location address geocode landmark',
+          run: inTools(() => pressEngine('#search-toggle')),
+        },
+        {
+          title: 'Provider keys',
+          detail: 'Which optional keys are set, and what each unlocks',
+          icon: 'key',
+          keywords: 'api keys settings power up',
+          run: inTools(() => pressEngine('#key-setup-chip')),
+        },
+        {
+          title: 'Data layers panel',
+          detail: 'Every layer with its source and last update',
+          icon: 'grid',
+          keywords: 'layers sources freshness',
+          run: inTools(() =>
+            pressEngine(
+              "#data-panel .panel-collapse-btn[aria-expanded='false']",
+            ),
+          ),
+        },
+      ],
+      layers: dataManager
+        ? [...dataManager.layers.entries()]
+            .filter(([id]) => id !== 'news')
+            .map(([id, entry]) => {
+              const header = HEADER_LAYERS.find((row) => row[0] === id);
+              return {
+                id,
+                name: entry.module?.name ?? header?.[1] ?? id,
+                detail: header?.[2] ?? entry.module?.source ?? '',
+                keywords: header?.[1] ?? '',
+                icon: LAYER_ICONS[id] ?? header?.[3],
+                on: header ? layerShown(id) : dataManager.isEnabled(id),
+                toggle: () => {
+                  if (header) layerButtons.get(id)?.click();
+                  else
+                    Promise.resolve(
+                      dataManager.setEnabled(id, !dataManager.isEnabled(id)),
+                    )
+                      .catch(() => {})
+                      .finally(syncLayers);
+                },
+              };
+            })
+        : [],
+      overlays: ATLAS_OVERLAYS.map(([id, label]) => ({
+        id,
+        label,
+        on: atlas.isOn(id),
+        toggle: inNews(() => setAtlas(id, !atlas.isOn(id))),
+      })),
+      topics: CATEGORIES.map(([id, label]) => ({
+        id: id ?? 'all',
+        label: label[0] + label.slice(1).toLowerCase(),
+        icon: id ?? 'news',
+        run: inNews(() => {
+          setLens('news');
+          feed?.setCategory(id);
+        }),
+      })),
+      ranges: [
+        [24, 'Last 24 hours'],
+        [72, 'Last 3 days'],
+        [168, 'Last 7 days'],
+      ].map(([hours, label]) => ({
+        hours,
+        label,
+        run: inNews(() => layer.setRangeHours?.(hours)),
+      })),
+      presets: [
+        ['normal', 'Normal', 'No visual filter', 'default plain'],
+        ['retro', 'CRT', 'Green phosphor screen with scanlines', 'retro'],
+        [
+          'surveillance',
+          'NVG',
+          'Night-vision goggles',
+          'night vision surveillance',
+        ],
+        ['thermal', 'FLIR', 'Thermal contrast', 'thermal heat infrared'],
+        [
+          'anime',
+          'Comic',
+          'Bright cel-shaded colour and outlines',
+          'cel illustrated',
+        ],
+        ['noir', 'Noir', 'High-contrast black and white', 'monochrome'],
+        ['snow', 'Snow', 'A cold whiteout', 'winter'],
+      ].map(([id, label, detail, keywords]) => ({
+        id,
+        label,
+        detail,
+        keywords,
+        run: () =>
+          document.querySelector(`.style-btn[data-style='${id}']`)?.click(),
+      })),
+      channels: BROADCASTERS.map(([name, city, covers], index) => ({
+        name,
+        city,
+        covers,
+        run: inNews(() => tv.openChannel(index)),
+      })),
+      storyPlaces: (view.places ?? []).map((place) => ({
+        key: place.key,
+        name: place.name,
+        count: place.articles?.length ?? 0,
+        run: inNews(() => {
+          setLens('news');
+          layer.selectPlace(place.key, { focus: true });
+        }),
+      })),
+      places: atlasPlaces,
+      articles: view.snapshot?.articles ?? [],
+      openStory: (id) => {
+        // A story is found in the whole feed, not in whatever a lens, a
+        // topic or a search had narrowed it to.
+        setMode('news');
+        setLens('news');
+        feed?.setFilters({});
+        layer.selectPlace(null);
+        feed?.openStory(storyKeyFor(id));
+      },
+      searchFeed: (text) => {
+        setMode('news');
+        setLens('news');
+        feed?.setQuery(text);
+      },
+    };
+  }
+  const palette = createCommandPalette({
+    document,
+    getCommands: (query) => buildCommands(commandApp(), query),
+  });
+  searchBtn.addEventListener('click', () => {
+    loadAtlasPlaces();
+    palette.open();
+  });
+
   // The analyst board is one button in the header, so it is there in both
   // NEWS and INSTRUMENTS.
   const boardStore = createBoardStore({ storage: localStorageRef });
@@ -636,6 +1026,7 @@ export function createCorantoShell({
     liveBtn,
     menuBtn,
     layersBtn,
+    searchBtn,
     el(document, 'span', { class: 'coranto-header-gap' }),
     count,
     clock,
@@ -1482,6 +1873,7 @@ export function createCorantoShell({
     hud,
     sourcesMenu,
     layersMenu,
+    palette.element,
     mapKey.element,
     board.element,
     ticker,
@@ -2023,6 +2415,17 @@ export function createCorantoShell({
     if (event.target === guide) guide.hidden = true;
   });
   const onKey = (event) => {
+    // Ctrl+K, or Cmd+K on a Mac, opens the search over everything.
+    if (
+      (event.metaKey || event.ctrlKey) &&
+      !event.altKey &&
+      event.key?.toLowerCase() === 'k'
+    ) {
+      event.preventDefault();
+      loadAtlasPlaces();
+      palette.toggle();
+      return;
+    }
     // "/" jumps to the search box, as on most reading sites.
     if (
       event.key === '/' &&

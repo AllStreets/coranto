@@ -338,6 +338,17 @@
 
 ## [Unreleased]
 
+- Add search over everything: SEARCH in the header, or Ctrl+K (Cmd+K on a
+  Mac), in both NEWS and INSTRUMENTS. One box flies to any of 197 countries
+  and 1,000 cities, opens places with stories and matching headlines,
+  switches every layer and map overlay, changes view, lens, topic and time
+  range, picks a visual preset, tunes a live channel, and opens the board,
+  briefing, map key, sources, guide, scenes, voice, location search and
+  provider keys. Every result says what it will do before it is chosen, and
+  when several things fit what was typed the box says so and asks you to
+  pick. It only runs actions the app already has. The header now sheds its
+  extras on narrow windows instead of overflowing.
+
 - Draw a selected launch's labels (the rocket, stage re-entry, orbit
   position, projected orbit) at the same size as the other labels on the
   globe. They were set in the engine's larger selected face. Launch names no

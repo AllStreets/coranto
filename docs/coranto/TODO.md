@@ -137,6 +137,9 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   FEC. Not set: Google Maps, Cesium ion, Mapillary, TomTom, TfL, Launch
   Library, NASA FIRMS (no longer required).
 - [x] **T9 Plain inventory of INSTRUMENTS**: `docs/coranto/INSTRUMENTS.md`.
+- [x] **Search over everything** (2026-10-11): SEARCH / Ctrl+K reaches views,
+  lenses, layers, overlays, topics, time ranges, presets, channels, places,
+  stories and the INSTRUMENTS tools from one box (`corantoCommands.js`).
 - [ ] **T21 Quality bar.** Default view is globe, feed and rail; every
   advanced tool within two clicks; nothing outside the shared tokens.
 

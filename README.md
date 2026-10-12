@@ -338,6 +338,7 @@ Coranto has two views, switched at the top right.
 | Narrow by topic | Use the list on the left. |
 | See only good news | Click **GOOD NEWS**. |
 | Check the sources | Click the **LIVE** badge. It lists every source and whether it answered. |
+| Do anything from one box | Press **Ctrl+K** (**Cmd+K** on a Mac) or click **SEARCH**. Type a place, a story, a layer, a channel, a preset or a tool. Each result says what it will do; press Enter to run it. |
 | Add live layers | Click **LAYERS** at the top and switch on any of: hazards, flights, military, ships, satellites, quakes, fires, storms, launches, cables. |
 | Read a hazard | Click its marker. A card shows what it is, the tracker's alert level and a link to the tracker's report. Red means the tracker issued a Red alert, nothing else. |
 | Get back to the whole globe | Click **WHOLE EARTH**. |

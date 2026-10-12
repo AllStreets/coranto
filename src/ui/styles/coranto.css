@@ -3739,6 +3739,177 @@ body[data-coranto-frame='one']:is(
   min-width: 0;
 }
 
+/* Search over everything (the command palette) */
+#coranto-search-all {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 600 9px var(--font-mono);
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+#coranto-search-all:hover {
+  color: var(--text-primary);
+  border-color: rgba(180, 124, 255, 0.5);
+}
+#coranto-search-all img {
+  width: 12px;
+  height: 12px;
+}
+#coranto-search-all kbd {
+  padding: 2px 5px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 2px;
+  color: var(--text-dim);
+  font: 600 8px var(--font-mono);
+  letter-spacing: 1px;
+}
+#coranto-palette {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: min(14vh, 120px) 12px 12px;
+  background: rgba(3, 3, 8, 0.62);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+#coranto-palette[hidden] {
+  display: none;
+}
+.coranto-palette-panel {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: min(640px, 100%);
+  max-height: min(70vh, calc(100dvh - 140px));
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 4px;
+  background: rgba(9, 8, 15, 0.98);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.7);
+}
+.coranto-palette-panel > .coranto-strip {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 9px 14px;
+}
+/* The header sheds its extras before it runs out of room. */
+@media (max-width: 1320px) {
+  #coranto-search-all kbd,
+  #coranto-count {
+    display: none;
+  }
+}
+@media (max-width: 1000px) {
+  #coranto-search-all span,
+  #coranto-header .coranto-tagline {
+    display: none;
+  }
+  #coranto-header {
+    gap: 10px;
+    padding: 0 12px;
+  }
+}
+.coranto-palette-input {
+  flex: 0 0 auto;
+  margin: 10px 12px 0;
+  padding: 11px 12px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font: 15px var(--font-sans);
+  outline: none;
+}
+.coranto-palette-input:focus {
+  border-color: var(--accent);
+}
+.coranto-palette-note {
+  flex: 0 0 auto;
+  margin: 8px 14px 0;
+  color: var(--text-secondary);
+  font: 12px/1.45 var(--font-sans);
+}
+.coranto-palette-note[hidden] {
+  display: none;
+}
+.coranto-palette-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 8px 6px 0;
+  padding: 0 6px;
+}
+.coranto-palette-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 8px 8px;
+  border: 0;
+  border-left: 2px solid transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+.coranto-palette-row[aria-selected='true'] {
+  border-left-color: var(--accent);
+  background: rgba(180, 124, 255, 0.13);
+}
+.coranto-palette-row img {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+}
+.coranto-palette-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.coranto-palette-title {
+  color: var(--text-primary);
+  font: 600 13px/1.3 var(--font-sans);
+  overflow-wrap: anywhere;
+}
+.coranto-palette-detail {
+  font: 11px/1.35 var(--font-sans);
+}
+.coranto-palette-kind {
+  flex: 0 0 auto;
+  max-width: 40%;
+  padding: 3px 7px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 2px;
+  color: var(--accent);
+  font: 600 8.5px var(--font-mono);
+  letter-spacing: 1.2px;
+  text-align: right;
+}
+.coranto-palette-foot {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 8px 14px 10px;
+  border-top: 1px solid var(--coranto-line);
+  color: var(--text-dim);
+  font: 600 8.5px var(--font-mono);
+  letter-spacing: 1.4px;
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */
@@ -3762,6 +3933,7 @@ body[data-coranto-frame='one']:is(
   .coranto-story-body::-webkit-scrollbar,
   #coranto-sources-menu::-webkit-scrollbar,
   #coranto-layers-menu::-webkit-scrollbar,
+  .coranto-palette-list::-webkit-scrollbar,
   #coranto-tv::-webkit-scrollbar {
     width: 10px;
   }
@@ -3773,6 +3945,7 @@ body[data-coranto-frame='one']:is(
   .coranto-story-body::-webkit-scrollbar-track,
   #coranto-sources-menu::-webkit-scrollbar-track,
   #coranto-layers-menu::-webkit-scrollbar-track,
+  .coranto-palette-list::-webkit-scrollbar-track,
   #coranto-tv::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
   }
@@ -3784,6 +3957,7 @@ body[data-coranto-frame='one']:is(
   .coranto-story-body::-webkit-scrollbar-thumb,
   #coranto-sources-menu::-webkit-scrollbar-thumb,
   #coranto-layers-menu::-webkit-scrollbar-thumb,
+  .coranto-palette-list::-webkit-scrollbar-thumb,
   #coranto-tv::-webkit-scrollbar-thumb {
     border: 2px solid transparent;
     border-radius: 6px;
