@@ -36,6 +36,9 @@ Refugee Data Finder (https://www.unhcr.org/refugee-statistics/) and Disease
 Outbreak News from the World Health Organization (https://www.who.int). The
 figures and notices are theirs and are shown as published. Neither is bundled.
 
+The outlet ownership table (src/sources/news/ownership.js) comes from AUSPEX's
+own table of outlets, (c) 2026 Connor Evans, Apache-2.0.
+
 The atlas overlays (public/coranto-atlas/) come from AUSPEX: its country
 table, city table, conflict list and disputed-line coordinates, (c) 2026
 Connor Evans, Apache-2.0. Border shapes are from world-atlas 110m (ISC),

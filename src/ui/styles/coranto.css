@@ -3568,6 +3568,46 @@ body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
   padding: 0 14px 4px;
 }
 
+/* Who owns the outlet, and a story's blind spot */
+.coranto-story-owner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  font: 600 9px var(--font-mono);
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+}
+.coranto-story-owner-name {
+  color: var(--text-primary);
+  letter-spacing: 0.4px;
+}
+.coranto-story-owner-tag {
+  padding: 2px 6px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 2px;
+}
+.coranto-story-owner-tag[data-type='state'] {
+  border-color: rgba(242, 145, 122, 0.6);
+  color: #f2917a;
+}
+.coranto-story-owner-tag[data-type='public'] {
+  border-color: rgba(110, 138, 255, 0.6);
+  color: #a9b9ff;
+}
+.coranto-story-owner-tag[data-type='nonprofit'] {
+  border-color: rgba(180, 124, 255, 0.6);
+  color: var(--accent);
+}
+.coranto-story-blindspot {
+  margin: 0;
+  padding: 7px 9px;
+  border-left: 2px solid #e8b84b;
+  background: rgba(232, 184, 75, 0.07);
+  color: var(--text-secondary);
+  font: 12px/1.5 var(--font-sans);
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */

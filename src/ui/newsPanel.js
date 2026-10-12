@@ -1,4 +1,5 @@
 import { TOPIC_COLOURS, iconImage, markerImage } from '../data/corantoIcons.js';
+import { outletOwnership } from '../sources/news/ownership.js';
 import { NEWS_LANGUAGES } from '../sources/news/registry.js';
 import { buildNewsPanelModel } from './newsPanelModel.js';
 
@@ -50,6 +51,12 @@ function el(document, tag, className, text) {
   if (text !== undefined) node.textContent = text;
   return node;
 }
+
+/** `A`, `A and B`, `A, B and C`. */
+export const listOf = (items) =>
+  items.length < 2
+    ? items.join('')
+    : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`;
 
 /** Marks a brief of a whole place among the briefs of single stories. */
 const PLACE_BRIEF = 'place:';
@@ -621,7 +628,23 @@ export function createNewsFeed({
       el(document, 'span', 'news-card-publisher', card.publisher),
       time,
     );
-    body.append(meta, el(document, 'h3', 'coranto-story-title', card.title));
+    body.append(meta);
+    // Who owns the outlet, where that is on record.
+    const owned = outletOwnership(card.publisher);
+    if (owned) {
+      const strip = el(document, 'div', 'coranto-story-owner');
+      strip.title =
+        'Who owns this outlet and how it is funded, from AUSPEX’s outlet table. Ownership changes; check the outlet itself if it matters.';
+      const tag = el(document, 'span', 'coranto-story-owner-tag', owned.label);
+      tag.dataset.type = owned.type;
+      strip.append(
+        el(document, 'span', 'coranto-story-owner-label', 'OWNED BY'),
+        el(document, 'span', 'coranto-story-owner-name', owned.owner),
+        tag,
+      );
+      body.append(strip);
+    }
+    body.append(el(document, 'h3', 'coranto-story-title', card.title));
     if (card.summary)
       body.append(el(document, 'p', 'coranto-story-summary', card.summary));
 
@@ -764,6 +787,19 @@ export function createNewsFeed({
           coverage.append(chip);
         }
         body.append(coverage);
+        // AUSPEX's blind spot, said plainly.
+        const quiet = card.coverage
+          .filter((row) => row.state === 'quiet')
+          .map((row) => row.region);
+        if (quiet.length)
+          body.append(
+            el(
+              document,
+              'p',
+              'coranto-story-blindspot',
+              `Blind spot: no outlet Coranto reads that is based in ${listOf(quiet)} has carried this in the last 7 days.`,
+            ),
+          );
       }
       const others = el(document, 'ul', 'news-card-others');
       for (const other of card.others ?? []) {

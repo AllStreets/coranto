@@ -338,6 +338,12 @@
 
 ## [Unreleased]
 
+- Show who owns an outlet in the story pop-up, with its funding type (state,
+  public, private or nonprofit), from AUSPEX's outlet table. An outlet not in
+  the table shows nothing, names are matched whole, and AUSPEX's political
+  lean labels are not carried over. WHO COVERED now states a story's blind
+  spot in a sentence: the regions whose outlets have not carried it.
+
 - Add AI BRIEF OF THIS PLACE. With a place selected, it briefs what the
   outlets report from there, taking the newest headline of each story so the
   sources cover different events. It goes through the same check as a story
