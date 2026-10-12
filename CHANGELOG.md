@@ -338,6 +338,11 @@
 
 ## [Unreleased]
 
+- Draw a selected launch's labels (the rocket, stage re-entry, orbit
+  position, projected orbit) at the same size as the other labels on the
+  globe. They were set in the engine's larger selected face. Launch names no
+  longer change size with distance, matching the labels around them.
+
 - Put a rocket icon at each launch site while LAUNCHES is on: brighter where
   a launch is still to come. Selecting one opens the site's next launch, or
   its most recent, from Launch Library 2, and says how many other launches

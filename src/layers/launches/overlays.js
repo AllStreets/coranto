@@ -99,6 +99,18 @@ export function createOverlays({ state: layerState, services, parts, source }) {
   }
 
   /**
+   * Selected labels are set in a 13px face and ambient ones in 10px. Mission
+   * labels are drawn at 10/13 of their size at every distance, so a selected
+   * launch reads at the size of the labels around it.
+   */
+  const SELECTED_LABEL_SCALE = Object.freeze({
+    near: 0,
+    nearValue: 10 / 13,
+    far: 1,
+    farValue: 10 / 13,
+  });
+
+  /**
    * Build the source-owned launch-site marker presentation. Overview markers
    * compete in the bounded ambient-label domain; the selected mission moves to
    * the protected selected lane and gains the former launch-site detail line.
@@ -140,12 +152,9 @@ export function createOverlays({ state: layerState, services, parts, source }) {
       paintLane: selected ? 'selected' : 'ambient-label',
       collisionGroup: 'ambient-label',
       interactive: false,
-      distanceScale: {
-        near: 1000,
-        nearValue: 1.08,
-        far: 20_000_000,
-        farValue: 0.78,
-      },
+      // The same size as every other label on the globe. A selected label
+      // would otherwise be set in the larger selected face.
+      ...(selected ? { distanceScale: SELECTED_LABEL_SCALE } : {}),
       gapPx: 12,
       verticalOnly: true,
       placement: 'above',
@@ -191,6 +200,7 @@ export function createOverlays({ state: layerState, services, parts, source }) {
       paintLane: 'selected',
       collisionGroup: 'ambient-label',
       interactive: false,
+      distanceScale: SELECTED_LABEL_SCALE,
       gapPx,
       verticalOnly: true,
       placement: 'above',
