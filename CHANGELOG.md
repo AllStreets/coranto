@@ -338,6 +338,15 @@
 
 ## [Unreleased]
 
+- After a scene ends or is stopped, put back the visual preset, the display
+  switches and sliders, and the camera. A scene sets its own, and the engine
+  left them that way, so playing one could leave the globe in night vision
+  far from where you were.
+- Search reaches the tools the INSTRUMENTS layout hides: Cockpit view (it
+  says when you need to follow an aircraft first), Contacts, Radio and
+  Scenes. Cockpit view needs the Contacts context and a followed aircraft;
+  the command sets that up and enters when the engine offers it.
+
 - Add search over everything: SEARCH in the header, or Ctrl+K (Cmd+K on a
   Mac), in both NEWS and INSTRUMENTS. One box flies to any of 197 countries
   and 1,000 cities, opens places with stories and matching headlines,

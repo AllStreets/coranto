@@ -31,6 +31,7 @@ import { createMapKey } from './corantoMapKey.js';
 import { createMarketsLens } from './corantoMarkets.js';
 import { createNuclearMarks } from './corantoNuclear.js';
 import { createSatelliteIcons } from './corantoSatelliteIcons.js';
+import { createSceneRestore } from './corantoSceneRestore.js';
 import { createPowerLens } from './corantoPower.js';
 import { createLaunchIcons } from './corantoLaunchIcons.js';
 import { createQuakeIcons } from './corantoQuakeIcons.js';
@@ -626,6 +627,58 @@ export function createCorantoShell({
     setMode('instruments');
     run();
   };
+  /** Open the engine's CONTEXT panel, which the layout hides when full. */
+  function openContextPanel() {
+    document
+      .querySelector("#pp-toggles .panel-collapse-btn[aria-expanded='true']")
+      ?.click();
+    win.setTimeout(
+      () =>
+        document
+          .querySelector(
+            "#global-context-panel .panel-collapse-btn[aria-expanded='false']",
+          )
+          ?.click(),
+      500,
+    );
+  }
+  /** Switch the engine's Contacts context on, if it is not already. */
+  function openContacts() {
+    openContextPanel();
+    win.setTimeout(() => {
+      const button = document.querySelector('#global-context-flights-btn');
+      if (
+        button &&
+        !button.classList.contains('active') &&
+        button.getAttribute('aria-pressed') !== 'true'
+      )
+        button.click();
+    }, 1100);
+  }
+  /** True when the engine is following an aircraft, civil or military. */
+  function followingAircraft() {
+    try {
+      return ['flights', 'military'].some(
+        (id) =>
+          dataManager?.isEnabled(id) &&
+          dataManager.layers.get(id)?.module?.getTrackedInfo?.(),
+      );
+    } catch {
+      return false;
+    }
+  }
+  /** Enter the cockpit once the engine offers it; give up after a while. */
+  function enterCockpit() {
+    openContacts();
+    let tries = 0;
+    const timer = win.setInterval(() => {
+      const entry = document.querySelector('#cockpit-entry');
+      if (entry && !entry.hidden) {
+        win.clearInterval(timer);
+        entry.click();
+      } else if (++tries > 40) win.clearInterval(timer);
+    }, 500);
+  }
   function commandApp() {
     const view = layer.getView();
     return {
@@ -785,6 +838,34 @@ export function createCorantoShell({
           }),
         },
         {
+          title: 'Cockpit view',
+          detail: followingAircraft()
+            ? 'Ride along with the aircraft you are following'
+            : 'Ride along with an aircraft. Select one on the globe first, then run this',
+          kind: followingAircraft() ? 'ENTER' : 'FOLLOW AN AIRCRAFT FIRST',
+          icon: 'aircraft',
+          keywords: 'cockpit first person pilot ride along flight deck',
+          run: inTools(enterCockpit),
+        },
+        {
+          title: 'Contacts',
+          detail:
+            'The nearest aircraft, ships and mapped sites around what you follow',
+          icon: 'target',
+          keywords: 'context nearby contacts aircraft vessels sites radar',
+          run: inTools(openContacts),
+        },
+        {
+          title: 'Radio',
+          detail: 'Live radio stations near the view',
+          icon: 'broadcast',
+          keywords: 'radio stations audio listen',
+          run: inTools(() => {
+            openContextPanel();
+            pressEngine('#context-radio-toggle-btn');
+          }),
+        },
+        {
           title: 'Visual presets tray',
           detail: 'Normal, CRT, night vision, thermal, comic, noir, snow',
           icon: 'contrast',
@@ -939,6 +1020,15 @@ export function createCorantoShell({
     document,
     getCommands: (query) => buildCommands(commandApp(), query),
   });
+  // After a scene, put the look and the view back (people only).
+  const sceneRestore =
+    win.navigator?.webdriver || !win.MutationObserver
+      ? null
+      : createSceneRestore({
+          document,
+          getViewer: () => dataManager?.viewer ?? null,
+          Observer: win.MutationObserver,
+        });
   searchBtn.addEventListener('click', () => {
     loadAtlasPlaces();
     palette.open();
@@ -2572,6 +2662,7 @@ export function createCorantoShell({
       layerIconStyle.remove();
       unsubscribePlace?.();
       satelliteIcons.stop();
+      sceneRestore?.destroy();
       quakeIcons.stop();
       nuclear.hide();
       atlas.destroy();

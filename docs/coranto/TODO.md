@@ -130,9 +130,10 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   Tools that are not layers, checked 2026-10-11: all seven visual presets
   switch and are kept in the link; SHARE copies a link; the SCENES panel
   opens and lists its six scenes, but only shows once DATA LAYERS is
-  collapsed. Open: voice (needs a microphone) and cockpit view (needs a
-  followed aircraft) have not been exercised; no scene has been played
-  through.
+  collapsed. Also checked: a scene
+  played through and stopped (the look and camera are now restored
+  afterwards); cockpit view entered on a live military aircraft and exited.
+  Open: voice.
 - [x] **T11 Key audit** (table in `docs/coranto/INSTRUMENTS.md`). In `.env`: NewsAPI, OpenAI, OpenSky, AISStream,
   FEC. Not set: Google Maps, Cesium ion, Mapillary, TomTom, TfL, Launch
   Library, NASA FIRMS (no longer required).
