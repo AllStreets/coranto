@@ -10,6 +10,8 @@ import {
 } from './corantoBroadcasts.js';
 import { buildCommands } from './corantoCommandList.js';
 import { createCommandPalette } from './corantoCommands.js';
+import { createDossier } from './corantoDossier.js';
+import { buildDossier } from './corantoDossierModel.js';
 import {
   NEARBY_KM,
   contactCard,
@@ -590,10 +592,14 @@ export function createCorantoShell({
   );
   // Countries and cities to fly to, read once when the search first opens.
   let atlasPlaces = [];
-  let atlasPlacesAsked = false;
-  async function loadAtlasPlaces() {
-    if (atlasPlacesAsked) return;
-    atlasPlacesAsked = true;
+  let atlasCountries = [];
+  let atlasCities = [];
+  let atlasPlacesLoading = null;
+  function loadAtlasPlaces() {
+    atlasPlacesLoading ??= readAtlasPlaces();
+    return atlasPlacesLoading;
+  }
+  async function readAtlasPlaces() {
     try {
       const [countries, cities] = await Promise.all(
         ['countries', 'cities'].map(async (name) => {
@@ -601,6 +607,8 @@ export function createCorantoShell({
           return response.ok ? response.json() : [];
         }),
       );
+      atlasCountries = countries;
+      atlasCities = cities;
       const byCode = new Map(countries.map((row) => [row.iso2, row.name]));
       atlasPlaces = [
         ...countries.map((row) => ({
@@ -608,6 +616,15 @@ export function createCorantoShell({
           name: row.name,
           detail: 'Country',
           run: () => flyTo(row.lat, row.lng, 4_500_000),
+        })),
+        // The same country, as its sheet rather than a place to fly to.
+        ...countries.map((row) => ({
+          kind: 'country',
+          commandKind: 'COUNTRY SHEET',
+          name: row.name,
+          detail: 'Stories, displacement, outbreaks, next election and more',
+          keywords: 'dossier sheet profile facts',
+          run: () => openDossier(row.iso2),
         })),
         ...cities.map((row) => ({
           kind: 'city',
@@ -1025,6 +1042,106 @@ export function createCorantoShell({
     document,
     getCommands: (query) => buildCommands(commandApp(), query),
   });
+  // ── Country sheet ───────────────────────────────────────────────
+  // The three routes a sheet reads beyond the feed, kept for ten minutes.
+  let dossierSources = null;
+  let dossierSourcesAt = 0;
+  function readDossierSources() {
+    if (dossierSources && Date.now() - dossierSourcesAt < 10 * 60 * 1000)
+      return dossierSources;
+    dossierSourcesAt = Date.now();
+    const read = async (path) => {
+      try {
+        const response = await win.fetch(path, {
+          headers: { Accept: 'application/json' },
+        });
+        return response.ok ? await response.json() : null;
+      } catch {
+        return null;
+      }
+    };
+    dossierSources = Promise.all(
+      ['/api/relief', '/api/elections', '/api/markets'].map(read),
+    ).then(([relief, elections, markets]) => ({ relief, elections, markets }));
+    return dossierSources;
+  }
+  const countryPin = (model) => {
+    const row = atlasCountries.find((entry) => entry.iso2 === model.iso2);
+    return {
+      key: `country:${model.title}`,
+      kind: 'country',
+      title: model.title,
+      lat: row?.lat,
+      lon: row?.lng,
+    };
+  };
+  const dossier = createDossier({
+    document,
+    openStory: (id) => {
+      dossier.close();
+      setLens('news');
+      feed?.setFilters({});
+      layer.selectPlace(null);
+      feed?.openStory(storyKeyFor(id));
+    },
+    showStories: (model) => {
+      const group = (layer.getView().places ?? []).find(
+        (place) => place.precision === 'country' && place.name === model.title,
+      );
+      dossier.close();
+      setLens('news');
+      if (group) layer.selectPlace(group.key, { focus: true });
+      else feed?.setQuery(model.title);
+    },
+    flyTo: (model) => {
+      const row = atlasCountries.find((entry) => entry.iso2 === model.iso2);
+      if (row) flyTo(row.lat, row.lng, 4_500_000);
+    },
+    watch: (index) => tv.openChannel(index),
+    pin: {
+      has: (model) => boardStore.has(`country:${model.title}`),
+      toggle: (model) => {
+        boardStore.toggle(countryPin(model));
+        syncBoardButton();
+      },
+    },
+  });
+  async function openDossier(iso2) {
+    setMode('news');
+    await loadAtlasPlaces();
+    const country = atlasCountries.find((entry) => entry.iso2 === iso2);
+    if (!country) return;
+    feed?.closeStory();
+    const build = (sources) =>
+      buildDossier({
+        country,
+        articles: layer.getView().snapshot?.articles ?? [],
+        cityNames: atlasCities
+          .filter((city) => city.iso2 === iso2)
+          .map((city) => city.name),
+        signals: atlas.signals(),
+        relief: sources?.relief ?? null,
+        elections: sources?.elections ?? null,
+        markets: sources?.markets ?? null,
+        channel: nearestBroadcaster({ lat: country.lat, lon: country.lng }),
+        now: Date.now(),
+      });
+    // What the feed knows is shown at once; the rest as it arrives.
+    const first = build(null);
+    dossier.show(
+      {
+        ...first,
+        sections: first.sections.filter((section) =>
+          ['news', 'status'].includes(section.id),
+        ),
+      },
+      { loading: true },
+    );
+    const sources = await readDossierSources();
+    if (dossier.isOpen && dossier.current?.iso2 === iso2)
+      dossier.show(build(sources));
+  }
+
   // After a scene, put the look and the view back (people only).
   const sceneRestore =
     win.navigator?.webdriver || !win.MutationObserver
@@ -1405,17 +1522,33 @@ export function createCorantoShell({
     showCard: (detail) => {
       card.dataset.owner = 'atlas';
       const pin = detail?.pin;
+      const pinButton = pin && {
+        label: pinLabel(boardStore.has(pin.key), boardStore.full),
+        run: () => {
+          boardStore.toggle(pin);
+          withAction();
+        },
+      };
+      // A country offers its sheet first, and the pin beside it.
       const withAction = () =>
-        showCard({
-          ...detail,
-          action: pin && {
-            label: pinLabel(boardStore.has(pin.key), boardStore.full),
-            run: () => {
-              boardStore.toggle(pin);
-              withAction();
-            },
-          },
-        });
+        showCard(
+          pin?.iso2
+            ? {
+                ...detail,
+                action: {
+                  label: 'Open the country sheet',
+                  run: () => {
+                    showCard(null);
+                    openDossier(pin.iso2);
+                  },
+                },
+                pin: pinButton && {
+                  ...pinButton,
+                  label: pinLabel(boardStore.has(pin.key), boardStore.full),
+                },
+              }
+            : { ...detail, action: pinButton },
+        );
       withAction();
     },
     // Narrow the feed to the place when current stories name it.
@@ -1971,6 +2104,7 @@ export function createCorantoShell({
     sourcesMenu,
     layersMenu,
     palette.element,
+    dossier.element,
     mapKey.element,
     board.element,
     ticker,
@@ -2544,6 +2678,7 @@ export function createCorantoShell({
     if (event.key !== 'Escape') return;
     setSourcesMenu(false);
     feed?.closeStory();
+    dossier.close();
     if (!guide.hidden) guide.hidden = true;
     if (!briefing.hidden) closeBriefing();
     tv.close();

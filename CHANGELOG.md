@@ -338,6 +338,15 @@
 
 ## [Unreleased]
 
+- Add the country sheet. One panel joins what every source already says
+  about a country: its current headlines and headline activity, its standing
+  (nuclear-armed, Security Council, NATO, named in conflict headlines),
+  people forced to flee (UNHCR), outbreak notices that name it (WHO), its
+  next polling day (Wikidata), its currency against the dollar where that is
+  tracked, and the nearest live channel. Every section names its source, a
+  source with nothing says so, and one that is down is named. Open it from a
+  country's card or by searching the country's name.
+
 - In the news view, a launch click no longer pulls the camera back. The card
   opens where you are and offers "Show the flight path", which opens the
   engine's mission view when you ask; closing the card leaves it. Switching

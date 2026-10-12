@@ -1,5 +1,9 @@
 import { readResponseTextCapped } from '../httpBody.js';
-import { parseDisplacement, parseOutbreaks } from './records.js';
+import {
+  parseDisplacement,
+  parseOutbreaks,
+  DISPLACEMENT_ROWS,
+} from './records.js';
 
 export const RELIEF_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 export const RELIEF_RETRY_AFTER_MS = 5 * 60 * 1000;
@@ -59,13 +63,17 @@ export function createReliefService({
     // UNHCR publishes a year once it has figures; ask for this year, then last.
     const thisYear = new Date(at).getUTCFullYear();
     for (const year of [thisYear, thisYear - 1]) {
-      const rows = parseDisplacement(
+      // Every country, largest first: the lens lists the top of it and a
+      // country sheet looks one up.
+      const all = parseDisplacement(
         await getJson(
           `https://api.unhcr.org/population/v1/population/?limit=400&year=${year}&coo_all=true`,
         ),
         year,
+        Infinity,
       );
-      if (rows.length) return { year, rows };
+      if (all.length)
+        return { year, rows: all.slice(0, DISPLACEMENT_ROWS), all };
     }
     throw new Error('empty');
   }

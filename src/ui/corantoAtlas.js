@@ -231,6 +231,7 @@ export function createAtlas({
         pin: {
           key: `${record.kind}:${record.item.name}`,
           kind: record.kind,
+          iso2: record.kind === 'country' ? record.item.iso2 : undefined,
           title: record.item.name,
           lat: record.item.lat,
           lon: record.item.lng,
@@ -382,6 +383,8 @@ export function createAtlas({
 
   return {
     isOn: (name) => Boolean(state[name]),
+    /** What current headlines say: conflict marks and activity levels. */
+    signals: () => signals,
     /** City types on the map, most common first, for the key. */
     cityTypes() {
       if (!state.cities || !data.cities) return [];

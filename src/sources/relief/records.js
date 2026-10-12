@@ -20,7 +20,7 @@ const count = (value) => {
 };
 
 /** Parse one year of UNHCR population figures by country of origin. */
-export function parseDisplacement(data, year) {
+export function parseDisplacement(data, year, limit = DISPLACEMENT_ROWS) {
   const rows = [];
   for (const item of Array.isArray(data?.items) ? data.items : []) {
     const iso3 = typeof item?.coo_iso === 'string' ? item.coo_iso : '';
@@ -40,7 +40,7 @@ export function parseDisplacement(data, year) {
   }
   return rows
     .sort((a, b) => b.total - a.total || a.iso3.localeCompare(b.iso3))
-    .slice(0, DISPLACEMENT_ROWS);
+    .slice(0, limit);
 }
 
 /** Parse WHO Disease Outbreak News. Notices without a date or id are dropped. */

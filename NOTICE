@@ -39,6 +39,10 @@ figures and notices are theirs and are shown as published. Neither is bundled.
 The outlet ownership table (src/sources/news/ownership.js) comes from AUSPEX's
 own table of outlets, (c) 2026 Connor Evans, Apache-2.0.
 
+Country and currency codes (src/data/corantoCountryCodes.js) are generated
+from the Frictionless Data "country-codes" dataset, made available under the
+Public Domain Dedication and License.
+
 The atlas overlays (public/coranto-atlas/) come from AUSPEX: its country
 table, city table, conflict list and disputed-line coordinates, (c) 2026
 Connor Evans, Apache-2.0. Border shapes are from world-atlas 110m (ISC),

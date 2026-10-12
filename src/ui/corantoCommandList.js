@@ -126,13 +126,13 @@ export function buildCommands(app, query = '') {
     });
   for (const place of app.places ?? [])
     add({
-      id: `place:${place.kind}:${place.name}:${place.detail ?? ''}`,
+      id: `place:${place.commandKind ?? place.kind}:${place.name}:${place.detail ?? ''}`,
       title: place.name,
       detail: place.detail,
-      kind: 'FLY TO',
+      kind: place.commandKind ?? 'FLY TO',
       icon: place.kind === 'country' ? 'geopolitics' : 'pin',
       keywords: `go fly place ${place.kind} ${place.keywords ?? ''}`,
-      weight: place.kind === 'country' ? 3 : 0,
+      weight: place.commandKind ? 2 : place.kind === 'country' ? 3 : 0,
       run: place.run,
     });
 
