@@ -77,15 +77,15 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   headlines in a story, brief citations, the board's source links, a market
   figure's source, FEC, UNHCR and WHO records, an aircraft's public track and
   a channel's YouTube page.
-- [~] **T8 AUSPEX story-popup tools.** Done: pin to board, listen,
+- [x] **T8 AUSPEX story-popup tools.** Done: pin to board, listen,
   provenance (owner and funding type from AUSPEX's outlet table; its
   political "lean" labels are left out because they have no source),
   blindspot (regions whose outlets have not carried the story, stated in a
   sentence), verify (the AI brief's claims, each with its outlet count and
-  checked in code). Not ported: mirrors, whose framing and lean scores are
-  model opinions that code cannot check. Owner to decide: translate (a model
-  translation can be labelled and shown beside the original, but only its
-  figures can be checked).
+  checked in code), translate (eleven languages, shown under the original,
+  labelled as a machine translation, and shown only if every number matches
+  the original). Not ported: mirrors, whose framing and lean scores are model
+  opinions that code cannot check.
 - [x] **T2 Analyst board**, opened from the header in both views. Pins,
   connections, computed brief and timeline, saved boards in the browser.
   Also done: the 3D connections graph, the topic matrix. Aircraft, ships and

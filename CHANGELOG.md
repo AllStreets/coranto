@@ -338,6 +338,13 @@
 
 ## [Unreleased]
 
+- Add TRANSLATE to the story pop-up: a machine translation of the headline
+  and summary into English or one of ten other languages, shown under the
+  original and labelled as written by a model. Code checks that every number
+  in the original is in the translation and none was added; a translation
+  that fails is not shown. The label says the wording itself cannot be
+  checked.
+
 - Use words where the directions chips had a check mark and a swap arrow
   (A SET, B SET, SWAP), and drop the bullet from the radio category menu.
 

@@ -1,3 +1,8 @@
+import {
+  checkTranslation,
+  numbersIn,
+  translateLanguageName,
+} from '../../sources/news/translate.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -683,6 +688,8 @@ const NEWS_RUNTIME = [
   'server/providers/relief.js',
   'src/sources/relief',
   'src/ui/corantoRelief.js',
+  'src/sources/news/translate.js',
+  'src/sources/news/ownership.js',
   'src/sources/governmentAircraft',
   'src/ui/corantoContact.js',
   'src/ui/corantoLink.js',
@@ -777,4 +784,108 @@ test('the time range trims stories without inventing comparisons', () => {
   assert.equal(windowSnapshot(snapshot, 72).stories[0].coverage.length, 1);
   assert.equal(windowSnapshot(snapshot, 168), snapshot);
   assert.equal(windowSnapshot(null, 24), null);
+});
+
+// ── Translation ─────────────────────────────────────────────────────
+
+test('a translation is shown only when its numbers match the original', () => {
+  const article = {
+    title: 'Twelve killed and 300 injured in attack on airport on Oct 10',
+    summary: 'About 1,200 people were moved.',
+  };
+  const good = checkTranslation(
+    JSON.stringify({
+      title:
+        'Doce muertos y 300 heridos en un ataque al aeropuerto el 10 de octubre',
+      summary: 'Unas 1.200 personas fueron trasladadas.',
+    }),
+    article,
+  );
+  assert.equal(
+    good.ok,
+    true,
+    'a thousands point instead of a comma is the same number',
+  );
+  assert.deepEqual(
+    checkTranslation(
+      JSON.stringify({
+        title:
+          'Doce muertos y 400 heridos en un ataque al aeropuerto el 10 de octubre',
+        summary: 'Unas 1.200 personas fueron trasladadas.',
+      }),
+      article,
+    ),
+    { ok: false, reason: 'figures' },
+  );
+  assert.equal(
+    checkTranslation(
+      JSON.stringify({
+        title: '12 muertos y 300 heridos el 10',
+        summary: 'Unas 1.200.',
+      }),
+      article,
+    ).reason,
+    'figures',
+    'a word turned into digits adds a number',
+  );
+  assert.equal(checkTranslation('not json', article).reason, 'unreadable');
+  assert.equal(
+    checkTranslation(
+      JSON.stringify({ title: 'Doce 300 10', summary: '' }),
+      article,
+    ).reason,
+    'empty',
+    'a summary may not be dropped',
+  );
+  assert.deepEqual(numbersIn('7.7-magnitude, 1 200 000 fled, 30 2026'), [
+    '1200000',
+    '2026',
+    '30',
+    '77',
+  ]);
+  assert.equal(translateLanguageName('sw'), 'Swahili');
+  assert.equal(translateLanguageName('xx'), null);
+});
+
+test('the translate route returns a checked translation and refuses a changed figure', async () => {
+  let reply = {
+    title:
+      'Doce muertos y 300 heridos en un ataque al aeropuerto de la capital saudí, Riad',
+    summary: '',
+  };
+  const { call, calls } = briefPlugin(() =>
+    Response.json({ output_text: JSON.stringify(reply) }),
+  );
+  const news = await call('/api/news');
+  const article = news.body.articles.find((entry) => /300/.test(entry.title));
+  const ok = await call('/api/news/translate', {
+    method: 'POST',
+    body: { articleId: article.id, language: 'es' },
+  });
+  assert.equal(ok.status, 200);
+  assert.equal(ok.body.supported, true);
+  assert.equal(ok.body.languageName, 'Spanish');
+  assert.match(ok.body.title, /300 heridos/);
+  const sent = JSON.parse(calls[0].init.body);
+  assert.match(sent.instructions, /into Spanish/);
+  assert.doesNotMatch(sent.input, /https?:|test-key/);
+
+  reply = { title: 'Douze morts et 900 blessés', summary: '' };
+  const bad = await call('/api/news/translate', {
+    method: 'POST',
+    body: { articleId: article.id, language: 'fr' },
+  });
+  assert.equal(bad.body.supported, false);
+  assert.equal(bad.body.reason, 'figures');
+  assert.equal(
+    bad.body.title,
+    '',
+    'a failed translation is not sent to the page',
+  );
+
+  const unknown = await call('/api/news/translate', {
+    method: 'POST',
+    body: { articleId: article.id, language: 'xx' },
+  });
+  assert.equal(unknown.status, 400);
 });

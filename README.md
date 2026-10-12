@@ -169,6 +169,10 @@ Select a place and **AI BRIEF OF THIS PLACE** does the same for everything
 reported from there, using the newest headline of each story. The model is
 told to report each event on its own and not to link them.
 
+**TRANSLATE** on a story gives a machine translation into English or ten
+other languages, under the original. It is shown only if every number in it
+matches the original; code cannot check the wording, and the label says so.
+
 <p align="center">
   <img src="docs/media/coranto/figures-and-regions.png" alt="A story from 12 outlets showing differing death tolls and outlets by region" width="100%"/>
 </p>
@@ -313,6 +317,7 @@ Coranto has two views, switched at the top right.
 | Get a checked summary | Click **AI BRIEF** on a story with several outlets. Needs an OpenAI key. |
 | Get a checked summary of a place | Click a marker with several stories, then **AI BRIEF OF THIS PLACE** above the feed. Needs an OpenAI key. |
 | See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
+| Translate a story | Open the story, click **TRANSLATE** and pick a language. The original stays above it. Needs an OpenAI key. |
 | Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
 | Watch power | Click **POWER** on the left. Click any aircraft in the list to fly to it and open its public track. |
 | See where people are fleeing and where disease is spreading | Click **RELIEF** on the left. Choose Displaced people or Outbreaks. Click an outbreak to fly to it and open the WHO notice. |

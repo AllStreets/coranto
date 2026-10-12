@@ -10,6 +10,13 @@ import {
   checkBrief,
 } from '../../src/sources/news/brief.js';
 import {
+  TRANSLATE_SCHEMA,
+  checkTranslation,
+  translateInput,
+  translateInstructions,
+  translateLanguageName,
+} from '../../src/sources/news/translate.js';
+import {
   NewsUnavailableError,
   createNewsService,
 } from '../../src/sources/news/service.js';
@@ -284,6 +291,117 @@ export function newsProxy({
     briefCache.set(cacheKey, { at: clock, value });
     json(200, value);
   }
+  /**
+   * `/api/news/translate` (POST `{ articleId, language }`): a machine
+   * translation of one headline and summary, returned only if every figure
+   * in the original is in it and none was added.
+   */
+  const translateCache = new Map();
+  async function translateHandler(req, res) {
+    const json = (status, value) => {
+      res.writeHead(status, {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store',
+      });
+      res.end(JSON.stringify(value));
+    };
+    if (req.method !== 'POST')
+      return json(405, { error: 'method_not_allowed' });
+    const apiKey = briefKey();
+    if (!apiKey)
+      return json(200, { available: false, reason: 'not-configured' });
+    if (gateBrief && !enforceRateLimit(openAiRateLimiter(), req, res)) return;
+    let articleId;
+    let language;
+    try {
+      ({ articleId, language } = JSON.parse(
+        (await readRequestBody(req, 4 * 1024)) || '{}',
+      ));
+    } catch {
+      return json(400, { error: 'invalid_translate_request' });
+    }
+    const languageName = translateLanguageName(language);
+    if (typeof articleId !== 'string' || !articleId || !languageName)
+      return json(400, { error: 'invalid_translate_request' });
+    let payload;
+    try {
+      payload = await (await service()).getPayload();
+    } catch {
+      return json(503, { error: 'news_unavailable' });
+    }
+    const article = payload.articles.find((entry) => entry.id === articleId);
+    if (!article) return json(404, { error: 'unknown_article' });
+    const cacheKey = `${articleId}|${language}`;
+    const clock = now ? now() : Date.now();
+    const cached = translateCache.get(cacheKey);
+    if (
+      cached &&
+      clock - cached.at <
+        (cached.value.supported ? BRIEF_CACHE_TTL_MS : BRIEF_EMPTY_TTL_MS)
+    )
+      return json(200, cached.value);
+    const model =
+      process.env.CORANTO_BRIEF_MODEL ||
+      process.env.OPENAI_HUD_SUMMARY_MODEL ||
+      OPENAI_HUD_SUMMARY_MODEL_DEFAULT;
+    let checked = { ok: false, reason: 'unreadable' };
+    for (let attempt = 0; attempt < BRIEF_ATTEMPTS && !checked.ok; attempt++) {
+      try {
+        const response = await briefFetch(
+          'https://api.openai.com/v1/responses',
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model,
+              instructions: translateInstructions(languageName),
+              input: translateInput(article),
+              reasoning: { effort: 'minimal' },
+              max_output_tokens: 2000,
+              text: {
+                format: {
+                  type: 'json_schema',
+                  name: 'translation',
+                  strict: true,
+                  schema: TRANSLATE_SCHEMA,
+                },
+              },
+            }),
+            signal: AbortSignal.timeout(45_000),
+          },
+        );
+        if (!response.ok) {
+          console.warn(`[news] translate upstream HTTP ${response.status}`);
+          return json(502, { error: 'translate_failed' });
+        }
+        checked = checkTranslation(openAiText(await response.json()), article);
+      } catch {
+        console.warn('[news] translate request failed');
+        return json(502, { error: 'translate_failed' });
+      }
+    }
+    const value = {
+      available: true,
+      articleId,
+      language,
+      languageName,
+      model,
+      supported: checked.ok,
+      reason: checked.ok ? null : checked.reason,
+      title: checked.ok ? checked.title : '',
+      summary: checked.ok ? checked.summary : '',
+    };
+    if (translateCache.size >= BRIEF_CACHE_MAX)
+      translateCache.delete(translateCache.keys().next().value);
+    translateCache.set(cacheKey, { at: clock, value });
+    json(200, value);
+  }
+  const translate = gateBrief
+    ? sameSiteGated(translateHandler)
+    : translateHandler;
   const brief = gateBrief ? sameSiteGated(briefHandler) : briefHandler;
 
   return {
@@ -292,10 +410,12 @@ export function newsProxy({
     // receive `/api/news/brief` as a sub-path.
     configureServer({ middlewares }) {
       middlewares.use('/api/news/brief', brief);
+      middlewares.use('/api/news/translate', translate);
       middlewares.use('/api/news', handler);
     },
     configurePreviewServer({ middlewares }) {
       middlewares.use('/api/news/brief', brief);
+      middlewares.use('/api/news/translate', translate);
       middlewares.use('/api/news', handler);
     },
   };

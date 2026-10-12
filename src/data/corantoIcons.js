@@ -179,6 +179,10 @@ export const ICONS = Object.freeze({
     '<circle cx="8" cy="6.5" r="2.2"/><path d="M4.5 20v-5.5a3.5 3.5 0 0 1 7 0V20"/><path d="M14 12h7M18 9l3 3-3 3"/>',
   ],
   // Interface
+  translate: [
+    STROKE,
+    '<path d="M3.5 6h9.5M8.2 4v2M5.6 6c.7 3 2.8 5.4 6.2 6.8M10.9 6c-.8 3.3-3.1 5.7-6.7 7"/><path d="m12.6 20 4-9 4 9M14 17h5.2"/>',
+  ],
   play: [SOLID, '<path d="M7 4.5v15l12.5-7.5z"/>'],
   pause: [SOLID, '<path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/>'],
   prev: [SOLID, '<path d="M11.5 12 21 5.5v13zM2.5 12 12 5.5v13z"/>'],

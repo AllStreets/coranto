@@ -1,6 +1,7 @@
 import { TOPIC_COLOURS, iconImage, markerImage } from '../data/corantoIcons.js';
 import { outletOwnership } from '../sources/news/ownership.js';
 import { NEWS_LANGUAGES } from '../sources/news/registry.js';
+import { TRANSLATE_LANGUAGES } from '../sources/news/translate.js';
 import { buildNewsPanelModel } from './newsPanelModel.js';
 
 /** Cards drawn at once; the rest are one click away. */
@@ -538,6 +539,106 @@ export function createNewsFeed({
   let lastPlaceKey = null;
   let storyCard = null;
   const storyOpen = new Set();
+  /** The language the open story is being read in, or null. */
+  let storyLanguage = null;
+  /** `articleId|language` -> { status: 'loading'|'done'|'off'|'error', data? } */
+  const translations = new Map();
+
+  async function requestTranslation(articleId, language) {
+    const key = `${articleId}|${language}`;
+    translations.set(key, { status: 'loading' });
+    render();
+    try {
+      const response = await fetchImpl('/api/news/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articleId, language }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data) translations.set(key, { status: 'error' });
+      else if (data.available === false)
+        translations.set(key, { status: 'off' });
+      else translations.set(key, { status: 'done', data });
+    } catch {
+      translations.set(key, { status: 'error' });
+    }
+    render();
+  }
+
+  /** The language chips, and the translation under them once one is chosen. */
+  function renderTranslation(card) {
+    const box = el(document, 'div', 'news-brief coranto-story-translation');
+    box.append(
+      el(
+        document,
+        'div',
+        'news-brief-label',
+        'MACHINE TRANSLATION · FIGURES CHECKED AGAINST THE ORIGINAL',
+      ),
+    );
+    const chips = el(document, 'div', 'coranto-story-langs');
+    for (const [code, name] of TRANSLATE_LANGUAGES) {
+      const chip = el(document, 'button', 'coranto-story-lang', name);
+      chip.type = 'button';
+      chip.setAttribute('aria-pressed', String(storyLanguage === code));
+      chip.addEventListener('click', () => {
+        storyLanguage = code;
+        if (translations.get(`${card.id}|${code}`)?.status === 'done') render();
+        else requestTranslation(card.id, code);
+      });
+      chips.append(chip);
+    }
+    box.append(chips);
+    const state = storyLanguage
+      ? translations.get(`${card.id}|${storyLanguage}`)
+      : null;
+    const note = (text) => el(document, 'p', 'news-brief-note', text);
+    if (!state)
+      box.append(
+        note(
+          'Choose a language. The original stays above; a translation whose numbers differ from it is not shown.',
+        ),
+      );
+    else if (state.status === 'loading') box.append(note('Translating…'));
+    else if (state.status === 'off')
+      box.append(
+        note('Translation needs an OpenAI key in .env. It is optional.'),
+      );
+    else if (state.status === 'error')
+      box.append(note('The translation could not be made. Nothing is shown.'));
+    else if (!state.data.supported)
+      box.append(
+        note(
+          state.data.reason === 'figures'
+            ? 'The translation changed a number, so it is not shown. Try again or read the original.'
+            : 'The translation could not be checked, so it is not shown.',
+        ),
+      );
+    else {
+      const title = el(document, 'p', 'coranto-story-translated-title');
+      title.textContent = state.data.title;
+      title.lang = state.data.language;
+      title.dir = 'auto';
+      box.append(title);
+      if (state.data.summary) {
+        const summary = el(
+          document,
+          'p',
+          'news-brief-text',
+          state.data.summary,
+        );
+        summary.lang = state.data.language;
+        summary.dir = 'auto';
+        box.append(summary);
+      }
+      box.append(
+        note(
+          'A model wrote this. Code confirmed only that every number matches the original above; it cannot confirm the wording.',
+        ),
+      );
+    }
+    return box;
+  }
   let speaking = false;
   const speech = () => document.defaultView?.speechSynthesis ?? null;
 
@@ -550,6 +651,7 @@ export function createNewsFeed({
     storyKey = null;
     storyCard = null;
     storyOpen.clear();
+    storyLanguage = null;
     stopSpeaking();
     story.hidden = true;
   }
@@ -557,6 +659,7 @@ export function createNewsFeed({
   function openStory(key) {
     if (storyKey !== key) {
       storyOpen.clear();
+      storyLanguage = null;
       stopSpeaking();
     }
     storyKey = key;
@@ -731,6 +834,15 @@ export function createNewsFeed({
       });
       tools.append(pin);
     }
+    {
+      const translate = toolButton('translate', 'TRANSLATE', {
+        active: storyOpen.has('translate'),
+        title:
+          'A machine translation of this headline and summary, shown beside the original. It is shown only if its numbers match the original.',
+      });
+      translate.addEventListener('click', toggle('translate'));
+      tools.append(translate);
+    }
     if (speech()) {
       const listen = toolButton('speaker', speaking ? 'STOP' : 'LISTEN', {
         active: speaking,
@@ -760,6 +872,7 @@ export function createNewsFeed({
 
     if (card.storyId && briefs.has(card.storyId))
       body.append(renderBrief(card.storyId));
+    if (storyOpen.has('translate')) body.append(renderTranslation(card));
     if (storyOpen.has('figures'))
       for (const row of card.differing ?? []) {
         const note = el(document, 'p', 'news-card-differ');

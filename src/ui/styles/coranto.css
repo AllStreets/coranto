@@ -3608,6 +3608,36 @@ body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
   font: 12px/1.5 var(--font-sans);
 }
 
+/* Translation in the story pop-up */
+.coranto-story-langs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.coranto-story-lang {
+  padding: 4px 8px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 600 9px var(--font-mono);
+  letter-spacing: 0.6px;
+  cursor: pointer;
+}
+.coranto-story-lang:hover {
+  color: var(--text-primary);
+}
+.coranto-story-lang[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: rgba(180, 124, 255, 0.16);
+  color: #ffffff;
+}
+.coranto-story-translated-title {
+  margin: 0;
+  color: var(--text-primary);
+  font: 600 16px/1.3 var(--font-head);
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */
