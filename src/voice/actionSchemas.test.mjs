@@ -24,7 +24,11 @@ test('the complete Realtime tool payload pins the manifest-generated layer relea
     .update(
       JSON.stringify(
         stable(
-          GEV_REALTIME_TOOLS.filter((tool) => tool.name !== 'set_cyber_sonar'),
+          // `run_app_command` is Coranto's addition and is tested on its own.
+          GEV_REALTIME_TOOLS.filter(
+            (tool) =>
+              !['set_cyber_sonar', 'run_app_command'].includes(tool.name),
+          ),
         ),
       ),
     )
@@ -96,7 +100,10 @@ test('metadata cannot add tools, fields, types or enum values', () => {
 
 test('all legacy action arguments are byte-identical after removing the deliberate additions', () => {
   const legacy = structuredClone(GEV_ACTION_SCHEMAS).filter(
-    (tool) => !['next_satellite_pass', 'set_cyber_sonar'].includes(tool.name),
+    (tool) =>
+      !['next_satellite_pass', 'set_cyber_sonar', 'run_app_command'].includes(
+        tool.name,
+      ),
   );
   // Layer enums are generated from the voice layer manifest and pinned by
   // layerManifest.test.mjs; the two shipped right-rail panels are additive.
@@ -182,4 +189,13 @@ test('the benchmark still rejects an empty track_entity although the model-facin
     }),
     [],
   );
+});
+
+test('run_app_command takes a short query and nothing else', () => {
+  const tool = GEV_ACTION_SCHEMAS.find(
+    (entry) => entry.name === 'run_app_command',
+  );
+  assert.deepEqual(tool.parameters.required, ['query']);
+  assert.equal(tool.parameters.additionalProperties, false);
+  assert.deepEqual(Object.keys(tool.parameters.properties), ['query']);
 });

@@ -228,6 +228,20 @@ const schemas = [
     },
   },
   {
+    // Whatever the host page can do by name. The host answers through
+    // `globalThis.__corantoRunCommand`; without a host the action reports
+    // that it is not available.
+    name: 'run_app_command',
+    parameters: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['query'],
+      properties: {
+        query: { type: 'string', minLength: 1, maxLength: 120 },
+      },
+    },
+  },
+  {
     name: 'set_visual_style',
     parameters: {
       type: 'object',

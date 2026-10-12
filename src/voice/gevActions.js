@@ -687,6 +687,17 @@ export function createGevActionRunner({
       };
     }
 
+    if (name === 'run_app_command') {
+      const run = globalThis.__corantoRunCommand;
+      if (typeof run !== 'function')
+        return {
+          ok: false,
+          action: 'run_app_command',
+          error: 'The app does not offer named commands here.',
+        };
+      return { action: 'run_app_command', ...(await run(String(args.query))) };
+    }
+
     if (name === 'set_visual_style') {
       const style = normalizeStyle(args.style);
       if (!style)

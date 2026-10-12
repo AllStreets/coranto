@@ -151,6 +151,11 @@ export const ACTION_DESCRIPTIONS = {
       },
     },
   },
+  run_app_command: {
+    description:
+      'Run something in the Coranto news app by name, when no other tool fits. Use it for: a lens (news, watch power, votes, markets, relief); a country sheet ("country sheet Sudan"); a story by words from its headline; a place that has stories; a topic (military, finance, climate, technology, geopolitics, good news); a time range ("last 7 days"); the analyst board, my briefing, map key, sources or guide; live TV or a channel by name ("France 24"); a tour of today\'s stories; replaying the week. Pass what the user asked for in a few plain words. It returns what ran, or a short list of choices when more than one thing fits: read the choices to the user and ask which.',
+    $position: 1,
+  },
   set_visual_style: {
     description: 'Set the active Coranto visual filter/style.',
     $position: 1,

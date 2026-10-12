@@ -10,6 +10,7 @@ import {
   nearestBroadcaster,
 } from './corantoBroadcasts.js';
 import { buildCommands } from './corantoCommandList.js';
+import { isAmbiguous, rankCommands } from './corantoCommandModel.js';
 import { createCommandPalette } from './corantoCommands.js';
 import { createDossier } from './corantoDossier.js';
 import { buildDossier } from './corantoDossierModel.js';
@@ -1152,6 +1153,34 @@ export function createCorantoShell({
           getViewer: () => dataManager?.viewer ?? null,
           Observer: win.MutationObserver,
         });
+  // Voice reaches the same commands as search. The engine's voice tool
+  // `run_app_command` calls this with a few words; it runs the one thing that
+  // fits, or hands back the choices for the voice to read out.
+  win.__corantoRunCommand = async (query) => {
+    await loadAtlasPlaces();
+    const text = String(query ?? '').trim();
+    if (!text) return { ok: false, error: 'Nothing was asked for.' };
+    const all = rankCommands(buildCommands(commandApp(), text), text, 8);
+    const real = all.filter((command) => command.kind !== 'SEARCH');
+    const results = real.length ? real : all;
+    if (!results.length)
+      return { ok: false, error: `Nothing in the app matches "${text}".` };
+    if (isAmbiguous(results, text))
+      return {
+        ok: false,
+        needsChoice: true,
+        choices: results
+          .slice(0, 4)
+          .map((command) => ({ name: command.title, does: command.kind })),
+      };
+    const [command] = results;
+    try {
+      command.run();
+    } catch {
+      return { ok: false, error: `"${command.title}" could not be run.` };
+    }
+    return { ok: true, ran: command.title, does: command.kind };
+  };
   searchBtn.addEventListener('click', () => {
     loadAtlasPlaces();
     palette.open();
@@ -2855,6 +2884,7 @@ export function createCorantoShell({
       unsubscribePlace?.();
       satelliteIcons.stop();
       sceneRestore?.destroy();
+      delete win.__corantoRunCommand;
       quakeIcons.stop();
       nuclear.hide();
       atlas.destroy();

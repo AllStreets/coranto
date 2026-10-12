@@ -338,6 +338,13 @@
 
 ## [Unreleased]
 
+- Voice works from the news view. The voice control now sits under the globe
+  there as well as in INSTRUMENTS, and voice gains one tool,
+  `run_app_command`, that reaches everything search does: lenses, country
+  sheets, stories, topics, time ranges, the board, the briefing, live
+  channels. It runs the one thing that fits what was said, or returns the
+  choices for the voice to read out when several fit.
+
 - Add AROUND HERE to the story pop-up. It lists what the live layers hold
   within 300 km of the story's place right now (hazards, quakes, fires,
   storms, military and civil aircraft, ships, launch sites), nearest first,

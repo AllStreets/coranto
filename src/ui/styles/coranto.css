@@ -4138,6 +4138,32 @@ a.coranto-dossier-source:hover {
   font: 10px var(--font-mono);
 }
 
+/* Voice in the news view: the engine's own control, alone, under the globe.
+   Its two neighbours in the dock (location and presets) belong to
+   INSTRUMENTS and stay there. */
+body[data-coranto-frame='one'][data-coranto-mode='news']:not(.cockpit-mode):not(
+    .scene-playback-mode
+  )
+  #command-dock {
+  display: flex !important;
+  left: calc(
+    var(--coranto-rail-w) +
+      (100vw - var(--coranto-rail-w) - var(--coranto-feed-w)) / 2
+  );
+  bottom: 40px;
+  z-index: 310;
+}
+body[data-coranto-frame='one'][data-coranto-mode='news']
+  #command-dock
+  > :is(#location-bar, #control-panel) {
+  display: none !important;
+}
+@media (max-width: 1100px) {
+  body[data-coranto-frame='one'][data-coranto-mode='news'] #command-dock {
+    display: none !important;
+  }
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */
