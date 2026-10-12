@@ -1,5 +1,5 @@
 import * as Cesium from 'cesium';
-import { iconImage } from '../data/corantoIcons.js';
+import { satelliteImage } from '../data/corantoIcons.js';
 import { satelliteClassColor } from '../data/satelliteClass.js';
 
 /**
@@ -39,7 +39,7 @@ export function createSatelliteIcons({ getManager }) {
   // One image per class colour, not one per satellite.
   const images = new Map();
   const imageFor = (colour) => {
-    if (!images.has(colour)) images.set(colour, iconImage('satellite', colour));
+    if (!images.has(colour)) images.set(colour, satelliteImage(colour));
     return images.get(colour);
   };
 
@@ -64,8 +64,8 @@ export function createSatelliteIcons({ getManager }) {
             id: PREFIX + row.id,
             position: row.position,
             image: imageFor(satelliteIconColour(row)),
-            width: 18,
-            height: 18,
+            width: 22,
+            height: 22,
             // Larger when near, never vanishing when far.
             scaleByDistance: new Cesium.NearFarScalar(2e6, 1.5, 6e7, 0.75),
           }),

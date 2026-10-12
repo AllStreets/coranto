@@ -270,6 +270,25 @@ export function iconImage(name, colour = '#ffffff') {
 }
 
 /**
+ * A satellite for the globe: a pale body with a dish, and two solar wings in
+ * `colour`, each divided into cells. It is a small picture, not a line icon,
+ * so it still reads as a satellite at sixteen pixels; the dark edge keeps it
+ * clear over ocean, land and space alike.
+ */
+export function satelliteImage(colour = '#c89bff') {
+  const edge = '#07060d';
+  const body = '#f3f0fb';
+  return dataUri(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128"><g transform="rotate(-35 32 32)" stroke="${edge}" stroke-width="2.4" stroke-linejoin="round" paint-order="stroke">` +
+      `<rect x="2" y="23" width="20" height="18" rx="1.5" fill="${colour}"/><rect x="42" y="23" width="20" height="18" rx="1.5" fill="${colour}"/>` +
+      `<path d="M8.7 23v18M15.3 23v18M48.7 23v18M55.3 23v18" stroke-width="1.5" fill="none"/>` +
+      `<path d="M22 32h4M38 32h4" stroke="${body}" stroke-width="3" paint-order="normal"/>` +
+      `<rect x="25" y="19" width="14" height="26" rx="3" fill="${body}"/><rect x="25" y="28" width="14" height="6" fill="${colour}" stroke="none"/>` +
+      `<path d="M32 19v-6" stroke="${body}" stroke-width="2.6" paint-order="normal"/><path d="M24.5 8.5a7.6 7.6 0 0 0 15 0z" fill="${body}"/></g></svg>`,
+  );
+}
+
+/**
  * A globe marker: the icon on a dark disc ringed in its colour. It is a
  * vector drawn at twice its largest on-screen size, so it stays sharp on
  * high-density displays.

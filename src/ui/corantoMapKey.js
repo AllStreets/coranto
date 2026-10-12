@@ -1,6 +1,7 @@
 import {
   TOPIC_COLOURS,
   hazardIcon,
+  satelliteImage,
   iconImage,
   markerImage,
 } from '../data/corantoIcons.js';
@@ -232,24 +233,24 @@ export function buildMapKeyModel(state) {
   if (state.satellites)
     more.push(
       {
-        image: iconImage('satellite', '#c89bff'),
+        image: satelliteImage('#c89bff'),
         label:
           'Geostationary satellite. Together they form the violet band over the equator.',
       },
       {
-        image: iconImage('satellite', '#4fd8ff'),
+        image: satelliteImage('#4fd8ff'),
         label: 'Navigation satellite: GPS, GLONASS, Galileo',
       },
       {
-        image: iconImage('satellite', '#fff6e5'),
+        image: satelliteImage('#fff6e5'),
         label: 'Space station or visiting spacecraft',
       },
       {
-        image: iconImage('satellite', '#ff4444'),
+        image: satelliteImage('#ff4444'),
         label: 'The International Space Station, with its orbit drawn in red',
       },
       {
-        image: iconImage('satellite', '#9fb3c4'),
+        image: satelliteImage('#9fb3c4'),
         label: 'Other bright satellite. Select any satellite to follow it.',
       },
       {

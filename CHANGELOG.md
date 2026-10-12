@@ -338,6 +338,11 @@
 
 ## [Unreleased]
 
+- Draw satellites on the globe as a small picture of one: a pale body with a
+  dish and two solar wings divided into cells, in the satellite's class
+  colour, with a dark edge so it reads over ocean, land and space. It
+  replaces the line icon, which did not read as a satellite at that size.
+
 - Add a LAYERS button to the header that lists every live layer with what it
   is and a switch. On most windows the last few layer chips (fires, storms,
   launches, cables) were cut off with no way to reach them.
