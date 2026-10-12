@@ -143,8 +143,11 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [x] **Search over everything** (2026-10-11): SEARCH / Ctrl+K reaches views,
   lenses, layers, overlays, topics, time ranges, presets, channels, places,
   stories and the INSTRUMENTS tools from one box (`corantoCommands.js`).
-- [ ] **T21 Quality bar.** Default view is globe, feed and rail; every
-  advanced tool within two clicks; nothing outside the shared tokens.
+- [x] **T21 Quality bar.** Default view is globe, feed and rail; every
+  advanced tool is one search away (SEARCH / Ctrl+K) and the INSTRUMENTS
+  panels that the layout hid (SCENES, CONTEXT) stay visible as headers. The
+  header fits from 760px to 1600px. Scene playback restores the look and
+  the view afterwards.
 
 ## Decisions (answered 2026-10-11)
 

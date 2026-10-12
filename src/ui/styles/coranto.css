@@ -3910,6 +3910,22 @@ body[data-coranto-frame='one']:is(
   letter-spacing: 1.4px;
 }
 
+/* INSTRUMENTS rails: when one panel is open, the engine hid the others
+   entirely, so SCENES and CONTEXT could not be found. Keep each as its
+   header under the open panel; selecting one swaps it in. */
+body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  :is(#left-panel-stack, #right-context-rail).layout-focus
+  > .layout-auto-collapsed {
+  display: block !important;
+  flex: 0 0 auto;
+}
+body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  #left-panel-stack.layout-focus
+  > [data-panel-id]:not(.collapsed) {
+  height: calc(var(--left-panel-allocated-height) - 60px) !important;
+  max-height: calc(var(--left-panel-allocated-height) - 60px) !important;
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */

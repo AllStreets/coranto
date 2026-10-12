@@ -338,6 +338,10 @@
 
 ## [Unreleased]
 
+- Keep SCENES and CONTEXT in view in INSTRUMENTS. With DATA LAYERS or DISPLAY
+  open, the engine hid the other panels entirely; each now stays as its
+  header underneath, and selecting it swaps it in.
+
 - After a scene ends or is stopped, put back the visual preset, the display
   switches and sliders, and the camera. A scene sets its own, and the engine
   left them that way, so playing one could leave the globe in night vision
