@@ -338,6 +338,17 @@
 
 ## [Unreleased]
 
+- Add AROUND HERE to the story pop-up. It lists what the live layers hold
+  within 300 km of the story's place right now (hazards, quakes, fires,
+  storms, military and civil aircraft, ships, launch sites), nearest first,
+  and each row flies to it. Only layers that are on are read; the rest are
+  named as not looked in. When the story is about something a layer shows
+  (an earthquake, a wildfire, a storm, shipping, aviation, a launch) and
+  that layer is off, it offers to switch it on. A story placed at a whole
+  country has no point to measure from, and says so.
+- Story tools still fill their rows with the extra tool: a shorter last row
+  stretches to the full width.
+
 - Add the country sheet. One panel joins what every source already says
   about a country: its current headlines and headline activity, its standing
   (nuclear-armed, Security Council, NATO, named in conflict headlines),

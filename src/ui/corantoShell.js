@@ -1,6 +1,7 @@
 import { CATEGORY_CODE, createNewsFeed } from './newsPanel.js';
 import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
 import { getContextStore } from '../data/contextStore.js';
+import { aroundStory } from './corantoAround.js';
 import { createBoard } from './corantoBoard.js';
 import { createBoardStore } from './corantoBoardModel.js';
 import {
@@ -2737,6 +2738,44 @@ export function createCorantoShell({
     watch: {
       nearest: nearestBroadcaster,
       open: (index) => tv.openChannel(index),
+    },
+    around: {
+      read: (place, storyText) =>
+        aroundStory({
+          place,
+          storyText,
+          readLayer: (id) => {
+            if (!layerShown(id)) return { on: false, rows: [] };
+            // Hazards keep their events in the layer's own view.
+            if (id === 'hazards')
+              return {
+                on: true,
+                rows: hazardsLayer?.getView?.()?.snapshot?.events ?? [],
+              };
+            let rows = [];
+            try {
+              rows =
+                dataManager.layers
+                  .get(id)
+                  ?.module?.getAnalystRecords?.(20_000) ?? [];
+            } catch {
+              rows = [];
+            }
+            return { on: true, rows };
+          },
+        }),
+      flyTo: (lat, lon) => flyTo(lat, lon, 350_000),
+      switchOn: (id) => {
+        Promise.resolve(dataManager?.setEnabled(id, true))
+          .catch(() => {})
+          .finally(() => {
+            syncLayers();
+            feed?.refresh();
+            // The layer fills in over the next few seconds.
+            for (const wait of [2500, 7000])
+              win.setTimeout(() => feed?.refresh(), wait);
+          });
+      },
     },
   });
   // First visit: open the guide once. Automated browsers are left alone.

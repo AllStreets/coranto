@@ -3928,8 +3928,14 @@ body[data-coranto-frame='one'][data-coranto-mode='instruments']
 
 /* Story tools fill their rows: the main tools share one even row, and the
    reading aids (translate, listen) split a row of their own. */
+/* A flex row, so a shorter last row stretches to the full width. */
 .coranto-story-tools[style*='--cols'] {
-  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+}
+.coranto-story-tools[style*='--cols'] > .coranto-story-tool {
+  flex: 1 1 calc((100% - (var(--cols) - 1) * 5px) / var(--cols));
+  min-width: 0;
 }
 .coranto-story-tools-wide {
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
@@ -4063,6 +4069,73 @@ body:not([data-coranto-mode='news']) #coranto-dossier {
 }
 a.coranto-dossier-source:hover {
   color: var(--accent);
+}
+
+/* Around a story */
+.coranto-around-suggest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 9px;
+  border-left: 2px solid var(--accent);
+  background: rgba(180, 124, 255, 0.08);
+  color: var(--text-primary);
+  font: 12px/1.4 var(--font-sans);
+}
+.coranto-around-switch {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border: 1px solid rgba(180, 124, 255, 0.55);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--accent);
+  font: 600 9px var(--font-mono);
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+.coranto-around-switch:hover {
+  background: rgba(180, 124, 255, 0.16);
+}
+.coranto-around-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  color: #cfc8e6;
+  font: 600 9px var(--font-mono);
+  letter-spacing: 1.5px;
+}
+.coranto-around-head img {
+  width: 14px;
+  height: 14px;
+}
+.coranto-around-count {
+  margin-left: auto;
+  color: var(--text-dim);
+}
+.coranto-around-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 5px 0 5px 22px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+  background: transparent;
+  color: var(--text-primary);
+  font: 12px/1.4 var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+.coranto-around-row:hover .coranto-around-label {
+  text-decoration: underline;
+}
+.coranto-around-km {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font: 10px var(--font-mono);
 }
 
 /* Every scrolling area shows a bar a person can see and drag, including on

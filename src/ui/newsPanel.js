@@ -90,6 +90,7 @@ export function createNewsFeed({
   fetchImpl = (...args) => globalThis.fetch(...args),
   board = null,
   watch = null,
+  around = null,
 }) {
   if (!document?.createElement || !body) return null;
 
@@ -572,6 +573,93 @@ export function createNewsFeed({
     render();
   }
 
+  /** What is near a story now, and the layer the story is about. */
+  function renderAround(card) {
+    const place = card.placeKey
+      ? (layer.getView().places ?? []).find((p) => p.key === card.placeKey)
+      : null;
+    const model = around.read(
+      place ?? null,
+      `${card.title} ${card.summary ?? ''}`,
+    );
+    const box = el(document, 'div', 'news-brief coranto-story-around');
+    box.append(
+      el(
+        document,
+        'div',
+        'news-brief-label',
+        model.measurable
+          ? `AROUND HERE NOW · WITHIN ${model.km} KM OF ${model.where.toUpperCase()}`
+          : 'AROUND HERE NOW',
+      ),
+    );
+    const note = (text) => el(document, 'p', 'news-brief-note', text);
+    for (const suggestion of model.suggestions) {
+      const row = el(document, 'div', 'coranto-around-suggest');
+      const button = el(
+        document,
+        'button',
+        'coranto-around-switch',
+        `Switch on ${suggestion.label.toUpperCase()}`,
+      );
+      button.type = 'button';
+      button.addEventListener('click', () => around.switchOn(suggestion.id));
+      row.append(el(document, 'span', '', suggestion.why), button);
+      box.append(row);
+    }
+    if (!model.measurable)
+      box.append(
+        note(
+          place
+            ? `This story is placed at ${place.name} as a whole, not at a point, so distances from it would mean nothing.`
+            : 'This story is not placed on the globe, so there is nothing to measure from.',
+        ),
+      );
+    else if (!model.groups.length)
+      box.append(note('No live layer is switched on to look in.'));
+    else if (!model.found)
+      box.append(
+        note(
+          `Nothing in the layers that are on (${listOf(model.groups.map((group) => group.label))}) is within ${model.km} km.`,
+        ),
+      );
+    for (const group of model.groups) {
+      if (!group.count) continue;
+      const head = el(document, 'div', 'coranto-around-head');
+      const icon = el(document, 'img');
+      icon.src = iconImage(group.icon, '#cfc8e6');
+      icon.alt = '';
+      head.append(
+        icon,
+        el(document, 'span', '', group.label.toUpperCase()),
+        el(document, 'span', 'coranto-around-count', String(group.count)),
+      );
+      box.append(head);
+      for (const row of group.rows) {
+        const line = el(document, 'button', 'coranto-around-row');
+        line.type = 'button';
+        line.title = 'Fly to it';
+        line.append(
+          el(document, 'span', 'coranto-around-label', row.label),
+          el(document, 'span', 'coranto-around-km', `${row.km} km`),
+        );
+        line.addEventListener('click', () => around.flyTo(row.lat, row.lon));
+        box.append(line);
+      }
+      if (group.count > group.rows.length)
+        box.append(
+          note(`and ${group.count - group.rows.length} more, further out.`),
+        );
+    }
+    if (model.measurable && model.unchecked.length)
+      box.append(
+        note(
+          `Not looked in, because they are off: ${listOf(model.unchecked)}. LAYERS at the top switches them on.`,
+        ),
+      );
+    return box;
+  }
+
   /** The language chips, and the translation under them once one is chosen. */
   function renderTranslation(card) {
     const box = el(document, 'div', 'news-brief coranto-story-translation');
@@ -818,6 +906,15 @@ export function createNewsFeed({
         tools.append(live);
       }
     }
+    if (around) {
+      const here = toolButton('compass', 'AROUND HERE', {
+        active: storyOpen.has('around'),
+        title:
+          'What the live layers hold near this story right now, and which layer the story is about',
+      });
+      here.addEventListener('click', toggle('around'));
+      tools.append(here);
+    }
     if (board) {
       const key = card.storyId ?? card.id;
       const isPinned = board.has(key);
@@ -893,6 +990,7 @@ export function createNewsFeed({
 
     if (card.storyId && briefs.has(card.storyId))
       body.append(renderBrief(card.storyId));
+    if (storyOpen.has('around')) body.append(renderAround(card));
     if (storyOpen.has('translate')) body.append(renderTranslation(card));
     if (storyOpen.has('figures'))
       for (const row of card.differing ?? []) {
@@ -1134,6 +1232,10 @@ export function createNewsFeed({
     /** Group headlines into stories, or list every headline. */
     setGrouped(grouped) {
       filters.grouped = Boolean(grouped);
+      render();
+    },
+    /** Draw again: something outside the feed changed what a story shows. */
+    refresh() {
       render();
     },
     /** Narrow to one automatic tag, or null for every story. */
