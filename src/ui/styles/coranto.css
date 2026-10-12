@@ -4158,6 +4158,35 @@ body[data-coranto-frame='one'][data-coranto-mode='news']
   > :is(#location-bar, #control-panel) {
   display: none !important;
 }
+/* A story or a country sheet opens on the left of the globe; the voice
+   control moves to the middle of what is left, so neither covers the other. */
+body[data-coranto-frame='one'][data-coranto-mode='news']:is(
+    :has(#coranto-story:not([hidden])),
+    :has(#coranto-dossier:not([hidden]))
+  )
+  #command-dock {
+  --coranto-popup-w: min(
+    430px,
+    calc(100vw - var(--coranto-rail-w) - var(--coranto-feed-w) - 52px)
+  );
+  left: calc(
+    var(--coranto-rail-w) + 26px + var(--coranto-popup-w) +
+      (
+        100vw - var(--coranto-rail-w) - var(--coranto-feed-w) - 26px -
+          var(--coranto-popup-w)
+      ) /
+      2
+  );
+}
+@media (max-width: 1240px) {
+  body[data-coranto-frame='one'][data-coranto-mode='news']:is(
+      :has(#coranto-story:not([hidden])),
+      :has(#coranto-dossier:not([hidden]))
+    )
+    #command-dock {
+    display: none !important;
+  }
+}
 @media (max-width: 1100px) {
   body[data-coranto-frame='one'][data-coranto-mode='news'] #command-dock {
     display: none !important;
