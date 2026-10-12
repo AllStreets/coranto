@@ -25,11 +25,13 @@ const css = readStylesheet(new URL('../style.css', import.meta.url));
 
 function realtimeTools() { return GEV_REALTIME_TOOLS; }
 
-test('Realtime schema exposes the authoritative 30-tool inventory', () => {
+test('Realtime schema exposes the authoritative 31-tool inventory', () => {
+  // Thirty engine tools and Coranto's one: run_app_command.
   const tools = realtimeTools();
-  assert.equal(tools.length, 30);
+  assert.equal(tools.length, 31);
   const names = tools.map((tool) => tool.name);
-  assert.equal(new Set(names).size, 30, 'tool names are unique');
+  assert.equal(new Set(names).size, 31, 'tool names are unique');
+  assert.ok(names.includes('run_app_command'));
   assert.ok(names.includes('set_context_mode'));
   assert.ok(names.includes('control_cockpit'));
   assert.ok(names.includes('select_nearest_aircraft'));
@@ -179,6 +181,8 @@ test('no unchanged Realtime tool definition drifts silently', () => {
   // in the mic-test brief which tools moved — the session cache busts on any
   // schema change.
   const TOUCHED = new Set([
+    // Coranto's addition: the host app's named commands.
+    'run_app_command',
     'set_cyber_sonar',
     'set_context_mode',
     'control_cockpit',
