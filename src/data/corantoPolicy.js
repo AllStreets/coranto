@@ -13,3 +13,16 @@ export const isRealOnly = () => realOnly;
 export function setRealOnly(value) {
   realOnly = Boolean(value);
 }
+
+/**
+ * Whether the engine draws its corner brackets around aircraft, satellites
+ * and other tracked objects. Coranto marks those with its own icons, so it
+ * switches the brackets off for people; their name labels stay.
+ */
+let objectBrackets = true;
+
+export const showsObjectBrackets = () => objectBrackets;
+
+export function setObjectBrackets(value) {
+  objectBrackets = Boolean(value);
+}

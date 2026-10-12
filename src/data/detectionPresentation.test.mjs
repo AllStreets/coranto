@@ -15,9 +15,18 @@ test('Cockpit reduces only the bracket presentation multiplier', () => {
 });
 
 test('detection owns and releases the Cockpit lifecycle listener', async () => {
-  const source = await readFile(new URL('./detection.js', import.meta.url), 'utf8');
-  assert.match(source, /addEventListener\('gev:cockpit-mode-changed', _cockpitModeListener\)/);
-  assert.match(source, /removeEventListener\(\s*'gev:cockpit-mode-changed',\s*_cockpitModeListener,?\s*\)/);
+  const source = await readFile(
+    new URL('./detection.js', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    source,
+    /addEventListener\('gev:cockpit-mode-changed', _cockpitModeListener\)/,
+  );
+  assert.match(
+    source,
+    /removeEventListener\(\s*'gev:cockpit-mode-changed',\s*_cockpitModeListener,?\s*\)/,
+  );
   assert.match(
     source,
     /fade \* entry\.alpha \* bracketPresentationOpacity/,
@@ -30,3 +39,14 @@ test('detection owns and releases the Cockpit lifecycle listener', async () => {
   );
 });
 
+test('Coranto can switch the brackets off and leave the labels alone', async () => {
+  const { setObjectBrackets } = await import('./corantoPolicy.js');
+  setObjectBrackets(false);
+  try {
+    assert.equal(detectionBracketOpacity(false), 0);
+    assert.equal(detectionBracketOpacity(true), 0);
+  } finally {
+    setObjectBrackets(true);
+  }
+  assert.equal(detectionBracketOpacity(false), 1);
+});

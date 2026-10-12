@@ -338,6 +338,13 @@
 
 ## [Unreleased]
 
+- Fill the story pop-up's tool rows. The main tools share one even row (two
+  even rows past five), and TRANSLATE and LISTEN split a row of their own,
+  so no row ends in empty space.
+- Remove the engine's corner brackets from around aircraft, satellites and
+  other tracked objects. Coranto's own icons mark them; their name labels
+  stay.
+
 - Keep SCENES and CONTEXT in view in INSTRUMENTS. With DATA LAYERS or DISPLAY
   open, the engine hid the other panels entirely; each now stays as its
   header underneath, and selecting it swaps it in.

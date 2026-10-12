@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { listOf } from '../../ui/newsPanel.js';
+import { listOf, storyToolColumns } from '../../ui/newsPanel.js';
 import { outletOwnership } from './ownership.js';
 
 test('ownership comes from the table, by whole name only', () => {
@@ -38,4 +38,11 @@ test('a list reads as a sentence', () => {
   assert.equal(listOf(['Africa']), 'Africa');
   assert.equal(listOf(['Africa', 'Asia']), 'Africa and Asia');
   assert.equal(listOf(['Africa', 'Asia', 'Europe']), 'Africa, Asia and Europe');
+});
+
+test('story tools fill their rows', () => {
+  assert.deepEqual(
+    [1, 3, 5, 6, 7, 8].map(storyToolColumns),
+    [1, 3, 5, 3, 4, 4],
+  );
 });

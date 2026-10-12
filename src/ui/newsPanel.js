@@ -59,6 +59,13 @@ export const listOf = (items) =>
     ? items.join('')
     : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`;
 
+/**
+ * How many columns the story tools take, so every row is full: one row for
+ * up to five tools, and two even rows for more.
+ */
+export const storyToolColumns = (count) =>
+  count <= 5 ? Math.max(1, count) : Math.ceil(count / 2);
+
 /** Marks a brief of a whole place among the briefs of single stories. */
 const PLACE_BRIEF = 'place:';
 
@@ -752,6 +759,12 @@ export function createNewsFeed({
       body.append(el(document, 'p', 'coranto-story-summary', card.summary));
 
     const tools = el(document, 'div', 'coranto-story-tools');
+    // Reading aids sit on a row of their own, each as wide as the row allows.
+    const reading = el(
+      document,
+      'div',
+      'coranto-story-tools coranto-story-tools-wide',
+    );
     const toggle = (name) => () => {
       if (storyOpen.has(name)) storyOpen.delete(name);
       else storyOpen.add(name);
@@ -841,7 +854,7 @@ export function createNewsFeed({
           'A machine translation of this headline and summary, shown beside the original. It is shown only if its numbers match the original.',
       });
       translate.addEventListener('click', toggle('translate'));
-      tools.append(translate);
+      reading.append(translate);
     }
     if (speech()) {
       const listen = toolButton('speaker', speaking ? 'STOP' : 'LISTEN', {
@@ -866,9 +879,17 @@ export function createNewsFeed({
         }
         render();
       });
-      tools.append(listen);
+      reading.append(listen);
     }
-    if (tools.childElementCount) body.append(tools);
+    if (tools.childElementCount) {
+      // One even row up to five tools; more than that splits into two.
+      tools.style.setProperty(
+        '--cols',
+        String(storyToolColumns(tools.childElementCount)),
+      );
+      body.append(tools);
+    }
+    if (reading.childElementCount) body.append(reading);
 
     if (card.storyId && briefs.has(card.storyId))
       body.append(renderBrief(card.storyId));

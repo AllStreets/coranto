@@ -1,3 +1,5 @@
+import { showsObjectBrackets } from './corantoPolicy.js';
+
 /** Cockpit brackets stay legible without dominating the first-person view. */
 export const COCKPIT_BRACKET_OPACITY = 0.45;
 
@@ -8,5 +10,6 @@ export const COCKPIT_BRACKET_OPACITY = 0.45;
  * @returns {number} Bracket stroke opacity multiplier.
  */
 export function detectionBracketOpacity(cockpitActive) {
+  if (!showsObjectBrackets()) return 0;
   return cockpitActive === true ? COCKPIT_BRACKET_OPACITY : 1;
 }
