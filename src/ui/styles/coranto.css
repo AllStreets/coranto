@@ -3733,6 +3733,12 @@ body[data-coranto-frame='one']:is(
   opacity: 0.6;
 }
 
+/* The header holds LAYERS in place of a row of layer chips. */
+.coranto-header-gap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */

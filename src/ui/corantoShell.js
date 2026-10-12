@@ -138,7 +138,7 @@ const GUIDE = [
   ],
   [
     'Add live layers',
-    'The buttons along the top add other public feeds to the same globe: natural hazards, aircraft, military flights, ships, satellites, earthquakes, storms and more. Click a hazard marker to see what it is and open its source.',
+    'LAYERS at the top adds other public feeds to the same globe: natural hazards, aircraft, military flights, ships, satellites, earthquakes, storms and more. Each has a switch. Click a hazard marker to see what it is and open its source.',
   ],
   [
     'Watch power',
@@ -440,6 +440,8 @@ export function createCorantoShell({
   const liveText = el(document, 'span', { text: 'CONNECTING' });
   liveBtn.append(liveDot, liveText);
 
+  // One switch per layer. They are not shown themselves: the LAYERS list
+  // presses them, so the switching rules live in one place.
   const layerNav = el(document, 'nav', {
     id: 'coranto-layers',
     'aria-label': 'Live layers',
@@ -498,7 +500,7 @@ export function createCorantoShell({
     layerButtons.set(id, button);
     layerNav.append(button);
   }
-  // Every layer in one list, for windows too narrow to show all the chips.
+  // Every layer in one list: what it is, and a switch.
   const layersBtn = el(document, 'button', {
     id: 'coranto-layers-all',
     type: 'button',
@@ -539,7 +541,7 @@ export function createCorantoShell({
     if (open) {
       const box = layersBtn.getBoundingClientRect();
       const width = Math.min(360, win.innerWidth - 16);
-      layersMenu.style.left = `${Math.max(8, Math.min(win.innerWidth - width - 8, Math.round(box.right - width)))}px`;
+      layersMenu.style.left = `${Math.max(8, Math.min(win.innerWidth - width - 8, Math.round(box.left)))}px`;
       layersMenu.style.top = `${Math.round(box.bottom + 6)}px`;
     }
   }
@@ -632,8 +634,8 @@ export function createCorantoShell({
     ),
     liveBtn,
     menuBtn,
-    layerNav,
     layersBtn,
+    el(document, 'span', { class: 'coranto-header-gap' }),
     count,
     clock,
     boardBtn,

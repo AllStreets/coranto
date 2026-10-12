@@ -338,6 +338,10 @@
 
 ## [Unreleased]
 
+- Clear the header: the row of layer chips is gone, and LAYERS holds every
+  layer with what it is and a switch. The header is now LIVE, LAYERS, the
+  headline count, the clock, BOARD and the NEWS / INSTRUMENTS switch.
+
 - LAUNCHES and SATELLITES now show different things. Launches needs the
   satellites layer running underneath, and the satellite icons were showing
   the whole catalogue whenever it was on. SATELLITES now means the catalogue

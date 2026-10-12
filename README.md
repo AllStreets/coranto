@@ -319,7 +319,7 @@ Coranto has two views, switched at the top right.
 | See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
 | Translate a story | Open the story, click **TRANSLATE** and pick a language. The original stays above it. Needs an OpenAI key. |
 | Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
-| Turn on a layer you cannot see in the header | Click **LAYERS** at the top. It lists every layer with a switch. |
+| Add aircraft, ships, satellites, quakes and other feeds | Click **LAYERS** at the top. It lists every layer with what it is and a switch. |
 | Watch power | Click **POWER** on the left. Click any aircraft in the list to fly to it and open its public track. |
 | See where people are fleeing and where disease is spreading | Click **RELIEF** on the left. Choose Displaced people or Outbreaks. Click an outbreak to fly to it and open the WHO notice. |
 | Check the markets | Click **MARKETS** on the left. Click any figure to open its source. |
@@ -338,7 +338,7 @@ Coranto has two views, switched at the top right.
 | Narrow by topic | Use the list on the left. |
 | See only good news | Click **GOOD NEWS**. |
 | Check the sources | Click the **LIVE** badge. It lists every source and whether it answered. |
-| Add live layers | Use the buttons along the top: hazards, flights, military, ships, satellites, quakes, fires, storms, launches, cables. |
+| Add live layers | Click **LAYERS** at the top and switch on any of: hazards, flights, military, ships, satellites, quakes, fires, storms, launches, cables. |
 | Read a hazard | Click its marker. A card shows what it is, the tracker's alert level and a link to the tracker's report. Red means the tracker issued a Red alert, nothing else. |
 | Get back to the whole globe | Click **WHOLE EARTH**. |
 | Use it on a phone | The globe sits above the feed. **MENU** opens the lenses, topics and your watches. The INSTRUMENTS view needs a larger screen. |
