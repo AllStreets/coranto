@@ -815,7 +815,12 @@ export class IntelHUD {
     // Update mode label
     const modeEl = document.getElementById('hud-mode');
     if (modeEl) {
-      const modeNames = { surveillance: 'NVG', thermal: 'FLIR', retro: 'CRT' };
+      const modeNames = {
+        surveillance: 'NVG',
+        thermal: 'FLIR',
+        retro: 'CRT',
+        anime: 'COMIC',
+      };
       modeEl.textContent = modeNames[styleName] || styleName.toUpperCase();
     }
     // Update color scheme

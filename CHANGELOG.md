@@ -338,6 +338,13 @@
 
 ## [Unreleased]
 
+- LAUNCHES and SATELLITES now show different things. Launches needs the
+  satellites layer running underneath, and the satellite icons were showing
+  the whole catalogue whenever it was on. SATELLITES now means the catalogue
+  is drawn: with LAUNCHES alone you see launch sites and missions only, and
+  SATELLITES can be switched on and off beside it.
+- The HUD names the Comic preset COMIC; it still read ANIME.
+
 - Rename the Anime visual preset to Comic, in the presets tray and the
   cockpit's vision control. Links and voice commands that say `anime` still
   work.

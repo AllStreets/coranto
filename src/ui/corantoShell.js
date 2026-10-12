@@ -92,7 +92,7 @@ const HEADER_LAYERS = [
   [
     'rocket-launches',
     'LAUNCHES',
-    'Recent and upcoming rocket launches. Satellites show too while this is on; they go back to how they were when you switch it off.',
+    'Recent and upcoming rocket launches and what they carried. It does not show the satellite catalogue; SATELLITES does that.',
     'launch',
   ],
   ['telegeography-submarine-cables', 'CABLES', 'Undersea cables', 'cable'],
@@ -445,6 +445,19 @@ export function createCorantoShell({
     'aria-label': 'Live layers',
   });
   const layerButtons = new Map();
+  /**
+   * Whether a layer is on as far as the reader is concerned. The satellites
+   * layer also runs, with nothing drawn, whenever LAUNCHES needs it; that
+   * does not count as SATELLITES being on.
+   */
+  function layerShown(id) {
+    if (!dataManager?.layers?.has(id) || !dataManager.isEnabled(id))
+      return false;
+    return (
+      id !== 'satellites' ||
+      dataManager.getLayerParams?.('satellites')?.showPoints !== false
+    );
+  }
   for (const [id, label, title, icon] of HEADER_LAYERS) {
     const button = el(
       document,
@@ -460,6 +473,19 @@ export function createCorantoShell({
     );
     button.addEventListener('click', () => {
       if (!dataManager) return;
+      // While LAUNCHES is on it keeps the satellites layer running with the
+      // catalogue hidden. SATELLITES then shows or hides the catalogue and
+      // leaves the layer running, so launches keep working.
+      if (id === 'satellites' && dataManager.isEnabled('rocket-launches')) {
+        const show = !layerShown('satellites');
+        dataManager.setLayerParams('satellites', {
+          ...dataManager.getLayerParams('satellites'),
+          showPoints: show,
+          showOrbits: show,
+        });
+        syncLayers();
+        return;
+      }
       const next = !dataManager.isEnabled(id);
       button.dataset.busy = 'true';
       Promise.resolve(dataManager.setEnabled(id, next))
@@ -1718,14 +1744,10 @@ export function createCorantoShell({
     for (const [id, button] of layerButtons) {
       const known = dataManager.layers?.has(id);
       button.hidden = !known;
-      if (known)
-        button.setAttribute('aria-pressed', String(dataManager.isEnabled(id)));
+      if (known) button.setAttribute('aria-pressed', String(layerShown(id)));
       const row = layerRows.get(id);
       row.hidden = !known;
-      row.setAttribute(
-        'aria-pressed',
-        String(Boolean(known && dataManager.isEnabled(id))),
-      );
+      row.setAttribute('aria-pressed', String(layerShown(id)));
     }
     const onCount = [...layerRows.values()].filter(
       (row) => row.getAttribute('aria-pressed') === 'true',
@@ -1733,9 +1755,7 @@ export function createCorantoShell({
     layersBtn.textContent = `LAYERS · ${onCount} ON`;
     // Satellite icons follow the satellites layer (people only).
     if (body.dataset.corantoFrame === 'one') {
-      const on =
-        dataManager.layers?.has('satellites') &&
-        dataManager.isEnabled('satellites');
+      const on = layerShown('satellites');
       if (on && !satelliteIcons.shown) satelliteIcons.start();
       else if (!on && satelliteIcons.shown) satelliteIcons.stop();
       const quakes =

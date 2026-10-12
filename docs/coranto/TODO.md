@@ -26,8 +26,10 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [x] **T3 Briefing rows use their topic colour** and show the topic code.
 - [x] **T19 Fires.** Works without a key from NASA's public 24-hour files;
   heat cells are now visible at whole-Earth zoom.
-- [x] **T20 Launches.** Works. It needs the satellites layer, switches it on
-  while it is on and restores it afterwards; the button now says so.
+- [x] **T20 Launches.** Works. The engine keeps the satellites layer
+  running underneath it with nothing drawn; SATELLITES in the header now
+  means the catalogue is shown, so LAUNCHES alone shows launch sites and
+  missions and no satellite catalogue.
 
 ## Design foundation
 
