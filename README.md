@@ -319,6 +319,7 @@ Coranto has two views, switched at the top right.
 | See every headline ungrouped | Click **EVERY HEADLINE** at the top of the feed. |
 | Translate a story | Open the story, click **TRANSLATE** and pick a language. The original stays above it. Needs an OpenAI key. |
 | Read other languages | Pick one from the language menu above the feed. Headlines are shown as published. |
+| Turn on a layer you cannot see in the header | Click **LAYERS** at the top. It lists every layer with a switch. |
 | Watch power | Click **POWER** on the left. Click any aircraft in the list to fly to it and open its public track. |
 | See where people are fleeing and where disease is spreading | Click **RELIEF** on the left. Choose Displaced people or Outbreaks. Click an outbreak to fly to it and open the WHO notice. |
 | Check the markets | Click **MARKETS** on the left. Click any figure to open its source. |

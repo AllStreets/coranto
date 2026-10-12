@@ -46,6 +46,7 @@ const marker = (icon, colour, extra = {}) => ({
  * @param {boolean} state.outbreaks
  * @param {boolean} state.ships
  * @param {boolean} state.satellites
+ * @param {boolean} state.quakes
  * @param {boolean} state.borders
  * @param {boolean} state.countries
  * @param {boolean} state.activity
@@ -212,6 +213,22 @@ export function buildMapKeyModel(state) {
       image: iconImage('broadcast', '#E8A020'),
       label: 'Newsroom broadcasting live. Select one to watch it.',
     });
+  if (state.quakes)
+    more.push(
+      {
+        ...marker('earthquake', '#ff4d5e'),
+        label: 'Earthquake of magnitude 6 or more (USGS, last 24 hours)',
+      },
+      {
+        ...marker('earthquake', '#fb923c'),
+        label: 'Earthquake of magnitude 4.5 to 5.9',
+      },
+      {
+        ...marker('earthquake', '#f2c14e'),
+        label:
+          'Smaller earthquake. The circle on the ground under each is its true scale.',
+      },
+    );
   if (state.satellites)
     more.push(
       {

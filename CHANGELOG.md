@@ -338,6 +338,14 @@
 
 ## [Unreleased]
 
+- Add a LAYERS button to the header that lists every live layer with what it
+  is and a switch. On most windows the last few layer chips (fires, storms,
+  launches, cables) were cut off with no way to reach them.
+- Put an icon on every earthquake, in three sizes and colours by magnitude,
+  over the engine's ground circles, which are true to scale and nearly
+  invisible from orbit. Selecting one opens its USGS record with a link to
+  the event page. The map key lists the three steps.
+
 - Hold floating INSTRUMENTS panels below the header and ticker. A panel
   could be dragged, or restored from a saved position, underneath them.
 

@@ -25,6 +25,7 @@ import { createMarketsLens } from './corantoMarkets.js';
 import { createNuclearMarks } from './corantoNuclear.js';
 import { createSatelliteIcons } from './corantoSatelliteIcons.js';
 import { createPowerLens } from './corantoPower.js';
+import { createQuakeIcons } from './corantoQuakeIcons.js';
 import { RELIEF_TERMS, createReliefLens } from './corantoRelief.js';
 import {
   WATCH_LIMIT,
@@ -471,6 +472,58 @@ export function createCorantoShell({
     layerButtons.set(id, button);
     layerNav.append(button);
   }
+  // Every layer in one list, for windows too narrow to show all the chips.
+  const layersBtn = el(document, 'button', {
+    id: 'coranto-layers-all',
+    type: 'button',
+    title: 'Every live layer, with what each one is',
+    'aria-expanded': 'false',
+    'aria-controls': 'coranto-layers-menu',
+  });
+  const layersMenu = el(document, 'div', {
+    id: 'coranto-layers-menu',
+    role: 'region',
+    'aria-label': 'Live layers',
+  });
+  layersMenu.hidden = true;
+  const layerRows = new Map();
+  for (const [id, label, title, icon] of HEADER_LAYERS) {
+    const row = el(
+      document,
+      'button',
+      { type: 'button', class: 'coranto-layer-row', 'aria-pressed': 'false' },
+      el(document, 'img', { src: iconImage(icon, '#c9c2de'), alt: '' }),
+      el(
+        document,
+        'span',
+        { class: 'coranto-layer-row-text' },
+        el(document, 'span', { class: 'coranto-layer-row-name', text: label }),
+        el(document, 'span', { class: 'coranto-layer-row-note', text: title }),
+      ),
+      el(document, 'span', { class: 'coranto-switch-knob' }),
+    );
+    // The chip already knows how to switch its layer; the row presses it.
+    row.addEventListener('click', () => layerButtons.get(id)?.click());
+    layerRows.set(id, row);
+    layersMenu.append(row);
+  }
+  function setLayersMenu(open) {
+    layersMenu.hidden = !open;
+    layersBtn.setAttribute('aria-expanded', String(open));
+    if (open) {
+      const box = layersBtn.getBoundingClientRect();
+      const width = Math.min(360, win.innerWidth - 16);
+      layersMenu.style.left = `${Math.max(8, Math.min(win.innerWidth - width - 8, Math.round(box.right - width)))}px`;
+      layersMenu.style.top = `${Math.round(box.bottom + 6)}px`;
+    }
+  }
+  layersBtn.addEventListener('click', () => setLayersMenu(layersMenu.hidden));
+  document.addEventListener('pointerdown', (event) => {
+    if (layersMenu.hidden) return;
+    if (layersBtn.contains(event.target) || layersMenu.contains(event.target))
+      return;
+    setLayersMenu(false);
+  });
 
   // The analyst board is one button in the header, so it is there in both
   // NEWS and INSTRUMENTS.
@@ -554,6 +607,7 @@ export function createCorantoShell({
     liveBtn,
     menuBtn,
     layerNav,
+    layersBtn,
     count,
     clock,
     boardBtn,
@@ -801,6 +855,14 @@ export function createCorantoShell({
     'aria-expanded': 'false',
     'aria-controls': 'coranto-key',
   });
+  // Icons over the quakes, while the earthquakes layer is on.
+  const quakeIcons = createQuakeIcons({
+    getManager: () => dataManager,
+    showCard: (detail) => {
+      card.dataset.owner = 'quake';
+      showCard(detail);
+    },
+  });
   // Icons over the named satellites, while the satellites layer is on.
   const satelliteIcons = createSatelliteIcons({
     getManager: () => dataManager,
@@ -928,6 +990,7 @@ export function createCorantoShell({
       broadcasts: tv.isOpen,
       ships: on('ais-live-vessels'),
       satellites: satelliteIcons.shown,
+      quakes: quakeIcons.shown,
       outbreaks: relief.marked,
       borders: atlas.isOn('borders'),
       countries: atlas.isOn('countries'),
@@ -1380,6 +1443,7 @@ export function createCorantoShell({
     header,
     hud,
     sourcesMenu,
+    layersMenu,
     mapKey.element,
     board.element,
     ticker,
@@ -1656,7 +1720,17 @@ export function createCorantoShell({
       button.hidden = !known;
       if (known)
         button.setAttribute('aria-pressed', String(dataManager.isEnabled(id)));
+      const row = layerRows.get(id);
+      row.hidden = !known;
+      row.setAttribute(
+        'aria-pressed',
+        String(Boolean(known && dataManager.isEnabled(id))),
+      );
     }
+    const onCount = [...layerRows.values()].filter(
+      (row) => row.getAttribute('aria-pressed') === 'true',
+    ).length;
+    layersBtn.textContent = `LAYERS · ${onCount} ON`;
     // Satellite icons follow the satellites layer (people only).
     if (body.dataset.corantoFrame === 'one') {
       const on =
@@ -1664,6 +1738,14 @@ export function createCorantoShell({
         dataManager.isEnabled('satellites');
       if (on && !satelliteIcons.shown) satelliteIcons.start();
       else if (!on && satelliteIcons.shown) satelliteIcons.stop();
+      const quakes =
+        dataManager.layers?.has('earthquakes') &&
+        dataManager.isEnabled('earthquakes');
+      if (quakes && !quakeIcons.shown) quakeIcons.start();
+      else if (!quakes && quakeIcons.shown) {
+        quakeIcons.stop();
+        if (card.dataset.owner === 'quake') showCard(null);
+      }
     }
     renderMapKey();
   }
@@ -2048,6 +2130,7 @@ export function createCorantoShell({
       layerIconStyle.remove();
       unsubscribePlace?.();
       satelliteIcons.stop();
+      quakeIcons.stop();
       nuclear.hide();
       atlas.destroy();
       board.destroy();
