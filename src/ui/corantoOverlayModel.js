@@ -358,3 +358,71 @@ export function squaresOver(rings, step) {
     ([, lat]) => lat >= -85 && lat + step <= 85,
   );
 }
+
+/**
+ * Where a country's name sits: the point of its largest outline that is
+ * farthest from the outline's edge, so the name lands on the country and not
+ * in a bay or a neighbour. Null when there is no usable outline.
+ *
+ * @param {number[][][]} rings outlines as [lon, lat] points, largest first
+ * @returns {{lon: number, lat: number} | null}
+ */
+export function labelPoint(rings) {
+  const ring = rings?.[0];
+  if (!ring || ring.length < 4) return null;
+  let west = Infinity;
+  let east = -Infinity;
+  let south = Infinity;
+  let north = -Infinity;
+  for (const [lon, lat] of ring) {
+    west = Math.min(west, lon);
+    east = Math.max(east, lon);
+    south = Math.min(south, lat);
+    north = Math.max(north, lat);
+  }
+  if (east - west > 180) return null;
+  // Longitude shrinks toward the poles; measure in even units.
+  const squash = Math.cos((((south + north) / 2) * Math.PI) / 180) || 1;
+  const edge = (lon, lat) => {
+    let nearest = Infinity;
+    for (let i = 0; i < ring.length - 1; i += 1) {
+      const ax = (ring[i][0] - lon) * squash;
+      const ay = ring[i][1] - lat;
+      const bx = (ring[i + 1][0] - lon) * squash;
+      const by = ring[i + 1][1] - lat;
+      const dx = bx - ax;
+      const dy = by - ay;
+      const span = dx * dx + dy * dy;
+      const t = span
+        ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / span))
+        : 0;
+      nearest = Math.min(nearest, (ax + t * dx) ** 2 + (ay + t * dy) ** 2);
+    }
+    return nearest;
+  };
+  let best = null;
+  let bestEdge = -1;
+  const search = (w, e, s, n, steps) => {
+    for (let i = 0; i <= steps; i += 1)
+      for (let j = 0; j <= steps; j += 1) {
+        const lon = w + ((e - w) * (i + 0.5)) / (steps + 1);
+        const lat = s + ((n - s) * (j + 0.5)) / (steps + 1);
+        if (!inside(lon, lat, ring)) continue;
+        const distance = edge(lon, lat);
+        if (distance > bestEdge) {
+          bestEdge = distance;
+          best = { lon, lat };
+        }
+      }
+  };
+  search(west, east, south, north, 14);
+  if (!best) return null;
+  // Once more, finer, around the best cell.
+  const dLon = (east - west) / 15;
+  const dLat = (north - south) / 15;
+  search(best.lon - dLon, best.lon + dLon, best.lat - dLat, best.lat + dLat, 6);
+  return {
+    lon: Math.round(best.lon * 100) / 100,
+    lat: Math.round(best.lat * 100) / 100,
+  };
+}

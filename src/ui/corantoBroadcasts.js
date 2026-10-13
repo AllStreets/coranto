@@ -228,7 +228,11 @@ const PIN_SCALE = 1.6;
  * @param {Document} options.document
  * @param {() => object|null} [options.getViewer] For the globe pins.
  */
-export function createBroadcasts({ document, getViewer = () => null }) {
+export function createBroadcasts({
+  document,
+  getViewer = () => null,
+  onChange = () => {},
+}) {
   const win = document.defaultView;
   let current = 0;
   let isOpen = false;
@@ -412,6 +416,7 @@ export function createBroadcasts({ document, getViewer = () => null }) {
       element.hidden = false;
       win?.addEventListener('message', onMessage);
       tune(current);
+      onChange(true);
     },
     close() {
       if (!isOpen) return;
@@ -422,6 +427,8 @@ export function createBroadcasts({ document, getViewer = () => null }) {
       frame?.remove();
       frame = null;
       clearPins();
+      // However it was closed, whoever opened it hears.
+      onChange(false);
     },
     toggle() {
       if (isOpen) api.close();

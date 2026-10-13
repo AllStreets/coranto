@@ -9,6 +9,7 @@ import {
   diseaseCard,
   diseaseFamily,
   diseaseKeyword,
+  labelPoint,
   outbreakAreas,
   silenceCard,
   squaresOver,
@@ -208,4 +209,20 @@ test('a launch path says where it comes from; the sides remember', () => {
   assert.equal(PATH_NOTE.none, '');
   assert.deepEqual(readSides('{"rail":true}'), { rail: true, feed: false });
   assert.deepEqual(readSides('{broken'), { rail: false, feed: false });
+});
+
+test('a country’s name sits inside its outline, away from the edge', () => {
+  // An L: its centroid-of-box is outside, in the notch.
+  const ell = [
+    [0, 0],
+    [10, 0],
+    [10, 2],
+    [2, 2],
+    [2, 10],
+    [0, 10],
+    [0, 0],
+  ];
+  const point = labelPoint([ell]);
+  assert.ok(point.lon < 2.2 && point.lat < 2.2, JSON.stringify(point));
+  assert.equal(labelPoint([]), null);
 });

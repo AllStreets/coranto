@@ -225,10 +225,16 @@ sheet where the atlas marks a conflict, the **conflict brief**. These need
 is rate limited, caps the reply and never passes on the provider's error text.
 Every board output can be exported as an HTML file.
 
-Two things differ from AUSPEX on purpose. AUSPEX stamped its output `TOP
-SECRET`; Coranto's is stamped for what it is, unclassified, from open sources
-and written by a model. And AUSPEX's 30-day history needs a database, which
-Coranto does not have yet; the board works from the week of headlines held.
+The entity network has depth: drag a dot to move it and it stays where you
+put it, drag the background to turn the whole network, scroll to zoom, and
+hold Shift to slide it. RESET puts it back.
+
+One thing on the board is style and not fact. Its briefs are stamped `TOP
+SECRET`, `NOFORN` and `REL TO FVEY`, as AUSPEX's were. Nothing in Coranto is
+classified: every item is from a public source, and the written briefs come
+from a model. Settings says so under About. AUSPEX's 30-day history needs a
+database, which Coranto does not have yet; the board works from the week of
+headlines held.
 
 ### SILENCE and DISEASE
 
@@ -269,14 +275,16 @@ the moment it is changed, to this browser only.
 
 - **General.** The header layout: one LAYERS list, or SEARCH beside LIVE and
   a button for every layer. The view Coranto opens in, the clock (UTC or
-  local) and the headline ticker.
+  local) and the headline ticker, and whether the globe is drawn at the
+  screen's full resolution.
 - **Notices.** Which arrivals raise a notice: your watches, Orange and Red
   disaster alerts, WHO outbreak notices.
 - **Connections.** Whether the server is answering, its version, which keys
   are set (never the keys themselves) and every live source with its status.
 - **Data and privacy.** What this browser keeps, a one-file export, and
   two-click clearing.
-- **About.** Version, licence, keyboard shortcuts and links.
+- **About.** Version, licence, the note about the analyst board's stamps,
+  the privacy policy, keyboard shortcuts and links.
 
 ### Your own feed
 

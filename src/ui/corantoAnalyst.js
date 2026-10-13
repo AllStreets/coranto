@@ -40,7 +40,10 @@ import {
   parseAnalyst,
   replyLines,
   searchStories,
-  stepGraph,
+  GRAPH_DEPTH,
+  graphProject,
+  graphUnrotate,
+  stepGraph3,
   storyPin,
   synthesisParts,
   timelineFor,
@@ -243,7 +246,8 @@ export function createAnalyst({
   ref.briefScroll.innerHTML = BRIEF_EMPTY;
 
   let animId = 0;
-  let net = { zoom: 1, panX: 0, panY: 0, drag: null };
+  let net = { zoom: 1, panX: 0, panY: 0, yaw: 0, pitch: 0, drag: null };
+  let graph = null;
   let statusTimer = 0;
   let histTimer = 0;
   let toolsOpen = false;
@@ -371,15 +375,56 @@ export function createAnalyst({
   ref.histCat.addEventListener('change', debounceHistSearch);
 
   // ── Entity network ──────────────────────────────────────────────
+  // The canvas is drawn at the screen's own density, so dots and labels are
+  // as sharp as the rest of the page; `size` is its size in layout pixels.
+  const size = { w: 0, h: 0, density: 1 };
   function resizeAnalystCanvas() {
     const parent = ref.canvas.parentElement;
     const w = parent.offsetWidth;
     const h = parent.offsetHeight;
-    if (w > 0 && h > 0) {
-      ref.canvas.width = w;
-      ref.canvas.height = h;
-    }
+    if (!(w > 0 && h > 0)) return;
+    size.w = w;
+    size.h = h;
+    size.density = Math.min(2, Math.max(1, win.devicePixelRatio || 1));
+    ref.canvas.width = Math.round(w * size.density);
+    ref.canvas.height = Math.round(h * size.density);
+    ref.canvas.style.width = `${w}px`;
+    ref.canvas.style.height = `${h}px`;
   }
+  // The network is AUSPEX's, with depth: drag a dot to move it and it stays
+  // put, drag the background to turn the whole thing, scroll to zoom, hold
+  // Shift and drag to slide it. RESET puts all of that back.
+  ref.canvas.title =
+    'Drag a dot to move it. Drag the background to turn. Scroll to zoom. Shift-drag to slide.';
+  /** A canvas point under the zoom and slide, back in network space. */
+  const toGraph = (event) => {
+    const box = ref.canvas.getBoundingClientRect();
+    const W = size.w || box.width;
+    const H = size.h || box.height;
+    const x = ((event.clientX - box.left) * W) / (box.width || W);
+    const y = ((event.clientY - box.top) * H) / (box.height || H);
+    return [
+      (x - W / 2 - net.panX) / net.zoom + W / 2,
+      (y - H / 2 - net.panY) / net.zoom + H / 2,
+    ];
+  };
+  const nodeAt = (event) => {
+    if (!graph) return null;
+    const [x, y] = toGraph(event);
+    const { W, H } = graph;
+    let hit = null;
+    let nearest = Infinity;
+    for (const node of graph.nodes) {
+      const at = graphProject(node, W, H, net.yaw, net.pitch);
+      const distance = Math.hypot(at.x - x, at.y - y);
+      // The nearer node wins where two overlap.
+      if (distance <= 14 * at.scale && at.depth < nearest) {
+        nearest = at.depth;
+        hit = node;
+      }
+    }
+    return hit;
+  };
   ref.canvas.addEventListener(
     'wheel',
     (event) => {
@@ -392,20 +437,54 @@ export function createAnalyst({
     { passive: false },
   );
   ref.canvas.addEventListener('mousedown', (event) => {
+    const node = event.shiftKey ? null : nodeAt(event);
+    if (node) node.fixed = true;
     net.drag = {
+      mode: node ? 'node' : event.shiftKey ? 'slide' : 'turn',
+      node,
       sx: event.clientX,
       sy: event.clientY,
       px: net.panX,
       py: net.panY,
+      yaw: net.yaw,
+      pitch: net.pitch,
     };
+    ref.canvas.style.cursor = 'grabbing';
   });
   ref.canvas.addEventListener('mousemove', (event) => {
-    if (!net.drag) return;
-    net.panX = net.drag.px + event.clientX - net.drag.sx;
-    net.panY = net.drag.py + event.clientY - net.drag.sy;
+    const drag = net.drag;
+    if (!drag) {
+      ref.canvas.style.cursor = nodeAt(event) ? 'pointer' : 'grab';
+      return;
+    }
+    const dx = event.clientX - drag.sx;
+    const dy = event.clientY - drag.sy;
+    if (drag.mode === 'slide') {
+      net.panX = drag.px + dx;
+      net.panY = drag.py + dy;
+    } else if (drag.mode === 'turn') {
+      net.yaw = drag.yaw + dx * 0.008;
+      net.pitch = Math.max(-1.45, Math.min(1.45, drag.pitch - dy * 0.008));
+    } else if (graph) {
+      // Move the dot across the screen, at the depth it already has.
+      const { W, H } = graph;
+      const [x, y] = toGraph(event);
+      const at = graphProject(drag.node, W, H, net.yaw, net.pitch);
+      const [nx, ny, nz] = graphUnrotate(
+        (x - W / 2) / at.scale,
+        (y - H / 2) / at.scale,
+        at.depth,
+        net.yaw,
+        net.pitch,
+      );
+      drag.node.x = nx + W / 2;
+      drag.node.y = ny + H / 2;
+      drag.node.z = nz;
+    }
   });
   const endDrag = () => {
     net.drag = null;
+    ref.canvas.style.cursor = 'grab';
   };
   ref.canvas.addEventListener('mouseup', endDrag);
   ref.canvas.addEventListener('mouseleave', endDrag);
@@ -420,6 +499,7 @@ export function createAnalyst({
     if (!ctx) return;
     const list = pinned();
     if (!list.length) {
+      graph = null;
       ref.netEmpty.style.display = 'flex';
       ref.netReset.style.display = 'none';
       ref.netMeta.textContent = 'NO CONNECTIONS';
@@ -428,25 +508,39 @@ export function createAnalyst({
     }
     ref.netEmpty.style.display = 'none';
     ref.netReset.style.display = '';
-    if (canvas.width < 10 || canvas.height < 10) resizeAnalystCanvas();
-    const W = canvas.width || 400;
-    const H = canvas.height || 300;
-    net = { zoom: 1, panX: 0, panY: 0, drag: null };
-    const nodes = list.map((s) => ({
-      id: s.id,
-      label: s.title.slice(0, 22),
-      color: s.color,
-      x: W / 2 + (Math.random() - 0.5) * W * 0.55,
-      y: H / 2 + (Math.random() - 0.5) * H * 0.55,
-      vx: 0,
-      vy: 0,
-    }));
+    if (size.w < 10 || size.h < 10) resizeAnalystCanvas();
+    const W = size.w || 400;
+    const H = size.h || 300;
+    // A pin that was already on the network keeps its place, and the view
+    // its turn, when another pin arrives.
+    const held = new Map((graph?.nodes ?? []).map((node) => [node.id, node]));
+    const depth = Math.min(W, H) * GRAPH_DEPTH;
+    const nodes = list.map((s) => {
+      const was = held.get(s.id);
+      return {
+        id: s.id,
+        label: s.title.slice(0, 22),
+        color: s.color,
+        x: was?.x ?? W / 2 + (Math.random() - 0.5) * W * 0.55,
+        y: was?.y ?? H / 2 + (Math.random() - 0.5) * H * 0.55,
+        z: was?.z ?? (Math.random() - 0.5) * depth,
+        vx: 0,
+        vy: 0,
+        vz: 0,
+        fixed: was?.fixed ?? false,
+      };
+    });
     const edges = graphEdges(list);
+    graph = { nodes, edges, W, H };
     const hasCross = edges.some((e) => e.cross);
     ref.netMeta.textContent = `${list.length} NODES · ${edges.length} CONNECTIONS${hasCross ? ' · CROSS-DOMAIN' : ''}`;
     let frame = 0;
     function loop() {
-      stepGraph(nodes, edges, W, H);
+      stepGraph3(nodes, edges, W, H);
+      const at = nodes.map((node) =>
+        graphProject(node, W, H, net.yaw, net.pitch),
+      );
+      ctx.setTransform(size.density, 0, 0, size.density, 0, 0);
       ctx.clearRect(0, 0, W, H);
       ctx.save();
       ctx.translate(W / 2 + net.panX, H / 2 + net.panY);
@@ -470,8 +564,8 @@ export function createAnalyst({
       for (const e of edges) {
         const pulse = 0.25 + Math.sin(frame * 0.025 + e.i) * 0.12;
         ctx.beginPath();
-        ctx.moveTo(nodes[e.i].x, nodes[e.i].y);
-        ctx.lineTo(nodes[e.j].x, nodes[e.j].y);
+        ctx.moveTo(at[e.i].x, at[e.i].y);
+        ctx.lineTo(at[e.j].x, at[e.j].y);
         ctx.strokeStyle = e.cross
           ? `rgba(255,159,10,${pulse + 0.1})`
           : `rgba(180,124,255,${pulse + 0.1})`;
@@ -484,20 +578,32 @@ export function createAnalyst({
         ctx.textAlign = 'center';
         ctx.fillText(
           e.label.toUpperCase(),
-          (nodes[e.i].x + nodes[e.j].x) / 2,
-          (nodes[e.i].y + nodes[e.j].y) / 2 - 5,
+          (at[e.i].x + at[e.j].x) / 2,
+          (at[e.i].y + at[e.j].y) / 2 - 5,
         );
       }
-      for (const n of nodes) {
-        const glow = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, 22);
+      // Far dots first, so a near one is drawn over a far one.
+      const order = nodes.map((_, index) => index);
+      order.sort((a, b) => at[b].depth - at[a].depth);
+      for (const index of order) {
+        const n = nodes[index];
+        const p = at[index];
+        const glow = ctx.createRadialGradient(
+          p.x,
+          p.y,
+          0,
+          p.x,
+          p.y,
+          22 * p.scale,
+        );
         glow.addColorStop(0, `${n.color}55`);
         glow.addColorStop(1, 'transparent');
         ctx.beginPath();
-        ctx.arc(n.x, n.y, 22, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 22 * p.scale, 0, Math.PI * 2);
         ctx.fillStyle = glow;
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(n.x, n.y, 9, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 9 * p.scale, 0, Math.PI * 2);
         ctx.fillStyle = n.color;
         ctx.fill();
         ctx.strokeStyle = 'rgba(255,255,255,.25)';
@@ -506,7 +612,7 @@ export function createAnalyst({
         ctx.font = '8px "IBM Plex Mono"';
         ctx.fillStyle = 'rgba(160,180,220,.9)';
         ctx.textAlign = 'center';
-        ctx.fillText(n.label, n.x, n.y + 22);
+        ctx.fillText(n.label, p.x, p.y + 22 * p.scale);
       }
       ctx.restore();
       frame += 1;
@@ -1318,6 +1424,10 @@ ${ref.rtContent.innerHTML}
       net.zoom = 1;
       net.panX = 0;
       net.panY = 0;
+      net.yaw = 0;
+      net.pitch = 0;
+      // Dots that were placed by hand go back to settling on their own.
+      for (const node of graph?.nodes ?? []) node.fixed = false;
     },
     'card-open': (node) => {
       const asset = store.list().find((a) => a.key === node.dataset.key);

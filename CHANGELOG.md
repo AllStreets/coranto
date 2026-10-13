@@ -1,5 +1,25 @@
 # Changelog
 
+- Coranto: STORIES and BANNER are layers. STORIES takes the story markers
+  and names off the globe while the feed runs on; BANNER is the headline
+  ticker, and with it off everything moves up. The nuclear-armed states are
+  marked only while HAZARDS is on. Borders now switch off cleanly (a shared
+  line material raised an error that left them drawn).
+
+- Coranto: the globe is drawn at the screen's own resolution (up to twice the
+  layout size), so icons, markers and names are crisp on high-density
+  screens; Settings has a switch for it. Country names sit on a point inside
+  the country's outline.
+
+- Coranto: the analyst board's entity network has depth: drag a dot and it
+  stays put, drag the background to turn it, scroll to zoom, Shift-drag to
+  slide. Its stamps are AUSPEX's `TOP SECRET` ones again; Settings, About
+  says they are decoration. About also carries a privacy policy.
+
+- Coranto: each rail action has its own icon and a cut-corner box of the same
+  size. RELIEF is green when selected. LIVE TV un-highlights when its panel
+  is closed from its own X. The search box takes no white focus ring.
+
 - Coranto: either side of the news view can be put away. A small minimize
   button appears on a panel's edge when the cursor is at its top; the panel
   and the keyhole shading slide off and the globe takes the room. A round

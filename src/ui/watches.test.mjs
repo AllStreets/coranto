@@ -58,7 +58,11 @@ test('an empty view cannot be saved, and names describe the filter', () => {
   assert.equal(hasCriteria({ language: 'fr' }), false);
   assert.equal(hasCriteria({ query: '  grain ' }), true);
   assert.equal(
-    describeCriteria({ query: 'Grain  Exports', placeKey: 'city:Odesa', category: 'finance' }),
+    describeCriteria({
+      query: 'Grain  Exports',
+      placeKey: 'city:Odesa',
+      category: 'finance',
+    }),
     '“grain exports” · Odesa · finance',
   );
 });
@@ -75,7 +79,10 @@ test('watches are saved, survive a reload, and refuse duplicates', () => {
   clock = 2000;
   store.add({ category: 'climate' }, 'Climate desk');
   const reloaded = createWatchStore({ storage });
-  assert.deepEqual(reloaded.list().map((w) => w.name), ['“grain”', 'Climate desk']);
+  assert.deepEqual(
+    reloaded.list().map((w) => w.name),
+    ['“grain”', 'Climate desk'],
+  );
   reloaded.remove(watch.id);
   assert.equal(createWatchStore({ storage }).list().length, 1);
 });
@@ -84,7 +91,10 @@ test('damaged storage and the limit are handled', () => {
   const storage = memory();
   storage.setItem(WATCH_STORAGE_KEY, '{not json');
   assert.deepEqual(createWatchStore({ storage }).list(), []);
-  storage.setItem(WATCH_STORAGE_KEY, JSON.stringify([{ nope: 1 }, { id: 'w1', criteria: { query: 'x' } }]));
+  storage.setItem(
+    WATCH_STORAGE_KEY,
+    JSON.stringify([{ nope: 1 }, { id: 'w1', criteria: { query: 'x' } }]),
+  );
   assert.equal(createWatchStore({ storage }).list().length, 1);
   let clock = 0;
   const store = createWatchStore({ storage: memory(), now: () => ++clock });
@@ -97,23 +107,44 @@ test('damaged storage and the limit are handled', () => {
 test('a watch lists stories newest first and counts what is new since it was seen', () => {
   const snapshot = {
     articles: [
-      article('1', 'Grain ships leave Odesa', { publishedAt: '2026-10-10T09:00:00.000Z' }),
-      article('2', 'Grain vessels sail from Odesa port', { publisher: 'DW', publishedAt: '2026-10-10T09:30:00.000Z' }),
-      article('3', 'Grain prices ease', { publishedAt: '2026-10-10T12:00:00.000Z' }),
-      article('4', 'Football results', { publishedAt: '2026-10-10T13:00:00.000Z' }),
+      article('1', 'Grain ships leave Odesa', {
+        publishedAt: '2026-10-10T09:00:00.000Z',
+      }),
+      article('2', 'Grain vessels sail from Odesa port', {
+        publisher: 'DW',
+        publishedAt: '2026-10-10T09:30:00.000Z',
+      }),
+      article('3', 'Grain prices ease', {
+        publishedAt: '2026-10-10T12:00:00.000Z',
+      }),
+      article('4', 'Football results', {
+        publishedAt: '2026-10-10T13:00:00.000Z',
+      }),
     ],
     stories: [
-      { id: 's-1', articleIds: ['1', '2'], differing: [{ what: 'killed', values: [] }] },
+      {
+        id: 's-1',
+        articleIds: ['1', '2'],
+        differing: [{ what: 'killed', values: [] }],
+      },
       { id: 's-3', articleIds: ['3'] },
       { id: 's-4', articleIds: ['4'] },
     ],
   };
-  const watch = { id: 'w', name: 'Grain', criteria: { query: 'grain' }, seenAt: Date.parse('2026-10-10T10:00:00Z') };
+  const watch = {
+    id: 'w',
+    name: 'Grain',
+    criteria: { query: 'grain' },
+    seenAt: Date.parse('2026-10-10T10:00:00Z'),
+  };
   const result = watchStories(snapshot, watch);
-  assert.deepEqual(result.stories.map((s) => [s.id, s.outlets, s.headlines, s.fresh]), [
-    ['s-3', 1, 1, true],
-    ['s-1', 2, 2, false],
-  ]);
+  assert.deepEqual(
+    result.stories.map((s) => [s.id, s.outlets, s.headlines, s.fresh]),
+    [
+      ['s-3', 1, 1, true],
+      ['s-1', 2, 2, false],
+    ],
+  );
   assert.equal(result.total, 2);
   assert.equal(result.fresh, 1);
   // The lead is the newest matching headline, in the publisher's own words.
@@ -132,18 +163,29 @@ test('marking seen moves the line for what counts as new', () => {
   const b = store.add({ query: 'b' });
   clock = 500;
   store.markSeen([a.id]);
-  assert.deepEqual(store.list().map((w) => w.seenAt), [500, 100]);
+  assert.deepEqual(
+    store.list().map((w) => w.seenAt),
+    [500, 100],
+  );
   clock = 900;
   store.markSeen();
-  assert.deepEqual(store.list().map((w) => w.seenAt), [900, 900]);
+  assert.deepEqual(
+    store.list().map((w) => w.seenAt),
+    [900, 900],
+  );
   assert.ok(b);
 });
 
 test('the briefing copies as plain text with every link', () => {
   const snapshot = {
     articles: [
-      article('1', 'Grain ships leave Odesa', { publishedAt: '2026-10-10T09:00:00.000Z' }),
-      article('2', 'Grain vessels sail from Odesa port', { publisher: 'DW', publishedAt: '2026-10-10T09:30:00.000Z' }),
+      article('1', 'Grain ships leave Odesa', {
+        publishedAt: '2026-10-10T09:00:00.000Z',
+      }),
+      article('2', 'Grain vessels sail from Odesa port', {
+        publisher: 'DW',
+        publishedAt: '2026-10-10T09:30:00.000Z',
+      }),
     ],
     stories: [{ id: 's-1', articleIds: ['1', '2'] }],
   };
@@ -151,7 +193,10 @@ test('the briefing copies as plain text with every link', () => {
     { id: 'w', name: 'Grain', criteria: { query: 'grain' }, seenAt: 0 },
     { id: 'x', name: 'Rice', criteria: { query: 'rice' }, seenAt: 0 },
   ];
-  const text = briefingText(buildBriefing(snapshot, watches), Date.parse('2026-10-10T12:00:00Z'));
+  const text = briefingText(
+    buildBriefing(snapshot, watches),
+    Date.parse('2026-10-10T12:00:00Z'),
+  );
   assert.equal(
     text,
     [

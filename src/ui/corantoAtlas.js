@@ -16,6 +16,7 @@ import {
 } from './corantoCountrySignals.js';
 import { cullBeyondHorizon } from './corantoHorizon.js';
 import { geoOf } from './corantoAnalystModel.js';
+import { labelPoint } from './corantoOverlayModel.js';
 
 /** Dead reckoning tiers, as the analyst board colours them. */
 const MOMENTUM_COLOURS = Object.freeze({
@@ -259,6 +260,22 @@ export function createAtlas({
   }
 
   let momentum = null;
+  // Where each country's name is drawn, worked out once from its outline.
+  const namePoints = new Map();
+  async function loadNamePoints() {
+    if (namePoints.size) return;
+    try {
+      const response = await fetchImpl('/coranto-atlas/shapes-countries.json');
+      if (!response.ok) return;
+      const { shapes } = await response.json();
+      for (const [iso2, shape] of Object.entries(shapes)) {
+        const point = labelPoint(shape.rings);
+        if (point) namePoints.set(iso2, point);
+      }
+    } catch {
+      // Without outlines the names use the listed points.
+    }
+  }
   function drawBorders(viewer, borders) {
     const lines = new Cesium.PolylineCollection();
     const positions = (points) =>
@@ -266,11 +283,17 @@ export function createAtlas({
         points.flatMap(([lon, lat]) => [lon, lat, LIFT_M]),
       );
     for (const [group, colour] of Object.entries(BORDER_COLOURS)) {
-      const material = Cesium.Material.fromType('Color', {
-        color: rgba(colour),
-      });
+      // One material per line: a shared one is destroyed once per line when
+      // the borders are switched off, and the second time is an error that
+      // left them on the globe.
       for (const points of borders[group] ?? [])
-        lines.add({ positions: positions(points), width: 1, material });
+        lines.add({
+          positions: positions(points),
+          width: 1,
+          material: Cesium.Material.fromType('Color', {
+            color: rgba(colour),
+          }),
+        });
     }
     for (const line of borders.lines ?? []) {
       const [colour, gap] = LINE_COLOURS[line.kind] ?? LINE_COLOURS.disputed;
@@ -313,16 +336,24 @@ export function createAtlas({
       records.set(id, { kind: 'country', item: country });
       marks.add({
         id,
+        // On the country itself: the point of its outline farthest from
+        // its edge, or the listed point where there is no outline.
         position: Cesium.Cartesian3.fromDegrees(
-          country.lng,
-          country.lat,
+          namePoints.get(country.iso2)?.lon ?? country.lng,
+          namePoints.get(country.iso2)?.lat ?? country.lat,
           LIFT_M,
         ),
         image,
         width,
         height,
-        // Below the story marker that shares the country's point.
-        pixelOffset: new Cesium.Cartesian2(0, 26),
+        // Just under a story marker when close; on the spot from afar.
+        pixelOffset: new Cesium.Cartesian2(0, 14),
+        pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
+          1.5e6,
+          1.6,
+          1.4e7,
+          0,
+        ),
         // Grows as you come closer, like AUSPEX's zoom scale.
         scaleByDistance: new Cesium.NearFarScalar(1.5e6, 2.1, 2.2e7, 0.9),
         disableDepthTestDistance: 50_000,
@@ -461,6 +492,7 @@ export function createAtlas({
       if (drawn[name]) return true;
       try {
         const loaded = await load(name);
+        if (name === 'countries') await loadNamePoints();
         // It may have been switched off again while the data was loading.
         if (!state[name] || drawn[name]) return state[name];
         if (name !== 'borders') ensureHandler(viewer);

@@ -42,7 +42,7 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   with BOARD, the story pop-up, restyling INSTRUMENTS panels to match.
 - [ ] **T14 Carry the military HUD styling the owner likes** into the news
       side (part of T12).
-- [x] **T13 No emojis or text glyphs.** One SVG icon set of 80 icons. Done:
+- [x] **T13 No emojis or text glyphs.** One SVG icon set of 90 icons. Done:
       the news view, the layer list, visual presets, display toggles, share and
       search buttons, collapse buttons, location line, key tiers, radio and
       replay transport, key-setup links, panel disclosure arrows, the HUD's
@@ -157,6 +157,9 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [x] **Launch flight paths and replay** (owner, 2026-10-12): estimated
       climb, labelled; replay from the card. No flown ascent track is published
       by any provider, so a real one cannot be drawn.
+- [x] **STORIES and BANNER layers; nuclear marks follow HAZARDS; sharp
+      globe; names on their countries; 3D entity network; rail icons; stamps
+      note and privacy policy in Settings** (owner, 2026-10-12).
 - [x] **Seven joins between NEWS and INSTRUMENTS** (owner, 2026-10-12), all
       on sources already wired in: the country sheet; AROUND HERE on a story;
       the story offering the layer it is about; voice in the news view with

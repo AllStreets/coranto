@@ -44,11 +44,15 @@ export function domainColour(cat) {
   return TOPIC_COLOURS[TOPIC_OF[cat] ?? cat] ?? TOPIC_COLOURS.news;
 }
 
-/** What marks the board's output. AUSPEX printed classification banners. */
+/**
+ * The stamps on the board's output, as AUSPEX had them. They are styling:
+ * nothing here is classified, and everything is from public sources.
+ * Settings says so, under About.
+ */
 export const MARKINGS = Object.freeze({
-  synthesis: 'OPEN SOURCE / UNCLASSIFIED',
-  redTeam: 'UNCLASSIFIED // OPEN SOURCE // AI-WRITTEN',
-  playbook: 'UNCLASSIFIED // OPEN SOURCE // AI-WRITTEN',
+  synthesis: 'TOP SECRET / NOFORN',
+  redTeam: 'TOP SECRET // SI // NOFORN',
+  playbook: 'TOP SECRET // HCS-P // REL TO FVEY',
   system: 'CORANTO INTELLIGENCE SYSTEM',
 });
 
@@ -396,6 +400,103 @@ export function stepGraph(nodes, edges, W, H) {
     n.x = Math.max(40, Math.min(W - 40, n.x + n.vx));
     n.y = Math.max(40, Math.min(H - 40, n.y + n.vy));
   }
+}
+
+/** How far the network reaches front to back, against its width. */
+export const GRAPH_DEPTH = 0.45;
+const GRAPH_FOCAL = 900;
+
+/**
+ * One step of the network's layout in three dimensions: AUSPEX's forces and
+ * constants with a depth axis added. A node being held (`fixed`) stays where
+ * it was put while the others settle around it.
+ */
+export function stepGraph3(nodes, edges, W, H) {
+  const depth = Math.min(W, H) * GRAPH_DEPTH;
+  for (const n of nodes) {
+    n.vx *= 0.86;
+    n.vy *= 0.86;
+    n.vz *= 0.86;
+    n.vx += (W / 2 - n.x) * 0.003;
+    n.vy += (H / 2 - n.y) * 0.003;
+    n.vz += -n.z * 0.003;
+  }
+  for (let a = 0; a < nodes.length; a += 1)
+    for (let b = a + 1; b < nodes.length; b += 1) {
+      const dx = nodes[b].x - nodes[a].x;
+      const dy = nodes[b].y - nodes[a].y;
+      const dz = nodes[b].z - nodes[a].z;
+      const d = Math.sqrt(dx * dx + dy * dy + dz * dz) + 0.1;
+      const f = Math.min(5000 / (d * d), 10);
+      nodes[a].vx -= (dx / d) * f;
+      nodes[a].vy -= (dy / d) * f;
+      nodes[a].vz -= (dz / d) * f;
+      nodes[b].vx += (dx / d) * f;
+      nodes[b].vy += (dy / d) * f;
+      nodes[b].vz += (dz / d) * f;
+    }
+  for (const e of edges) {
+    const dx = nodes[e.j].x - nodes[e.i].x;
+    const dy = nodes[e.j].y - nodes[e.i].y;
+    const dz = nodes[e.j].z - nodes[e.i].z;
+    const d = Math.sqrt(dx * dx + dy * dy + dz * dz) + 0.1;
+    const f = (d - 140) * 0.055;
+    nodes[e.i].vx += (dx / d) * f;
+    nodes[e.i].vy += (dy / d) * f;
+    nodes[e.i].vz += (dz / d) * f;
+    nodes[e.j].vx -= (dx / d) * f;
+    nodes[e.j].vy -= (dy / d) * f;
+    nodes[e.j].vz -= (dz / d) * f;
+  }
+  for (const n of nodes) {
+    if (n.fixed) {
+      n.vx = 0;
+      n.vy = 0;
+      n.vz = 0;
+      continue;
+    }
+    n.x = Math.max(40, Math.min(W - 40, n.x + n.vx));
+    n.y = Math.max(40, Math.min(H - 40, n.y + n.vy));
+    n.z = Math.max(-depth, Math.min(depth, n.z + n.vz));
+  }
+}
+
+/** A point turned about the centre of the network: yaw, then pitch. */
+export function graphRotate(x, y, z, yaw, pitch) {
+  const cy = Math.cos(yaw);
+  const sy = Math.sin(yaw);
+  const cp = Math.cos(pitch);
+  const sp = Math.sin(pitch);
+  const x1 = x * cy + z * sy;
+  const z1 = -x * sy + z * cy;
+  return [x1, y * cp - z1 * sp, y * sp + z1 * cp];
+}
+
+/** The reverse of `graphRotate`. */
+export function graphUnrotate(x, y, z, yaw, pitch) {
+  const cp = Math.cos(-pitch);
+  const sp = Math.sin(-pitch);
+  const y1 = y * cp - z * sp;
+  const z1 = y * sp + z * cp;
+  const cy = Math.cos(-yaw);
+  const sy = Math.sin(-yaw);
+  return [x * cy + z1 * sy, y1, -x * sy + z1 * cy];
+}
+
+/**
+ * Where a node is drawn: its place on the canvas and how large, nearer
+ * being a little larger. With no turn the network looks as it did flat.
+ */
+export function graphProject(node, W, H, yaw, pitch) {
+  const [x, y, z] = graphRotate(
+    node.x - W / 2,
+    node.y - H / 2,
+    node.z,
+    yaw,
+    pitch,
+  );
+  const scale = GRAPH_FOCAL / (GRAPH_FOCAL + z);
+  return { x: W / 2 + x * scale, y: H / 2 + y * scale, scale, depth: z };
 }
 
 /** What SYNTHESIZE reports, worked out from the pins. No model is asked. */

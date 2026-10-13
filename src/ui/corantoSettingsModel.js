@@ -10,6 +10,7 @@ export const SETTING_CHOICES = Object.freeze({
   startView: ['last', 'news', 'instruments'],
   clock: ['utc', 'local'],
   ticker: [true, false],
+  sharpGlobe: [true, false],
   noticeWatches: [true, false],
   noticeHazards: [true, false],
   noticeOutbreaks: [true, false],

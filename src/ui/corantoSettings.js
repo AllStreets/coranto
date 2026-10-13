@@ -35,6 +35,34 @@ const SHORTCUTS = Object.freeze([
   ['Close what is open, stop a tour or a replay', ['ESC']],
 ]);
 
+/** What Coranto does with what it knows about you: very little. */
+const PRIVACY = Object.freeze([
+  [
+    'No accounts, no tracking',
+    'Coranto has no sign-in, no analytics, no advertising and no cookies of its own. It does not build a profile of you.',
+  ],
+  [
+    'What stays in this browser',
+    'Your watches, pins, saved analyst boards, settings and which notices you have seen are kept in this browser’s storage and nowhere else. Data and privacy, on the left, exports or clears them.',
+  ],
+  [
+    'What the server sees',
+    'The Coranto server you are connected to fetches the news and data on your behalf, so the publishers and data sources see the server, not you. Like any web server it can see your address while you are connected. It keeps no log of what you read.',
+  ],
+  [
+    'What goes to a model',
+    'Only when you ask for it: an AI brief, a translation, or one of the analyst board’s written tools sends the headlines or pins involved to OpenAI through the server. Voice control, when you switch it on, sends your microphone audio to OpenAI for as long as it is on.',
+  ],
+  [
+    'What your browser fetches directly',
+    'Map imagery, fonts, live TV and street-level photographs are loaded by your browser from their providers (for example Esri, Google Fonts, YouTube and Mapillary) when you use them, and those providers see your address as they would on any site.',
+  ],
+  [
+    'Who to ask',
+    'Coranto is open source. Questions and corrections go to the issue tracker linked below.',
+  ],
+]);
+
 const LINKS = Object.freeze([
   ['Source code', 'https://github.com/AllStreets/coranto'],
   ['Report a problem', 'https://github.com/AllStreets/coranto/issues'],
@@ -335,6 +363,11 @@ export function createSettings({
           ),
         ),
         row(
+          'Sharp globe',
+          'Draw the globe at this screen’s full resolution, so icons and names are crisp. Switch it off if the globe feels slow.',
+          toggle('sharpGlobe', 'Sharp globe'),
+        ),
+        row(
           'Headline ticker',
           'The moving line of latest headlines under the header.',
           toggle('ticker', 'Headline ticker'),
@@ -534,6 +567,16 @@ export function createSettings({
     ];
   }
 
+  function privacy() {
+    const node = card('PRIVACY POLICY');
+    for (const [heading, text] of PRIVACY)
+      node.append(
+        make('div', 'coranto-settings-row-label', heading),
+        make('p', 'coranto-settings-foot coranto-settings-policy', text),
+      );
+    return node;
+  }
+
   function about() {
     const keys = card('KEYBOARD');
     for (const [what, combo] of SHORTCUTS) {
@@ -567,6 +610,15 @@ export function createSettings({
           'Coranto shows what public sources report, where they report it, and who said it. Nothing on the globe or in the feed is invented or simulated. Where a model wrote something, it is labelled as written by a model.',
         ),
       ),
+      card(
+        'ONE THING THAT IS STYLE, NOT FACT',
+        make(
+          'p',
+          'coranto-settings-foot',
+          'The analyst board stamps its briefs TOP SECRET, NOFORN and REL TO FVEY, as AUSPEX did. Those stamps are decoration. Nothing in Coranto is classified: every item comes from a public source, and the board’s written briefs come from a model. It is the only thing on screen that is not literally true, and it is kept for the look.',
+        ),
+      ),
+      privacy(),
       keys,
       links,
     ];

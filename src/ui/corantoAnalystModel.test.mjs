@@ -20,6 +20,9 @@ import {
   escalationMatrix,
   geoOf,
   graphEdges,
+  graphProject,
+  graphRotate,
+  graphUnrotate,
   isPlaybookHeader,
   isRedTeamHeader,
   matrixRisk,
@@ -28,6 +31,7 @@ import {
   replyLines,
   searchStories,
   stepGraph,
+  stepGraph3,
   synthesisParts,
   timelineFor,
   toStory,
@@ -436,15 +440,43 @@ test('a saved board is named by place, then domain, then headline', () => {
   assert.equal(boardTitleFor([]), 'UNTITLED BOARD');
 });
 
-test('the board never prints a classification it does not have', () => {
-  assert.doesNotMatch(Object.values(MARKINGS).join(' '), /SECRET|NOFORN|FVEY/);
-  for (const file of ['corantoAnalyst.js', 'corantoAnalystModel.js']) {
-    const source = fs
-      .readFileSync(new URL(`./${file}`, import.meta.url), 'utf8')
-      // The prompts are AUSPEX's words and name what the model must not do.
-      .replace(/Do not use classification markings, "TOP SECRET"/g, '');
-    assert.doesNotMatch(source, /TOP SECRET|NOFORN|REL TO FVEY/, file);
-  }
+test('the stamps are AUSPEX’s, and Settings says they are decoration', () => {
+  assert.equal(MARKINGS.synthesis, 'TOP SECRET / NOFORN');
+  assert.equal(MARKINGS.redTeam, 'TOP SECRET // SI // NOFORN');
+  assert.equal(MARKINGS.playbook, 'TOP SECRET // HCS-P // REL TO FVEY');
+  const settings = fs.readFileSync(
+    new URL('./corantoSettings.js', import.meta.url),
+    'utf8',
+  );
+  assert.match(settings, /Those stamps are decoration/);
+  assert.match(settings, /Nothing in Coranto is classified/);
+});
+
+test('the network has depth: turning and turning back is the same point', () => {
+  const [x, y, z] = graphRotate(30, -20, 15, 0.7, -0.4);
+  const back = graphUnrotate(x, y, z, 0.7, -0.4);
+  for (const [got, want] of [
+    [back[0], 30],
+    [back[1], -20],
+    [back[2], 15],
+  ])
+    assert.ok(Math.abs(got - want) < 1e-9);
+  const flat = graphProject({ x: 500, y: 300, z: 0 }, 800, 400, 0, 0);
+  assert.deepEqual([flat.x, flat.y, flat.scale], [500, 300, 1]);
+  const nodes = [
+    { x: 100, y: 200, z: -80, vx: 0, vy: 0, vz: 0 },
+    { x: 700, y: 200, z: 80, vx: 0, vy: 0, vz: 0 },
+    { x: 400, y: 60, z: 0, vx: 0, vy: 0, vz: 0, fixed: true },
+  ];
+  for (let i = 0; i < 400; i += 1)
+    stepGraph3(nodes, [{ i: 0, j: 1, strength: 1 }], 800, 400);
+  const apart = Math.hypot(
+    nodes[1].x - nodes[0].x,
+    nodes[1].y - nodes[0].y,
+    nodes[1].z - nodes[0].z,
+  );
+  assert.ok(apart > 100 && apart < 240, `settled ${Math.round(apart)} apart`);
+  assert.deepEqual([nodes[2].x, nodes[2].y, nodes[2].z], [400, 60, 0]);
 });
 
 test('the stylesheet carries no AUSPEX green as an accent', () => {

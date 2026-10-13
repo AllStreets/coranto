@@ -34,7 +34,11 @@ test('a view survives the trip through a link', () => {
 test('defaults are left out, and "every language" is kept apart from English', () => {
   assert.equal(encodeView({}), '');
   assert.equal(encodeView({ lens: 'news', criteria: { language: 'en' } }), '');
-  assert.equal(decodeView(encodeView({ criteria: { language: null, query: 'x' } })).criteria.language, null);
+  assert.equal(
+    decodeView(encodeView({ criteria: { language: null, query: 'x' } }))
+      .criteria.language,
+    null,
+  );
   assert.equal(decodeView('q=x').criteria.language, 'en');
 });
 
@@ -53,7 +57,10 @@ test('the link keeps the camera fragment beside the view', () => {
   );
   assert.equal(url, 'http://localhost:4173/?c=l%3Dpower#v=2&lat=1&lon=2');
   assert.match(
-    buildViewUrl({ href: 'http://localhost:4173/' }, { criteria: { query: 'grain' } }),
+    buildViewUrl(
+      { href: 'http://localhost:4173/' },
+      { criteria: { query: 'grain' } },
+    ),
     /\?c=q%3Dgrain$/,
   );
 });

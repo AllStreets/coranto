@@ -104,6 +104,12 @@ const KEYED_LAYERS = new Set([
 /** Live layers offered in the header. Ids are catalog layer ids. */
 const HEADER_LAYERS = [
   [
+    'coranto:stories',
+    'STORIES',
+    'Story markers and place names on the globe. Off, the feed still runs and the globe is clear of them.',
+    'stories',
+  ],
+  [
     'hazards',
     'HAZARDS',
     'Cyclones, floods, volcanoes and more (GDACS, NASA)',
@@ -150,6 +156,12 @@ const HEADER_LAYERS = [
     'DISEASE',
     'Countries under an official disease outbreak notice (WHO, CDC), by how the disease spreads',
     'disease',
+  ],
+  [
+    'coranto:banner',
+    'BANNER',
+    'The moving line of latest headlines under the header. Off, everything moves up into its place.',
+    'banner',
   ],
 ];
 const OVERLAY_PREFIX = 'coranto:';
@@ -542,7 +554,7 @@ export function createCorantoShell({
    */
   function layerShown(id) {
     if (id.startsWith(OVERLAY_PREFIX))
-      return overlays.isOn(id.slice(OVERLAY_PREFIX.length));
+      return ownLayers[id.slice(OVERLAY_PREFIX.length)].isOn();
     if (!dataManager?.layers?.has(id) || !dataManager.isEnabled(id))
       return false;
     return (
@@ -566,21 +578,13 @@ export function createCorantoShell({
     button.addEventListener('click', () => {
       if (!dataManager) return;
       if (id.startsWith(OVERLAY_PREFIX)) {
-        const name = id.slice(OVERLAY_PREFIX.length);
+        const own = ownLayers[id.slice(OVERLAY_PREFIX.length)];
         button.dataset.busy = 'true';
-        overlays
-          .set(name, !overlays.isOn(name))
+        Promise.resolve(own.set(!own.isOn()))
           .catch(() => {})
           .finally(() => {
             delete button.dataset.busy;
-            writeStored(
-              localStorageRef,
-              OVERLAYS_KEY,
-              JSON.stringify({
-                silence: overlays.isOn('silence'),
-                disease: overlays.isOn('disease'),
-              }),
-            );
+            saveOwnLayers();
             syncLayers();
           });
         return;
@@ -1758,6 +1762,11 @@ export function createCorantoShell({
   const tv = createBroadcasts({
     document,
     getViewer: () => dataManager?.viewer ?? null,
+    // Closed from its own X or from anywhere else, the button follows.
+    onChange: (open) => {
+      tvBtn.setAttribute('aria-pressed', String(open));
+      renderMapKey();
+    },
   });
   const elections = createElectionsLens({
     document,
@@ -1887,6 +1896,42 @@ export function createCorantoShell({
     },
     onChange: () => renderMapKey(),
   });
+  /**
+   * Coranto's own layers, switched like the engine's. STORIES hides the
+   * story markers and names while the feed runs on; BANNER is the ticker.
+   */
+  let storiesShown = true;
+  const ownLayers = {
+    stories: {
+      isOn: () => storiesShown,
+      set: (on) => {
+        storiesShown = Boolean(on);
+        layer.setMarkersShown?.(storiesShown);
+      },
+    },
+    silence: {
+      isOn: () => overlays.isOn('silence'),
+      set: (on) => overlays.set('silence', on),
+    },
+    disease: {
+      isOn: () => overlays.isOn('disease'),
+      set: (on) => overlays.set('disease', on),
+    },
+    banner: {
+      isOn: () => settingsStore.get('ticker') === true,
+      set: (on) => settingsStore.set('ticker', Boolean(on)),
+    },
+  };
+  const saveOwnLayers = () =>
+    writeStored(
+      localStorageRef,
+      OVERLAYS_KEY,
+      JSON.stringify({
+        stories: storiesShown,
+        silence: overlays.isOn('silence'),
+        disease: overlays.isOn('disease'),
+      }),
+    );
   const launchIcons = createLaunchIcons({
     getManager: () => dataManager,
     isNewsView: () => body.dataset.corantoMode === 'news',
@@ -1979,11 +2024,6 @@ export function createCorantoShell({
       await atlas.setArticles(layer.getView().snapshot?.articles ?? []);
     delete button.dataset.busy;
     button.setAttribute('aria-pressed', String(now));
-    // The full country markers carry the nuclear mark themselves.
-    if (name === 'countries') {
-      if (now) nuclear.hide();
-      else if (body.dataset.corantoFrame === 'one') nuclear.show();
-    }
     renderMapKey();
   }
   for (const [name, label] of ATLAS_OVERLAYS) {
@@ -2329,6 +2369,23 @@ export function createCorantoShell({
   );
   for (const node of [topicList, watchSection])
     node.classList.add('coranto-bracket');
+  // Each action wears its own icon, used nowhere else in the app.
+  for (const [button, icon] of [
+    [guideBtn, 'guide'],
+    [sourcesBtn, 'checklist'],
+    [homeBtn, 'globe'],
+    [tvBtn, 'tv'],
+    [shareBtn, 'share'],
+    [keyBtn, 'legend'],
+    [tourBtn, 'route'],
+    [replayBtn, 'history'],
+  ]) {
+    const label = el(document, 'span', { text: button.textContent });
+    button.replaceChildren(
+      el(document, 'img', { src: iconImage(icon, '#b9b1d1'), alt: '' }),
+      label,
+    );
+  }
   const rail = el(
     document,
     'nav',
@@ -3054,6 +3111,17 @@ export function createCorantoShell({
     layersBtn.textContent = `LAYERS · ${onCount} ON`;
     // Satellite icons follow the satellites layer (people only).
     if (body.dataset.corantoFrame === 'one') {
+      // The nuclear-armed states are marked with the hazards, and only
+      // then. The full country markers carry the mark themselves.
+      const nuclearWanted = layerShown('hazards') && !atlas.isOn('countries');
+      if (nuclearWanted && !nuclear.shown) {
+        nuclear.show();
+        renderMapKey();
+      } else if (!nuclearWanted && nuclear.shown) {
+        nuclear.hide();
+        if (card.dataset.owner === 'nuclear') showCard(null);
+        renderMapKey();
+      }
       const on = layerShown('satellites');
       if (on && !satelliteIcons.shown) satelliteIcons.start();
       else if (!on && satelliteIcons.shown) satelliteIcons.stop();
@@ -3282,9 +3350,9 @@ export function createCorantoShell({
     } catch {
       copied = false;
     }
-    shareBtn.textContent = copyLabel(copied);
+    shareBtn.lastElementChild.textContent = copyLabel(copied);
     win.setTimeout(() => {
-      shareBtn.textContent = copyLabel(null);
+      shareBtn.lastElementChild.textContent = copyLabel(null);
     }, 2200);
   });
   lensNews.addEventListener('click', () => setLens('news'));
@@ -3294,8 +3362,6 @@ export function createCorantoShell({
   lensRelief.addEventListener('click', () => setLens('relief'));
   tvBtn.addEventListener('click', () => {
     tv.toggle();
-    tvBtn.setAttribute('aria-pressed', String(tv.isOpen));
-    renderMapKey();
   });
   modeNews.addEventListener('click', () => setMode('news'));
   modeTools.addEventListener('click', () => setMode('instruments'));
@@ -3311,8 +3377,24 @@ export function createCorantoShell({
     if (event.target === guide) guide.hidden = true;
   });
   settingsBtn.addEventListener('click', () => settings.open());
+  /**
+   * The globe is drawn at the screen's own resolution, capped at twice the
+   * layout size. The engine's default is the layout size, which on a
+   * high-density screen leaves every icon and name on the globe soft.
+   */
+  function applySharpGlobe() {
+    const viewer = dataManager?.viewer;
+    if (!viewer || body.dataset.corantoFrame !== 'one') return;
+    const density = Math.max(1, win.devicePixelRatio || 1);
+    const sharp = settingsStore.get('sharpGlobe') && density > 1;
+    viewer.useBrowserRecommendedResolution = !sharp;
+    viewer.resolutionScale = sharp ? Math.min(2, density) / density : 1;
+    viewer.scene.requestRender?.();
+  }
   const applySettings = () => {
     applyHeaderLayout();
+    applySharpGlobe();
+    syncLayers();
     body.dataset.corantoTicker = settingsStore.get('ticker') ? 'on' : 'off';
     tick();
   };
@@ -3480,10 +3562,10 @@ export function createCorantoShell({
       dataManager = manager;
       // People only: automated browsers keep the engine's own scene.
       if (body.dataset.corantoFrame === 'one') {
-        nuclear.show();
         for (const [name] of ATLAS_OVERLAYS)
           if (atlasWanted[name]) setAtlas(name, true, { remember: false });
       }
+      applySharpGlobe();
       // SILENCE and DISEASE come back as they were left.
       try {
         const wanted = JSON.parse(
@@ -3492,6 +3574,8 @@ export function createCorantoShell({
         for (const name of ['silence', 'disease'])
           if (wanted?.[name] === true && !win.navigator?.webdriver)
             overlays.set(name, true).then(syncLayers, () => {});
+        if (wanted?.stories === false && !win.navigator?.webdriver)
+          ownLayers.stories.set(false);
       } catch {
         // A broken stored value leaves both off.
       }

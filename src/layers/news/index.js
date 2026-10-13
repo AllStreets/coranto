@@ -50,6 +50,8 @@ export function createNewsLayer({
   let _asOf = null;
   // How many place names to draw; the selected place is always named.
   let _labelLimit = NEWS_OVERLAY_COHORT_LIMIT;
+  // The feed can run with its markers and names off the globe.
+  let _markersShown = true;
   let _error = null;
   let _unavailable = null;
   let _groups = [];
@@ -182,8 +184,8 @@ export function createNewsLayer({
 
     enable() {
       _enabled = true;
-      if (_dataSource) _dataSource.show = true;
-      overlayHost.setVisible(NEWS_OVERLAY_SOURCE_ID, true);
+      if (_dataSource) _dataSource.show = _markersShown;
+      overlayHost.setVisible(NEWS_OVERLAY_SOURCE_ID, _markersShown);
       installClickHandler();
       render();
       emit();
@@ -319,6 +321,19 @@ export function createNewsLayer({
       );
       render();
     },
+
+    /**
+     * Show or hide the story markers and their names. The feed, the ticker
+     * and everything else the layer feeds carry on either way.
+     */
+    setMarkersShown(shown) {
+      _markersShown = Boolean(shown);
+      if (!_enabled) return;
+      if (_dataSource) _dataSource.show = _markersShown;
+      overlayHost.setVisible(NEWS_OVERLAY_SOURCE_ID, _markersShown);
+      _viewer?.scene.requestRender?.();
+    },
+    markersShown: () => _markersShown,
 
     /** Show the last day, three days or week of stories. */
     setRangeHours(hours) {

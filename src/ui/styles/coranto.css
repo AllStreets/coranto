@@ -4979,6 +4979,85 @@ body[data-coranto-mode='news']:is(
   }
 }
 
+/* ── 2026-10-12 touches ────────────────────────────────────────── */
+/* Relief is green; it is the lens about help reaching people. */
+.coranto-lens-switch button[data-lens='relief'][aria-pressed='true'] {
+  background: rgba(52, 209, 122, 0.16);
+  color: #ffffff;
+  box-shadow: inset 0 -2px 0 #34d17a;
+}
+/* The search box keeps its own violet line and takes no white ring. */
+.coranto-palette-input:focus,
+.coranto-palette-input:focus-visible {
+  outline: none !important;
+}
+/* The feed's minimize button clears the feed's title, as the left one clears
+   the globe's label. */
+.coranto-side-min[data-side='feed'] {
+  right: calc(var(--coranto-feed-w) - 4px);
+}
+/* The rail's actions: an icon each, a cut corner and a rule that lights on
+   hover. Same box, same size. */
+.coranto-rail-actions .coranto-rail-btn {
+  position: relative;
+  gap: 6px;
+  padding-left: 8px;
+  padding-right: 6px;
+  letter-spacing: 1.1px;
+  border-radius: 2px;
+  background:
+    linear-gradient(135deg, rgba(180, 124, 255, 0.07), transparent 46%),
+    var(--coranto-glass);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.coranto-rail-actions .coranto-rail-btn::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 14px;
+  height: 2px;
+  background: rgba(180, 124, 255, 0.55);
+  transition: width 0.22s ease;
+}
+.coranto-rail-actions .coranto-rail-btn:hover::after,
+.coranto-rail-actions .coranto-rail-btn:focus-visible::after,
+.coranto-rail-actions .coranto-rail-btn[aria-pressed='true']::after,
+.coranto-rail-actions .coranto-rail-btn[aria-expanded='true']::after {
+  width: 100%;
+}
+.coranto-rail-actions .coranto-rail-btn img {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  opacity: 0.8;
+}
+.coranto-rail-actions .coranto-rail-btn span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.coranto-rail-actions .coranto-rail-btn:hover img,
+.coranto-rail-actions .coranto-rail-btn[aria-pressed='true'] img,
+.coranto-rail-actions .coranto-rail-btn[aria-expanded='true'] img {
+  opacity: 1;
+}
+.coranto-rail-actions .coranto-rail-btn[aria-pressed='true'],
+.coranto-rail-actions .coranto-rail-btn[aria-expanded='true'] {
+  background:
+    linear-gradient(135deg, rgba(180, 124, 255, 0.2), transparent 60%),
+    var(--coranto-glass);
+}
+
+.coranto-settings-policy {
+  margin: 4px 0 14px;
+}
+.coranto-settings-policy:last-child {
+  margin-bottom: 0;
+}
+
 @supports selector(::-webkit-scrollbar) {
   #coranto-rail,
   #coranto-feed-body,
