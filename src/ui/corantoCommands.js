@@ -41,13 +41,13 @@ export function createCommandPalette({ document, getCommands }) {
     'coranto-palette-foot',
     'ARROWS to move · ENTER to run · ESC to close',
   );
-  panel.append(
-    make('div', 'coranto-strip', 'SEARCH // EVERYTHING'),
-    input,
-    note,
-    list,
-    foot,
-  );
+  // The title is the header's SEARCH button again: the glass, then the word.
+  const title = make('div', 'coranto-strip coranto-palette-title');
+  const titleIcon = make('img');
+  titleIcon.src = iconImage('search', '#c9c2de');
+  titleIcon.alt = '';
+  title.append(titleIcon, make('span', '', 'SEARCH'));
+  panel.append(title, input, note, list, foot);
   element.append(panel);
 
   let results = [];

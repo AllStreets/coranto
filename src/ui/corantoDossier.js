@@ -61,7 +61,7 @@ export function createDossier({
 
   function render(model, loading) {
     current = model;
-    title.textContent = `COUNTRY // ${model.title.toUpperCase()}`;
+    title.textContent = `COUNTRY · ${model.title.toUpperCase()}`;
     const nodes = [];
     const tools = make('div', 'coranto-story-tools');
     if (model.stories)

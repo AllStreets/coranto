@@ -1,4 +1,8 @@
-import { CATEGORY_CODE, createNewsFeed } from './newsPanel.js';
+import {
+  CATEGORY_CODE,
+  SOURCE_STATE_COLOUR,
+  createNewsFeed,
+} from './newsPanel.js';
 import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
 import { getContextStore } from '../data/contextStore.js';
 import {
@@ -313,16 +317,16 @@ const RANGE_WORDS = {
 /** The one line over the globe that says what the lens is showing. */
 function hudLensLine(lens, view) {
   if (lens === 'power')
-    return 'WATCH POWER // MILITARY AND GOVERNMENT AIRCRAFT, BASES';
-  if (lens === 'elections') return 'ELECTIONS // POLLING DAYS, NEXT 120 DAYS';
-  if (lens === 'markets') return 'MARKETS // FINANCE STORIES BY PLACE';
+    return 'WATCH POWER · MILITARY AND GOVERNMENT AIRCRAFT, BASES';
+  if (lens === 'elections') return 'ELECTIONS · POLLING DAYS, NEXT 120 DAYS';
+  if (lens === 'markets') return 'MARKETS · FINANCE STORIES BY PLACE';
   if (lens === 'relief')
-    return 'RELIEF // WHO OUTBREAK NOTICES, HUMANITARIAN STORIES';
+    return 'RELIEF · WHO OUTBREAK NOTICES, HUMANITARIAN STORIES';
   const places = view.places?.length ?? 0;
   const range = RANGE_WORDS[view.rangeHours] ?? RANGE_WORDS[24];
   return view.goodNewsOnly
-    ? `GOOD NEWS // ${range} // ${places} PLACES`
-    : `STORIES // ${range} // ${places} PLACES`;
+    ? `GOOD NEWS · ${range} · ${places} PLACES`
+    : `STORIES · ${range} · ${places} PLACES`;
 }
 
 /** Where the view is centred and how high, from the camera. */
@@ -331,7 +335,7 @@ function hudWhereLine(at) {
   const part = (value, pos, neg) =>
     `${Math.abs(value).toFixed(2)}°${value >= 0 ? pos : neg}`;
   const km = Math.round(at.height / 1000);
-  return `${part(deg(at.latitude), 'N', 'S')} ${part(deg(at.longitude), 'E', 'W')} // ALT ${km.toLocaleString('en-GB')} KM`;
+  return `${part(deg(at.latitude), 'N', 'S')} ${part(deg(at.longitude), 'E', 'W')} · ALT ${km.toLocaleString('en-GB')} KM`;
 }
 
 /** The newest headline at a place. */
@@ -509,7 +513,11 @@ export function createCorantoShell({
             document,
             'div',
             { class: 'coranto-source-row', 'data-state': row.state },
-            el(document, 'span', { class: 'coranto-source-dot' }),
+            el(document, 'img', {
+              class: 'coranto-source-icon',
+              src: iconImage('signal', SOURCE_STATE_COLOUR[row.state]),
+              alt: '',
+            }),
             el(document, 'span', {
               class: 'coranto-source-name',
               text: row.name,
@@ -2838,7 +2846,7 @@ export function createCorantoShell({
     }
     card.dataset.owner = 'place';
     showCard({
-      kind: `STORIES // ${place.name.toUpperCase()} · ${place.precision.toUpperCase()}`,
+      kind: `STORIES · ${place.name.toUpperCase()} · ${place.precision.toUpperCase()}`,
       title: placeCardTitle(place),
       meta: placeCardMeta(place),
       action: {

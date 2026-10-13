@@ -287,6 +287,11 @@ export const ICONS = Object.freeze({
     STROKE,
     '<path d="M3.500 13.500 6 5.500h12l2.500 8v5h-17v-5Z"/><path d="M3.500 13.500h5l1.200 2.500h4.600l1.200-2.500h5"/><path d="M9 8.500h6M9.800 11h4.400"/>',
   ],
+  // Whether a source is answering: the same mark, green or red.
+  signal: [
+    STROKE,
+    '<path d="M5 19.500v-3M10 19.500v-7M15 19.500v-11M20 19.500V4.500" stroke-width="2.600"/>',
+  ],
   stories: [
     STROKE,
     '<path d="M12 21s-6-5.500-6-10.500a6 6 0 0 1 12 0C18 15.500 12 21 12 21Z"/><path d="M9.500 9h5M9.500 11.800h5M9.500 14.500h3"/>',

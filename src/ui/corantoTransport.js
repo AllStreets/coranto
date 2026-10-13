@@ -165,7 +165,7 @@ export function createTransport({
     toggle.setAttribute('aria-label', toggle.title);
     slider.hidden = mode !== 'replay';
     if (mode === 'tour') {
-      title.textContent = `TOUR // ${index + 1} OF ${items.length} // ${item.name.toUpperCase()}`;
+      title.textContent = `TOUR · ${index + 1} OF ${items.length} · ${item.name.toUpperCase()}`;
       detail.textContent = tourLine(item);
       layer.selectPlace(item.key, { focus: true });
     } else if (mode === 'replay') {
@@ -175,8 +175,8 @@ export function createTransport({
       layer.setAsOf(live ? null : item);
       const view = layer.getView();
       title.textContent = live
-        ? 'REPLAY // NOW'
-        : `REPLAY // ${replayLabel(item).toUpperCase()}`;
+        ? 'REPLAY · NOW'
+        : `REPLAY · ${replayLabel(item).toUpperCase()}`;
       detail.textContent = `${view.places?.length ?? 0} places with stories from the ${view.rangeHours} hours before${live ? '' : ' that moment'}`;
     }
   }

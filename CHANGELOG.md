@@ -1,5 +1,13 @@
 # Changelog
 
+- Coranto: the feed's status is two lines: a signal mark with how many
+  sources are live, then when it was read and what was left out. The same
+  mark, green or red, is on every row of both source lists; the feed's list
+  is a compact two-column register and the header's LIVE list one source to
+  a line. What was left out is two slim lines on a violet rule. The search
+  box is titled SEARCH with its glass. The "//" separators are gone from
+  the interface.
+
 - Coranto: the top of the feed is in the shared look: title, grouping
   switch, status lines, search and the three filters. The filters are
   Coranto's own drop-downs, opening directly under their button in the

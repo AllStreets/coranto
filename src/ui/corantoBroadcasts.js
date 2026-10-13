@@ -290,7 +290,7 @@ export function createBroadcasts({
       el(document, 'span', { class: 'coranto-tv-live' }),
       el(document, 'span', {
         class: 'coranto-story-where',
-        text: 'LIVE // TELEVISION NEWS',
+        text: 'LIVE TELEVISION NEWS',
       }),
       closeButton,
     ),

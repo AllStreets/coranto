@@ -4,6 +4,18 @@ import { NEWS_LANGUAGES } from '../sources/news/registry.js';
 import { TRANSLATE_LANGUAGES } from '../sources/news/translate.js';
 import { buildNewsPanelModel } from './newsPanelModel.js';
 
+/** A source's mark, by whether it is answering. */
+export const SOURCE_STATE_COLOUR = Object.freeze({
+  ok: '#3ddc84',
+  down: '#ff4d5e',
+  off: '#6f6986',
+});
+const SOURCE_STATE_WORD = Object.freeze({
+  ok: 'Answering',
+  down: 'Not answering',
+  off: 'Not set up',
+});
+
 /** Cards drawn at once; the rest are one click away. */
 const PAGE_SIZE = 60;
 
@@ -24,8 +36,8 @@ export const CATEGORY_CODE = {
 
 /** The strip at the top of a story: what it is and where it was placed. */
 function storyWhere(place) {
-  if (!place) return 'STORY // NO LOCATION';
-  return `STORY // ${place.name.toUpperCase()} · ${place.precision.toUpperCase()}`;
+  if (!place) return 'STORY · NO LOCATION';
+  return `STORY · ${place.name.toUpperCase()} · ${place.precision.toUpperCase()}`;
 }
 
 /** Coordinates and the reason for the placement, or that there is none. */
@@ -247,15 +259,21 @@ export function createNewsFeed({
   const healthBtn = el(document, 'button', 'news-health');
   healthBtn.type = 'button';
   healthBtn.title = 'Show every source and whether it answered';
-  const healthDot = el(document, 'span', 'news-health-dot');
+  // The same mark every source row wears: green when answering, red when not.
+  const healthDot = el(document, 'img', 'news-health-icon');
+  healthDot.alt = '';
   const healthText = el(document, 'span', 'news-health-text');
   healthBtn.append(healthDot, healthText);
+  // The second line: when the feed was read, and what was left out.
+  const statusMeta = el(document, 'div', 'news-status-meta');
+  const fetchedText = el(document, 'span', 'news-fetched');
   const sourceList = el(document, 'ul', 'news-source-list');
   const staleNote = el(document, 'p', 'news-stale');
   const droppedBtn = el(document, 'button', 'news-dropped');
   droppedBtn.type = 'button';
   const droppedList = el(document, 'ul', 'news-dropped-list');
-  status.append(healthBtn, sourceList, staleNote, droppedBtn, droppedList);
+  statusMeta.append(fetchedText, droppedBtn);
+  status.append(healthBtn, statusMeta, sourceList, staleNote, droppedList);
 
   const search = el(document, 'input', 'news-search');
   search.type = 'search';
@@ -343,10 +361,10 @@ export function createNewsFeed({
       for (const source of rows) {
         const row = el(document, 'li', 'news-source');
         row.dataset.state = source.state;
-        row.append(
-          el(document, 'span', 'news-source-dot'),
-          el(document, 'span', 'news-source-name', source.name),
-        );
+        const mark = el(document, 'img', 'news-source-icon');
+        mark.src = iconImage('signal', SOURCE_STATE_COLOUR[source.state]);
+        mark.alt = SOURCE_STATE_WORD[source.state];
+        row.append(mark, el(document, 'span', 'news-source-name', source.name));
         if (source.count !== null)
           row.append(
             el(document, 'span', 'news-source-count', String(source.count)),
@@ -1111,7 +1129,16 @@ export function createNewsFeed({
     healthBtn.hidden = !model.health;
     healthBtn.dataset.state = model.healthState;
     healthBtn.setAttribute('aria-expanded', String(sourcesOpen));
-    healthText.textContent = model.health;
+    // "33 of 35 sources live" on the first line; when it was read on the next.
+    const [headline, ...rest] = String(model.health ?? '').split(' · ');
+    healthText.textContent = headline;
+    fetchedText.textContent = rest.join(' · ');
+    fetchedText.hidden = !rest.length;
+    statusMeta.hidden = !model.health;
+    healthDot.src = iconImage(
+      'signal',
+      SOURCE_STATE_COLOUR[model.healthState === 'down' ? 'down' : 'ok'],
+    );
     sourceList.hidden = !sourcesOpen || !model.sources.length;
     sourceList.replaceChildren(...renderSources(model.sources));
     staleNote.hidden = !model.stale;
@@ -1121,9 +1148,14 @@ export function createNewsFeed({
     droppedBtn.setAttribute('aria-expanded', String(droppedOpen));
     droppedList.hidden = !droppedOpen || model.droppedTotal === 0;
     droppedList.replaceChildren(
-      ...model.dropped.map(({ count, text }) =>
-        el(document, 'li', 'news-dropped-row', `${count} · ${text}`),
-      ),
+      ...model.dropped.map(({ count, text }) => {
+        const row = el(document, 'li', 'news-dropped-row');
+        row.append(
+          el(document, 'span', 'news-dropped-count', String(count)),
+          el(document, 'span', 'news-dropped-text', text),
+        );
+        return row;
+      }),
     );
 
     placeChip.hidden = !model.place;
