@@ -2158,3 +2158,37 @@ button.ca-mx-cell:focus-visible,
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* SAVE is green: keeping something. A green that sits with the board's
+   own (low escalation, high confidence). */
+.ca-am-save-btn {
+  border-color: rgba(48, 209, 88, 0.38);
+  color: rgba(48, 209, 88, 0.8);
+}
+.ca-am-save-btn:hover {
+  border-color: #30d158;
+  color: #30d158;
+  background: rgba(48, 209, 88, 0.08);
+  box-shadow: 0 0 8px rgba(48, 209, 88, 0.2);
+}
+.ca-am-save-btn:active {
+  box-shadow: 0 0 14px rgba(48, 209, 88, 0.38);
+}
+/* INSTRUMENTS: the control room, opened from the board. */
+.ca-am-instruments-btn {
+  padding: 5px 13px;
+  border: 1px solid rgba(180, 124, 255, 0.45);
+  background: rgba(180, 124, 255, 0.08);
+  color: #b47cff;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.18s;
+}
+.ca-am-instruments-btn:hover {
+  border-color: #b47cff;
+  background: rgba(180, 124, 255, 0.16);
+  box-shadow: 0 0 8px rgba(180, 124, 255, 0.22);
+}

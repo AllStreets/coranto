@@ -455,6 +455,11 @@ The **GUIDE** button in the app shows the same instructions.
 
 ### INSTRUMENTS
 
+NEWS is the product; the control room is one of its tools. Open **ANALYST**
+and press **INSTRUMENTS** on the board's bar (or search for "Instruments").
+Nothing in it is changed. The ringed X at its top left, under the banner,
+closes it and returns you to the analyst board.
+
 The full God's Eye View control room in the same frame and style as the news
 view, for when you want to go past the headlines. All thirty layers were
 switched on and checked; [docs/coranto/INSTRUMENTS.md](docs/coranto/INSTRUMENTS.md)

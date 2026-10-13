@@ -66,6 +66,7 @@ const SKELETON = `
     <span class="ca-am-status-line" data-ref="status"></span>
     <div class="ca-am-bar-acts">
       <button type="button" class="ca-am-save-btn" data-act="save">SAVE</button>
+      <button type="button" class="ca-am-instruments-btn" data-act="instruments" title="Open the control room: tracking, cameras, weather, styles, scenes and voice">INSTRUMENTS</button>
       <button type="button" class="ca-am-export-brief-btn" data-act="export-brief">EXPORT BRIEF</button>
       <button type="button" class="ca-am-synth-btn-bar" data-act="synthesize">SYNTHESIZE</button>
       <button type="button" class="ca-am-consensus-btn" data-act="consensus">CONSENSUS</button>
@@ -222,6 +223,7 @@ const BRIEF_EMPTY = `<div class="ca-am-brief-empty">PIN ASSETS AND CLICK SYNTHES
  * @param {(asset: object) => void} [options.onOpen] a card's title was clicked
  * @param {() => void} [options.onChange] the pins changed
  * @param {(tiers: object | null) => void} [options.onMomentum] dead reckoning tiers for the globe
+ * @param {() => void} [options.onInstruments] open the engine's control room
  */
 export function createAnalyst({
   document,
@@ -234,6 +236,7 @@ export function createAnalyst({
   onOpen = () => {},
   onChange = () => {},
   onMomentum = () => {},
+  onInstruments = () => {},
 }) {
   const element = document.createElement('div');
   element.id = 'coranto-analyst';
@@ -1360,6 +1363,7 @@ ${ref.rtContent.innerHTML}
   const ACTIONS = {
     save: saveAnalystBoard,
     'export-brief': exportBrief,
+    instruments: () => onInstruments(),
     synthesize: synthesizeBrief,
     consensus: runConsensusBoard,
     tools: () => toggleToolsMenu(),

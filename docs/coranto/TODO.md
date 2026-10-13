@@ -163,6 +163,9 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [x] **The Moon at true distance and size; uniform header buttons; shorter
       rail labels; DISEASE loading chip; SILENCE button removed, layer kept**
       (owner, 2026-10-13).
+- [x] **INSTRUMENTS is a tool of the analyst board** (owner, 2026-10-13):
+      opened from the board's bar, closed by the ringed X; the header's mode
+      switch is removed for people (automated browsers keep it).
 - [x] **Seven joins between NEWS and INSTRUMENTS** (owner, 2026-10-12), all
       on sources already wired in: the country sheet; AROUND HERE on a story;
       the story offering the layer it is about; voice in the news view with

@@ -259,7 +259,7 @@ const GUIDE = [
   ],
   [
     'Go deeper',
-    'INSTRUMENTS switches to the full control room: tracking, cockpit view, cameras, weather, visual styles, voice control and share links. NEWS brings you back.',
+    'INSTRUMENTS, on the analyst board’s bar, opens the full control room: tracking, cockpit view, cameras, weather, visual styles, scenes, voice control and share links. The ringed X at its top left closes it and returns you to the board.',
   ],
   [
     'Move the globe',
@@ -1556,8 +1556,11 @@ export function createCorantoShell({
         : [menuBtn, layersBtn, searchBtn, headerGap]),
       count,
       clock,
+      // NEWS is the product; the control room is opened from the analyst
+      // board. Automated browsers keep the old switch, which their gates
+      // were written against.
+      ...(win.navigator?.webdriver ? [modeSwitch] : []),
       boardBtn,
-      modeSwitch,
       settingsBtn,
     );
   }
@@ -1747,6 +1750,11 @@ export function createCorantoShell({
     getStories: () => layer.getView().snapshot?.stories ?? [],
     getCountries: () => atlasCountries,
     callModel: callAnalystModel,
+    // INSTRUMENTS on the board's bar: the engine's control room, as a tool.
+    onInstruments: () => {
+      board.close();
+      setMode('instruments');
+    },
     onMomentum: (tiers) => atlas.setMomentum(tiers),
     onOpen: (asset) => {
       board.close();
@@ -2874,6 +2882,24 @@ export function createCorantoShell({
     hudWhere.textContent = at ? hudWhereLine(at) : '';
   }
 
+  // The way back out of the control room: to the analyst board it was
+  // opened from.
+  const instrumentsExit = el(
+    document,
+    'button',
+    {
+      type: 'button',
+      id: 'coranto-instruments-exit',
+      title: 'Close Instruments and go back to the analyst board',
+      'aria-label': 'Close Instruments',
+    },
+    el(document, 'img', { src: iconImage('close', '#e9e4f5'), alt: '' }),
+  );
+  instrumentsExit.addEventListener('click', () => {
+    setMode('news');
+    loadAtlasPlaces();
+    board.open();
+  });
   // Either side of the news view can be put away for more of the globe.
   const sides = createSides({
     document,
@@ -2901,6 +2927,7 @@ export function createCorantoShell({
     notices.element,
     settings.element,
     ...sides.elements,
+    instrumentsExit,
     loadingChip,
     mapKey.element,
     board.element,

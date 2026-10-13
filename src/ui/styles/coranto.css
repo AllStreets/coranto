@@ -5313,6 +5313,69 @@ body:has(#global-loading-status:not([hidden])) #coranto-loading-status {
   opacity: 1;
 }
 
+/* ── Leaving Instruments ───────────────────────────────────────── */
+/* A ringed X at the top left, under the banner (or under the logo when the
+   banner is off). Red under the cursor: it closes the tool. */
+#coranto-instruments-exit {
+  position: fixed;
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 10px);
+  left: 14px;
+  z-index: 360;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1.5px solid rgba(233, 228, 245, 0.55);
+  border-radius: 50%;
+  background: rgba(10, 8, 16, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+#coranto-instruments-exit img {
+  width: 13px;
+  height: 13px;
+}
+body[data-coranto-mode='instruments'][data-coranto-frame='one']
+  #coranto-instruments-exit {
+  display: inline-flex;
+}
+/* Out of the way while the engine has the whole screen. */
+body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
+  #coranto-instruments-exit {
+  display: none !important;
+}
+#coranto-instruments-exit:is(:hover, :focus-visible, :active) {
+  border-color: #ff4d5e;
+  background: #e23b3f;
+}
+#coranto-instruments-exit:active {
+  transform: scale(0.94);
+}
+/* The engine's panels may not be dragged up under the X. Plain pixel
+   values: the engine reads this property as a number. */
+body[data-coranto-mode='instruments'][data-coranto-frame='one'] {
+  --ui-top-inset: 132px;
+}
+body[data-coranto-mode='instruments'][data-coranto-frame='one'][data-coranto-ticker='off'] {
+  --ui-top-inset: 98px;
+}
+body[data-coranto-mode='instruments'][data-coranto-frame='one']:is(
+    .cockpit-mode,
+    .scene-playback-mode,
+    .recording-mode,
+    .ui-clean-view
+  ) {
+  --ui-top-inset: 0px;
+}
+
 @supports selector(::-webkit-scrollbar) {
   #coranto-rail,
   #coranto-feed-body,

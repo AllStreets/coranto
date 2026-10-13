@@ -1,5 +1,11 @@
 # Changelog
 
+- Coranto: NEWS is the one view. The control room (INSTRUMENTS) is opened
+  from a button on the analyst board's bar, between SAVE and EXPORT BRIEF,
+  and closed by a ringed X at its top left, which returns to the board.
+  The NEWS / INSTRUMENTS switch is gone from the header, ANALYST sits beside
+  the gear, and the layer row takes the room. SAVE is green.
+
 - Coranto: country names are drawn as text by the map engine, not as
   images of text, so they are sharp at every zoom and screen density. The
   topic buttons join the shared look: a cut corner and a rule along the
