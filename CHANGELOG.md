@@ -338,6 +338,17 @@
 
 ## [Unreleased]
 
+- Colour each natural hazard by what it is: wildfire orange, volcano lava
+  red, earthquake amber, flood blue, storm cyan, drought tan, ice and snow
+  pale. Wildfires had been drawn in blue, the colour of "no alert level".
+  How severe a tracker calls an event is now a ring around the marker
+  (orange or red) and its size, not its colour.
+- Redraw the wildfire icon as three tongues of flame. The old one read as a
+  drop of water at marker size.
+- The map key lists every hazard kind in its own colour, shows the alert
+  rings, and now covers civil and military aircraft, tropical cyclones and
+  undersea cables as well.
+
 - Add notices. A small stack over the globe tells you when a saved watch
   has more new stories, when the disaster trackers raise an Orange or Red
   alert, and when the World Health Organization posts an outbreak notice.

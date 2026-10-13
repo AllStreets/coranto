@@ -1,9 +1,11 @@
+import { hazardKindColour } from '../../data/corantoIcons.js';
 export const HAZARD_OVERLAY_SOURCE_ID = 'hazards';
 export const HAZARD_OVERLAY_COHORT_LIMIT = 48;
 
 /**
- * Colour by the tracker's own alert level. Red is kept for a Red alert, as
- * in AUSPEX: when the screen shows red it means a tracker called it severe.
+ * The trackers' alert levels. They colour the ring around a marker; the
+ * marker itself takes the colour of the hazard. Red is kept for a Red
+ * alert, as in AUSPEX: a red ring means a tracker called it severe.
  */
 export const HAZARD_COLORS = Object.freeze({
   Red: '#ff4d5e',
@@ -16,7 +18,8 @@ const KIND_LABEL = {
   'extreme temperature': 'TEMPERATURE',
 };
 
-export const hazardColor = (item) => HAZARD_COLORS[item.alert ?? 'none'];
+/** A hazard is coloured by what it is; its alert level is a ring. */
+export const hazardColor = (item) => hazardKindColour(item.kind);
 
 /** Marker diameter in pixels by alert level. */
 export function hazardMarkerSize(item) {

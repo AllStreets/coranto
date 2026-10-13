@@ -59,7 +59,8 @@ export const ICONS = Object.freeze({
   ],
   wildfire: [
     SOLID,
-    '<path d="M12 2c.6 2.8-1.2 4.3-2.4 5.7C8.2 9.3 7 10.7 7 13a5 5 0 0 0 10 0c0-1.7-.8-3-1.6-4-.3.9-1 1.6-1.9 1.6 1-2.3-.2-5.6-1.5-8.6Z"/>',
+    // Three tongues of flame, so it does not read as a drop of water.
+    '<path d="M12.4 1.8c.5 3.1 2.3 4.8 3.5 6.9.6-.8.9-1.8.8-3 1.7 2 3 5 3 7.8a7.7 7.7 0 0 1-15.4 0c0-2.8 1.4-4.7 2.7-6.4.4 1.3 1.1 2.2 2.1 2.6C8.9 8.4 10.3 4.9 12.4 1.8Z"/><path d="M12 21.2a3.3 3.3 0 0 1-3.3-3.3c0-1.800 1.300-2.900 2.300-4.600.500 1.500 1.300 2 2.200 2.900.5-.5.800-1.100.900-1.800.8.900 1.200 2.100 1.200 3.500a3.3 3.3 0 0 1-3.300 3.300Z" fill="#07060c" fill-opacity="0.55"/>',
   ],
   drought: [
     STROKE,
@@ -255,6 +256,34 @@ const HAZARD_ICON = {
 };
 export const hazardIcon = (kind) => HAZARD_ICON[kind] ?? 'hazard';
 
+/**
+ * Each hazard in the colour of what it is: fire orange, water blue, ice
+ * pale, dry land tan. How severe a tracker calls it is shown by a ring
+ * around the marker, not by its colour.
+ */
+export const HAZARD_KIND_COLOURS = Object.freeze({
+  wildfire: '#ff9a2e',
+  volcano: '#ff6b4a',
+  earthquake: '#f2c14e',
+  flood: '#4aa8ff',
+  cyclone: '#7fe6ed',
+  storm: '#7fe6ed',
+  drought: '#c9a26b',
+  'extreme temperature': '#f4a261',
+  ice: '#cfeeff',
+  snow: '#e8f4ff',
+  landslide: '#b08968',
+  dust: '#d6c7a1',
+});
+export const HAZARD_OTHER_COLOUR = '#b9b3c9';
+export const hazardKindColour = (kind) =>
+  HAZARD_KIND_COLOURS[kind] ?? HAZARD_OTHER_COLOUR;
+/** The ring a tracker's alert level adds: Red and Orange only. */
+export const ALERT_RING_COLOURS = Object.freeze({
+  Red: '#ff4d5e',
+  Orange: '#fb923c',
+});
+
 /** Mix a hex colour toward white by `amount` (0 to 1). */
 export function liftColour(hex, amount) {
   const value = /^#[0-9a-f]{6}$/i.test(hex) ? hex.slice(1) : 'ffffff';
@@ -307,20 +336,26 @@ export function satelliteImage(colour = '#c89bff') {
  * @param {boolean} [options.approximate] A dashed ring: the place is a
  * country or region, not a pinpoint.
  * @param {boolean} [options.selected] Adds a white outer ring.
+ * @param {'Red'|'Orange'|null} [options.alert] Adds an outer ring in the
+ * alert's colour, for a hazard a tracker has rated.
  */
 export function markerImage({
   icon,
   colour,
   approximate = false,
   selected = false,
+  alert = null,
 }) {
   const [attrs, body] = ICONS[icon] ?? ICONS.hazard;
   const glyph = liftColour(colour, 0.45);
   const ring = approximate ? ' stroke-dasharray="5 4"' : '';
   return dataUri(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">` +
+      (ALERT_RING_COLOURS[alert]
+        ? `<circle cx="32" cy="32" r="29.2" fill="none" stroke="${ALERT_RING_COLOURS[alert]}" stroke-width="3"/>`
+        : '') +
       (selected
-        ? '<circle cx="32" cy="32" r="30" fill="none" stroke="#ffffff" stroke-width="2.5"/>'
+        ? `<circle cx="32" cy="32" r="${ALERT_RING_COLOURS[alert] ? 31 : 30}" fill="none" stroke="#ffffff" stroke-width="${ALERT_RING_COLOURS[alert] ? 1.8 : 2.5}"/>`
         : '') +
       `<circle cx="32" cy="32" r="25" fill="#07060c" fill-opacity="${approximate ? 0.62 : 0.9}" stroke="${colour}" stroke-width="3.5"${ring}/>` +
       `<g transform="translate(15.2 15.2) scale(1.4)" ${attrs.replaceAll('currentColor', glyph)}>${body.replaceAll('currentColor', glyph)}</g>` +

@@ -1,3 +1,4 @@
+import { ALERT_RING_COLOURS } from '../../data/corantoIcons.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { layerFeedState } from '../../data/feedState.js';
@@ -136,9 +137,19 @@ test('red is used only for a Red alert; only Orange and Red are labelled', () =>
   const [green] = parseGdacs(gdacs(gdacsItem({ level: 'Green' })));
   const [red] = parseGdacs(gdacs(gdacsItem({ level: 'Red' })));
   const [untracked] = parseEonet(eonet);
-  assert.equal(hazardColor(red), '#ff4d5e');
+  // A hazard takes the colour of what it is, whatever its alert level; the
+  // level is the ring, and only a Red alert gets the red one.
+  assert.equal(hazardColor(red), hazardColor(green));
+  assert.equal(hazardColor({ kind: 'wildfire' }), '#ff9a2e');
+  assert.equal(hazardColor({ kind: 'flood' }), '#4aa8ff');
+  assert.notEqual(
+    hazardColor({ kind: 'wildfire' }),
+    hazardColor({ kind: 'flood' }),
+  );
+  assert.equal(ALERT_RING_COLOURS[red.alert], '#ff4d5e');
   for (const item of [orange, green, untracked])
-    assert.notEqual(hazardColor(item), '#ff4d5e');
+    assert.notEqual(ALERT_RING_COLOURS[item.alert], '#ff4d5e');
+  assert.equal(ALERT_RING_COLOURS[green.alert], undefined);
   assert.deepEqual([red, orange, green, untracked].map(hazardHasLabel), [
     true,
     true,

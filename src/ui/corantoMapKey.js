@@ -1,6 +1,7 @@
 import {
   TOPIC_COLOURS,
   hazardIcon,
+  hazardKindColour,
   satelliteImage,
   iconImage,
   markerImage,
@@ -13,7 +14,6 @@ import {
 } from '../data/corantoAtlasStyle.js';
 import { SHIP_CLASS_LABELS, shipSvg } from '../data/corantoShips.js';
 import { vesselTypeCss } from '../data/vesselLabels.js';
-import { HAZARD_COLORS } from '../layers/hazards/model.js';
 import { ELECTION_COLOR } from '../layers/elections/model.js';
 
 /**
@@ -42,6 +42,10 @@ const marker = (icon, colour, extra = {}) => ({
  * @param {boolean} state.elections
  * @param {boolean} state.fires
  * @param {boolean} state.governmentAircraft
+ * @param {boolean} state.flights Civil aircraft are on.
+ * @param {boolean} state.military Military aircraft are on.
+ * @param {boolean} state.storms Tropical cyclones are on.
+ * @param {boolean} state.cables Undersea cables are on.
  * @param {boolean} state.nuclear
  * @param {boolean} state.broadcasts
  * @param {boolean} state.outbreaks
@@ -95,29 +99,40 @@ export function buildMapKeyModel(state) {
   }
   const kinds = [...new Set(state.hazardKinds ?? [])].sort();
   if (kinds.length) {
+    // One row for each kind on the map, in that kind's own colour. Kinds
+    // drawn alike (the same icon and colour) share a row.
     const seen = new Set();
     const rows = [];
     for (const kind of kinds) {
-      const icon = hazardIcon(kind);
-      if (seen.has(icon)) continue;
-      seen.add(icon);
+      const look = `${hazardIcon(kind)}|${hazardKindColour(kind)}`;
+      if (seen.has(look)) continue;
+      seen.add(look);
       rows.push({
-        ...marker(icon, HAZARD_COLORS.Orange),
+        ...marker(hazardIcon(kind), hazardKindColour(kind)),
         label: kinds
-          .filter((other) => hazardIcon(other) === icon)
+          .filter(
+            (other) =>
+              `${hazardIcon(other)}|${hazardKindColour(other)}` === look,
+          )
           .map((other) => other[0].toUpperCase() + other.slice(1))
           .join(', '),
       });
     }
     sections.push({ heading: 'NATURAL HAZARDS', rows });
+    const sample = kinds.includes('cyclone') ? 'cyclone' : kinds[0];
+    const ringed = (alert) =>
+      marker(hazardIcon(sample), hazardKindColour(sample), { alert });
     sections.push({
       heading: 'HAZARD ALERT LEVEL',
       rows: [
-        { swatch: HAZARD_COLORS.Red, label: 'Red alert from the tracker' },
-        { swatch: HAZARD_COLORS.Orange, label: 'Orange alert' },
         {
-          swatch: HAZARD_COLORS.Green,
-          label: 'Lower alert, or no level given',
+          ...ringed('Red'),
+          label: 'Red ring, and the largest marker: the tracker’s Red alert',
+        },
+        { ...ringed('Orange'), label: 'Orange ring: an Orange alert' },
+        {
+          ...ringed(null),
+          label: 'No ring: a lower alert, or no level given',
         },
       ],
     });
@@ -276,6 +291,27 @@ export function buildMapKeyModel(state) {
         swatch: '#9aa3b5',
         label: 'Small dots: the rest, mostly the Starlink shell',
       },
+    );
+  if (state.flights)
+    more.push({
+      image: iconImage('aircraft', '#DCEEFF'),
+      label: 'Civil aircraft broadcasting its position',
+    });
+  if (state.military)
+    more.push({
+      image: iconImage('aircraft', '#FFB800'),
+      label: 'Military aircraft broadcasting its position',
+    });
+  if (state.storms)
+    more.push({
+      swatch: '#7fe6ed',
+      label:
+        'Tropical cyclone and its forecast track (NOAA). Gold when selected.',
+    });
+  if (state.cables)
+    more.push(
+      { swatch: '#39d5ff', square: true, label: 'Undersea cable' },
+      { swatch: '#8fffd2', label: 'Where a cable comes ashore' },
     );
   if (state.governmentAircraft)
     more.push({

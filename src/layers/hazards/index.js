@@ -66,6 +66,7 @@ export function createHazardsLayer({
           image: markerImage({
             icon: hazardIcon(item.kind),
             colour: hazardColor(item),
+            alert: item.alert,
             selected,
           }),
           width: size,

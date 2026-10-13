@@ -84,6 +84,12 @@ const KEYED_LAYERS = new Set([
   'local-firms',
   'ais-live-vessels',
   'satellites',
+  'flights',
+  'military',
+  'earthquakes',
+  'rocket-launches',
+  'weather-cyclones',
+  'telegeography-submarine-cables',
 ]);
 
 /** Live layers offered in the header. Ids are catalog layer ids. */
@@ -1774,6 +1780,10 @@ export function createCorantoShell({
       elections: on('elections'),
       fires: on('local-firms'),
       governmentAircraft: lens === 'power',
+      flights: on('flights'),
+      military: on('military'),
+      storms: on('weather-cyclones'),
+      cables: on('telegeography-submarine-cables'),
       nuclear: nuclear.shown,
       broadcasts: tv.isOpen,
       ships: on('ais-live-vessels'),
