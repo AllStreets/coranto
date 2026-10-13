@@ -292,10 +292,10 @@ export const ICONS = Object.freeze({
     STROKE,
     '<path d="M5 19.500v-3M10 19.500v-7M15 19.500v-11M20 19.500V4.500" stroke-width="2.600"/>',
   ],
-  // The feed's title: a column of headlines coming in.
+  // The feed's title: the feed mark, a source and what it sends out.
   newsfeed: [
     STROKE,
-    '<path d="M4 5.500h16M4 10h10M4 14.500h16M4 19h7"/><circle cx="18.500" cy="19" r="1.600" fill="currentColor" stroke="none"/><path d="M17 10.200h3.500" stroke-width="2.600"/>',
+    '<circle cx="6" cy="18" r="2" fill="currentColor" stroke="none"/><path d="M4.500 11.200a8.300 8.300 0 0 1 8.300 8.300M4.500 4.500a15 15 0 0 1 15 15" stroke-width="2.400"/>',
   ],
   stories: [
     STROKE,
