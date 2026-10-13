@@ -2560,7 +2560,7 @@ export function createCorantoShell({
         document,
         'span',
         { class: 'coranto-feed-title' },
-        el(document, 'img', { src: iconImage('newsfeed', '#b47cff'), alt: '' }),
+        el(document, 'img', { src: iconImage('newsfeed', '#b9b1d1'), alt: '' }),
         el(document, 'span', { text: 'NEWSFEED' }),
       ),
       groupSwitch,

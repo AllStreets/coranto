@@ -44,7 +44,7 @@ export function createCommandPalette({ document, getCommands }) {
   // The title is the header's SEARCH button again: the glass, then the word.
   const title = make('div', 'coranto-palette-head');
   const titleIcon = make('img');
-  titleIcon.src = iconImage('search', '#e9e4f5');
+  titleIcon.src = iconImage('search', '#b9b1d1');
   titleIcon.alt = '';
   title.append(titleIcon, make('span', '', 'SEARCH'));
   panel.append(title, input, note, list, foot);

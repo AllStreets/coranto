@@ -6271,6 +6271,17 @@ body[data-coranto-mode='news'][data-coranto-frame='one'] #loading-screen {
   z-index: 380;
 }
 
+/* NEWSFEED and the search box's title read in the interface's grey, like
+   the rail and header labels, not in white or violet. */
+.coranto-feed-title,
+.coranto-palette-head {
+  color: var(--text-secondary);
+}
+.coranto-feed-title img,
+.coranto-palette-head img {
+  opacity: 0.85;
+}
+
 @supports selector(::-webkit-scrollbar) {
   #coranto-rail,
   #coranto-feed-body,
