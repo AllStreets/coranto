@@ -2475,10 +2475,15 @@ export function createCorantoShell({
     [keyBtn, 'legend'],
     [tourBtn, 'route'],
     [replayBtn, 'history'],
+    [briefingBtn, 'briefing'],
   ]) {
     const label = el(document, 'span', { text: button.textContent });
     button.replaceChildren(
-      el(document, 'img', { src: iconImage(icon, '#b9b1d1'), alt: '' }),
+      el(document, 'img', {
+        // MY BRIEFING is violet throughout; its icon is too.
+        src: iconImage(icon, button === briefingBtn ? '#b47cff' : '#b9b1d1'),
+        alt: '',
+      }),
       label,
     );
   }
@@ -3020,7 +3025,7 @@ export function createCorantoShell({
       (sum, watch) => sum + watchStories(snapshot, watch).fresh,
       0,
     );
-    briefingBtn.textContent = freshTotal
+    briefingBtn.lastElementChild.textContent = freshTotal
       ? `MY BRIEFING · ${freshTotal} NEW`
       : 'MY BRIEFING';
     briefingBtn.hidden = watches.length === 0;

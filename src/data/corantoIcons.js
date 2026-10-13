@@ -282,6 +282,11 @@ export const ICONS = Object.freeze({
     STROKE,
     '<circle cx="12" cy="12" r="2.200" fill="currentColor" stroke="none"/><path d="M7.800 7.800a6 6 0 0 0 0 8.400M16.200 7.800a6 6 0 0 1 0 8.400M4.900 4.900a10 10 0 0 0 0 14.200M19.100 4.900a10 10 0 0 1 0 14.200"/>',
   ],
+  // MY BRIEFING: a tray with what has come in for you.
+  briefing: [
+    STROKE,
+    '<path d="M3.500 13.500 6 5.500h12l2.500 8v5h-17v-5Z"/><path d="M3.500 13.500h5l1.200 2.500h4.600l1.200-2.500h5"/><path d="M9 8.500h6M9.800 11h4.400"/>',
+  ],
   stories: [
     STROKE,
     '<path d="M12 21s-6-5.500-6-10.500a6 6 0 0 1 12 0C18 15.500 12 21 12 21Z"/><path d="M9.500 9h5M9.500 11.800h5M9.500 14.500h3"/>',
