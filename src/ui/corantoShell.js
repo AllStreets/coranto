@@ -385,6 +385,11 @@ function clockText(date, local) {
     : `UTC ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}Z`;
 }
 
+/** Why a tour or a replay did not start. */
+function transportRefusal(mode) {
+  return mode === 'tour' ? 'TOO FEW' : 'TOO LITTLE';
+}
+
 /** The header button for the analyst board. */
 function boardLabel(count) {
   return count ? `ANALYST · ${count}` : 'ANALYST';
@@ -1902,12 +1907,11 @@ export function createCorantoShell({
     const started =
       mode === 'tour' ? transport.startTour() : transport.startReplay();
     if (!started) {
-      const button = mode === 'tour' ? tourBtn : replayBtn;
-      const was = button.textContent;
-      // Say why nothing happened, on the button itself.
-      button.textContent =
-        mode === 'tour' ? 'TOO FEW PLACES' : 'TOO LITTLE HELD';
-      win.setTimeout(() => (button.textContent = was), 2400);
+      // Say why nothing happened, on the button itself (its icon stays).
+      const label = (mode === 'tour' ? tourBtn : replayBtn).lastElementChild;
+      const was = label.textContent;
+      label.textContent = transportRefusal(mode);
+      win.setTimeout(() => (label.textContent = was), 2400);
     }
   }
   tourBtn.addEventListener('click', () => runTransport('tour'));

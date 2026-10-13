@@ -2,7 +2,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { windowSnapshot } from '../layers/news/model.js';
-import { replayLabel, replaySteps, tourStops } from './corantoTransport.js';
+import {
+  refreshStop,
+  replayLabel,
+  replaySteps,
+  tourLine,
+  tourStops,
+} from './corantoTransport.js';
 
 const H = 3_600_000;
 const now = Date.parse('2026-10-12T12:00:00Z');
@@ -80,4 +86,56 @@ test('a replayed moment shows only what had been published by then', () => {
     windowSnapshot(snapshot, 24).articles.map((entry) => entry.id),
     ['new'],
   );
+});
+
+test('a stop follows the feed: newest by time, outlets counted, gone when gone', () => {
+  const places = [
+    {
+      key: 'country:Nigeria',
+      name: 'Nigeria',
+      articles: [
+        {
+          title: 'older',
+          publisher: 'Premium Times',
+          publishedAt: '2026-10-13T08:00:00Z',
+        },
+        {
+          title: 'newest',
+          publisher: 'BBC',
+          publishedAt: '2026-10-13T11:00:00Z',
+        },
+        {
+          title: 'middle',
+          publisher: 'Premium Times',
+          publishedAt: '2026-10-13T09:00:00Z',
+        },
+      ],
+    },
+  ];
+  const [stop] = tourStops(places);
+  assert.equal(stop.headline, 'newest', 'by publish time, not list order');
+  assert.equal(stop.outlets, 2);
+  assert.equal(
+    tourLine(stop),
+    '3 headlines from 2 outlets · newest: newest (BBC)',
+  );
+  const later = [
+    {
+      ...places[0],
+      articles: [
+        ...places[0].articles,
+        {
+          title: 'just in',
+          publisher: 'CNA',
+          publishedAt: '2026-10-13T12:00:00Z',
+        },
+      ],
+    },
+  ];
+  const refreshed = refreshStop(stop, later);
+  assert.deepEqual(
+    [refreshed.count, refreshed.outlets, refreshed.headline],
+    [4, 3, 'just in'],
+  );
+  assert.equal(refreshStop(stop, []), null, 'the place has left the feed');
 });

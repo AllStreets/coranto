@@ -18,27 +18,64 @@ export const REPLAY_STEP_H = 3;
 export const REPLAY_TICK_MS = 1200;
 const WEEK_MS = 7 * 24 * 3_600_000;
 
-/** The places to visit: the most-reported first, at most `limit`. */
+/** One stop, read from a place as the feed has it now. */
+function tourStop(place) {
+  // The newest headline by its own publish time, whatever order they came in.
+  let newest = place.articles[0];
+  let newestAt = Date.parse(newest?.publishedAt ?? '');
+  for (const article of place.articles) {
+    const at = Date.parse(article.publishedAt ?? '');
+    if (Number.isFinite(at) && !(at <= newestAt)) {
+      newest = article;
+      newestAt = at;
+    }
+  }
+  return {
+    key: place.key,
+    name: place.name,
+    count: place.articles.length,
+    outlets: new Set(
+      place.articles.map((article) => article.publisher).filter(Boolean),
+    ).size,
+    headline: newest?.title ?? '',
+    publisher: newest?.publisher ?? '',
+  };
+}
+
+/**
+ * The places to visit: the most-reported first, at most `limit`. Worked out
+ * from whatever the feed holds when it is called; nothing is listed here.
+ */
 export function tourStops(places, limit = TOUR_STOPS) {
   return (places ?? [])
     .filter((place) => (place.articles?.length ?? 0) > 0)
     .slice()
     .sort((a, b) => b.articles.length - a.articles.length)
     .slice(0, limit)
-    .map((place) => ({
-      key: place.key,
-      name: place.name,
-      count: place.articles.length,
-      headline: place.articles[0]?.title ?? '',
-      publisher: place.articles[0]?.publisher ?? '',
-    }));
+    .map(tourStop);
 }
 
-/** What the bar says about a stop: how many stories, and the newest one. */
+/** A stop as the feed has it now, or null if the place has left the feed. */
+export function refreshStop(stop, places) {
+  const place = (places ?? []).find(
+    (entry) => entry.key === stop.key && (entry.articles?.length ?? 0) > 0,
+  );
+  return place ? tourStop(place) : null;
+}
+
+/**
+ * What the bar says about a stop: how many headlines from how many outlets,
+ * and the newest one. A place's count is of headlines, not of grouped
+ * stories.
+ */
 export function tourLine(stop) {
-  const noun = stop.count === 1 ? 'story' : 'stories';
+  const noun = stop.count === 1 ? 'headline' : 'headlines';
+  const from =
+    stop.outlets > 0
+      ? ` from ${stop.outlets} ${stop.outlets === 1 ? 'outlet' : 'outlets'}`
+      : '';
   const by = stop.publisher ? ` (${stop.publisher})` : '';
-  return `${stop.count} ${noun} · ${stop.headline}${by}`;
+  return `${stop.count} ${noun}${from} · newest: ${stop.headline}${by}`;
 }
 
 /**
@@ -165,9 +202,19 @@ export function createTransport({
     toggle.setAttribute('aria-label', toggle.title);
     slider.hidden = mode !== 'replay';
     if (mode === 'tour') {
-      title.textContent = `TOUR · ${index + 1} OF ${items.length} · ${item.name.toUpperCase()}`;
-      detail.textContent = tourLine(item);
-      layer.selectPlace(item.key, { focus: true });
+      // The feed may have refreshed since the tour began: say what the place
+      // holds now, and pass over a place that has left the feed.
+      const live = refreshStop(item, layer.getView().places);
+      if (!live) {
+        items = items.filter((entry) => entry !== item);
+        if (items.length < 1) return api.stop();
+        index = Math.min(index, items.length - 1);
+        return show();
+      }
+      items[index] = live;
+      title.textContent = `TOUR · ${index + 1} OF ${items.length} · ${live.name.toUpperCase()}`;
+      detail.textContent = tourLine(live);
+      layer.selectPlace(live.key, { focus: true });
     } else if (mode === 'replay') {
       slider.max = String(items.length - 1);
       slider.value = String(index);
