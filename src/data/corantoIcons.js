@@ -224,6 +224,26 @@ export const ICONS = Object.freeze({
   close: [STROKE, '<path d="M6 6l12 12M18 6 6 18"/>'],
   plus: [STROKE, '<path d="M12 5v14M5 12h14"/>'],
   minus: [STROKE, '<path d="M5 12h14"/>'],
+  gear: [
+    STROKE,
+    '<circle cx="12" cy="12" r="3"/><path d="M12 2.8l1.5 2.6 2.9-.6 1 2.8 2.8 1-.6 2.9 2.6 1.5-2.6 1.5.6 2.9-2.8 1-1 2.8-2.9-.6L12 21.2l-1.5-2.6-2.9.6-1-2.8-2.8-1 .6-2.9L1.8 12l2.6-1.5-.6-2.9 2.8-1 1-2.8 2.9.6L12 2.8Z"/>',
+  ],
+  bell: [
+    STROKE,
+    '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15l1.5-2Z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>',
+  ],
+  link: [
+    STROKE,
+    '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.700l-1 1"/><path d="M14 10a4 4 0 0 0-5.700 0l-3 3a4 4 0 0 0 5.700 5.700l1-1"/>',
+  ],
+  lock: [
+    STROKE,
+    '<rect x="5" y="10.500" width="14" height="10" rx="1.500"/><path d="M8 10.500V8a4 4 0 0 1 8 0v2.500"/>',
+  ],
+  info: [
+    STROKE,
+    '<circle cx="12" cy="12" r="8.500"/><path d="M12 11v5.500M12 7.700h.01"/>',
+  ],
   key: [
     STROKE,
     '<rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M7 9h.01M7 12.5h.01M7 16h.01M10.5 9H17M10.5 12.5H17M10.5 16H15"/>',

@@ -32,6 +32,7 @@ import { electionsProxy } from './elections.js';
 import { marketsProxy } from './markets.js';
 import { campaignFinanceProxy } from './campaignFinance.js';
 import { governmentAircraftProxy } from './governmentAircraft.js';
+import { corantoHealthProxy } from './corantoHealth.js';
 import { reliefProxy } from './relief.js';
 
 /**
@@ -74,6 +75,7 @@ function localProviderPlugins({ realtime } = {}) {
     campaignFinanceProxy(),
     governmentAircraftProxy(),
     reliefProxy(),
+    corantoHealthProxy(),
     keySetupEndpoint(),
   ];
 }

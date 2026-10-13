@@ -4370,6 +4370,607 @@ body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
 /* Every scrolling area shows a bar a person can see and drag, including on
    systems that hide scrollbars until the pointer moves. Kept last so no
    later rule turns one thin or invisible again. */
+/* ── Settings ───────────────────────────────────────────────────── */
+#coranto-settings-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+#coranto-settings-btn:hover,
+#coranto-settings-btn:focus-visible {
+  border-color: var(--accent);
+  background: rgba(180, 124, 255, 0.12);
+}
+#coranto-settings-btn img {
+  width: 15px;
+  height: 15px;
+  transition: transform 0.35s ease;
+}
+#coranto-settings-btn:hover img {
+  transform: rotate(60deg);
+}
+#coranto-settings {
+  position: fixed;
+  inset: 0;
+  z-index: 880;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(3, 3, 8, 0.66);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-family: var(--font-mono);
+}
+#coranto-settings[hidden] {
+  display: none;
+}
+.coranto-settings-panel {
+  position: relative;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  width: min(1000px, 100%);
+  height: min(700px, 100%);
+  border: 1px solid var(--coranto-line-2);
+  border-top: 2px solid var(--accent);
+  border-radius: 4px;
+  background: rgba(9, 8, 15, 0.985);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.75);
+  overflow: hidden;
+}
+.coranto-settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  padding: 22px 0 16px;
+  border-right: 1px solid var(--coranto-line);
+  background: rgba(255, 255, 255, 0.015);
+  overflow-y: auto;
+}
+.coranto-settings-nav-title {
+  padding: 0 20px 14px;
+  color: var(--text-dim);
+  font: 700 9px var(--font-brand);
+  letter-spacing: 2.4px;
+}
+.coranto-settings-tab {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 20px 11px 18px;
+  border: 0;
+  border-left: 2px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 500 13px var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
+}
+.coranto-settings-tab img {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  opacity: 0.75;
+}
+.coranto-settings-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+.coranto-settings-tab[aria-current='page'] {
+  border-left-color: var(--accent);
+  background: rgba(180, 124, 255, 0.08);
+  color: var(--accent);
+}
+.coranto-settings-tab[aria-current='page'] img {
+  opacity: 1;
+}
+.coranto-settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  min-height: 0;
+  padding: 26px 30px 34px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+.coranto-settings-content > * {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 720px;
+  flex: 0 0 auto;
+}
+.coranto-settings-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+}
+.coranto-settings-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 34px;
+  margin-bottom: 6px;
+}
+.coranto-settings-head-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(180, 124, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(180, 124, 255, 0.1);
+}
+.coranto-settings-head-icon img {
+  width: 19px;
+  height: 19px;
+}
+.coranto-settings-title {
+  margin: 0;
+  color: var(--text-primary);
+  font: 700 18px var(--font-head);
+  letter-spacing: 0.3px;
+}
+.coranto-settings-subtitle {
+  margin: 3px 0 0;
+  color: var(--text-secondary);
+  font: 12px var(--font-mono);
+}
+.coranto-settings-card {
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.coranto-settings-card-danger {
+  border-color: rgba(255, 77, 94, 0.28);
+  background: rgba(255, 77, 94, 0.03);
+}
+.coranto-settings-card-title {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font: 700 9.5px var(--font-brand);
+  letter-spacing: 2px;
+}
+.coranto-settings-card-danger .coranto-settings-card-title {
+  color: #ff6b79;
+}
+.coranto-settings-row,
+.coranto-settings-kv {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 0;
+  border-top: 1px solid var(--coranto-line);
+}
+.coranto-settings-card-title
+  + :is(.coranto-settings-row, .coranto-settings-kv) {
+  border-top: 0;
+}
+.coranto-settings-row-text {
+  min-width: 0;
+}
+.coranto-settings-row-label {
+  color: var(--text-primary);
+  font: 500 13.5px var(--font-sans);
+}
+.coranto-settings-row-note {
+  margin-top: 3px;
+  color: var(--text-secondary);
+  font: 11px/1.45 var(--font-mono);
+}
+.coranto-settings-kv {
+  padding: 10px 0;
+  color: var(--text-secondary);
+  font: 13px var(--font-sans);
+}
+.coranto-settings-kv > :last-child {
+  color: var(--text-primary);
+  font: 12px var(--font-mono);
+  text-align: right;
+}
+.coranto-settings-foot {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font: 11.5px/1.55 var(--font-mono);
+}
+p.coranto-settings-foot:not(.coranto-settings-card *) {
+  margin: 0;
+  padding: 0 4px;
+}
+.coranto-settings-toggle {
+  position: relative;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+.coranto-settings-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #8f88a6;
+  transition:
+    transform var(--transition-fast),
+    background var(--transition-fast);
+}
+.coranto-settings-toggle[aria-checked='true'] {
+  border-color: var(--accent);
+  background: rgba(180, 124, 255, 0.3);
+}
+.coranto-settings-toggle[aria-checked='true'] .coranto-settings-toggle-knob {
+  transform: translateX(18px);
+  background: #b47cff;
+}
+.coranto-settings-choice {
+  display: flex;
+  flex: 0 0 auto;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.coranto-settings-choice button {
+  padding: 7px 11px;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: 600 9px var(--font-mono);
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.coranto-settings-choice button + button {
+  border-left: 1px solid var(--coranto-line-2);
+}
+.coranto-settings-choice button[aria-checked='true'] {
+  background: #b47cff;
+  color: #04070b;
+}
+.coranto-settings-layouts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 6px;
+}
+.coranto-settings-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+.coranto-settings-layout:hover {
+  border-color: rgba(180, 124, 255, 0.5);
+}
+.coranto-settings-layout[aria-checked='true'] {
+  border-color: var(--accent);
+  background: rgba(180, 124, 255, 0.09);
+}
+.coranto-settings-layout-sample {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  margin-bottom: 6px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 3px;
+  background: rgba(4, 7, 11, 0.9);
+  overflow: hidden;
+}
+.coranto-settings-layout-sample span {
+  flex: 0 0 auto;
+  padding: 3px 5px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 2px;
+  color: var(--text-secondary);
+  font: 600 7px var(--font-mono);
+  letter-spacing: 1px;
+}
+.coranto-settings-layout-sample
+  span:is([data-kind='layer'], [data-kind='layers']) {
+  border-color: rgba(180, 124, 255, 0.6);
+  color: var(--accent);
+}
+.coranto-settings-layout-name {
+  color: var(--text-primary);
+  font: 700 10px var(--font-brand);
+  letter-spacing: 1.6px;
+}
+.coranto-settings-pill {
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font: 700 8.5px var(--font-mono);
+  letter-spacing: 1.3px;
+  white-space: nowrap;
+}
+.coranto-settings-pill[data-state='ok'] {
+  border-color: rgba(180, 124, 255, 0.55);
+  background: rgba(180, 124, 255, 0.12);
+  color: var(--accent);
+}
+.coranto-settings-pill[data-state='off'] {
+  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--text-dim);
+}
+.coranto-settings-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.coranto-settings-dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #6f6986;
+}
+.coranto-settings-dot[data-state='ok'] {
+  background: #3ddc84;
+  box-shadow: 0 0 8px rgba(61, 220, 132, 0.7);
+}
+.coranto-settings-dot[data-state='down'] {
+  background: #ff4d5e;
+  box-shadow: 0 0 8px rgba(255, 77, 94, 0.6);
+}
+.coranto-settings-button,
+.coranto-settings-danger {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 8px 13px;
+  border: 1px solid rgba(180, 124, 255, 0.55);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--accent);
+  font: 700 9px var(--font-mono);
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.coranto-settings-card > .coranto-settings-button {
+  margin-top: 12px;
+}
+.coranto-settings-button:hover:not(:disabled) {
+  background: rgba(180, 124, 255, 0.16);
+}
+.coranto-settings-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.coranto-settings-danger {
+  border-color: rgba(255, 77, 94, 0.5);
+  color: #ff6b79;
+}
+.coranto-settings-danger:hover,
+.coranto-settings-danger[data-armed] {
+  background: rgba(255, 77, 94, 0.16);
+}
+.coranto-settings-sources {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 0 22px;
+}
+.coranto-settings-source {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 7px 0;
+  border-top: 1px solid var(--coranto-line);
+}
+.coranto-settings-source-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font: 12.5px var(--font-sans);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.coranto-settings-source-detail {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font: 9.5px var(--font-mono);
+  letter-spacing: 0.6px;
+}
+.coranto-settings-source[data-state='down'] .coranto-settings-source-detail {
+  color: #ff6b79;
+}
+.coranto-settings-keys {
+  display: inline-flex;
+  gap: 5px;
+}
+.coranto-settings-keys kbd {
+  padding: 3px 7px;
+  border: 1px solid var(--coranto-line-2);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  color: var(--text-primary);
+  font: 600 9px var(--font-mono);
+  letter-spacing: 1px;
+}
+.coranto-settings-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-top: 1px solid var(--coranto-line);
+  color: var(--text-primary);
+  font: 13px var(--font-sans);
+  text-decoration: none;
+}
+.coranto-settings-card-title + .coranto-settings-link {
+  border-top: 0;
+}
+.coranto-settings-link:hover {
+  color: var(--accent);
+}
+.coranto-settings-link img {
+  width: 13px;
+  height: 13px;
+}
+.coranto-settings-saved {
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  padding: 7px 13px;
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  background: rgba(20, 12, 34, 0.96);
+  color: var(--accent);
+  font: 700 9px var(--font-mono);
+  letter-spacing: 1.8px;
+  pointer-events: none;
+}
+.coranto-settings-saved[hidden] {
+  display: none;
+}
+@media (max-width: 760px) {
+  .coranto-settings-panel {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .coranto-settings-nav {
+    flex-direction: row;
+    gap: 0;
+    padding: 0 44px 0 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--coranto-line);
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .coranto-settings-nav-title {
+    display: none;
+  }
+  .coranto-settings-tab {
+    flex: 0 0 auto;
+    padding: 13px 13px 11px;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .coranto-settings-tab[aria-current='page'] {
+    border-bottom-color: var(--accent);
+  }
+  .coranto-settings-content {
+    padding: 18px 16px 26px;
+  }
+  .coranto-settings-layouts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .coranto-settings-row {
+    flex-wrap: wrap;
+  }
+}
+
+/* The header with a button for every layer (Settings, General, Header) */
+body[data-coranto-header='chips'] #coranto-layers-all {
+  display: none;
+}
+/* Ten buttons do not fit one row beside everything else, so they sit in two
+   short rows of five inside the header: every one is visible, none scrolls
+   away. */
+body[data-coranto-header='chips'] #coranto-layers {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  justify-content: start;
+  align-content: center;
+  gap: 4px 5px;
+  height: 100%;
+  padding-right: 0;
+  overflow: hidden;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+body[data-coranto-header='chips'] .coranto-layer {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  font-size: 8.5px;
+  letter-spacing: 1.2px;
+  white-space: nowrap;
+}
+.coranto-layer img {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+}
+@media (max-width: 1560px) {
+  body[data-coranto-header='chips'] #coranto-clock {
+    display: none;
+  }
+}
+@media (max-width: 1400px) {
+  body[data-coranto-header='chips'] .coranto-layer img {
+    display: none;
+  }
+}
+/* Too narrow for the row: the LAYERS list takes over, so every layer stays
+   in reach. */
+@media (max-width: 1239px) {
+  body[data-coranto-header='chips'] #coranto-layers-all {
+    display: inline-block;
+  }
+  body[data-coranto-header='chips'] #coranto-layers {
+    visibility: hidden;
+  }
+}
+@media (max-width: 1500px) {
+  body[data-coranto-header='chips'] :is(#coranto-count, .coranto-tagline),
+  body[data-coranto-header='chips'] #coranto-search-all kbd {
+    display: none;
+  }
+}
+
+/* The headline ticker switched off in Settings */
+body[data-coranto-frame='one'][data-coranto-ticker='off'] {
+  --coranto-ticker-h: 0px;
+  --ui-top-inset: 58px;
+}
+body[data-coranto-frame='one'][data-coranto-ticker='off'] #coranto-ticker {
+  display: none;
+}
+
 @supports selector(::-webkit-scrollbar) {
   #coranto-rail,
   #coranto-feed-body,
@@ -4390,6 +4991,8 @@ body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
   .coranto-story-body::-webkit-scrollbar,
   #coranto-sources-menu::-webkit-scrollbar,
   #coranto-layers-menu::-webkit-scrollbar,
+  .coranto-settings-content::-webkit-scrollbar,
+  .coranto-settings-nav::-webkit-scrollbar,
   .coranto-palette-list::-webkit-scrollbar,
   #coranto-tv::-webkit-scrollbar {
     width: 10px;
@@ -4402,6 +5005,8 @@ body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
   .coranto-story-body::-webkit-scrollbar-track,
   #coranto-sources-menu::-webkit-scrollbar-track,
   #coranto-layers-menu::-webkit-scrollbar-track,
+  .coranto-settings-content::-webkit-scrollbar-track,
+  .coranto-settings-nav::-webkit-scrollbar-track,
   .coranto-palette-list::-webkit-scrollbar-track,
   #coranto-tv::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
@@ -4414,6 +5019,8 @@ body:is(.cockpit-mode, .scene-playback-mode, .recording-mode, .ui-clean-view)
   .coranto-story-body::-webkit-scrollbar-thumb,
   #coranto-sources-menu::-webkit-scrollbar-thumb,
   #coranto-layers-menu::-webkit-scrollbar-thumb,
+  .coranto-settings-content::-webkit-scrollbar-thumb,
+  .coranto-settings-nav::-webkit-scrollbar-thumb,
   .coranto-palette-list::-webkit-scrollbar-thumb,
   #coranto-tv::-webkit-scrollbar-thumb {
     border: 2px solid transparent;

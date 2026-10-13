@@ -49,6 +49,12 @@ import { createMarketsLens } from './corantoMarkets.js';
 import { createNuclearMarks } from './corantoNuclear.js';
 import { createSatelliteIcons } from './corantoSatelliteIcons.js';
 import { createSceneRestore } from './corantoSceneRestore.js';
+import { createSettings } from './corantoSettings.js';
+import {
+  clearStored,
+  createSettingsStore,
+  storedData,
+} from './corantoSettingsModel.js';
 import { createTransport } from './corantoTransport.js';
 import { createPowerLens } from './corantoPower.js';
 import { createLaunchIcons } from './corantoLaunchIcons.js';
@@ -191,7 +197,7 @@ const GUIDE = [
   ],
   [
     'Build a picture',
-    'PIN TO BOARD keeps a story, country or city on the analyst board; an aircraft, ship or site can be pinned from its card, and is kept as it was at that moment. BOARD at the top shows what you have pinned, draws the connections between items that mention the same name, and works out a brief and a timeline from them. Nothing on the board is written by a model.',
+    'PIN TO BOARD keeps a story, country or city on the analyst board; an aircraft, ship or site can be pinned from its card, and is kept as it was at that moment. ANALYST at the top shows what you have pinned, draws the connections between items that mention the same name, and works out a brief and a timeline from them. Nothing on the board is written by a model.',
   ],
   [
     'Be shown the news',
@@ -333,9 +339,16 @@ function nearbyLabel(near) {
   return `${stories} ${stories === 1 ? 'story' : 'stories'} within ${NEARBY_KM} km · nearest ${place.name}, ${Math.round(km)} km`;
 }
 
+/** The header clock: UTC, or the reader's own time marked as local. */
+function clockText(date, local) {
+  return local
+    ? `LOCAL ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+    : `UTC ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}Z`;
+}
+
 /** The header button for the analyst board. */
 function boardLabel(count) {
-  return count ? `BOARD · ${count}` : 'BOARD';
+  return count ? `ANALYST · ${count}` : 'ANALYST';
 }
 
 /** The pin button on a card. */
@@ -807,6 +820,28 @@ export function createCorantoShell({
           keywords: 'new since briefing',
           pinned: true,
           run: inNews(() => briefingBtn.click()),
+        },
+        {
+          title: 'Settings',
+          detail: 'Layout, notices, connections, your data and about',
+          icon: 'gear',
+          keywords: 'settings preferences options api keys connections about',
+          pinned: true,
+          run: () => settings.open(),
+        },
+        {
+          title: 'Header: layer buttons',
+          detail: 'Search beside LIVE and a button for every layer',
+          icon: 'gear',
+          keywords: 'header layout chips buttons filters layers',
+          run: () => settingsStore.set('headerLayout', 'chips'),
+        },
+        {
+          title: 'Header: layers list',
+          detail: 'One LAYERS button that opens the list',
+          icon: 'gear',
+          keywords: 'header layout menu dropdown layers',
+          run: () => settingsStore.set('headerLayout', 'menu'),
         },
         {
           title: 'Analyst board',
@@ -1285,6 +1320,18 @@ export function createCorantoShell({
     modeNews,
     modeTools,
   );
+  const settingsStore = createSettingsStore({ storage: localStorageRef });
+  const settingsBtn = el(
+    document,
+    'button',
+    {
+      type: 'button',
+      id: 'coranto-settings-btn',
+      title: 'Settings: layout, notices, connections, your data and about',
+      'aria-label': 'Settings',
+    },
+    el(document, 'img', { src: iconImage('gear', '#c9c2de'), alt: '' }),
+  );
   const menuBtn = el(document, 'button', {
     id: 'coranto-menu',
     type: 'button',
@@ -1298,41 +1345,52 @@ export function createCorantoShell({
     else delete body.dataset.corantoMenu;
     menuBtn.setAttribute('aria-expanded', String(open));
   });
-  const header = el(
+  const headerGap = el(document, 'span', { class: 'coranto-header-gap' });
+  const brand = el(
     document,
-    'header',
-    { id: 'coranto-header' },
+    'div',
+    { class: 'coranto-brand' },
+    el(document, 'img', { src: '/logo.svg', alt: '' }),
     el(
       document,
       'div',
-      { class: 'coranto-brand' },
-      el(document, 'img', { src: '/logo.svg', alt: '' }),
+      {},
       el(
         document,
         'div',
-        {},
-        el(
-          document,
-          'div',
-          { class: 'coranto-wordmark' },
-          el(document, 'em', { text: 'CORANTO' }),
-        ),
-        el(document, 'div', {
-          class: 'coranto-tagline',
-          text: 'WATCH THE WORLD BACK',
-        }),
+        { class: 'coranto-wordmark' },
+        el(document, 'em', { text: 'CORANTO' }),
       ),
+      el(document, 'div', {
+        class: 'coranto-tagline',
+        text: 'WATCH THE WORLD BACK',
+      }),
     ),
-    liveBtn,
-    menuBtn,
-    layersBtn,
-    searchBtn,
-    el(document, 'span', { class: 'coranto-header-gap' }),
-    count,
-    clock,
-    boardBtn,
-    modeSwitch,
   );
+  const header = el(document, 'header', { id: 'coranto-header' });
+  /**
+   * The header in one of two layouts. 'menu' keeps the layers in the LAYERS
+   * list. 'chips' puts SEARCH beside LIVE and gives every layer its own
+   * button; LAYERS stays in the markup for windows too narrow for the row.
+   */
+  function applyHeaderLayout() {
+    const chips = settingsStore.get('headerLayout') === 'chips';
+    body.dataset.corantoHeader = chips ? 'chips' : 'menu';
+    if (chips) setLayersMenu(false);
+    header.replaceChildren(
+      brand,
+      liveBtn,
+      ...(chips
+        ? [searchBtn, menuBtn, layersBtn, layerNav]
+        : [menuBtn, layersBtn, searchBtn, headerGap]),
+      count,
+      clock,
+      boardBtn,
+      modeSwitch,
+      settingsBtn,
+    );
+  }
+  applyHeaderLayout();
 
   // ── Ticker ──────────────────────────────────────────────────────
   const tickerTrack = el(document, 'div', { class: 'coranto-ticker-track' });
@@ -1876,6 +1934,84 @@ export function createCorantoShell({
       } else if (notice.kind === 'outbreak') setLens('relief');
     },
   });
+  // Settings: the gear at the right end of the header.
+  async function readSettingsSources() {
+    const read = async (path) => {
+      try {
+        const response = await win.fetch(path, {
+          headers: { Accept: 'application/json' },
+          cache: 'no-store',
+        });
+        return response.ok ? await response.json() : null;
+      } catch {
+        return null;
+      }
+    };
+    const [hazards, relief, markets, elections] = await Promise.all(
+      ['/api/hazards', '/api/relief', '/api/markets', '/api/elections'].map(
+        read,
+      ),
+    );
+    const rows = (payload) =>
+      (payload?.sources ?? []).map((source) => ({
+        name: source.name,
+        state: source.ok ? 'ok' : 'down',
+      }));
+    return [
+      { group: 'News', rows: sourceRowsShown },
+      { group: 'Disasters', rows: rows(hazards) },
+      { group: 'Relief', rows: rows(relief) },
+      { group: 'Markets', rows: rows(markets) },
+      {
+        group: 'Elections',
+        rows: elections?.source
+          ? [
+              {
+                name: elections.source,
+                state: elections.stale ? 'down' : 'ok',
+              },
+            ]
+          : [],
+      },
+    ];
+  }
+  const clearAndReload = (keys) => {
+    clearStored(localStorageRef, keys);
+    win.location.reload();
+  };
+  const settings = createSettings({
+    document,
+    win,
+    store: settingsStore,
+    readSources: readSettingsSources,
+    exportData: () => storedData(localStorageRef),
+    resets: [
+      {
+        label: 'Settings',
+        note: 'Put every setting on this page back to how it started.',
+        button: 'RESET SETTINGS',
+        run: () => settingsStore.reset(),
+      },
+      {
+        label: 'Watches',
+        note: 'Remove every place and term you watch. Coranto reloads.',
+        button: 'CLEAR WATCHES',
+        run: () => clearAndReload(['coranto.watches.v1']),
+      },
+      {
+        label: 'Analyst board',
+        note: 'Remove every pin and saved board. Coranto reloads.',
+        button: 'CLEAR THE BOARD',
+        run: () => clearAndReload(['coranto.board.v1', 'coranto.boards.v1']),
+      },
+      {
+        label: 'Everything',
+        note: 'Remove all that this browser keeps for Coranto. Coranto reloads.',
+        button: 'CLEAR EVERYTHING',
+        run: () => clearAndReload(null),
+      },
+    ],
+  });
   let watchFreshBefore = null;
   let watchContext = '';
   function checkWatchNotices(current) {
@@ -1893,8 +2029,9 @@ export function createCorantoShell({
         : null;
       return;
     }
-    for (const notice of watchAlerts(watchFreshBefore, current))
-      notices.show(notice);
+    if (settingsStore.get('noticeWatches'))
+      for (const notice of watchAlerts(watchFreshBefore, current))
+        notices.show(notice);
     watchFreshBefore = new Map(current.map((watch) => [watch.id, watch.fresh]));
   }
   // With no record yet, the first minute only records what is already there:
@@ -1907,6 +2044,9 @@ export function createCorantoShell({
     alertState.hazards = seen;
     saveAlertState();
     if (hazardsFirstSeenAt && Date.now() - hazardsFirstSeenAt < 60_000) return;
+    // Switched off, an alert is still recorded as seen, so switching notices
+    // back on does not replay old ones.
+    if (!settingsStore.get('noticeHazards')) return;
     fresh.forEach((notice) => notices.show(notice));
   }
   async function checkOutbreakNotices() {
@@ -1922,7 +2062,8 @@ export function createCorantoShell({
       );
       alertState.who = seen;
       saveAlertState();
-      fresh.forEach((notice) => notices.show(notice));
+      if (settingsStore.get('noticeOutbreaks'))
+        fresh.forEach((notice) => notices.show(notice));
     } catch {
       // A source that is down raises nothing; the Relief lens says it is down.
     }
@@ -2396,6 +2537,7 @@ export function createCorantoShell({
     dossier.element,
     transport.element,
     notices.element,
+    settings.element,
     mapKey.element,
     board.element,
     ticker,
@@ -2717,9 +2859,10 @@ export function createCorantoShell({
   }
 
   function tick() {
+    const showLocalTime = settingsStore.get('clock') !== 'utc';
     const date = new Date();
     clock.dateTime = date.toISOString();
-    clock.textContent = `UTC ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}Z`;
+    clock.textContent = clockText(date, showLocalTime);
     updateHud();
   }
 
@@ -2949,6 +3092,14 @@ export function createCorantoShell({
   guide.addEventListener('click', (event) => {
     if (event.target === guide) guide.hidden = true;
   });
+  settingsBtn.addEventListener('click', () => settings.open());
+  const applySettings = () => {
+    applyHeaderLayout();
+    body.dataset.corantoTicker = settingsStore.get('ticker') ? 'on' : 'off';
+    tick();
+  };
+  settingsStore.subscribe(applySettings);
+  applySettings();
   const onKey = (event) => {
     // Ctrl+K, or Cmd+K on a Mac, opens the search over everything.
     if (
@@ -2974,6 +3125,10 @@ export function createCorantoShell({
       return;
     }
     if (event.key !== 'Escape') return;
+    if (settings.isOpen()) {
+      settings.close();
+      return;
+    }
     setSourcesMenu(false);
     feed?.closeStory();
     dossier.close();
@@ -3020,7 +3175,13 @@ export function createCorantoShell({
     text: layerIconCss("body[data-coranto-frame='one']"),
   });
   document.head?.append(layerIconStyle);
-  setMode(storedMode ?? defaultMode, { remember: false });
+  const startView = settingsStore.get('startView');
+  setMode(
+    win.navigator?.webdriver || startView === 'last'
+      ? (storedMode ?? defaultMode)
+      : startView,
+    { remember: false },
+  );
   if (body.dataset.corantoMode === 'news') {
     // News opens straight onto the feed; the engine's mission launcher
     // belongs to the control room.
