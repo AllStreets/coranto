@@ -2192,3 +2192,22 @@ button.ca-mx-cell:focus-visible,
   background: rgba(180, 124, 255, 0.16);
   box-shadow: 0 0 8px rgba(180, 124, 255, 0.22);
 }
+
+/* The three columns are exactly as tall as the board, never as tall as what
+   is in them, so a long list scrolls inside its own column. */
+@media (min-width: 981px) {
+  .ca-am-body {
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+.ca-am-col,
+.ca-am-asset-scroll,
+.ca-am-brief-scroll {
+  min-height: 0;
+}
+.ca-am-asset-scroll > .ca-am-card {
+  flex: 0 0 auto;
+}
+#ca-am-canvas {
+  min-height: 0;
+}
