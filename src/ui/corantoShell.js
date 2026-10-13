@@ -51,6 +51,8 @@ import { createNuclearMarks } from './corantoNuclear.js';
 import { createSatelliteIcons } from './corantoSatelliteIcons.js';
 import { createSceneRestore } from './corantoSceneRestore.js';
 import { createSettings } from './corantoSettings.js';
+import { createOverlays } from './corantoOverlays.js';
+import { createSides } from './corantoSides.js';
 import {
   clearStored,
   createSettingsStore,
@@ -136,7 +138,22 @@ const HEADER_LAYERS = [
     'launch',
   ],
   ['telegeography-submarine-cables', 'CABLES', 'Undersea cables', 'cable'],
+  // Coranto's own two, drawn on the ground under everything else.
+  [
+    'coranto:silence',
+    'SILENCE',
+    'Where the internet is measured far below normal right now: blackouts and major outages (IODA)',
+    'silence',
+  ],
+  [
+    'coranto:disease',
+    'DISEASE',
+    'Countries under an official disease outbreak notice (WHO, CDC), by how the disease spreads',
+    'disease',
+  ],
 ];
+const OVERLAY_PREFIX = 'coranto:';
+const OVERLAYS_KEY = 'coranto.overlays.v1';
 
 const CATEGORIES = [
   [null, 'ALL COVERAGE'],
@@ -524,6 +541,8 @@ export function createCorantoShell({
    * does not count as SATELLITES being on.
    */
   function layerShown(id) {
+    if (id.startsWith(OVERLAY_PREFIX))
+      return overlays.isOn(id.slice(OVERLAY_PREFIX.length));
     if (!dataManager?.layers?.has(id) || !dataManager.isEnabled(id))
       return false;
     return (
@@ -546,6 +565,26 @@ export function createCorantoShell({
     );
     button.addEventListener('click', () => {
       if (!dataManager) return;
+      if (id.startsWith(OVERLAY_PREFIX)) {
+        const name = id.slice(OVERLAY_PREFIX.length);
+        button.dataset.busy = 'true';
+        overlays
+          .set(name, !overlays.isOn(name))
+          .catch(() => {})
+          .finally(() => {
+            delete button.dataset.busy;
+            writeStored(
+              localStorageRef,
+              OVERLAYS_KEY,
+              JSON.stringify({
+                silence: overlays.isOn('silence'),
+                disease: overlays.isOn('disease'),
+              }),
+            );
+            syncLayers();
+          });
+        return;
+      }
       // While LAUNCHES is on it keeps the satellites layer running with the
       // catalogue hidden. SATELLITES then shows or hides the catalogue and
       // leaves the layer running, so launches keep working.
@@ -829,6 +868,24 @@ export function createCorantoShell({
           keywords: 'settings preferences options api keys connections about',
           pinned: true,
           run: () => settings.open(),
+        },
+        {
+          title: sides.isAway('rail')
+            ? 'Show the left panel'
+            : 'Hide the left panel',
+          detail: 'Topics, lenses and watches; more room for the globe',
+          icon: 'minus',
+          keywords:
+            'minimize minimise collapse hide sidebar left rail panel full screen globe',
+          run: inNews(() => sides.toggle('rail')),
+        },
+        {
+          title: sides.isAway('feed') ? 'Show the feed' : 'Hide the feed',
+          detail: 'The headline feed on the right; more room for the globe',
+          icon: 'minus',
+          keywords:
+            'minimize minimise collapse hide sidebar right feed stories panel full screen globe',
+          run: inNews(() => sides.toggle('feed')),
         },
         {
           title: 'Header: layer buttons',
@@ -1819,6 +1876,17 @@ export function createCorantoShell({
     },
   });
   // A rocket at each launch site, while the launches layer is on.
+  // SILENCE and DISEASE: Coranto's own two layers, drawn on the ground.
+  const overlays = createOverlays({
+    win,
+    getViewer: () => dataManager?.viewer ?? null,
+    getArticles: () => layer.getView().snapshot?.articles ?? [],
+    showCard: (detail) => {
+      card.dataset.owner = 'overlay';
+      showCard(detail);
+    },
+    onChange: () => renderMapKey(),
+  });
   const launchIcons = createLaunchIcons({
     getManager: () => dataManager,
     isNewsView: () => body.dataset.corantoMode === 'news',
@@ -1978,6 +2046,8 @@ export function createCorantoShell({
       launches: launchIcons.shown,
       payloads: launchIcons.shown && launchIcons.payloadCount() > 0,
       outbreaks: relief.marked,
+      silence: overlays.status('silence'),
+      disease: overlays.status('disease'),
       borders: atlas.isOn('borders'),
       countries: atlas.isOn('countries'),
       activity: atlas.isOn('activity'),
@@ -2658,6 +2728,22 @@ export function createCorantoShell({
     hudWhere.textContent = at ? hudWhereLine(at) : '';
   }
 
+  // Either side of the news view can be put away for more of the globe.
+  const sides = createSides({
+    document,
+    win,
+    rail,
+    feed: feedAside,
+    storage: localStorageRef,
+    onChange: () => {
+      // The globe's canvas has a new width once the panel has slid.
+      for (const delay of [0, 140, 300])
+        win.setTimeout(() => {
+          win.dispatchEvent(new win.Event('resize'));
+          dataManager?.viewer?.scene?.requestRender?.();
+        }, delay);
+    },
+  });
   body.append(
     header,
     hud,
@@ -2668,6 +2754,7 @@ export function createCorantoShell({
     transport.element,
     notices.element,
     settings.element,
+    ...sides.elements,
     mapKey.element,
     board.element,
     ticker,
@@ -2953,7 +3040,8 @@ export function createCorantoShell({
   function syncLayers() {
     if (!dataManager) return;
     for (const [id, button] of layerButtons) {
-      const known = dataManager.layers?.has(id);
+      const known =
+        id.startsWith(OVERLAY_PREFIX) || dataManager.layers?.has(id);
       button.hidden = !known;
       if (known) button.setAttribute('aria-pressed', String(layerShown(id)));
       const row = layerRows.get(id);
@@ -3395,6 +3483,17 @@ export function createCorantoShell({
         nuclear.show();
         for (const [name] of ATLAS_OVERLAYS)
           if (atlasWanted[name]) setAtlas(name, true, { remember: false });
+      }
+      // SILENCE and DISEASE come back as they were left.
+      try {
+        const wanted = JSON.parse(
+          readStored(localStorageRef, OVERLAYS_KEY) ?? '{}',
+        );
+        for (const name of ['silence', 'disease'])
+          if (wanted?.[name] === true && !win.navigator?.webdriver)
+            overlays.set(name, true).then(syncLayers, () => {});
+      } catch {
+        // A broken stored value leaves both off.
       }
       syncLayers();
       hazardsLayer = manager.layers?.get('hazards')?.module ?? null;

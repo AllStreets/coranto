@@ -4480,6 +4480,60 @@ p.coranto-settings-foot:not(.coranto-settings-card *) {
   border-color: rgba(180, 124, 255, 0.6);
   color: var(--accent);
 }
+.coranto-settings-layout-sample[data-kind='menu'] {
+  flex-direction: column;
+  gap: 5px;
+  padding: 9px 10px;
+}
+.coranto-settings-layout-sample[data-kind='menu'] > div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.coranto-settings-layout-sample[data-kind='menu'] > div[data-row] {
+  justify-content: space-between;
+  width: 62%;
+  margin-left: 30%;
+  padding: 3px 6px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 2px;
+  color: var(--text-secondary);
+  font: 600 7px var(--font-mono);
+  letter-spacing: 1px;
+}
+.coranto-settings-layout-sample i {
+  position: relative;
+  flex: 0 0 auto;
+  width: 15px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.coranto-settings-layout-sample i::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8f88a6;
+}
+.coranto-settings-layout-sample i[data-on] {
+  background: rgba(180, 124, 255, 0.4);
+}
+.coranto-settings-layout-sample i[data-on]::after {
+  left: 8px;
+  background: #b47cff;
+}
+.coranto-settings-layout-sample[data-kind='chips'] {
+  mask-image: linear-gradient(90deg, #000 calc(100% - 26px), transparent);
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 calc(100% - 26px),
+    transparent
+  );
+}
 .coranto-settings-layout-name {
   color: var(--text-primary);
   font: 700 10px var(--font-brand);
@@ -4678,28 +4732,31 @@ p.coranto-settings-foot:not(.coranto-settings-card *) {
 body[data-coranto-header='chips'] #coranto-layers-all {
   display: none;
 }
-/* Ten buttons do not fit one row beside everything else, so they sit in two
-   short rows of five inside the header: every one is visible, none scrolls
-   away. */
+/* One row of layer buttons. It scrolls sideways (two fingers, or a wheel)
+   and fades out under ANALYST, so the row never pushes the header about. */
 body[data-coranto-header='chips'] #coranto-layers {
-  display: grid;
-  grid-template-columns: repeat(5, auto);
-  justify-content: start;
-  align-content: center;
-  gap: 4px 5px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 5px;
   height: 100%;
-  padding-right: 0;
-  overflow: hidden;
-  mask-image: none;
-  -webkit-mask-image: none;
+  padding-right: 34px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent);
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 calc(100% - 44px),
+    transparent
+  );
 }
 body[data-coranto-header='chips'] .coranto-layer {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 7px;
-  font-size: 8.5px;
-  letter-spacing: 1.2px;
+  gap: 6px;
+  padding: 6px 9px;
   white-space: nowrap;
 }
 .coranto-layer img {
@@ -4712,14 +4769,9 @@ body[data-coranto-header='chips'] .coranto-layer {
     display: none;
   }
 }
-@media (max-width: 1400px) {
-  body[data-coranto-header='chips'] .coranto-layer img {
-    display: none;
-  }
-}
 /* Too narrow for the row: the LAYERS list takes over, so every layer stays
    in reach. */
-@media (max-width: 1239px) {
+@media (max-width: 1000px) {
   body[data-coranto-header='chips'] #coranto-layers-all {
     display: inline-block;
   }
@@ -4774,6 +4826,157 @@ body[data-coranto-frame='one'][data-coranto-ticker='off'] #coranto-ticker {
 .news-card-pin:hover,
 .news-card-pin:focus-visible {
   border-color: rgba(180, 124, 255, 0.55);
+}
+
+/* ── Putting a side away ───────────────────────────────────────── */
+.coranto-side-min {
+  position: fixed;
+  top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 12px);
+  z-index: 310;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 4px;
+  background: rgba(14, 12, 22, 0.96);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--transition-fast),
+    border-color var(--transition-fast);
+}
+.coranto-side-min[hidden],
+body:not([data-coranto-mode='news']) .coranto-side-min {
+  display: none;
+}
+/* On the line between the panel and the globe, over neither's contents. */
+.coranto-side-min[data-side='rail'] {
+  left: calc(var(--coranto-rail-w) - 11px);
+}
+.coranto-side-min[data-side='feed'] {
+  right: calc(var(--coranto-feed-w) - 11px);
+}
+.coranto-side-min img {
+  width: 12px;
+  height: 12px;
+}
+.coranto-side-min[data-near],
+.coranto-side-min:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.coranto-side-min:hover,
+.coranto-side-min:focus-visible {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.coranto-side-show {
+  position: fixed;
+  top: calc(
+    var(--coranto-header-h) + var(--coranto-ticker-h) +
+      (100dvh - var(--coranto-header-h) - var(--coranto-ticker-h)) / 2
+  );
+  z-index: 320;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin-top: -21px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background: rgba(14, 12, 22, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    border-color var(--transition-fast);
+}
+.coranto-side-show[hidden],
+body:not([data-coranto-mode='news']) .coranto-side-show {
+  display: none;
+}
+.coranto-side-show[data-side='rail'] {
+  left: 14px;
+  transform: translateX(-10px);
+}
+.coranto-side-show[data-side='feed'] {
+  right: 14px;
+  transform: translateX(10px);
+}
+.coranto-side-show img {
+  width: 18px;
+  height: 18px;
+}
+.coranto-side-show[data-near],
+.coranto-side-show:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+.coranto-side-show:hover,
+.coranto-side-show:focus-visible {
+  border-color: var(--accent);
+}
+/* Away: the panel and its shading slide off, and everything laid out
+   against its width (the globe, the cards, the pop-ups) takes the room. */
+@media (min-width: 1101px) {
+  #coranto-rail,
+  #coranto-feed {
+    transition:
+      transform 0.26s ease,
+      visibility 0.26s;
+  }
+  body[data-coranto-mode='news'][data-coranto-rail='min'] {
+    --coranto-rail-w: 0px;
+  }
+  body[data-coranto-mode='news'][data-coranto-rail='min'] #coranto-rail {
+    width: clamp(250px, 18vw, 296px);
+    transform: translateX(-102%);
+    visibility: hidden;
+  }
+  body[data-coranto-mode='news'][data-coranto-feed='min'] {
+    --coranto-feed-w: 0px;
+  }
+  body[data-coranto-mode='news'][data-coranto-feed='min'] #coranto-feed {
+    width: clamp(330px, 23vw, 400px);
+    transform: translateX(102%);
+    visibility: hidden;
+  }
+}
+/* With a side away the keyhole shading around the globe lifts too, for a
+   full view; the stars stay. It returns when both sides are back. */
+#scope-mask {
+  transition: opacity 0.3s ease;
+}
+body[data-coranto-mode='news']:is(
+    [data-coranto-rail='min'],
+    [data-coranto-feed='min']
+  )
+  #scope-mask {
+  opacity: 0 !important;
+}
+@media (max-width: 1100px) {
+  .coranto-side-min,
+  .coranto-side-show {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #coranto-rail,
+  #coranto-feed,
+  .coranto-side-show {
+    transition: none;
+  }
 }
 
 @supports selector(::-webkit-scrollbar) {

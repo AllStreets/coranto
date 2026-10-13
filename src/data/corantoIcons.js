@@ -226,11 +226,19 @@ export const ICONS = Object.freeze({
   minus: [STROKE, '<path d="M5 12h14"/>'],
   gear: [
     STROKE,
-    '<circle cx="12" cy="12" r="3"/><path d="M12 2.8l1.5 2.6 2.9-.6 1 2.8 2.8 1-.6 2.9 2.6 1.5-2.6 1.5.6 2.9-2.8 1-1 2.8-2.9-.6L12 21.2l-1.5-2.6-2.9.6-1-2.8-2.8-1 .6-2.9L1.8 12l2.6-1.5-.6-2.9 2.8-1 1-2.8 2.9.6L12 2.8Z"/>',
+    '<circle cx="12" cy="12" r="6.2"/><circle cx="12" cy="12" r="2.4"/><path d="M12 2.6v3.2M12 18.200v3.200M2.600 12h3.200M18.200 12h3.200M5.350 5.350l2.270 2.270M16.380 16.380l2.270 2.270M18.650 5.350l-2.270 2.270M7.620 16.380l-2.270 2.270" stroke-width="3" stroke-linecap="butt"/>',
   ],
   bell: [
     STROKE,
     '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15l1.5-2Z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>',
+  ],
+  silence: [
+    STROKE,
+    '<path d="M4.500 9.500a11 11 0 0 1 4-2.600M19.500 9.500a11 11 0 0 0-6.200-3.300M7.600 12.900a6.600 6.600 0 0 1 2.600-1.700M16.400 12.900a6.600 6.600 0 0 0-1.300-1M4 4l16 16"/><circle cx="12" cy="17" r="1.300" fill="currentColor" stroke="none"/>',
+  ],
+  disease: [
+    STROKE,
+    '<circle cx="12" cy="12" r="5"/><path d="M12 2.800V7M12 17v4.200M2.800 12H7M17 12h4.200M5.500 5.500l3 3M15.500 15.500l3 3M18.500 5.500l-3 3M8.500 15.500l-3 3"/><circle cx="12" cy="2.800" r=".900" fill="currentColor"/><circle cx="12" cy="21.200" r=".900" fill="currentColor"/><circle cx="2.800" cy="12" r=".900" fill="currentColor"/><circle cx="21.200" cy="12" r=".900" fill="currentColor"/>',
   ],
   diamond: [SOLID, '<path d="M12 3.500 20.500 12 12 20.500 3.500 12Z"/>'],
   hex: [STROKE, '<path d="M12 3l7.800 4.500v9L12 21l-7.800-4.500v-9L12 3Z"/>'],

@@ -14,6 +14,14 @@ const PREFIX = 'launch-icon:';
 // The engine's own mark for a launch, which sits over the icon.
 const ENGINE_PREFIX = 'rocket-launch:';
 const PAYLOAD_PREFIX = 'launch-payload:';
+/** What the card says about where a launch's drawn path comes from. */
+export const PATH_NOTE = Object.freeze({
+  estimated:
+    'flight path ESTIMATED from the launch site and target orbit; no flown track is published',
+  'catalogued-orbit':
+    'orbit from the payload’s catalogued elements; the climb to it is ESTIMATED',
+  none: '',
+});
 /** A launch's satellite is marked for a week after it flies. */
 export const PAYLOAD_DAYS = 7;
 export const PAYLOAD_COLOUR = '#7ef0c8';
@@ -286,15 +294,23 @@ export function createLaunchIcons({
         if (!detail) return;
         closeMission();
         const launchId = site.lead.id;
+        const path = layer()?.missionPath?.(launchId) ?? { source: 'none' };
+        const open = (how) => () => {
+          if (layer()?.[how]?.(launchId)) openedMission = launchId;
+        };
         showCard({
           ...detail,
+          meta: [detail.meta, PATH_NOTE[path.source]]
+            .filter(Boolean)
+            .join(' · '),
           // The camera stays where it is; the flight path is a choice.
-          action: {
-            label: 'Show the flight path',
-            run: () => {
-              if (layer()?.openMission?.(launchId)) openedMission = launchId;
-            },
-          },
+          action:
+            path.source === 'none'
+              ? undefined
+              : { label: 'Show the flight path', run: open('openMission') },
+          pin: path.replayable
+            ? { label: 'Replay the launch', run: open('replayMission') }
+            : undefined,
           onClose: closeMission,
         });
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);

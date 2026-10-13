@@ -223,16 +223,61 @@ export function createSettings({
       [
         'menu',
         'LAYERS LIST',
-        'One LAYERS button opens the list, with what each layer is. The header stays short.',
-        ['LIVE', 'MENU', 'LAYERS', 'SEARCH'],
+        'One LAYERS button opens a list of every layer, each with what it is and a switch. The header stays short.',
       ],
       [
         'chips',
         'LAYER BUTTONS',
-        'SEARCH sits beside LIVE and every layer is its own button in the header: one click on, one click off.',
-        ['LIVE', 'SEARCH', 'MENU', 'FLIGHTS', 'SHIPS', 'QUAKES'],
+        'SEARCH sits beside LIVE and every layer is its own button in one row you scroll sideways: one click on, one click off.',
       ],
     ];
+    const chipRow = (words, lit = []) => {
+      const line = make('div');
+      for (const word of words) {
+        const chip = make('span', '', word);
+        if (lit.includes(word)) chip.dataset.kind = 'layer';
+        line.append(chip);
+      }
+      return line;
+    };
+    // Each card draws its own layout: a dropped list of switches, or a row
+    // of buttons.
+    const sampleFor = (value) => {
+      const strip = make('div', 'coranto-settings-layout-sample');
+      strip.dataset.kind = value;
+      if (value === 'chips') {
+        strip.append(
+          ...chipRow(
+            [
+              'LIVE',
+              'SEARCH',
+              'HAZARDS',
+              'FLIGHTS',
+              'MILITARY',
+              'SHIPS',
+              'QUAKES',
+              'FIRES',
+            ],
+            ['HAZARDS', 'MILITARY'],
+          ).children,
+        );
+        return strip;
+      }
+      strip.append(chipRow(['LIVE', 'MENU', 'LAYERS', 'SEARCH'], ['LAYERS']));
+      for (const [name, on] of [
+        ['HAZARDS', true],
+        ['FLIGHTS', false],
+        ['MILITARY', true],
+      ]) {
+        const line = make('div');
+        line.dataset.row = '';
+        const knob = make('i');
+        if (on) knob.dataset.on = '';
+        line.append(make('span', '', name), knob);
+        strip.append(line);
+      }
+      return strip;
+    };
     const sync = () => {
       for (const button of layout.children)
         button.setAttribute(
@@ -242,18 +287,12 @@ export function createSettings({
     };
     layout.setAttribute('role', 'radiogroup');
     layout.setAttribute('aria-label', 'Header layout');
-    for (const [value, name, note, sample] of options) {
+    for (const [value, name, note] of options) {
       const button = make('button', 'coranto-settings-layout');
       button.type = 'button';
       button.setAttribute('role', 'radio');
       button.dataset.value = value;
-      const strip = make('div', 'coranto-settings-layout-sample');
-      sample.forEach((word, index) => {
-        const chip = make('span', '', word);
-        if (value === 'chips' && index > 2) chip.dataset.kind = 'layer';
-        if (word === 'LAYERS') chip.dataset.kind = 'layers';
-        strip.append(chip);
-      });
+      const strip = sampleFor(value);
       button.append(
         strip,
         make('div', 'coranto-settings-layout-name', name),

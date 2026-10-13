@@ -64,6 +64,23 @@ export function createControls({ state: layerState, services, parts, source }) {
       return true;
     },
 
+    /** Replay a launch from the pad: the climb, then the orbit. */
+    replayMission(launchId) {
+      if (!methods.openMission(launchId)) return false;
+      return parts.replay.startMissionReplay(launchId) !== false;
+    },
+
+    /** Whether a launch has a path to replay, and where the path is from. */
+    missionPath(launchId) {
+      const launch = (layerState._launches || []).find(
+        (entry) => entry.id === launchId,
+      );
+      return {
+        source: launch?.pathSource ?? 'none',
+        replayable: layerState._replayTracks?.has(launchId) === true,
+      };
+    },
+
     /** Leave the mission view and show every launch again. */
     closeMission() {
       if (!layerState._selectedLaunchId) return false;

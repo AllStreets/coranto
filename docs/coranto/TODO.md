@@ -42,7 +42,7 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
   with BOARD, the story pop-up, restyling INSTRUMENTS panels to match.
 - [ ] **T14 Carry the military HUD styling the owner likes** into the news
       side (part of T12).
-- [x] **T13 No emojis or text glyphs.** One SVG icon set of 78 icons. Done:
+- [x] **T13 No emojis or text glyphs.** One SVG icon set of 80 icons. Done:
       the news view, the layer list, visual presets, display toggles, share and
       search buttons, collapse buttons, location line, key tiers, radio and
       replay transport, key-setup links, panel disclosure arrows, the HUD's
@@ -146,6 +146,17 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [x] **Settings** (owner, 2026-10-12): gear in the header; General,
       Notices, Connections, Data and privacy, About; saved to the browser at
       once (`corantoSettings.js`, `corantoSettingsModel.js`).
+- [x] **Minimize the sides** (owner, 2026-10-12, chosen over a UI
+      overhaul): `corantoSides.js`. Remembered in `coranto.sides.v1`.
+- [x] **SILENCE and DISEASE layers** (owner, 2026-10-12): `corantoOverlays.js`,
+      `corantoOverlayModel.js`, sources in `src/sources/silence` and
+      `src/sources/outbreaks`, routes `/api/silence` and `/api/outbreaks`.
+      Open: sub-national disease areas (HealthMap has points but is an
+      undocumented endpoint); censorship and press-freedom tones for SILENCE
+      (OONI, RSF), which the owner left out for now.
+- [x] **Launch flight paths and replay** (owner, 2026-10-12): estimated
+      climb, labelled; replay from the card. No flown ascent track is published
+      by any provider, so a real one cannot be drawn.
 - [x] **Seven joins between NEWS and INSTRUMENTS** (owner, 2026-10-12), all
       on sources already wired in: the country sheet; AROUND HERE on a story;
       the story offering the layer it is about; voice in the news view with

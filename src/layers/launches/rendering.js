@@ -1,4 +1,3 @@
-import { isRealOnly } from '../../data/corantoPolicy.js';
 import * as Cesium from 'cesium';
 import {
   TRAJECTORY_STAGE_COLORS,
@@ -97,15 +96,20 @@ export function createRendering({
             launchTime: launch.launchTime,
           })
         : null);
+    // The orbit is the payload's catalogued one where the catalogue has it.
+    // Otherwise it is estimated from the launch site and the target orbit,
+    // and the card and the map key say so.
+    const orbitCatalogued = satelliteTrack?.orbitPath?.length > 1;
     const orbitPath = !orbitAllowed
       ? null
-      : satelliteTrack?.orbitPath?.length > 1
+      : orbitCatalogued
         ? satelliteTrack.orbitPath
-        : // Under the real-only rule an orbit is drawn only for a payload that
-          // is in the satellite catalogue; none is estimated.
-          isRealOnly()
-          ? null
-          : parts.paths.approximateOrbitPath(launch);
+        : parts.paths.approximateOrbitPath(launch);
+    launch.pathSource = !orbitPath
+      ? 'none'
+      : orbitCatalogued
+        ? 'catalogued-orbit'
+        : 'estimated';
     launch.recoveryStages.forEach((stage) => {
       stage.endpoint = parts.paths.landingEndpoint(
         stage,

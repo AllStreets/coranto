@@ -54,6 +54,8 @@ const marker = (icon, colour, extra = {}) => ({
  * @param {boolean} state.quakes
  * @param {boolean} state.launches
  * @param {boolean} state.payloads
+ * @param {{ok: boolean, count: number}|null} state.silence
+ * @param {{ok: boolean, count: number, families: object[]}|null} state.disease
  * @param {boolean} state.borders
  * @param {boolean} state.countries
  * @param {boolean} state.activity
@@ -257,7 +259,42 @@ export function buildMapKeyModel(state) {
         ...marker('launch', '#9fb3c4'),
         label: 'Launch site whose listed launches have flown',
       },
+      {
+        swatch: '#7bed9f',
+        bar: true,
+        dashed: true,
+        label:
+          'Launch flight path, once you ask for it. The climb is always estimated; the orbit is the payload’s own where it is catalogued, estimated otherwise. The launch’s card says which.',
+      },
     );
+  if (state.silence)
+    more.push(
+      {
+        swatch: 'rgba(0,0,0,0.85)',
+        outline: '#FF2D55',
+        square: true,
+        label: `Internet blackout: measured at half its normal level or less, now. ${state.silence.ok ? '' : 'IODA is not answering; this is its last answer. '}${state.silence.count ? '' : 'None is measured at the moment.'}`,
+      },
+      {
+        swatch: 'rgba(0,0,0,0.5)',
+        outline: '#FF2D55',
+        square: true,
+        label:
+          'Major internet outage: 30% to 50% below normal. Both are measurements by IODA, which does not say why the level fell.',
+      },
+    );
+  if (state.disease) {
+    for (const family of state.disease.families ?? [])
+      more.push({
+        swatch: family.colour,
+        square: true,
+        label: `Disease outbreak: ${family.label.toLowerCase()}`,
+      });
+    more.push({
+      swatch: 'rgba(201,196,216,0.55)',
+      label: `Outbreak squares cover the whole country a notice names. Lighter to darker: watch, outbreak, severe, by the CDC’s level or a WHO notice, raised by current headlines. No case counts are published by place.${state.disease.count ? '' : ' No notice is in force at the moment.'}`,
+    });
+  }
   if (state.payloads)
     more.push({
       image: satelliteImage('#7ef0c8'),
@@ -415,7 +452,7 @@ export function createMapKey({ document, onClose }) {
                         : row.square
                           ? 'coranto-key-swatch coranto-key-square'
                           : 'coranto-key-swatch',
-                      style: `color:${row.swatch};background:${row.swatch}`,
+                      style: `color:${row.swatch};background:${row.swatch}${row.outline ? `;outline:1px solid ${row.outline}` : ''}`,
                     })
                   : el(document, 'span', { class: 'coranto-key-gap' }),
               el(document, 'span', { text: row.label }),

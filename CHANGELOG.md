@@ -1,5 +1,28 @@
 # Changelog
 
+- Coranto: either side of the news view can be put away. A small minimize
+  button appears on a panel's edge when the cursor is at its top; the panel
+  and the keyhole shading slide off and the globe takes the room. A round
+  arrow at that screen edge brings it back. The choice is remembered.
+
+- Coranto: SILENCE, a layer of measured internet blackouts and major outages
+  from IODA, drawn in AUSPEX's black with a red line on the ground under
+  every name and marker, by whole country or by region. DISEASE, a layer of
+  countries under WHO and CDC outbreak notices, drawn as squares coloured by
+  how the disease spreads and shaded by level. Both have header buttons,
+  LAYERS rows, cards and map key rows, and need no key. Country and region
+  outlines are Natural Earth (public domain), built by
+  `scripts/build-coranto-shapes.mjs`.
+
+- Coranto: launch flight paths are back. The climb is always an estimate and
+  is marked ESTIMATED on the card and in the map key; the orbit is the
+  payload's catalogued one where there is one. A flown launch can be replayed
+  from its card in the news view.
+
+- Coranto: the layer buttons in the header are one row that scrolls sideways
+  and fades under ANALYST. The Settings layout cards each draw their own
+  layout. The gear is redrawn.
+
 - Coranto: the analyst board is now AUSPEX's, brought over whole in violet:
   asset board, entity network, intelligence brief, SYNTHESIZE with confidence
   marks, CONSENSUS (five model analysts, cross-examination, synthesis), the
