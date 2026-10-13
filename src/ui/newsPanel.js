@@ -98,6 +98,7 @@ export function createNewsFeed({
   body,
   layer,
   onModel = () => {},
+  onSources = () => {},
   now = () => Date.now(),
   fetchImpl = (...args) => globalThis.fetch(...args),
   board = null,
@@ -263,17 +264,26 @@ export function createNewsFeed({
   const healthDot = el(document, 'img', 'news-health-icon');
   healthDot.alt = '';
   const healthText = el(document, 'span', 'news-health-text');
-  healthBtn.append(healthDot, healthText);
-  // The second line: when the feed was read, and what was left out.
-  const statusMeta = el(document, 'div', 'news-status-meta');
+  // One bar, two parts, like the tabs: the sources and when they were read,
+  // then what was left out. Each opens its list underneath.
   const fetchedText = el(document, 'span', 'news-fetched');
+  const chevron = () => {
+    const mark = el(document, 'img', 'news-status-chevron');
+    mark.src = iconImage('chevronDown', '#8d86a3');
+    mark.alt = '';
+    return mark;
+  };
+  healthBtn.append(healthDot, healthText, fetchedText, chevron());
+  const statusMeta = el(document, 'div', 'news-status-bar');
+  const droppedText = el(document, 'span', 'news-dropped-label');
   const sourceList = el(document, 'ul', 'news-source-list');
   const staleNote = el(document, 'p', 'news-stale');
   const droppedBtn = el(document, 'button', 'news-dropped');
   droppedBtn.type = 'button';
   const droppedList = el(document, 'ul', 'news-dropped-list');
-  statusMeta.append(fetchedText, droppedBtn);
-  status.append(healthBtn, statusMeta, sourceList, staleNote, droppedList);
+  droppedBtn.append(droppedText, chevron());
+  statusMeta.append(healthBtn, droppedBtn);
+  status.append(statusMeta, sourceList, staleNote, droppedList);
 
   const search = el(document, 'input', 'news-search');
   search.type = 'search';
@@ -1131,8 +1141,17 @@ export function createNewsFeed({
     healthBtn.setAttribute('aria-expanded', String(sourcesOpen));
     // "33 of 35 sources live" on the first line; when it was read on the next.
     const [headline, ...rest] = String(model.health ?? '').split(' · ');
-    healthText.textContent = headline;
-    fetchedText.textContent = rest.join(' · ');
+    // The bar is narrow: "33/35 live · 4m ago". The full sentence is the
+    // button's title.
+    healthText.textContent = headline
+      .replace(/ sources live$/, ' live')
+      .replace(/^(\d+) of (\d+) /, '$1/$2 ');
+    fetchedText.textContent = rest
+      .join(' · ')
+      .replace(/^fetched /, '')
+      .replace(/(\d+) min\b/, '$1m')
+      .replace(/(\d+) hr\b/, '$1h');
+    healthBtn.title = `${model.health}. Show every source and whether it answered.`;
     fetchedText.hidden = !rest.length;
     statusMeta.hidden = !model.health;
     healthDot.src = iconImage(
@@ -1144,7 +1163,8 @@ export function createNewsFeed({
     staleNote.hidden = !model.stale;
     staleNote.textContent = model.stale;
     droppedBtn.hidden = model.droppedTotal === 0;
-    droppedBtn.textContent = `${model.droppedTotal} items left out`;
+    droppedText.textContent = `${model.droppedTotal} left out`;
+    droppedBtn.title = `${model.droppedTotal} items left out of the feed, and why`;
     droppedBtn.setAttribute('aria-expanded', String(droppedOpen));
     droppedList.hidden = !droppedOpen || model.droppedTotal === 0;
     droppedList.replaceChildren(
@@ -1217,6 +1237,7 @@ export function createNewsFeed({
   healthBtn.addEventListener('click', () => {
     sourcesOpen = !sourcesOpen;
     render();
+    onSources(sourcesOpen);
   });
   droppedBtn.addEventListener('click', () => {
     droppedOpen = !droppedOpen;
@@ -1311,7 +1332,10 @@ export function createNewsFeed({
     showSources(open = true) {
       sourcesOpen = open;
       render();
+      onSources(sourcesOpen);
     },
+    /** Whether the per-source list is open. */
+    sourcesShown: () => sourcesOpen,
     destroy() {
       closeStory();
       story.remove();

@@ -2556,7 +2556,13 @@ export function createCorantoShell({
       document,
       'div',
       { class: 'coranto-feed-head' },
-      el(document, 'span', { class: 'coranto-feed-title', text: 'THE FEED' }),
+      el(
+        document,
+        'span',
+        { class: 'coranto-feed-title' },
+        el(document, 'img', { src: iconImage('newsfeed', '#b47cff'), alt: '' }),
+        el(document, 'span', { text: 'NEWSFEED' }),
+      ),
       groupSwitch,
       feedCount,
     ),
@@ -3359,11 +3365,15 @@ export function createCorantoShell({
     liveText.textContent = liveLabel(state, live, sources.length);
     count.textContent = model.total ? `${model.total} HEADLINES` : '';
     topicCount.textContent = count.textContent;
-    feedCount.textContent = !model.total
-      ? ''
-      : model.grouped
-        ? `${model.shown} STORIES · ${model.headlines} HEADLINES`
-        : `${model.shown} OF ${model.total}`;
+    // Two figures, one at each end of the line under the title.
+    feedCount.replaceChildren(
+      ...(!model.total
+        ? []
+        : model.grouped
+          ? [`${model.shown} STORIES`, `${model.headlines} HEADLINES`]
+          : [`${model.shown} SHOWN`, `OF ${model.total}`]
+      ).map((text) => el(document, 'span', { text })),
+    );
     groupStories.setAttribute('aria-pressed', String(model.grouped));
     groupAll.setAttribute('aria-pressed', String(!model.grouped));
 
@@ -3575,9 +3585,15 @@ export function createCorantoShell({
     tv.close();
   };
   document.addEventListener('keydown', onKey);
+  // SOURCES opens the feed's list of sources; pressed again, it closes it.
+  // The feed's own status bar does the same, and the two stay in step.
   const showSources = () => {
-    feed?.showSources(true);
-    feedBody.scrollTop = 0;
+    const open = !feed?.sourcesShown?.();
+    feed?.showSources(open);
+    if (open) {
+      if (sides.isAway('feed')) sides.set('feed', false);
+      feedBody.scrollTop = 0;
+    }
   };
   liveBtn.addEventListener('click', () => setSourcesMenu(sourcesMenu.hidden));
   // A click anywhere else closes the list.
@@ -3631,6 +3647,7 @@ export function createCorantoShell({
     body: feedBody,
     layer,
     onModel,
+    onSources: (open) => sourcesBtn.setAttribute('aria-pressed', String(open)),
     board: boardStore,
     watch: {
       nearest: nearestBroadcaster,

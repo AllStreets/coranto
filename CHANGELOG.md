@@ -1,5 +1,12 @@
 # Changelog
 
+- Coranto: the page opens straight in the news view; the control room's
+  panels no longer show for a moment while it loads. The feed is titled
+  NEWSFEED with its own mark, on one line with its switch, and its counts
+  span the width. Its status is one bar in two parts (sources, left out).
+  SOURCES on the rail opens and closes the feed's source list. Relief is
+  green throughout. The side buttons take a violet line.
+
 - Coranto: the page is on screen while it loads, with the mark and its
   status over it, in place of a black cover. A story's tools are the shared
   buttons: icon and word on one line, cut corner, violet rule, two to a row.
