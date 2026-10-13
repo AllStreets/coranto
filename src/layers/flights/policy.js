@@ -12,7 +12,7 @@ export const FOCUS_EVIDENCE_DEV = import.meta.env?.DEV === true;
 
 /** Amber tint for known-military aircraft rendered by this layer (matches the military layer's icon color). */
 
-export const MIL_TINT = Cesium.Color.fromCssColorString('#FFB800');
+export const MIL_TINT = Cesium.Color.fromCssColorString('#e23b3f');
 
 // --- Ground traffic (owner reversal 2026-07-03: "absolutely we should see planes
 // taxiing and landing") -----------------------------------------------------------

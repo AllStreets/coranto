@@ -299,7 +299,7 @@ export function buildMapKeyModel(state) {
     });
   if (state.military)
     more.push({
-      image: iconImage('aircraft', '#FFB800'),
+      image: iconImage('aircraft', '#e23b3f'),
       label: 'Military aircraft broadcasting its position',
     });
   if (state.storms)

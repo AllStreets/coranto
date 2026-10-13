@@ -22,7 +22,7 @@
   /* AUSPEX category hues: distinct, cool, never read as danger. */
   --cat-geopolitics: #6e8aff;
   --cat-technology: #22d3ee;
-  --cat-military: #f2917a;
+  --cat-military: #e23b3f;
   --cat-finance: #e8b84b;
   --cat-climate: #34d17a;
 }
@@ -417,7 +417,7 @@
   cursor: pointer;
 }
 .coranto-lens-switch button[aria-pressed='true'] {
-  background: rgba(242, 145, 122, 0.18);
+  background: rgba(226, 59, 63, 0.18);
   color: #d8b4fe;
 }
 .coranto-lens-switch button:first-child[aria-pressed='true'] {
@@ -506,7 +506,7 @@
   border-left-color: #6e8aff;
 }
 #coranto-card[data-owner='power'] {
-  border-left-color: #f2917a;
+  border-left-color: #e23b3f;
 }
 .coranto-lens-switch {
   display: grid;
@@ -521,7 +521,7 @@
   color: #a9b9ff;
 }
 .coranto-lens-switch button:nth-child(2)[aria-pressed='true'] {
-  background: rgba(242, 145, 122, 0.18);
+  background: rgba(226, 59, 63, 0.18);
   color: #d8b4fe;
 }
 .coranto-rail-actions {
@@ -655,7 +655,7 @@
   max-height: 34vh;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(242, 145, 122, 0.75) rgba(255, 255, 255, 0.05);
+  scrollbar-color: rgba(226, 59, 63, 0.75) rgba(255, 255, 255, 0.05);
 }
 .coranto-power-layer,
 .coranto-power-plane {
@@ -676,7 +676,7 @@
   letter-spacing: 1.4px;
 }
 .coranto-power-layer[aria-pressed='true'] {
-  border-color: rgba(242, 145, 122, 0.6);
+  border-color: rgba(226, 59, 63, 0.6);
   color: #d8b4fe;
 }
 .coranto-power-label,
@@ -694,7 +694,7 @@
 }
 .coranto-power-plane:hover,
 .coranto-power-plane[aria-current] {
-  border-color: rgba(242, 145, 122, 0.6);
+  border-color: rgba(226, 59, 63, 0.6);
   color: var(--text-primary);
 }
 .coranto-power-callsign {

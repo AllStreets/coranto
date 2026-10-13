@@ -234,7 +234,8 @@ export const ICONS = Object.freeze({
 export const TOPIC_COLOURS = Object.freeze({
   geopolitics: '#6e8aff',
   technology: '#22d3ee',
-  military: '#f2917a',
+  // Military red, on markers, icons, bars and the map key alike.
+  military: '#e23b3f',
   finance: '#e8b84b',
   climate: '#34d17a',
   news: '#d5d0e2',
