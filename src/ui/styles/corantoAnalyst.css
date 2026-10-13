@@ -2174,12 +2174,13 @@ button.ca-mx-cell:focus-visible,
 .ca-am-save-btn:active {
   box-shadow: 0 0 14px rgba(48, 209, 88, 0.38);
 }
-/* INSTRUMENTS: the control room, opened from the board. */
+/* INSTRUMENTS: the control room, opened from the board. Blue, the board's
+   own (the cyber analyst's), so it is not mistaken for CONSENSUS. */
 .ca-am-instruments-btn {
   padding: 5px 13px;
-  border: 1px solid rgba(180, 124, 255, 0.45);
-  background: rgba(180, 124, 255, 0.08);
-  color: #b47cff;
+  border: 1px solid rgba(10, 132, 255, 0.5);
+  background: rgba(10, 132, 255, 0.08);
+  color: #4da3ff;
   font-family: var(--font-mono);
   font-size: 8px;
   letter-spacing: 0.12em;
@@ -2188,9 +2189,13 @@ button.ca-mx-cell:focus-visible,
   transition: all 0.18s;
 }
 .ca-am-instruments-btn:hover {
-  border-color: #b47cff;
-  background: rgba(180, 124, 255, 0.16);
-  box-shadow: 0 0 8px rgba(180, 124, 255, 0.22);
+  border-color: #4da3ff;
+  color: #8cc4ff;
+  background: rgba(10, 132, 255, 0.16);
+  box-shadow: 0 0 8px rgba(10, 132, 255, 0.25);
+}
+.ca-am-instruments-btn:active {
+  box-shadow: 0 0 14px rgba(10, 132, 255, 0.4);
 }
 
 /* The three columns are exactly as tall as the board, never as tall as what
