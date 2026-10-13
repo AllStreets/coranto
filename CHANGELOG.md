@@ -1,5 +1,11 @@
 # Changelog
 
+- Coranto: the page is on screen while it loads, with the mark and its
+  status over it, in place of a black cover. A story's tools are the shared
+  buttons: icon and word on one line, cut corner, violet rule, two to a row.
+  The search box's title lines up with the rows under it. The earthquake
+  icon sits on the line of its label.
+
 - Coranto: DISEASE draws as FIRES does. From afar, a grid of squares that
   meet edge to edge, in the colour of how the disease spreads and deeper for
   a higher level. From close up, a glowing point on each country or named

@@ -42,7 +42,7 @@ export function createCommandPalette({ document, getCommands }) {
     'ARROWS to move · ENTER to run · ESC to close',
   );
   // The title is the header's SEARCH button again: the glass, then the word.
-  const title = make('div', 'coranto-strip coranto-palette-title');
+  const title = make('div', 'coranto-palette-head');
   const titleIcon = make('img');
   titleIcon.src = iconImage('search', '#e9e4f5');
   titleIcon.alt = '';

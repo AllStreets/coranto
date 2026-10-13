@@ -5806,25 +5806,156 @@ body[data-coranto-mode='instruments'][data-coranto-frame='one']:is(
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-/* The search box's title: the glass, then the word, together on the left. */
-.coranto-palette-panel > .coranto-palette-title {
+/* The search box's title is a row like the ones under it: its glass in
+   their icon column and its word where their titles start, at their size. */
+.coranto-palette-head {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 9px;
-  padding: 11px 14px;
+  gap: 11px;
+  /* The list's inset (6 + 6), a row's own edge (2) and its padding (8). */
+  padding: 13px 22px 11px;
+  border-bottom: 1px solid var(--coranto-line);
   color: var(--text-primary);
-  font: 600 10px var(--font-mono);
-  letter-spacing: 2.2px;
+  font: 600 13px/1.3 var(--font-sans);
+  letter-spacing: 0.2px;
 }
-.coranto-palette-title img {
-  flex: 0 0 auto;
-  width: 14px;
-  height: 14px;
+.coranto-palette-head img {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
 }
 /* The globe's frame carries no caption; the lens tabs say which lens is on. */
 .coranto-hud-lens {
   display: none;
+}
+
+/* ── Loading over the page, not in place of it ─────────────────── */
+/* The interface is on screen from the first moment and fills in behind the
+   mark, which keeps its glow and its line of status. Only the middle is
+   dimmed, so the mark reads; clicks pass through to what has loaded. */
+#loading-screen {
+  background: radial-gradient(
+    circle at center,
+    rgba(4, 5, 10, 0.9) 0,
+    rgba(4, 5, 10, 0.72) 14%,
+    rgba(4, 5, 10, 0.3) 30%,
+    transparent 46%
+  );
+  pointer-events: none;
+}
+
+/* ── A story's tools, in the shared button language ────────────── */
+/* The same box as the rail's actions and the header's layers: icon and word
+   on one line, a cut corner, a rule that runs the width under the cursor
+   and when the tool is on. Two to a row. The story's own text is untouched. */
+.coranto-story-tools,
+.coranto-story-tools[style*='--cols'],
+.coranto-story-tools-wide {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row;
+  gap: 5px;
+  margin-top: 2px;
+}
+.coranto-story-tools[style*='--cols'] > .coranto-story-tool {
+  flex: none;
+}
+.coranto-story-tool {
+  position: relative;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--coranto-line);
+  border-radius: 2px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  background:
+    linear-gradient(135deg, rgba(180, 124, 255, 0.07), transparent 46%),
+    var(--coranto-glass);
+  color: var(--text-secondary);
+  font: 500 9px var(--font-mono);
+  letter-spacing: 1.5px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+.coranto-story-tool::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 14px;
+  height: 2px;
+  background: rgba(180, 124, 255, 0.55);
+  transition: width 0.22s ease;
+}
+.coranto-story-tool:is(:hover, :focus-visible, [aria-pressed='true'])::after {
+  width: 100%;
+}
+.coranto-story-tool img {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  opacity: 0.8;
+}
+.coranto-story-tool span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.coranto-story-tool:is(:hover, :focus-visible) {
+  color: var(--text-primary);
+  border-color: var(--coranto-line-2);
+}
+.coranto-story-tool:is(:hover, [aria-pressed='true']) img {
+  opacity: 1;
+}
+.coranto-story-tool[aria-pressed='true'] {
+  border-color: var(--coranto-line-2);
+  background:
+    linear-gradient(135deg, rgba(180, 124, 255, 0.2), transparent 60%),
+    var(--coranto-glass);
+  color: var(--accent);
+}
+.coranto-story-tool:focus-visible,
+.coranto-story-close:focus-visible {
+  outline: none !important;
+  border-color: var(--accent);
+}
+.coranto-story-close {
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+}
+/* TRANSLATE and LISTEN start at the left like the tools above them. */
+.coranto-story-tools-wide > .coranto-story-tool {
+  justify-content: flex-start;
+}
+/* The earthquake mark is drawn high in its square; sit it on the line. */
+:is(.coranto-layer, .coranto-layer-row)[data-layer='earthquakes'] img {
+  transform: translateY(2px);
+}
+
+/* The buttons that bring a side back are squares, like the ones that put
+   it away and like everything else here. */
+.coranto-side-show {
+  width: 34px;
+  height: 34px;
+  margin-top: -17px;
+  border: 1px solid var(--coranto-line-2);
+  border-radius: 4px;
+}
+.coranto-side-show img {
+  width: 16px;
+  height: 16px;
+}
+.coranto-side-show:hover,
+.coranto-side-show:focus-visible {
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 @supports selector(::-webkit-scrollbar) {

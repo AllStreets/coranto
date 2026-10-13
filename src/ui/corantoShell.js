@@ -624,6 +624,7 @@ export function createCorantoShell({
           syncLayers();
         });
     });
+    button.dataset.layer = id;
     layerButtons.set(id, button);
     layerNav.append(button);
   }
@@ -659,6 +660,7 @@ export function createCorantoShell({
     );
     // The chip already knows how to switch its layer; the row presses it.
     row.addEventListener('click', () => layerButtons.get(id)?.click());
+    row.dataset.layer = id;
     layerRows.set(id, row);
     layersMenu.append(row);
   }
