@@ -1,5 +1,12 @@
 # Changelog
 
+- Coranto: the top of the feed is in the shared look: title, grouping
+  switch, status lines, search and the three filters. The filters are
+  Coranto's own drop-downs, opening directly under their button in the
+  interface's type, in place of the browser's. Nothing there takes a white
+  focus ring. MY BRIEFING has its own icon. INSTRUMENTS on the analyst
+  board is blue. The board's asset list scrolls inside its column.
+
 - Coranto: NEWS is the one view. The control room (INSTRUMENTS) is opened
   from a button on the analyst board's bar, between SAVE and EXPORT BRIEF,
   and closed by a ringed X at its top left, which returns to the board.

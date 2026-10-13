@@ -54,6 +54,7 @@ import { createSettings } from './corantoSettings.js';
 import { createMoon } from './corantoMoon.js';
 import { createOverlays } from './corantoOverlays.js';
 import { setSplitFlapText } from '../splitFlap.js';
+import { enhanceSelect } from './corantoSelect.js';
 import { createSides } from './corantoSides.js';
 import {
   clearStored,
@@ -3330,6 +3331,8 @@ export function createCorantoShell({
   }
 
   function onModel(model) {
+    // The feed's drop-downs show what the feed has just chosen.
+    win.setTimeout(() => feedSelects.forEach((entry) => entry.refresh()), 0);
     if (sharedView) {
       // Deferred: applying it re-enters this render.
       win.setTimeout(applySharedView, 0);
@@ -3611,6 +3614,8 @@ export function createCorantoShell({
     writeStored(sessionStorageRef, FIRST_RUN_SESSION_KEY, 'dismissed');
   }
 
+  // The feed's three drop-downs, drawn in Coranto's own style for people.
+  let feedSelects = [];
   feed = createNewsFeed({
     document,
     body: feedBody,
@@ -3660,6 +3665,10 @@ export function createCorantoShell({
       },
     },
   });
+  if (!win.navigator?.webdriver && win.MutationObserver)
+    feedSelects = [...feedBody.querySelectorAll('select.news-select')].map(
+      (select) => enhanceSelect(select, { document, win }),
+    );
   // First visit: open the guide once. Automated browsers are left alone.
   if (
     body.dataset.corantoMode === 'news' &&
@@ -3763,6 +3772,7 @@ export function createCorantoShell({
       board.destroy();
       document.removeEventListener('pointerdown', onOutside);
       unsubscribeHazards?.();
+      feedSelects.forEach((entry) => entry.destroy());
       feed?.destroy();
       for (const node of [
         header,
