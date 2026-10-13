@@ -12,6 +12,7 @@ import {
   cityImage,
   countryCard,
   countryImage,
+  countryMarksImage,
   textImage,
 } from './corantoAtlas.js';
 import { buildMapKeyModel } from './corantoMapKey.js';
@@ -197,5 +198,21 @@ test('a country card says where its conflict mark comes from', () => {
         .image,
     ),
     /fill="#ff6b81"/,
+  );
+});
+
+test('status marks are an image; a country with none has no image', () => {
+  assert.equal(countryMarksImage({ iso2: 'BZ', name: 'Belize' }), null);
+  const marks = countryMarksImage({
+    iso2: 'FR',
+    name: 'France',
+    nuclear_armed: true,
+    un_p5: true,
+  });
+  assert.ok(marks.width > 13 * 2, 'two marks side by side');
+  assert.doesNotMatch(
+    decodeURIComponent(marks.image),
+    /<text/,
+    'the name is drawn as text by the engine, not baked into the image',
   );
 });

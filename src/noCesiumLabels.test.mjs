@@ -8,6 +8,11 @@ import { parsers } from 'prettier/plugins/babel.mjs';
 const legacyFiles = new Set([
   'src/scenes/dataPacks/presentation.js',
   'src/layers/directions/index.js',
+  // Coranto's country names. They are up to two hundred fixed place names
+  // that scale with distance and are never decluttered, which the overlay
+  // host's small, collision-managed callouts are not for. Drawn as images
+  // they were soft on high-density screens; as engine text they are sharp.
+  'src/ui/corantoAtlas.js',
 ]);
 const root = fileURLToPath(new URL('../', import.meta.url));
 const propertyName = (node) => node?.name ?? node?.value;

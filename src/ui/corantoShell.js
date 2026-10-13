@@ -2114,15 +2114,16 @@ export function createCorantoShell({
     button.setAttribute('aria-pressed', String(now));
     renderMapKey();
   }
-  for (const [name, label] of ATLAS_OVERLAYS) {
+  for (const [name, label, icon] of ATLAS_OVERLAYS) {
     const button = el(
       document,
       'button',
       {
         type: 'button',
-        class: 'coranto-switch',
+        class: 'coranto-switch coranto-switch-iconed',
         'aria-pressed': String(Boolean(atlasWanted[name])),
       },
+      el(document, 'img', { src: iconImage(icon, '#b9b1d1'), alt: '' }),
       el(document, 'span', { class: 'coranto-switch-label', text: label }),
       el(document, 'span', { class: 'coranto-switch-knob' }),
     );

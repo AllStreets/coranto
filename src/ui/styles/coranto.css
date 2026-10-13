@@ -5250,6 +5250,69 @@ body:has(#global-loading-status:not([hidden])) #coranto-loading-status {
   display: none;
 }
 
+/* ── Topics in the shared button language ──────────────────────── */
+/* A cut corner and a rule along the bottom in the topic's own colour. The
+   rule is short at rest and runs the full width under the cursor and on the
+   topic that is selected; it replaces the old bar down the left. */
+.coranto-topic {
+  position: relative;
+  border-radius: 2px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  overflow: hidden;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--topic, #b7c2cc) 9%, transparent),
+      transparent 46%
+    ),
+    var(--coranto-glass);
+}
+.coranto-topic::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 14px;
+  height: 2px;
+  background: var(--topic, #b7c2cc);
+  opacity: 0.7;
+  transition:
+    width 0.22s ease,
+    opacity 0.22s ease;
+}
+.coranto-topic:is(:hover, :focus-visible, [aria-pressed='true'])::after {
+  width: 100%;
+  opacity: 1;
+}
+.coranto-topic[aria-pressed='true'] {
+  border-color: var(--coranto-line-2);
+  box-shadow: none;
+}
+/* Good news alone fills with its colour when it is on. */
+.coranto-topic-good[aria-pressed='true'] {
+  border-color: rgba(168, 224, 95, 0.6);
+  background: rgba(168, 224, 95, 0.14);
+}
+/* Map overlays stay switches: they are settings of the map, on or off, and
+   four more boxes here would crowd the rail. Each has its icon. */
+.coranto-switch-iconed {
+  justify-content: flex-start;
+}
+.coranto-switch-iconed img {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+}
+.coranto-switch-iconed .coranto-switch-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.coranto-switch-iconed:is(:hover, [aria-pressed='true']) img {
+  opacity: 1;
+}
+
 @supports selector(::-webkit-scrollbar) {
   #coranto-rail,
   #coranto-feed-body,

@@ -40,16 +40,21 @@ const MOMENTUM_COLOURS = Object.freeze({
  */
 
 export const ATLAS_OVERLAYS = Object.freeze([
-  ['borders', 'Borders and front lines'],
-  ['countries', 'Countries'],
-  ['cities', 'Cities'],
-  ['activity', 'Headline activity'],
+  ['borders', 'Borders and front lines', 'borders'],
+  ['countries', 'Countries', 'flag'],
+  ['cities', 'Cities', 'skyline'],
+  ['activity', 'Headline activity', 'pulse'],
 ]);
 
 const dataUri = (svg) => `data:image/svg+xml,${encodeURIComponent(svg)}`;
 const MONO = "Menlo, 'SF Mono', Consolas, 'DejaVu Sans Mono', monospace";
 // Drawn at three times the on-screen size so text and icons stay sharp.
 const SCALE = 3;
+// Country marks are drawn larger: they are scaled up to double on approach.
+const MARK_SCALE = 5;
+/** Country names: the page's own mono face, drawn large and scaled down. */
+const NAME_FONT = "600 28px 'IBM Plex Mono', Menlo, Consolas, monospace";
+const NAME_SCALE = 7.4 / 28;
 
 const escapeXml = (text) =>
   String(text).replace(
@@ -107,6 +112,40 @@ export function countryImage(
     image: dataUri(
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width * SCALE}" height="${height * SCALE}">${glyphs}` +
         `<text x="${width / 2}" y="${top + size + 1}" text-anchor="middle" font-family="${MONO}" font-size="${size}" font-weight="600" letter-spacing="${size * 0.09}" fill="${nameColour}" stroke="#04050a" stroke-width="2.2" stroke-linejoin="round" paint-order="stroke">${escapeXml(label)}</text></svg>`,
+    ),
+  };
+}
+
+/**
+ * The status marks that sit above a country's name (nuclear-armed, in
+ * conflict and so on) as one image, or null for a country with none. The
+ * name itself is drawn as text by the engine, which stays sharp at any zoom.
+ */
+export function countryMarksImage(country) {
+  const marks = COUNTRY_MARKS.filter(([flag]) => country[flag]);
+  if (!marks.length) return null;
+  const mark = 13;
+  const gap = 4;
+  const width = marks.length * mark + (marks.length - 1) * gap + 4;
+  const height = mark + 2;
+  let x = 2;
+  const glyphs = marks
+    .map(([, icon, colour]) => {
+      const [attrs, body] = ICONS[icon];
+      const out =
+        `<g transform="translate(${x} 1) scale(${mark / 24})" ` +
+        `${attrs.replaceAll('currentColor', colour)}>` +
+        `<g stroke="#04050a" stroke-width="3.5" stroke-linejoin="round" fill="#04050a">${body.replaceAll('currentColor', '#04050a')}</g>` +
+        `${body.replaceAll('currentColor', colour)}</g>`;
+      x += mark + gap;
+      return out;
+    })
+    .join('');
+  return {
+    width,
+    height,
+    image: dataUri(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width * MARK_SCALE}" height="${height * MARK_SCALE}">${glyphs}</svg>`,
     ),
   };
 }
@@ -260,6 +299,13 @@ export function createAtlas({
   }
 
   let momentum = null;
+  /** Horizon culling for a collection, or for each part of a group. */
+  function cullParts(viewer, drawing) {
+    const stops = (drawing.corantoParts ?? [drawing]).map((part) =>
+      cullBeyondHorizon(viewer, part),
+    );
+    return () => stops.forEach((stop) => stop());
+  }
   // Where each country's name is drawn, worked out once from its outline.
   const namePoints = new Map();
   async function loadNamePoints() {
@@ -311,7 +357,20 @@ export function createAtlas({
   }
 
   function drawCountries(viewer, countries) {
-    const marks = new Cesium.BillboardCollection({ scene: viewer.scene });
+    // Names are text the engine draws from distance fields, so they are
+    // sharp at every zoom and screen density; an image of the text was not.
+    const group = new Cesium.PrimitiveCollection();
+    const names = group.add(
+      new Cesium.LabelCollection({ scene: viewer.scene }),
+    );
+    const marks = group.add(
+      new Cesium.BillboardCollection({ scene: viewer.scene }),
+    );
+    group.corantoParts = [names, marks];
+    // Just under a story marker when close; on the spot from afar.
+    const offsetByDistance = new Cesium.NearFarScalar(1.5e6, 1.6, 1.4e7, 0);
+    // Grows as you come closer, like AUSPEX's zoom scale.
+    const sizeByDistance = new Cesium.NearFarScalar(1.5e6, 2.1, 2.2e7, 0.9);
     for (const base of countries) {
       const live = signals.conflict.has(base.iso2);
       // The mark is AUSPEX's list or a live signal; the card says which.
@@ -326,40 +385,52 @@ export function createAtlas({
         : null;
       // Dead reckoning, when the analyst board has it on, colours the name
       // by how often the country is in the headlines.
-      const { image, width, height } = countryImage(country, {
-        nameColour:
-          MOMENTUM_COLOURS[momentum?.[base.iso2]] ??
-          ACTIVITY_COLOURS[level] ??
-          undefined,
-      });
+      const colour =
+        MOMENTUM_COLOURS[momentum?.[base.iso2]] ??
+        ACTIVITY_COLOURS[level] ??
+        COUNTRY_NAME_COLOUR;
       const id = `atlas:country:${country.iso2}`;
       records.set(id, { kind: 'country', item: country });
-      marks.add({
+      // On the country itself: the point of its outline farthest from its
+      // edge, or the listed point where there is no outline.
+      const position = Cesium.Cartesian3.fromDegrees(
+        namePoints.get(country.iso2)?.lon ?? country.lng,
+        namePoints.get(country.iso2)?.lat ?? country.lat,
+        LIFT_M,
+      );
+      names.add({
         id,
-        // On the country itself: the point of its outline farthest from
-        // its edge, or the listed point where there is no outline.
-        position: Cesium.Cartesian3.fromDegrees(
-          namePoints.get(country.iso2)?.lon ?? country.lng,
-          namePoints.get(country.iso2)?.lat ?? country.lat,
-          LIFT_M,
-        ),
-        image,
-        width,
-        height,
-        // Just under a story marker when close; on the spot from afar.
+        position,
+        text: country.name.toUpperCase(),
+        font: NAME_FONT,
+        scale: NAME_SCALE,
+        fillColor: Cesium.Color.fromCssColorString(colour),
+        outlineColor: Cesium.Color.fromCssColorString('#04050a'),
+        outlineWidth: 5,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+        verticalOrigin: Cesium.VerticalOrigin.TOP,
         pixelOffset: new Cesium.Cartesian2(0, 14),
-        pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
-          1.5e6,
-          1.6,
-          1.4e7,
-          0,
-        ),
-        // Grows as you come closer, like AUSPEX's zoom scale.
-        scaleByDistance: new Cesium.NearFarScalar(1.5e6, 2.1, 2.2e7, 0.9),
+        pixelOffsetScaleByDistance: offsetByDistance,
+        scaleByDistance: sizeByDistance,
         disableDepthTestDistance: 50_000,
       });
+      const badge = countryMarksImage(country);
+      if (badge)
+        marks.add({
+          id,
+          position,
+          image: badge.image,
+          width: badge.width,
+          height: badge.height,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          pixelOffset: new Cesium.Cartesian2(0, 13),
+          pixelOffsetScaleByDistance: offsetByDistance,
+          scaleByDistance: sizeByDistance,
+          disableDepthTestDistance: 50_000,
+        });
     }
-    return viewer.scene.primitives.add(marks);
+    return viewer.scene.primitives.add(group);
   }
 
   function drawCities(viewer, cities) {
@@ -432,7 +503,7 @@ export function createAtlas({
     stopCulling.countries?.();
     viewer.scene.primitives.remove(drawn.countries);
     drawn.countries = drawCountries(viewer, data.countries);
-    stopCulling.countries = cullBeyondHorizon(viewer, drawn.countries);
+    stopCulling.countries = cullParts(viewer, drawn.countries);
     viewer.scene.requestRender?.();
   }
 
@@ -498,7 +569,7 @@ export function createAtlas({
         if (name !== 'borders') ensureHandler(viewer);
         drawn[name] = draw[name](viewer, loaded);
         if (name !== 'borders')
-          stopCulling[name] = cullBeyondHorizon(viewer, drawn[name]);
+          stopCulling[name] = cullParts(viewer, drawn[name]);
         viewer.scene.requestRender?.();
         return true;
       } catch {

@@ -1,5 +1,11 @@
 # Changelog
 
+- Coranto: country names are drawn as text by the map engine, not as
+  images of text, so they are sharp at every zoom and screen density. The
+  topic buttons join the shared look: a cut corner and a rule along the
+  bottom in the topic's colour that runs the full width on hover and when
+  selected; only GOOD NEWS fills when on. Each map overlay has an icon.
+
 - Coranto: the Moon is where it really is, at its true distance and size,
   with NASA's Lunar Reconnaissance Orbiter surface map. Search for "The
   Moon" to fly out to its sunlit side.
