@@ -2,55 +2,35 @@
 
 <img src="docs/media/coranto/coranto-banner.png" alt="Coranto: watch the world back" width="620"/>
 
-<img alt="news" src="https://img.shields.io/badge/news-real_headlines_·_real_links-B47CFF?style=for-the-badge&labelColor=04070b"/>
-<img alt="sources" src="https://img.shields.io/badge/news_sources-35_named_·_6_languages_·_health_shown-B47CFF?style=for-the-badge&labelColor=04070b"/>
-<img alt="live layers" src="https://img.shields.io/badge/live_layers-33_·_all_checked-B47CFF?style=for-the-badge&labelColor=04070b"/>
-<img alt="AI text" src="https://img.shields.io/badge/AI_text-optional_·_cited_·_checked_in_code-E879F9?style=for-the-badge&labelColor=04070b"/>
+### Real news, from named sources, on a live globe.
+
+<img alt="data" src="https://img.shields.io/badge/every_item-real_·_sourced_·_linked-B47CFF?style=for-the-badge&labelColor=04070b"/>
+<img alt="news sources" src="https://img.shields.io/badge/news_sources-35_named_·_6_languages-B47CFF?style=for-the-badge&labelColor=04070b"/>
+<img alt="live layers" src="https://img.shields.io/badge/live_layers-30+_·_aircraft_·_ships_·_satellites-B47CFF?style=for-the-badge&labelColor=04070b"/>
 <img alt="keys" src="https://img.shields.io/badge/API_keys-none_required-B47CFF?style=for-the-badge&labelColor=04070b"/>
+<img alt="AI" src="https://img.shields.io/badge/AI_text-optional_·_labelled_·_checked-E879F9?style=for-the-badge&labelColor=04070b"/>
 <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-B47CFF?style=for-the-badge&labelColor=04070b"/></a>
 <br/>
 <img alt="globe" src="https://img.shields.io/badge/globe-CesiumJS_·_photoreal_3D-6b7382?style=flat-square&labelColor=04070b"/>
-<img alt="feeds" src="https://img.shields.io/badge/feeds-RSS_·_GDELT_·_GDACS_·_NASA_·_USGS_·_ADS--B_·_AIS_·_NOAA-6b7382?style=flat-square&labelColor=04070b"/>
+<img alt="feeds" src="https://img.shields.io/badge/feeds-RSS_·_GDELT_·_GDACS_·_NASA_·_USGS_·_ADS--B_·_AIS_·_NOAA_·_WHO_·_UNHCR-6b7382?style=flat-square&labelColor=04070b"/>
+<img alt="tests" src="https://img.shields.io/badge/tests-6,400+_unit_·_3_browser_gates-6b7382?style=flat-square&labelColor=04070b"/>
 <img alt="built on" src="https://img.shields.io/badge/built_on-God's_Eye_View_+_AUSPEX-6b7382?style=flat-square&labelColor=04070b"/>
-<img alt="tests" src="https://img.shields.io/badge/tests-node:test_·_browser_gates-6b7382?style=flat-square&labelColor=04070b"/>
 
 </div>
 
 ---
 
 <p align="center">
-  <img src="docs/media/coranto/world-news.png" alt="Coranto: current headlines pinned to the places they name, with the feed on the right" width="100%"/>
+  <img src="docs/media/coranto/hero.png" alt="Coranto: current headlines pinned to the places they name, with the newsfeed on the right" width="100%"/>
 </p>
-
-<p align="center"><em>569 current stories from 25 live sources, pinned to the places they name, with an erupting volcano selected from the hazards layer. Every card is the publisher's own headline and opens the original.</em></p>
+<p align="center"><em>749 current stories from 33 answering sources, each pinned to the place its own text names. Every card is the publisher's headline and opens the original. Nothing on this screen is sample data.</em></p>
 
 <p align="center">
-  <img src="docs/media/coranto/map-key.png" alt="The globe with topic and hazard icons and the map key open" width="100%"/>
-</p>
-<p align="center"><em>Every marker is an icon: the topic most stories at a place share, or the kind of hazard. MAP KEY explains whatever is on the globe right now.</em></p>
-
-<table>
-<tr>
-<td width="50%"><img src="docs/media/coranto/story-popup.png" alt="A story opened in the app with its AI brief and tools" width="100%"/></td>
-<td width="50%"><img src="docs/media/coranto/atlas.png" alt="Borders, country names with status marks, and city icons on the globe" width="100%"/></td>
-</tr>
-<tr>
-<td><em>Stories open in the app: headline, summary, where it was placed, and tools for a checked AI brief, who covered it and more. The publisher's link stays inside.</em></td>
-<td><em>AUSPEX's atlas: borders and front lines, every country with its status marks, and a thousand cities with an icon for what each is known as.</em></td>
-</tr>
-</table>
-
-<p align="center">
-  <img src="docs/media/coranto/board.png" alt="The analyst board: pinned items, the network of names they share, and the consensus of five model analysts" width="100%"/>
-</p>
-<p align="center"><em>The analyst board, brought over whole from AUSPEX: your pins on the left, the names they share drawn as a network, and on the right a consensus run, in which five model analysts score the pins, the two furthest apart cross-examine each other, and a sixth writes the conclusion. It is marked as written by a model.</em></p>
-
-<p align="center">
-<a href="#what-this-is">What this is</a> ·
-<a href="#why-it-exists">Why it exists</a> ·
-<a href="#the-honesty-rules">The honesty rules</a> ·
-<a href="#how-to-use-it">How to use it</a> ·
+<a href="#everything-here-is-real">Everything here is real</a> ·
+<a href="#a-tour">A tour</a> ·
+<a href="#what-is-in-it">What is in it</a> ·
 <a href="#quickstart">Quickstart</a> ·
+<a href="#how-to-use-it">How to use it</a> ·
 <a href="#sources">Sources</a> ·
 <a href="#how-it-is-built">How it is built</a> ·
 <a href="#roadmap">Roadmap</a> ·
@@ -61,427 +41,200 @@
 
 ## What this is
 
-**Coranto is an open-source instrument for staying informed with real, sourced news on a live globe.**
+**Coranto is an open-source instrument for staying informed: real, sourced
+news on a live globe, with the public signals of the world around it.**
 
 The corantos were the first printed newspapers, in the 1620s. Each item was
 headed with the place it came from and the date. Coranto does the same thing
-four centuries on: it reads public news feeds, pins each story to the place its
-own text names, and shows you the publisher, the time and the link. Nothing
-else is added.
-
-It is built from two projects:
-
-- **[God's Eye View](https://github.com/bilawalsidhu/gods-eye-view)** supplies
-  the engine: a photoreal CesiumJS globe with live aircraft, ships, satellites,
-  earthquakes, weather and cameras, all from public sources.
-- **[AUSPEX](https://github.com/AllStreets/AUSPEX)** supplies the purpose and
-  the look: a calm news instrument that carries good news beside bad and never
-  dresses a guess as a fact.
-
-```
-  the instrument
-  ├─ the feed ......... publisher headlines, newest first, each linked to its source
-  ├─ stories .......... the same event across outlets, with how many carried it
-  ├─ coverage ......... which regions' outlets carried a story, and which did not
-  ├─ figures .......... where outlets give different numbers for the same thing
-  ├─ AI brief ......... optional; every sentence cites its sources or is removed
-  ├─ search ........... keep only the stories that mention your words
-  ├─ watches .......... save a search, place or topic; see what is new since you looked
-  ├─ my briefing ...... the latest stories for everything you follow, on one page
-  ├─ the globe ........ one marker per place the stories name; rings where approximate
-  ├─ source health .... which feeds answered, which did not, and when
-  ├─ good news ........ headlines tagged as progress: medical, science, space, humanity
-  ├─ hazards .......... cyclones, floods, volcanoes, quakes, fires from GDACS and NASA
-  ├─ watch power ...... military aircraft airborne now, mapped military sites, plate readers
-  ├─ elections ........ polling days in the next 120 days, with election news beside them
-  ├─ markets .......... stock indices, oil, the US 10-year yield, exchange rates and crypto, each with its source and day
-  ├─ relief ........... people forced to flee, by country, and disease outbreak notices, from UNHCR and the WHO
-  ├─ campaign money ... the biggest US Senate and House fundraisers, from their own FEC filings
-  ├─ live TV .......... live news channels from every continent, one click away
-  ├─ live layers ...... aircraft, military flights, ships, satellites, storms, launches
-  └─ instruments ...... the full control room: tracking, cameras, weather, voice
-```
-
----
-
-## Why it exists
+four centuries on. It reads public news feeds, pins each story to the place
+its own text names, and shows you the publisher, the time and the link. Then
+it puts the rest of the public record beside the news: aircraft, ships,
+satellites, earthquakes, fires, storms, outbreaks, elections, markets.
 
 Knowing what is happening in the world, early and across domains, has mostly
 belonged to governments and to people who can pay for terminals. The raw
-material is public: publisher feeds, aircraft transponders, ship beacons,
-orbital elements, seismographs, disaster alerts. What has been missing is one
-instrument that gathers it, shows it honestly, and belongs to anyone.
-
-Coranto aims at two things at once:
-
-- **The whole picture stays available.** Every source, every layer, undigested,
-  for anyone who wants to look for themselves.
-- **You can narrow it to what you care about.** Search, topics, places and
-  filters cut the stream down without anything rewriting it for you. Save any
-  of them as a watch, and My Briefing gathers the latest for all of them.
+material is public. Coranto gathers it, shows it honestly, and belongs to
+anyone. Hence the slogan: **watch the world back.**
 
 ---
 
-## The honesty rules
+## Everything here is real
 
-These are enforced in code and by tests that fail the build if they are broken.
+This is the rule the project is built on, and it is enforced in code and by
+tests that fail the build when it is broken.
 
-| Rule                                                   | What it means                                                                                                                                                                                                                                                                                                                                                                                             |
-| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Source and time**                                    | Every item has a publisher, a working link, the feed's own publish time and the time Coranto fetched it. An item missing any of these is dropped, never patched.                                                                                                                                                                                                                                          |
-| **No seeded content**                                  | The code contains no sample or fallback stories. When feeds are down the screen says so and shows nothing in their place.                                                                                                                                                                                                                                                                                 |
-| **No randomness in data**                              | A story sits on a real coordinate with its precision shown, or it is not placed. No position is ever nudged.                                                                                                                                                                                                                                                                                              |
-| **Inference is labelled**                              | A story's location and topic are worked out from its text. The card shows the exact words that were matched, and topics are marked as automatic tags.                                                                                                                                                                                                                                                     |
-| **AI text in the feed is optional, cited and checked** | The feed is the publishers' own words. If you ask for an AI brief of a story or place, every sentence must cite the articles it rests on, and code removes any sentence whose figures or names are not in those articles.                                                                                                                                                                                 |
-| **Analysis is kept apart from reporting**              | The analyst board has tools that a model writes freely from what you pinned: consensus, the adversary playbook, the red team brief, the daily brief and the conflict brief. They are opinion, they cite nothing and no code checks them. They appear only on the analyst board, only when you ask, and each one says underneath that a model wrote it. Nothing they produce enters the feed or the globe. |
+| Rule                                                   | What it means                                                                                                                                                                                                              |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Source and time**                                    | Every item has a publisher, a working link, the feed's own publish time and the time Coranto fetched it. An item missing any of these is dropped, never patched.                                                           |
+| **No seeded content**                                  | The code contains no sample or fallback stories. When a source is down the screen names it as down and shows nothing in its place.                                                                                         |
+| **No randomness in data**                              | A story sits on a real coordinate with its precision shown, or it is not placed. No position is ever nudged.                                                                                                               |
+| **Inference is labelled**                              | A story's location and topic are worked out from its text. The card shows the exact words that were matched, and topics are marked as automatic tags.                                                                      |
+| **Estimates say so**                                   | A launch's climb to orbit is reconstructed, since no provider publishes the flown track. It is marked ESTIMATED on its card and in the map key.                                                                            |
+| **AI text in the feed is optional, cited and checked** | If you ask for an AI brief of a story or place, every sentence must cite the articles it rests on, and code removes any sentence whose figures or names are not in those articles.                                         |
+| **Analysis is kept apart from reporting**              | The analyst board has tools that a model writes freely from what you pinned. They appear only there, only when you ask, and each says underneath that a model wrote it. Nothing they produce enters the feed or the globe. |
+
+One thing on screen is style and not fact, and Coranto says so in Settings:
+the analyst board stamps its briefs `TOP SECRET`, as its predecessor did.
+Nothing here is classified. Every item is from a public source.
 
 <table>
 <tr>
-<td width="50%"><img src="docs/media/coranto/place-and-sources.png" alt="The LIVE button open, listing every source and whether it is answering" width="100%"/></td>
-<td width="50%"><img src="docs/media/coranto/good-news.png" alt="The Good news filter" width="100%"/></td>
+<td width="50%"><img src="docs/media/coranto/sources.png" alt="The LIVE list: every news source with whether it is answering and how many stories it returned" width="100%"/></td>
+<td width="50%"><img src="docs/media/coranto/story.png" alt="A story opened in the app with a checked AI brief whose sentences cite numbered sources" width="100%"/></td>
 </tr>
 <tr>
-<td><em>Click <strong>LIVE</strong> and every source drops down with its status: the ones not answering are named first, with the reason. Click it again to close.</em></td>
-<td><em>Good news narrows the feed to headlines tagged as progress. The tag is automatic and cautious; it says so on the card.</em></td>
+<td><em>Click <strong>LIVE</strong> and every source drops down with its status. The two not answering are named first, with the reason. A source that is down is never papered over.</em></td>
+<td><em>A story from four outlets with its AI brief. Each numbered box links to the article that sentence rests on. Sentences whose figures or names are not in the cited articles are removed before you see it.</em></td>
 </tr>
 </table>
 
-### Stories and checked briefs
+---
+
+## A tour
+
+### The whole globe, when you want it
 
 <p align="center">
-  <img src="docs/media/coranto/story-brief.png" alt="One story from 13 outlets with a checked AI brief" width="100%"/>
+  <img src="docs/media/coranto/full-globe.png" alt="Europe with live civil aircraft, military aircraft and ships, the side panels put away" width="100%"/>
 </p>
+<p align="center"><em>Both side panels put away, with live civil aircraft, military aircraft and ships switched on over Europe. Every mark is a real transponder or beacon broadcasting at that moment.</em></p>
 
-<p align="center"><em>One story carried by 13 outlets, 25 headlines. The brief's numbered boxes link to the articles each sentence rests on, and each claim shows how many outlets reported it.</em></p>
+Either side of the news view slides away from a small button on its edge, and
+comes back from an arrow at that edge of the screen. The header's layer
+buttons switch each live layer with one click.
 
-The feed groups headlines about the same event into one story and counts the
-distinct outlets that carried it. Grouping uses shared headline words only,
-and you can switch it off with **EVERY HEADLINE**.
-
-For a story with more than one outlet you can ask for an **AI BRIEF**. The
-model is given only those outlets' headlines and summaries. Before anything
-is shown, code checks each sentence: it must cite sources, and every figure
-and name in it must appear in the sources it cites. Sentences that fail are
-removed and counted. The check proves a sentence's figures and names come
-from the cited articles; it does not prove the outlets are right, which is
-why every sentence links to them.
-
-Select a place and **AI BRIEF OF THIS PLACE** does the same for everything
-reported from there, using the newest headline of each story. The model is
-told to report each event on its own and not to link them.
-
-**TRANSLATE** on a story gives a machine translation into English or ten
-other languages, under the original. It is shown only if every number in it
-matches the original; code cannot check the wording, and the label says so.
+### The atlas
 
 <p align="center">
-  <img src="docs/media/coranto/figures-and-regions.png" alt="A story from 12 outlets showing differing death tolls and outlets by region" width="100%"/>
+  <img src="docs/media/coranto/atlas.png" alt="Borders, front lines, country names with status marks and city icons over the Middle East, Africa and South Asia" width="100%"/>
 </p>
-
-<p align="center"><em>One story from 12 outlets, 23 headlines. Four outlets' headlines said three were killed and ten said twelve, so the card says the figures differ and who gave which. Below, outlets by region: none of the African outlets read had carried it.</em></p>
-
-Two more things are read straight from the headlines, with no model:
-
-- **Figures that differ.** When outlets in one story give different numbers
-  for the same thing, the card says so and names who gave which: for example
-  `killed: 15 (France 24) · 20 (CNA)`, or `magnitude: 7.6 (The Hindu) · 7.7
-(Euronews, The Guardian)`. Coranto does not pick a winner; later reports
-  often carry higher counts.
-- **Outlets by region.** Opening a story's outlet list shows how many outlets
-  based in Europe, the Middle East, Asia-Pacific, Africa and the Americas
-  carried it. A dashed `Africa 0` means the African outlets Coranto reads are
-  answering and none has carried it. That is a statement about the outlets
-  Coranto reads, not about the whole press of a region.
+<p align="center"><em>Borders and front lines, every country named on a point inside its own outline with its status marks, and a thousand cities with an icon for what each is known as. Story counts sit on the places the stories name.</em></p>
 
 ### The analyst board
 
-**ANALYST** in the header opens a full-screen board, in both views. It is
-AUSPEX's analyst board, brought over whole: the same three columns, tools,
-wording and prompts, in Coranto's violet.
+<p align="center">
+  <img src="docs/media/coranto/analyst.png" alt="The analyst board: six pinned stories, the network of entities they share, and a consensus run by five model analysts" width="100%"/>
+</p>
+<p align="center"><em>Six stories pinned from the feed. In the middle, the entities they share drawn as a network you can turn, zoom and rearrange. On the right, a consensus run: five model analysts score the pins, the two furthest apart cross-examine each other, and a sixth writes the conclusion. It is marked as written by a model.</em></p>
 
-- **Asset board.** Everything you pinned: stories, countries, cities, and
-  aircraft, ships or sites as they were when pinned. Each card carries a
-  trend mark (how many other headlines share its place) and a clock that
-  opens its timeline. The search above the cards looks through the headlines
-  held and pins from there.
-- **Entity network.** Pins that name the same listed entity are joined.
-  Violet joins pins of one domain, amber joins pins across domains.
-- **Intelligence brief.** SYNTHESIZE fills it from the pins by fixed rules,
-  with an H, M or L mark on each paragraph for how many live headlines share
-  its words. No model is asked.
+**ANALYST** in the header opens a full-screen board, brought over whole from
+AUSPEX in Coranto's violet.
 
-Worked out in code from the headlines held, with no model: the **narrative
-timeline**, the **escalation matrix** (how the pins and the headlines couple
-across five domains), **dead reckoning** (countries ranked by how often they
-are named, also shown on the globe's country names) and **saved boards**
-(kept in this browser).
+- **Worked out in code, no model:** SYNTHESIZE (a brief from the pins with a
+  confidence mark on each paragraph), the entity network, the narrative
+  timeline, the escalation matrix, dead reckoning, saved boards.
+- **Written by a model, and labelled so:** CONSENSUS, the adversary playbook,
+  the red team brief, the daily brief and, on a country sheet where the atlas
+  marks a conflict, the conflict brief. These need `OPENAI_API_KEY`. The key
+  stays on the server; the route refuses other sites, is rate limited and
+  caps the reply.
+- **INSTRUMENTS** on the board's bar opens the control room, below.
 
-Written by a model, and labelled so: **CONSENSUS** (five specialist analysts
-score the pins in parallel, the highest and lowest cross-examine each other,
-and a senior analyst writes the conclusion: eight requests), the **adversary
-playbook**, the **red team** brief, the **daily brief** and, on a country
-sheet where the atlas marks a conflict, the **conflict brief**. These need
-`OPENAI_API_KEY`. The key stays on the server; the route refuses other sites,
-is rate limited, caps the reply and never passes on the provider's error text.
-Every board output can be exported as an HTML file.
+### Instruments
 
-The entity network has depth: drag a dot to move it and it stays where you
-put it, drag the background to turn the whole network, scroll to zoom, and
-hold Shift to slide it. RESET puts it back.
+<p align="center">
+  <img src="docs/media/coranto/instruments.png" alt="The Instruments control room: the globe with live aircraft and ships and the engine's panels around it" width="100%"/>
+</p>
+<p align="center"><em>The control room: the full God's Eye View engine with its data layers, scenes, cameras, street level, visual presets and voice control, in Coranto's frame. The ringed X at the top left returns to the analyst board.</em></p>
 
-One thing on the board is style and not fact. Its briefs are stamped `TOP
-SECRET`, `NOFORN` and `REL TO FVEY`, as AUSPEX's were. Nothing in Coranto is
-classified: every item is from a public source, and the written briefs come
-from a model. Settings says so under About. AUSPEX's 30-day history needs a
-database, which Coranto does not have yet; the board works from the week of
-headlines held.
+All thirty engine layers were switched on and checked;
+[docs/coranto/INSTRUMENTS.md](docs/coranto/INSTRUMENTS.md) lists what each
+shows, where its data comes from and the key it needs. The engine's own guide
+is in [docs/GODS-EYE-VIEW-README.md](docs/GODS-EYE-VIEW-README.md).
 
-### DISEASE, and SILENCE in reserve
+### Disease, drawn like fire
 
-Two layers of Coranto's own, drawn on the ground itself so that country
-names, cities, stories, hazards, aircraft and ships all sit on top.
+<table>
+<tr>
+<td width="50%"><img src="docs/media/coranto/disease.png" alt="Countries under official disease outbreak notices shaded as a grid, with the map key open" width="100%"/></td>
+<td width="50%"><img src="docs/media/coranto/disease-near.png" alt="Glowing points with cards naming Ebola in two provinces of DR Congo and in Uganda" width="100%"/></td>
+</tr>
+<tr>
+<td><em>From afar: countries under a WHO or CDC outbreak notice, covered in squares coloured by how the disease spreads and deeper for a higher level. The map key explains whatever is on the globe.</em></td>
+<td><em>Up close the grid gives way to a point on each country or named province, with a card: the disease, the level and the notice it comes from.</em></td>
+</tr>
+</table>
 
-SILENCE is built but has no button at present: measured this strictly it
-was nearly always empty, and an empty layer reads as a broken one. What it
-does, for when it returns: it takes the black disc and red ring AUSPEX drew over a hand-kept
-list of five places and backs it with measurement. It reads the outage alerts
-of [IODA](https://ioda.inetintel.cc.gatech.edu) (Georgia Tech) every ten
-minutes. IODA raises an alert for any departure from normal, most of them
-slight, so Coranto fills a place only when its latest alert is still open and
-the measured level is far below its own recent normal: 50% or more is a
-blackout, 30% to 50% a major outage. Routing and active probing count alone;
-the two indirect measures count only when a second measure agrees. A whole
-country is filled when the country is affected, and only the region when it
-is a region. The card gives each measurement and links to IODA. It measures
-connectivity and does not say why it fell; a place that has been dark for
-longer than IODA's baseline remembers will not show.
+No source publishes current case counts by place, so none is shown. The level
+is the CDC's own, or a WHO notice in the last 75 days, raised one step when
+five or more current headlines name the disease and the country.
 
-**DISEASE** reads the World Health Organization's outbreak notices and the US
-CDC's travel health notices. It draws as the fire layer does: from afar,
-each country a notice names is covered in two-degree squares that meet edge
-to edge; from close up the squares give way to a glowing point on each
-country or named province, with a card beside it. Squares and points are
-coloured by how the disease
-spreads (haemorrhagic fever, mosquito or tick, air, water or food, contact)
-and shaded in three steps: the CDC's own level where there is one, a WHO
-notice in the last 75 days as the middle step, raised one step when five or
-more current headlines name the disease and the country. No source publishes
-current case counts by place, so none is shown, and the whole country is
-shaded even where a notice covers part of it; the card says both.
+### Five lenses
 
-### Settings
+<table>
+<tr>
+<td width="50%"><img src="docs/media/coranto/watch-power.png" alt="The Watch Power lens: military aircraft airborne now with their callsigns" width="100%"/></td>
+<td width="50%"><img src="docs/media/coranto/elections.png" alt="The Votes lens: upcoming polling days marked on the globe" width="100%"/></td>
+</tr>
+<tr>
+<td><em><strong>POWER.</strong> Military and government aircraft broadcasting their own position, mapped military sites and plate-reader cameras, beside the military news. It shows institutions and equipment, never individuals.</em></td>
+<td><em><strong>VOTES.</strong> Polling days in the next 120 days, as recorded by Wikidata and linked to their source, with US campaign money from candidates' own FEC filings.</em></td>
+</tr>
+</table>
 
-The gear at the right end of the header opens Settings. Every control saves
-the moment it is changed, to this browser only.
+<table>
+<tr>
+<td width="50%"><img src="docs/media/coranto/markets.png" alt="The Markets lens: stock indices, oil and exchange rates beside finance news" width="100%"/></td>
+<td width="50%"><img src="docs/media/coranto/relief.png" alt="The Relief lens: people forced to flee by country of origin from UNHCR" width="100%"/></td>
+</tr>
+<tr>
+<td><em><strong>MARKETS.</strong> Stock indices, oil, the US 10-year yield, exchange rates and crypto, each with its source and the day the source gave it. None is presented as a live trading price.</em></td>
+<td><em><strong>RELIEF.</strong> People forced to flee, by country, from the UN refugee agency, and the World Health Organization's outbreak notices. Nothing in it is an estimate of Coranto's.</em></td>
+</tr>
+</table>
+
+### One search, the Moon, and Settings
+
+<table>
+<tr>
+<td width="50%"><img src="docs/media/coranto/search.png" alt="The search box finding places, a country sheet and stories for the letters ukr" width="100%"/></td>
+<td width="50%"><img src="docs/media/coranto/moon.png" alt="The Moon seen from its sunlit side with its distance card" width="100%"/></td>
+</tr>
+<tr>
+<td><em><strong>SEARCH</strong> (Ctrl or Cmd + K) reaches everything from one box: places, stories, layers, lenses, tools, channels. Where a word could mean several things it lists them and says what each does.</em></td>
+<td><em>The Moon is where it really is: true distance, true size, with NASA's Lunar Reconnaissance Orbiter surface map. Search for it to fly out.</em></td>
+</tr>
+</table>
 
 <p align="center">
   <img src="docs/media/coranto/settings.png" alt="Settings, Connections: the server, which keys are set, and every live source" width="100%"/>
 </p>
-
-- **General.** The header layout: one LAYERS list, or SEARCH beside LIVE and
-  a button for every layer. The view Coranto opens in, the clock (UTC or
-  local) and the headline ticker, and whether the globe is drawn at the
-  screen's full resolution.
-- **Notices.** Which arrivals raise a notice: your watches, Orange and Red
-  disaster alerts, WHO outbreak notices.
-- **Connections.** Whether the server is answering, its version, which keys
-  are set (never the keys themselves) and every live source with its status.
-- **Data and privacy.** What this browser keeps, a one-file export, and
-  two-click clearing.
-- **About.** Version, licence, the note about the analyst board's stamps,
-  the privacy policy, keyboard shortcuts and links.
-
-### Your own feed
-
-<table>
-<tr>
-<td width="50%"><img src="docs/media/coranto/watches.png" alt="Saved watches on the left with counts of new stories" width="100%"/></td>
-<td width="50%"><img src="docs/media/coranto/briefing.png" alt="My Briefing: the latest stories for each watch" width="100%"/></td>
-</tr>
-<tr>
-<td><em>Four watches on the left, each showing how many stories are new since you last looked.</em></td>
-<td><em>My Briefing: the latest stories for every watch on one page, newest first, with outlet counts.</em></td>
-</tr>
-</table>
-
-Hundreds of headlines are too many to read. A **watch** is a search, place,
-topic, publisher or any mix of them that you save. Each watch shows a count of
-stories that are new since you last opened it, and **MY BRIEFING** lists the
-latest stories for all of them on one page.
-
-A watch only selects. The briefing shows the publishers' own headlines,
-newest first, with nothing rewritten and nothing ranked by a model. Watches
-are stored in your browser and are sent nowhere.
-
-### Watch Power
-
-<p align="center">
-  <img src="docs/media/coranto/watch-power.png" alt="The Watch Power lens: military aircraft, mapped military sites and military news" width="100%"/>
-</p>
-
-<p align="center"><em>A military widebody broadcasting the callsign RCH443 over the Ligurian Sea, picked from the list of 23 military aircraft airborne at that moment, with mapped military sites around it and the military news beside it. The card links to the aircraft's live public track.</em></p>
-
-Governments have always been able to watch. The **WATCH POWER** lens turns
-the same public signals the other way:
-
-- **Military aircraft** that are broadcasting their own position over ADS-B,
-  listed with callsign, type, altitude and speed, each linking to its live
-  track at adsb.lol.
-- **Military sites** mapped in OpenStreetMap, near wherever you are looking.
-- **Plate-reader cameras** mapped in OpenStreetMap, once you zoom into a city.
-- **Military news** in the feed alongside.
-
-Everything in the lens is already public. It shows institutions and
-equipment. It does not identify or follow individuals, and an aircraft that
-is not broadcasting is not shown.
-
-### Elections
-
-<p align="center">
-  <img src="docs/media/coranto/elections.png" alt="The Elections lens: upcoming polling days and one country's election news" width="100%"/>
-</p>
-
-<p align="center">
-  <img src="docs/media/coranto/campaign-money.png" alt="US campaign money: the biggest Senate fundraisers from FEC filings" width="100%"/>
-</p>
-<p align="center"><em>US campaign money: who has raised the most this cycle, from candidates' own FEC filings. Each name opens the record at fec.gov.</em></p>
-
-<p align="center"><em>Twenty-three polling days in the next 120. Brazil's is selected: the card links to the election's article, and the feed has narrowed to Brazil's election news.</em></p>
-
-The **ELECTIONS** lens lists polling days in the next 120 days, marks them on
-the globe, and narrows the feed to election news. Clicking a polling day
-flies to the country and shows its election stories.
-
-The calendar comes from **Wikidata**, the public database behind Wikipedia.
-It is edited by volunteers and is not an election authority, so the lens says
-"as recorded by Wikidata" on every entry and links each to its source. Dates
-recorded only to the year, and contests with no set date, are left out. Check
-the official election body before relying on a date.
-
-### Markets and live TV
-
-<table>
-<tr>
-<td width="50%"><img src="docs/media/coranto/markets.png" alt="The Markets lens with exchange rates, crypto prices and finance news" width="100%"/></td>
-<td width="50%"><img src="docs/media/coranto/live-tv.png" alt="The Live TV list of ten news channels" width="100%"/></td>
-</tr>
-<tr>
-<td><em>Markets: three stock indices, Brent and WTI oil, the US 10-year yield, eight exchange rates and three crypto prices, each with its source and the day or time the source gave it, beside the finance news.</em></td>
-<td><em>Live TV: twelve news channels with a newsroom on every inhabited continent. Ten are AUSPEX's list; Buenos Aires and São Paulo were added for South America.</em></td>
-</tr>
-</table>
-
-**MARKETS** shows stock indices, oil, the US 10-year yield, exchange rates and
-crypto prices beside the finance news. Index, oil and yield figures are daily
-closes from the St. Louis Fed; exchange rates are the European Central Bank's
-reference rates. Neither is a live trading price, and each shows the day it
-is for. Crypto prices come from CoinGecko. Every figure links to its source,
-and a change is shown only when the source itself gave an earlier figure to
-compare with.
-
-**RELIEF** puts official humanitarian figures beside the humanitarian news:
-the countries most people have been forced to flee, from the UN refugee
-agency, and the World Health Organization's disease outbreak notices, marked
-on the globe and linked to the notice itself. Nothing in it is an estimate of
-Coranto's or written by a model.
-
-<p align="center">
-  <img src="docs/media/coranto/relief.png" alt="The Relief lens: World Health Organization outbreak notices listed and marked on the globe, with humanitarian news" width="100%"/>
-</p>
-
-<p align="center"><em>The Relief lens on outbreaks: the World Health Organization's notice of Ebola in the Democratic Republic of the Congo, marked at the country and linked to who.int, with humanitarian news beside it.</em></p>
-
-**LIVE TV** plays live news channels from Doha, Paris, Berlin, Pointe-Noire,
-Singapore, Sydney, New York, Buenos Aires and São Paulo in a panel over the
-globe, and pins each
-newsroom on the map. The player is YouTube's own, from its no-cookie address;
-nothing loads from YouTube until you open the panel, and closing it removes
-the player.
+<p align="center"><em>Settings, behind the gear: header layout, opening view, notices, your data, a privacy policy, and Connections, which shows whether the server is answering, which keys are set (never the keys) and every live source.</em></p>
 
 ---
 
-## How to use it
+## What is in it
 
-Coranto has two views, switched at the top right.
+```
+  the news
+  ├─ newsfeed ......... publisher headlines, newest first, each linked to its source
+  ├─ stories .......... the same event across outlets, with how many carried it
+  ├─ coverage ......... which regions' outlets carried a story, and which did not
+  ├─ figures .......... where outlets give different numbers for the same thing
+  ├─ AI brief ......... optional; every sentence cites its sources or is removed
+  ├─ translate ........ eleven languages, shown only if every number matches
+  ├─ watches .......... save a search, place or topic; see what is new since you looked
+  ├─ my briefing ...... the latest for everything you follow, on one page
+  ├─ tour · replay .... fly through today's places; step back through the week
+  └─ good news ........ headlines tagged as progress, beside everything else
 
-### NEWS
+  the globe
+  ├─ stories .......... one marker per place the stories name; rings where approximate
+  ├─ atlas ............ borders, front lines, countries, a thousand cities
+  ├─ hazards .......... cyclones, floods, volcanoes, quakes, fires (GDACS, NASA, USGS)
+  ├─ disease .......... official outbreak notices, by country and province (WHO, CDC)
+  ├─ live layers ...... aircraft, military flights, ships, satellites, storms, launches, cables
+  ├─ country sheet .... one country: its stories, displacement, elections, markets
+  └─ the Moon ......... at its true distance and size
 
-| To do this                                                  | Do this                                                                                                                                                                                                                                      |
-| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Read a story                                                | Click its headline. It opens in the app, with the link to the original at the bottom.                                                                                                                                                        |
-| See where stories are                                       | Each marker shows the icon of the topic most stories there share. A solid ring is a city. A dashed ring is a country or region, so the position is approximate. **MAP KEY** explains every symbol.                                           |
-| See one place's stories                                     | Click its marker. Clear the filter with the chip at the top of the feed.                                                                                                                                                                     |
-| Check why a story is where it is                            | Read the line under the summary, for example `Kyiv · city · matched "Kyiv" in headline`. Click it to fly there.                                                                                                                              |
-| See who else reported a story                               | Click the `N outlets` chip on a card to list every outlet's own headline.                                                                                                                                                                    |
-| Get a checked summary                                       | Click **AI BRIEF** on a story with several outlets. Needs an OpenAI key.                                                                                                                                                                     |
-| Get a checked summary of a place                            | Click a marker with several stories, then **AI BRIEF OF THIS PLACE** above the feed. Needs an OpenAI key.                                                                                                                                    |
-| See every headline ungrouped                                | Click **EVERY HEADLINE** at the top of the feed.                                                                                                                                                                                             |
-| Translate a story                                           | Open the story, click **TRANSLATE** and pick a language. The original stays above it. Needs an OpenAI key.                                                                                                                                   |
-| Read other languages                                        | Pick one from the language menu above the feed. Headlines are shown as published.                                                                                                                                                            |
-| Add aircraft, ships, satellites, quakes and other feeds     | Click **LAYERS** at the top. It lists every layer with what it is and a switch.                                                                                                                                                              |
-| Watch power                                                 | Click **POWER** on the left. Click any aircraft in the list to fly to it and open its public track.                                                                                                                                          |
-| See where people are fleeing and where disease is spreading | Click **RELIEF** on the left. Choose Displaced people or Outbreaks. Click an outbreak to fly to it and open the WHO notice.                                                                                                                  |
-| Check the markets                                           | Click **MARKETS** on the left. Click any figure to open its source.                                                                                                                                                                          |
-| See who is raising the most money                           | Click **VOTES**, then **US campaign money**. Choose Senate or House. Click a name to open the FEC record.                                                                                                                                    |
-| Save a search                                               | Search, pick a topic or select a place, then press **SAVE THIS VIEW** under My Watches. It tells you what it saved.                                                                                                                          |
-| Watch a newsroom live                                       | Click **LIVE TV** and pick a channel.                                                                                                                                                                                                        |
-| Follow elections                                            | Click **VOTES** on the left. Click a polling day to see that country's election news.                                                                                                                                                        |
-| Follow something                                            | Set a search, place or topic, then click **SAVE THIS VIEW**. It appears under MY WATCHES.                                                                                                                                                    |
-| Look further back                                           | Use the time range above the feed: last 24 hours, 3 days or 7 days.                                                                                                                                                                          |
-| Turn on the atlas                                           | Under **MAP OVERLAYS**, switch on borders, countries or cities. Click a country or city for its card and stories.                                                                                                                            |
-| Build a picture                                             | Press the pin on a feed card, or **PIN TO ANALYST** on a story, country, city, aircraft or ship. Open **ANALYST** at the top for the board and its tools.                                                                                    |
-| See more of the globe                                       | Move the cursor to the top of either side panel and press the small minimize button on its edge. The panel and the shading around the globe slide away. Move to that edge of the screen and a round arrow brings it back. Coranto remembers. |
-| See disease outbreaks                                       | Switch on **DISEASE**. Countries under an official outbreak notice are covered in squares, coloured by how the disease spreads and darker for a higher level.                                                                                |
-| Go and look at the Moon                                     | Search for **The Moon**. It is at its true distance and size, with NASA's surface map, and far beyond every satellite drawn. **EARTH** brings you back.                                                                                      |
-| Change how it looks                                         | Click the gear at the top right. Settings holds the header layout, the opening view, the clock, notices, connections, your data and About.                                                                                                   |
-| Catch up                                                    | Click **MY BRIEFING** for the latest stories on every watch. **Copy as text** puts it on the clipboard with every link.                                                                                                                      |
-| Share what you are looking at                               | Click **SHARE**. It copies a link that reopens the same lens, search, topic and place. The link carries the filter only, never news content.                                                                                                 |
-| See what an aircraft or ship is                             | Switch on FLIGHTS, MILITARY or SHIPS and click one. A card shows what it is broadcasting and links to a public tracker.                                                                                                                      |
-| Search                                                      | Press `/` or type in the box above the feed. Stories must contain every word, in the headline, summary, publisher or place.                                                                                                                  |
-| Narrow by topic                                             | Use the list on the left.                                                                                                                                                                                                                    |
-| See only good news                                          | Click **GOOD NEWS**.                                                                                                                                                                                                                         |
-| Check the sources                                           | Click the **LIVE** badge. It lists every source and whether it answered.                                                                                                                                                                     |
-| See everything about one country                            | Search its name and pick **COUNTRY SHEET**, or click the country and choose **Open the country sheet**.                                                                                                                                      |
-| See what is near a story                                    | Open the story and click **AROUND HERE**. Rows fly to what they name.                                                                                                                                                                        |
-| Be shown the day                                            | Click **TOUR** on the left.                                                                                                                                                                                                                  |
-| See what was reported earlier in the week                   | Click **REPLAY** on the left and drag the slider.                                                                                                                                                                                            |
-| Be told when something arrives                              | Save a watch. A notice appears when it has more new stories. Switch on **Notify me outside this tab** under My Watches for a browser notification.                                                                                           |
-| Use your voice                                              | Click the microphone under the globe and ask. Needs a microphone and an OpenAI key.                                                                                                                                                          |
-| Do anything from one box                                    | Press **Ctrl+K** (**Cmd+K** on a Mac) or click **SEARCH**. Type a place, a story, a layer, a channel, a preset or a tool. Each result says what it will do; press Enter to run it.                                                           |
-| Add live layers                                             | Click **LAYERS** at the top and switch on any of: hazards, flights, military, ships, satellites, quakes, fires, storms, launches, cables.                                                                                                    |
-| Read a hazard                                               | Click its marker. A card shows what it is, the tracker's alert level and a link to the tracker's report. Red means the tracker issued a Red alert, nothing else.                                                                             |
-| Get back to the whole globe                                 | Click **EARTH**.                                                                                                                                                                                                                             |
-| Use it on a phone                                           | The globe sits above the feed. **MENU** opens the lenses, topics and your watches. The INSTRUMENTS view needs a larger screen.                                                                                                               |
-| Move the globe                                              | Drag to spin, scroll to zoom, hold Ctrl or the right button and drag to tilt.                                                                                                                                                                |
-
-The **GUIDE** button in the app shows the same instructions.
-
-### INSTRUMENTS
-
-NEWS is the product; the control room is one of its tools. Open **ANALYST**
-and press **INSTRUMENTS** on the board's bar (or search for "Instruments").
-Nothing in it is changed. The ringed X at its top left, under the banner,
-closes it and returns you to the analyst board.
-
-The full God's Eye View control room in the same frame and style as the news
-view, for when you want to go past the headlines. All thirty layers were
-switched on and checked; [docs/coranto/INSTRUMENTS.md](docs/coranto/INSTRUMENTS.md)
-lists what each shows, where its data comes from, and the key it needs. Click
-any aircraft or ship to track it, ride in a cockpit view,
-open public cameras, replay weather, change the visual style, talk to the map,
-and copy a share link. Its own guide is in
-[docs/GODS-EYE-VIEW-README.md](docs/GODS-EYE-VIEW-README.md).
-
-<table>
-<tr>
-<td width="50%"><img src="docs/media/coranto/live-layers.png" alt="News with live flights, military aircraft and earthquakes" width="100%"/></td>
-<td width="50%"><img src="docs/media/coranto/instruments.png" alt="The Instruments view" width="100%"/></td>
-</tr>
-<tr>
-<td><em>Europe with flights, ships, military aircraft, quakes and hazards on: 5,962 aircraft and 8,143 vessels at the moment of capture. The source list shows 25 of 28 news sources answering.</em></td>
-<td><em>Instruments: the same header, ticker and panel style, with the full control room around the globe.</em></td>
-</tr>
-</table>
+  the tools
+  ├─ lenses ........... Power, Votes, Markets, Relief
+  ├─ live TV .......... twelve news channels, a newsroom on every inhabited continent
+  ├─ analyst board .... pins, entity network, synthesis, consensus, timeline, matrix
+  ├─ instruments ...... the control room: tracking, cockpit, cameras, weather, scenes
+  ├─ voice ............ talk to the map; it can run anything search can
+  └─ source health .... which feeds answered, which did not, and when
+```
 
 ---
 
@@ -502,18 +255,50 @@ Open **http://localhost:4173**. The news view loads with headlines on.
 ### Keys that switch more on
 
 Nothing needs a key. Each of these adds a feed. Put them in a `.env` file in
-the project folder (it is gitignored; see `.env.example`), or paste them into
-**POWER UP** in the Instruments view.
+the project folder (it is gitignored; see `.env.example`). Settings,
+Connections shows which are set.
 
 | Key                                          | What it adds                                                                              |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `AISSTREAM_API_KEY`                          | Live ships worldwide (AIS)                                                                |
 | `OPENSKY_CLIENT_ID`, `OPENSKY_CLIENT_SECRET` | Fuller live aircraft coverage (ADS-B); works without, at a lower rate                     |
 | `NEWS_API_KEY`                               | One more news source                                                                      |
-| `FIRMS_MAP_KEY`                              | NASA active-fire detections                                                               |
+| `FEC_API_KEY`                                | US campaign money in the Votes lens                                                       |
+| `MAPILLARY_CLIENT_TOKEN`                     | Street-level photographs                                                                  |
+| `TOMTOM_API_KEY`                             | Live road traffic                                                                         |
 | `CESIUM_ION_TOKEN` or `GOOGLE_MAPS_API_KEY`  | Photoreal 3D cities                                                                       |
-| _(none needed)_                              | SILENCE (IODA) and DISEASE (WHO, CDC) need no key                                         |
 | `OPENAI_API_KEY`                             | Checked AI briefs, translation, the analyst board's model-written tools and voice control |
+
+---
+
+## How to use it
+
+Coranto opens in the news view. The **GUIDE** button in the app shows the
+same instructions.
+
+| To do this                | Do this                                                                                                                 |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Read the news             | Scroll the newsfeed on the right. Click a headline to open the story in the app; the publisher's link is at the bottom. |
+| See where it is happening | Click a marker on the globe, or the place line on a card.                                                               |
+| Check a story             | Open it and press **AI BRIEF** or **WHO COVERED**.                                                                      |
+| Check the sources         | Click **LIVE**, or **SOURCES** on the left. Each source is listed with whether it answered.                             |
+| Search everything         | **SEARCH**, or Ctrl / Cmd + K.                                                                                          |
+| Search the headlines      | Press `/` or type in the box above the feed.                                                                            |
+| Switch a live layer       | Use the layer buttons in the header, or the **LAYERS** list. Settings chooses which.                                    |
+| See more of the globe     | Move to the top of a side panel and press the minimize button on its edge. An arrow at that screen edge brings it back. |
+| Narrow by topic           | Use the list on the left. **GOOD NEWS** shows only headlines tagged as progress.                                        |
+| Look further back         | Use the time range above the feed: last 24 hours, 3 days or 7 days.                                                     |
+| Follow something          | Set a search, place or topic, then **SAVE THIS VIEW**. **MY BRIEFING** gathers the latest for all your watches.         |
+| Be shown the day          | **TOUR** flies through the places with the most stories. **REPLAY** steps back through the week.                        |
+| Turn on the atlas         | Under **MAP OVERLAYS**: borders, countries, cities, headline activity.                                                  |
+| Open a country            | Click its name with Countries on, then **Open the country sheet**.                                                      |
+| Watch a newsroom live     | **LIVE TV**, then pick a channel.                                                                                       |
+| Build a picture           | Press the pin on a feed card, or **PIN TO ANALYST** on a story, country, city, aircraft or ship. Open **ANALYST**.      |
+| Open the control room     | **ANALYST**, then **INSTRUMENTS**. The ringed X returns you.                                                            |
+| Know what a marker means  | **MAP KEY**. It lists only what is on the globe now.                                                                    |
+| Share what you see        | **SHARE** copies a link that reopens the same lens, search and place. It carries the filter, never news content.        |
+| Talk to it                | The microphone under the globe. It needs `OPENAI_API_KEY`.                                                              |
+| Change how it looks       | The gear at the top right.                                                                                              |
 
 ---
 
@@ -588,6 +373,10 @@ is documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 | US campaign money (FEC)                                | `src/sources/campaignFinance/`, `server/providers/campaignFinance.js`, `src/ui/corantoCampaignMoney.js`                                |
 | Election calendar                                      | `src/sources/elections/`, `server/providers/elections.js`, `src/layers/elections/`                                                     |
 | Look                                                   | `src/ui/styles/coranto.css`, `build/corantoTheme.js`                                                                                   |
+| The analyst board and its model route                  | `src/ui/corantoAnalyst.js`, `src/ui/corantoAnalystModel.js`, `server/providers/analystAi.js`                                           |
+| Disease and outage layers                              | `src/ui/corantoOverlays.js`, `src/ui/corantoOverlayModel.js`, `src/sources/outbreaks/`, `src/sources/silence/`                         |
+| Search, settings, side panels, the Moon                | `src/ui/corantoCommands.js`, `src/ui/corantoSettings.js`, `src/ui/corantoSides.js`, `src/ui/corantoMoon.js`                            |
+| Icons (one SVG set, no emoji)                          | `src/data/corantoIcons.js`                                                                                                             |
 | Design spec                                            | `docs/superpowers/specs/`                                                                                                              |
 
 ```bash
@@ -602,13 +391,14 @@ npm run build
 
 ## Roadmap
 
-| Stage                            | Status                                                                                                                                                                                                                                                                                                                             |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **1. Foundation and truth feed** | Built: sourced feed from 35 sources, search, globe layer, source health, good-news tag, natural hazards, AUSPEX-style shell                                                                                                                                                                                                        |
-| **2. Verification**              | Built: stories grouped across outlets, outlet counts, outlets by region, differing figures, AI briefs checked sentence by sentence, and seven non-English sources                                                                                                                                                                  |
-| **3. Lenses and your own feed**  | Built: saved watches, My Briefing, the Power, Votes and Markets lenses, government aircraft, US campaign money, stock indices and oil                                                                                                                                                                                              |
-| **4. One product**               | Built: one frame and one look for NEWS and INSTRUMENTS, icons everywhere on the globe and in the interface, a map key, stories that open in the app, live TV in the app, AUSPEX's borders, countries and cities, the analyst board, a week of stories. Next: a Relief lens on official humanitarian data, an archive beyond a week |
-| **5. Public site**               | A hosted version anyone can open                                                                                                                                                                                                                                                                                                   |
+| Stage                            | Status                                                                                                                                                                                                                         |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **1. Foundation and truth feed** | Built: sourced feed from 35 sources, search, globe layer, source health, good-news tag, natural hazards                                                                                                                        |
+| **2. Verification**              | Built: stories grouped across outlets, outlets by region, differing figures, AI briefs checked sentence by sentence, translation, seven non-English sources                                                                    |
+| **3. Lenses and your own feed**  | Built: saved watches, My Briefing, notices, the Power, Votes, Markets and Relief lenses, government aircraft, campaign money                                                                                                   |
+| **4. One product**               | Built: one frame and one look, icons everywhere, stories that open in the app, live TV, the atlas, country sheets, search over everything, the analyst board with Instruments inside it, the Disease layer, the Moon, Settings |
+| **5. Depth**                     | Next: an archive beyond a week of stories and search across it, sub-national outbreak data, the internet-outage layer (built, held back until it is useful)                                                                    |
+| **6. Public site**               | A hosted version anyone can open                                                                                                                                                                                               |
 
 Coranto currently runs on your own machine. There is no hosted version yet.
 
