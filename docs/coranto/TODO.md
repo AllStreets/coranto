@@ -188,6 +188,14 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
       header fits from 760px to 1600px. Scene playback restores the look and
       the view afterwards.
 
+## Decisions (answered 2026-10-13)
+
+- SCENES is always visible in Instruments, as a header under an open panel.
+- Outlet "lean" labels stay out: AUSPEX gave no source for them.
+- SILENCE stays parked; DISEASE stays country and named-province level; the
+  map overlays stay switches; hosting waits.
+- The label-rule exception for the atlas's country names stands.
+
 ## Decisions (answered 2026-10-11)
 
 1. Port only the AUSPEX AI tools that can cite their sources and be checked

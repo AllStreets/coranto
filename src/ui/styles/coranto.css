@@ -6638,6 +6638,15 @@ html body[data-coranto-frame='one'] *:focus-visible {
   }
 }
 
+/* SCENES is always in reach in Instruments: with DATA LAYERS open it stays
+   as its header underneath, and the open panel gives up that much height. */
+body[data-coranto-frame='one'][data-coranto-mode='instruments']
+  #left-panel-stack.layout-focus
+  > [data-panel-id].collapsed {
+  display: block !important;
+  flex: 0 0 auto;
+}
+
 @supports selector(::-webkit-scrollbar) {
   #coranto-rail,
   #coranto-feed-body,
