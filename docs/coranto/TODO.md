@@ -160,10 +160,13 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 - [x] **STORIES and BANNER layers; nuclear marks follow HAZARDS; sharp
       globe; names on their countries; 3D entity network; rail icons; stamps
       note and privacy policy in Settings** (owner, 2026-10-12).
+- [x] **The Moon at true distance and size; uniform header buttons; shorter
+      rail labels; DISEASE loading chip; SILENCE button removed, layer kept**
+      (owner, 2026-10-13).
 - [x] **Seven joins between NEWS and INSTRUMENTS** (owner, 2026-10-12), all
       on sources already wired in: the country sheet; AROUND HERE on a story;
       the story offering the layer it is about; voice in the news view with
-      `run_app_command`; TOUR TODAY; REPLAY WEEK; notices for watches, Orange
+      `run_app_command`; TOUR; REPLAY; notices for watches, Orange
       and Red disaster alerts and WHO notices.
 - [x] **Launches** (owner, 2026-10-12): the camera stays put in the news
       view with "Show the flight path" on the card; real catalogued payloads

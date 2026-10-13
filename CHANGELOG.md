@@ -1,5 +1,17 @@
 # Changelog
 
+- Coranto: the Moon is where it really is, at its true distance and size,
+  with NASA's Lunar Reconnaissance Orbiter surface map. Search for "The
+  Moon" to fly out to its sunlit side.
+
+- Coranto: the header's buttons (LIVE, SEARCH, the layers, ANALYST, the gear)
+  share the rail's cut-corner look. The rail's labels are shorter so none is
+  cut off: EARTH, SHARE, TOUR, REPLAY. A lens lights in its own colour under
+  the cursor; RELIEF keeps a green field with the violet rule the others
+  have. DISEASE shows the loading chip while its data comes in. The SILENCE
+  button is removed for now; the layer is kept in reserve. A city's card no
+  longer shows an empty second button.
+
 - Coranto: STORIES and BANNER are layers. STORIES takes the story markers
   and names off the globe while the feed runs on; BANNER is the headline
   ticker, and with it off everything moves up. The nuclear-armed states are

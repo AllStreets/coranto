@@ -51,7 +51,9 @@ import { createNuclearMarks } from './corantoNuclear.js';
 import { createSatelliteIcons } from './corantoSatelliteIcons.js';
 import { createSceneRestore } from './corantoSceneRestore.js';
 import { createSettings } from './corantoSettings.js';
+import { createMoon } from './corantoMoon.js';
 import { createOverlays } from './corantoOverlays.js';
+import { setSplitFlapText } from '../splitFlap.js';
 import { createSides } from './corantoSides.js';
 import {
   clearStored,
@@ -144,13 +146,9 @@ const HEADER_LAYERS = [
     'launch',
   ],
   ['telegeography-submarine-cables', 'CABLES', 'Undersea cables', 'cable'],
-  // Coranto's own two, drawn on the ground under everything else.
-  [
-    'coranto:silence',
-    'SILENCE',
-    'Where the internet is measured far below normal right now: blackouts and major outages (IODA)',
-    'silence',
-  ],
+  // Coranto's own, drawn on the ground under everything else. SILENCE
+  // (measured internet outages) is built but has no button for now: it
+  // was nearly always empty.
   [
     'coranto:disease',
     'DISEASE',
@@ -164,6 +162,12 @@ const HEADER_LAYERS = [
     'banner',
   ],
 ];
+/** The loading chip's words, as the engine's own layers show them. */
+const LOADING_LABELS = Object.freeze({
+  loading: 'LOADING LIVE DATA',
+  complete: 'LOAD COMPLETE',
+  error: 'LOAD FAILED',
+});
 const OVERLAY_PREFIX = 'coranto:';
 const OVERLAYS_KEY = 'coranto.overlays.v1';
 
@@ -231,7 +235,7 @@ const GUIDE = [
   ],
   [
     'Be shown the news',
-    'TOUR TODAY flies through the places with the most stories and pauses on each. REPLAY WEEK steps back through the week of headlines held, so you can see what was being reported at any moment. Either stops with its own stop button or Escape.',
+    'TOUR flies through the places with the most stories and pauses on each. REPLAY steps back through the week of headlines held, so you can see what was being reported at any moment. Either stops with its own stop button or Escape.',
   ],
   [
     'One country, everything',
@@ -404,8 +408,8 @@ function briefingCopyLabel(copied) {
 
 /** The share button's wording before, after and on a failed copy. */
 function copyLabel(copied) {
-  if (copied === null) return 'SHARE VIEW';
-  return copied ? 'LINK COPIED' : 'COPY BLOCKED';
+  if (copied === null) return 'SHARE';
+  return copied ? 'COPIED' : 'BLOCKED';
 }
 
 /** Text for the header badge: a fixed phrase, or the count of live sources. */
@@ -864,6 +868,19 @@ export function createCorantoShell({
           keywords: 'new since briefing',
           pinned: true,
           run: inNews(() => briefingBtn.click()),
+        },
+        {
+          title: 'The Moon',
+          detail: 'Fly out to it: true distance, true size, NASA’s surface map',
+          icon: 'moon',
+          keywords: 'moon lunar luna space fly',
+          pinned: true,
+          run: () => {
+            const detail = moon.view();
+            if (!detail) return;
+            card.dataset.owner = 'moon';
+            showCard(detail);
+          },
         },
         {
           title: 'Settings',
@@ -1573,7 +1590,7 @@ export function createCorantoShell({
   const homeBtn = el(document, 'button', {
     type: 'button',
     class: 'coranto-rail-btn',
-    text: 'WHOLE EARTH',
+    text: 'EARTH',
     title: 'Pull back to the whole globe',
   });
   const topicCount = el(document, 'small');
@@ -1816,7 +1833,7 @@ export function createCorantoShell({
   const shareBtn = el(document, 'button', {
     type: 'button',
     class: 'coranto-rail-btn',
-    text: 'SHARE VIEW',
+    text: 'SHARE',
     title: 'Copy a link that reopens this lens, search and place',
   });
   const keyBtn = el(document, 'button', {
@@ -1831,7 +1848,7 @@ export function createCorantoShell({
   const tourBtn = el(document, 'button', {
     type: 'button',
     class: 'coranto-rail-btn',
-    text: 'TOUR TODAY',
+    text: 'TOUR',
     title:
       'Fly through the places with the most stories right now, pausing on each with its newest headline',
     'aria-pressed': 'false',
@@ -1839,7 +1856,7 @@ export function createCorantoShell({
   const replayBtn = el(document, 'button', {
     type: 'button',
     class: 'coranto-rail-btn',
-    text: 'REPLAY WEEK',
+    text: 'REPLAY',
     title:
       'Step back through the week of headlines Coranto holds, to see what was being reported at each moment',
     'aria-pressed': 'false',
@@ -1901,6 +1918,66 @@ export function createCorantoShell({
    * story markers and names while the feed runs on; BANNER is the ticker.
    */
   let storiesShown = true;
+  /**
+   * Shows the engine's loading chip for a layer of Coranto's own: LOADING
+   * LIVE DATA while it reads, then LOAD COMPLETE or LOAD FAILED. Returns
+   * the function to call when the read ends. The engine takes the chip back
+   * whenever one of its own layers has something to say.
+   */
+  let loadingToken = 0;
+  const loadingLabel = el(document, 'span', { id: 'coranto-loading-label' });
+  const loadingDetail = el(document, 'span', { id: 'coranto-loading-detail' });
+  const loadingChip = el(
+    document,
+    'div',
+    {
+      id: 'coranto-loading-status',
+      role: 'status',
+      'aria-live': 'polite',
+      'aria-atomic': 'true',
+    },
+    ...[...(document.getElementById('global-loading-status')?.children ?? [])]
+      .filter(
+        (node) =>
+          node.id !== 'global-loading-label' &&
+          node.id !== 'global-loading-detail',
+      )
+      .map((node) => {
+        // The spinner and any other dressing, as the engine's chip has them.
+        const copy = node.cloneNode(true);
+        if (copy.id) copy.id = copy.id.replace('global-', 'coranto-');
+        return copy;
+      }),
+    loadingLabel,
+    loadingDetail,
+  );
+  loadingChip.hidden = true;
+  function layerLoading(name) {
+    loadingToken += 1;
+    const token = loadingToken;
+    const show = (state, text) => {
+      loadingChip.hidden = false;
+      loadingChip.dataset.state = state;
+      setSplitFlapText(loadingLabel, text);
+      loadingDetail.replaceChildren(name);
+    };
+    show('loading', LOADING_LABELS.loading);
+    return (ok) => {
+      if (token !== loadingToken) return;
+      show(
+        ok ? 'complete' : 'error',
+        LOADING_LABELS[ok ? 'complete' : 'error'],
+      );
+      win.setTimeout(
+        () => {
+          if (token !== loadingToken) return;
+          loadingChip.hidden = true;
+          delete loadingChip.dataset.state;
+        },
+        ok ? 2200 : 5000,
+      );
+    };
+  }
   const ownLayers = {
     stories: {
       isOn: () => storiesShown,
@@ -1909,13 +1986,21 @@ export function createCorantoShell({
         layer.setMarkersShown?.(storiesShown);
       },
     },
-    silence: {
-      isOn: () => overlays.isOn('silence'),
-      set: (on) => overlays.set('silence', on),
-    },
     disease: {
       isOn: () => overlays.isOn('disease'),
-      set: (on) => overlays.set('disease', on),
+      // The same chip the engine's layers show while their data comes in.
+      set: async (on) => {
+        if (!on) return overlays.set('disease', false);
+        const done = layerLoading('DISEASE');
+        try {
+          const shown = await overlays.set('disease', true);
+          done(overlays.status('disease')?.ok !== false && shown);
+          return shown;
+        } catch (error) {
+          done(false);
+          throw error;
+        }
+      },
     },
     banner: {
       isOn: () => settingsStore.get('ticker') === true,
@@ -1928,10 +2013,11 @@ export function createCorantoShell({
       OVERLAYS_KEY,
       JSON.stringify({
         stories: storiesShown,
-        silence: overlays.isOn('silence'),
         disease: overlays.isOn('disease'),
       }),
     );
+  // The Moon, at its true distance and size.
+  const moon = createMoon(() => dataManager?.viewer ?? null);
   const launchIcons = createLaunchIcons({
     getManager: () => dataManager,
     isNewsView: () => body.dataset.corantoMode === 'news',
@@ -1983,7 +2069,9 @@ export function createCorantoShell({
                   label: pinLabel(boardStore.has(pin.key), boardStore.full),
                 },
               }
-            : { ...detail, action: pinButton },
+            : // A city has one button. `detail.pin` is the pin's data, not a
+              // second button, and must not be drawn as one.
+              { ...detail, action: pinButton, pin: undefined },
         );
       withAction();
     },
@@ -2086,7 +2174,6 @@ export function createCorantoShell({
       launches: launchIcons.shown,
       payloads: launchIcons.shown && launchIcons.payloadCount() > 0,
       outbreaks: relief.marked,
-      silence: overlays.status('silence'),
       disease: overlays.status('disease'),
       borders: atlas.isOn('borders'),
       countries: atlas.isOn('countries'),
@@ -2601,7 +2688,8 @@ export function createCorantoShell({
     if (detail.action) cardAction.textContent = detail.action.label;
     cardPinBtn.hidden = !detail.pin;
     cardPinRun = detail.pin?.run ?? null;
-    if (detail.pin) cardPinBtn.textContent = detail.pin.label;
+    // Emptied as well as hidden, so no blank box can show.
+    cardPinBtn.textContent = detail.pin?.label ?? '';
     cardLink.hidden = !detail.url;
     if (detail.url) {
       cardLink.href = detail.url;
@@ -2812,6 +2900,7 @@ export function createCorantoShell({
     notices.element,
     settings.element,
     ...sides.elements,
+    loadingChip,
     mapKey.element,
     board.element,
     ticker,
@@ -3566,14 +3655,14 @@ export function createCorantoShell({
           if (atlasWanted[name]) setAtlas(name, true, { remember: false });
       }
       applySharpGlobe();
+      if (!win.navigator?.webdriver) moon.install();
       // SILENCE and DISEASE come back as they were left.
       try {
         const wanted = JSON.parse(
           readStored(localStorageRef, OVERLAYS_KEY) ?? '{}',
         );
-        for (const name of ['silence', 'disease'])
-          if (wanted?.[name] === true && !win.navigator?.webdriver)
-            overlays.set(name, true).then(syncLayers, () => {});
+        if (wanted?.disease === true && !win.navigator?.webdriver)
+          ownLayers.disease.set(true).then(syncLayers, () => {});
         if (wanted?.stories === false && !win.navigator?.webdriver)
           ownLayers.stories.set(false);
       } catch {

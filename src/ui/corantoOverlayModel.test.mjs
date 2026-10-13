@@ -226,3 +226,11 @@ test('a country’s name sits inside its outline, away from the edge', () => {
   assert.ok(point.lon < 2.2 && point.lat < 2.2, JSON.stringify(point));
   assert.equal(labelPoint([]), null);
 });
+
+test('the Moon’s card gives its distance and says where the map is from', async () => {
+  const { MOON_SOURCE, moonCard } = await import('./corantoMoon.js');
+  const card = moonCard(384_400_000);
+  assert.match(card.meta, /384,400 km from the centre of the Earth/);
+  assert.match(card.meta, /worked out from the date, not observed/);
+  assert.equal(card.url, MOON_SOURCE.url);
+});
