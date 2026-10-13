@@ -369,6 +369,28 @@ export function createNewsFeed({
     return nodes;
   }
 
+  /** What the analyst board keeps of a story. */
+  function boardPin(card) {
+    const place = card.placeKey
+      ? (layer.getView().places ?? []).find(
+          (entry) => entry.key === card.placeKey,
+        )
+      : null;
+    return {
+      key: card.storyId ?? card.id,
+      kind: 'story',
+      title: card.title,
+      summary: card.summary,
+      publisher: card.publisher,
+      url: card.url,
+      publishedAt: card.publishedIso,
+      category: card.categoryId,
+      place: place?.name ?? '',
+      lat: place?.lat,
+      lon: place?.lon,
+    };
+  }
+
   function renderCard(card) {
     const item = el(document, 'li', 'news-card');
     item.dataset.articleId = card.id;
@@ -398,6 +420,28 @@ export function createNewsFeed({
     const time = el(document, 'time', 'news-card-time', card.published);
     time.dateTime = card.publishedIso;
     meta.append(time);
+    if (board) {
+      // One click keeps the story on the analyst board, as on AUSPEX's cards.
+      const key = card.storyId ?? card.id;
+      const pinned = board.has(key);
+      const pin = el(document, 'button', 'news-card-pin');
+      pin.type = 'button';
+      pin.setAttribute('aria-pressed', String(pinned));
+      pin.title = pinned
+        ? 'Remove from the analyst board'
+        : 'Pin to the analyst board';
+      pin.setAttribute('aria-label', pin.title);
+      const pinIcon = el(document, 'img');
+      pinIcon.src = iconImage('pin', pinned ? '#b47cff' : '#8d86a3');
+      pinIcon.alt = '';
+      pin.append(pinIcon);
+      pin.addEventListener('click', (event) => {
+        event.stopPropagation();
+        board.toggle(boardPin(card));
+        render();
+      });
+      meta.append(pin);
+    }
 
     const title = el(document, 'a', 'news-card-title', card.title);
     title.href = card.url;
@@ -918,26 +962,14 @@ export function createNewsFeed({
     if (board) {
       const key = card.storyId ?? card.id;
       const isPinned = board.has(key);
-      const pin = toolButton('plus', isPinned ? 'PINNED' : 'PIN TO BOARD', {
+      const pin = toolButton('plus', isPinned ? 'PINNED' : 'PIN TO ANALYST', {
         active: isPinned,
         title: isPinned
           ? 'Remove this story from the analyst board'
           : 'Keep this story on the analyst board',
       });
       pin.addEventListener('click', () => {
-        const result = board.toggle({
-          key,
-          kind: 'story',
-          title: card.title,
-          summary: card.summary,
-          publisher: card.publisher,
-          url: card.url,
-          publishedAt: card.publishedIso,
-          category: card.categoryId,
-          place: place?.name ?? '',
-          lat: place?.lat,
-          lon: place?.lon,
-        });
+        const result = board.toggle(boardPin(card));
         if (result === 'full')
           pin.title = 'The board is full. Unpin something first.';
         render();

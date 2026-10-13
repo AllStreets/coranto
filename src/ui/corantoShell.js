@@ -10,7 +10,8 @@ import {
   watchAlerts,
 } from './corantoAlerts.js';
 import { aroundStory } from './corantoAround.js';
-import { createBoard } from './corantoBoard.js';
+import { createAnalyst } from './corantoAnalyst.js';
+import { geoOf } from './corantoAnalystModel.js';
 import { createBoardStore } from './corantoBoardModel.js';
 import {
   BROADCASTERS,
@@ -197,7 +198,7 @@ const GUIDE = [
   ],
   [
     'Build a picture',
-    'PIN TO BOARD keeps a story, country or city on the analyst board; an aircraft, ship or site can be pinned from its card, and is kept as it was at that moment. ANALYST at the top shows what you have pinned, draws the connections between items that mention the same name, and works out a brief and a timeline from them. Nothing on the board is written by a model.',
+    'PIN TO ANALYST keeps a story, country or city on the analyst board; an aircraft, ship or site can be pinned from its card, and is kept as it was at that moment. ANALYST at the top opens the board: your pins, the network of names they share, and a brief. SYNTHESIZE, the timeline, the matrix and dead reckoning are worked out from the headlines in code. CONSENSUS, the playbook, the red team brief and the daily brief are written by a model from what you pinned; each says so, and none is checked against a source.',
   ],
   [
     'Be shown the news',
@@ -845,12 +846,86 @@ export function createCorantoShell({
         },
         {
           title: 'Analyst board',
-          detail: 'What you have pinned and how it connects',
+          detail: 'What you have pinned, how it connects, and the tools',
           icon: 'key',
-          keywords: 'board pins connections graph matrix',
+          keywords: 'analyst board pins assets entity network brief',
           pinned: true,
           run: () => board.open(),
         },
+        ...[
+          [
+            'Analyst: synthesize',
+            'A brief worked out from the pins, with no model',
+            'key',
+            'synthesize synthesis brief executive summary',
+            () => board.synthesize(),
+          ],
+          [
+            'Analyst: consensus',
+            'Five model analysts assess the pins, cross-examine and conclude',
+            'outlets',
+            'consensus personas agentic analysts ai escalation debate',
+            () => board.consensus(),
+          ],
+          [
+            'Analyst: adversary playbook',
+            'A model writes an actor-by-actor playbook from the pins',
+            'chevronRight',
+            'adversary playbook ai predicted moves',
+            () => board.playbook(),
+          ],
+          [
+            'Analyst: red team',
+            'A model writes the adversary’s view of the pins',
+            'hex',
+            'red team adversarial ai vulnerabilities',
+            () => board.redTeam(),
+          ],
+          [
+            'Analyst: narrative timeline',
+            'Headlines related to the pins, by day',
+            'clock',
+            'narrative timeline history events',
+            () => board.timeline(),
+          ],
+          [
+            'Analyst: escalation matrix',
+            'How the pins and the headlines couple across domains',
+            'grid',
+            'escalation matrix cross domain',
+            () => board.matrix(),
+          ],
+          [
+            'Analyst: dead reckoning',
+            'Countries ranked by how often the headlines name them',
+            'target',
+            'dead reckoning heat countries mentions momentum',
+            () => board.deadReckoning(),
+          ],
+          [
+            'Analyst: saved boards',
+            'Boards you saved in this browser',
+            'diamond',
+            'saved boards load',
+            () => board.savedBoards(),
+          ],
+          [
+            'Daily brief',
+            'A model writes a situation report from the top headlines',
+            'news',
+            'daily brief situation report ai sitrep',
+            () => board.openDailyBrief(),
+          ],
+        ].map(([title, detail, icon, keywords, action]) => ({
+          title,
+          detail,
+          icon,
+          keywords,
+          run: () => {
+            loadAtlasPlaces();
+            action();
+          },
+        })),
         {
           title: 'Live TV',
           detail: 'Live news channels from every continent',
@@ -1163,6 +1238,14 @@ export function createCorantoShell({
       title: model.title,
       lat: row?.lat,
       lon: row?.lng,
+      geo: geoOf(
+        'country',
+        row && {
+          ...row,
+          conflict_active:
+            row.conflict_active || atlas.signals().conflict.has(row.iso2),
+        },
+      ),
     };
   };
   const dossier = createDossier({
@@ -1188,6 +1271,16 @@ export function createCorantoShell({
       if (row) flyTo(row.lat, row.lng, 4_500_000);
     },
     watch: (index) => tv.openChannel(index),
+    // Offered where the atlas marks an active conflict.
+    conflictBrief: {
+      has: (model) => {
+        const row = atlasCountries.find((entry) => entry.iso2 === model.iso2);
+        return Boolean(
+          row?.conflict_active || atlas.signals().conflict.has(model.iso2),
+        );
+      },
+      run: (model) => board.openConflictBrief({ name: model.title }),
+    },
     pin: {
       has: (model) => boardStore.has(`country:${model.title}`),
       toggle: (model) => {
@@ -1542,10 +1635,41 @@ export function createCorantoShell({
     },
     flyTo: (lat, lon, height) => flyTo(lat, lon, height),
   });
-  const board = createBoard({
+  // The analyst tools that a model writes go through one server route.
+  async function callAnalystModel(system, user, maxTokens = 420) {
+    const controller = new AbortController();
+    const timer = win.setTimeout(
+      () => controller.abort(),
+      maxTokens > 800 ? 55_000 : 30_000,
+    );
+    try {
+      const response = await win.fetch('/api/ai', {
+        method: 'POST',
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ system, user, maxTokens }),
+      });
+      const data = await response.json();
+      if (!response.ok || data.error)
+        throw new Error(
+          data.error === 'AI not configured'
+            ? 'API_KEY_MISSING'
+            : data.error || 'AI proxy error',
+        );
+      return data.content || '';
+    } finally {
+      win.clearTimeout(timer);
+    }
+  }
+  const board = createAnalyst({
     document,
+    win,
     store: boardStore,
     getArticles: () => layer.getView().snapshot?.articles ?? [],
+    getStories: () => layer.getView().snapshot?.stories ?? [],
+    getCountries: () => atlasCountries,
+    callModel: callAnalystModel,
+    onMomentum: (tiers) => atlas.setMomentum(tiers),
     onOpen: (asset) => {
       board.close();
       if (body.dataset.corantoMode !== 'news') setMode('news');
@@ -1569,7 +1693,11 @@ export function createCorantoShell({
       feed?.render();
     },
   });
-  boardBtn.addEventListener('click', () => board.open());
+  boardBtn.addEventListener('click', () => {
+    // Dead reckoning reads the country list.
+    loadAtlasPlaces();
+    board.open();
+  });
   const tv = createBroadcasts({
     document,
     getViewer: () => dataManager?.viewer ?? null,
@@ -2029,9 +2157,11 @@ export function createCorantoShell({
         : null;
       return;
     }
+    const arrivals = watchAlerts(watchFreshBefore, current);
+    // The open analyst board says so in its status line, as AUSPEX did.
+    board.flashWatch(arrivals.length);
     if (settingsStore.get('noticeWatches'))
-      for (const notice of watchAlerts(watchFreshBefore, current))
-        notices.show(notice);
+      for (const notice of arrivals) notices.show(notice);
     watchFreshBefore = new Map(current.map((watch) => [watch.id, watch.fresh]));
   }
   // With no record yet, the first minute only records what is already there:
@@ -3129,6 +3259,8 @@ export function createCorantoShell({
       settings.close();
       return;
     }
+    // The analyst board closes one layer at a time, top first.
+    if (board.closeTop()) return;
     setSourcesMenu(false);
     feed?.closeStory();
     dossier.close();
@@ -3136,7 +3268,6 @@ export function createCorantoShell({
     if (!guide.hidden) guide.hidden = true;
     if (!briefing.hidden) closeBriefing();
     tv.close();
-    board.close();
   };
   document.addEventListener('keydown', onKey);
   const showSources = () => {

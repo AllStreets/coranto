@@ -1,14 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  NETWORK_REACH,
-  networkNodes,
-  networkProject,
-  networkRotate,
-  networkStep,
-  networkUnrotate,
-} from './corantoBoard.js';
-import {
   BOARD_LIMIT,
   boardLinks,
   boardText,
@@ -171,64 +163,6 @@ test('the board survives a reload, has a limit, and saved boards can be loaded',
     store.toggle(story(`n${i}`, `Item ${i}`));
   assert.equal(store.list().length, BOARD_LIMIT);
   assert.equal(store.toggle(story('extra', 'One more')), 'full');
-});
-
-test('the 3D network settles the same way every time, linked items together', () => {
-  const assets = [
-    story('a', 'A story'),
-    story('b', 'B story'),
-    story('c', 'C story'),
-    story('d', 'D story'),
-  ];
-  const edges = [{ i: 0, j: 1, strength: 1, label: 'US', cross: false }];
-  const run = () => {
-    const nodes = networkNodes(assets);
-    for (let i = 0; i < 600; i++) networkStep(nodes, edges);
-    return nodes;
-  };
-  const one = run();
-  assert.deepEqual(one, run());
-  const gap = (p, q) =>
-    Math.hypot(one[p].x - one[q].x, one[p].y - one[q].y, one[p].z - one[q].z);
-  // The linked pair ends closer together than either is to the others.
-  assert.ok(gap(0, 1) < gap(0, 2) && gap(0, 1) < gap(1, 3));
-  // It really is three-dimensional, and it stays within reach of the centre.
-  assert.ok(one.some((node) => Math.abs(node.z) > 10));
-  for (const node of one)
-    assert.ok(Math.hypot(node.x, node.y, node.z) <= NETWORK_REACH + 1e-6);
-});
-
-test('a held node stays put while its linked neighbour is pulled after it', () => {
-  const nodes = networkNodes([story('a', 'A'), story('b', 'B')]);
-  const edges = [{ i: 0, j: 1, strength: 1, label: 'US', cross: false }];
-  for (let i = 0; i < 300; i++) networkStep(nodes, edges);
-  nodes[0].held = true;
-  nodes[0].x += 300;
-  const start = nodes[1].x;
-  for (let i = 0; i < 200; i++) networkStep(nodes, edges);
-  assert.equal(nodes[0].vx, 0);
-  assert.ok(nodes[1].x > start + 100, 'the neighbour followed the pull');
-});
-
-test('turning the view and turning back return the same point', () => {
-  const point = { x: 40, y: -25, z: 90 };
-  const there = networkRotate(point, 0.7, -0.4);
-  const back = networkUnrotate(there, 0.7, -0.4);
-  for (const axis of ['x', 'y', 'z'])
-    assert.ok(Math.abs(back[axis] - point[axis]) < 1e-9);
-  const view = { yaw: 0, pitch: 0, zoom: 1 };
-  // Nearer points are drawn larger.
-  assert.ok(
-    networkProject({ x: 0, y: 0, z: -200 }, view, 400, 300).scale >
-      networkProject({ x: 0, y: 0, z: 200 }, view, 400, 300).scale,
-  );
-  assert.deepEqual(
-    [
-      networkProject({ x: 0, y: 0, z: 0 }, view, 400, 300).x,
-      networkProject({ x: 0, y: 0, z: 0 }, view, 400, 300).y,
-    ],
-    [200, 150],
-  );
 });
 
 test('items link through any name they both use, not only the fixed list', () => {

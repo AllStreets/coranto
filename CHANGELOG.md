@@ -1,5 +1,24 @@
 # Changelog
 
+- Coranto: the analyst board is now AUSPEX's, brought over whole in violet:
+  asset board, entity network, intelligence brief, SYNTHESIZE with confidence
+  marks, CONSENSUS (five model analysts, cross-examination, synthesis), the
+  adversary playbook, red team, narrative timeline, escalation matrix, dead
+  reckoning, saved boards, the daily brief and the conflict brief, each with
+  its HTML export. Model-written tools go through a new server route
+  (`POST /api/ai`) and say underneath that a model wrote them. Feed cards
+  have a pin. The header button is ANALYST. The old board panel is removed;
+  existing pins and saved boards carry over.
+
+- Coranto: a Settings page behind a gear at the right end of the header:
+  header layout (the LAYERS list, or a button for every layer with SEARCH
+  beside LIVE), opening view, clock, ticker, notices, connections (server,
+  which keys are set, every live source), data export and clearing, About.
+  `/api/coranto/health` reports the version and whether each key is set.
+
+- Coranto: everything military is military red: markers, icons, aircraft,
+  trails, topic bars and the map key.
+
 - Coranto: Arabic headlines are placed on the globe from Arabic place names,
   including names joined to a preceding particle. My Briefing can be copied as
   plain text with every headline's publisher, time and link.

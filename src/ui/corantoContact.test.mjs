@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { contactIcon } from './corantoBoard.js';
 import { buildSynthesis, createBoardStore } from './corantoBoardModel.js';
 import { contactCard, contactLink, contactPin } from './corantoContact.js';
 
@@ -166,12 +165,4 @@ test('a pinned aircraft is kept as it was at that moment, and the board says so'
   const brief = buildSynthesis(store.list(), []);
   assert.match(brief.summary, /0 stories, 0 places and 1 tracked object/);
   assert.deepEqual(brief.places, [], 'a callsign is not a location');
-});
-
-test('a pinned contact takes the icon of the layer it was on', () => {
-  assert.equal(contactIcon('MILITARY FLIGHTS'), 'aircraft');
-  assert.equal(contactIcon('Ships'), 'ship');
-  assert.equal(contactIcon('SATELLITES'), 'satellite');
-  assert.equal(contactIcon('Military sites'), 'target');
-  assert.equal(contactIcon('Cameras'), 'target');
 });

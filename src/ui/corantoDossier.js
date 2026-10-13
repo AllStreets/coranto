@@ -18,6 +18,7 @@ export function createDossier({
   flyTo,
   watch,
   pin = null,
+  conflictBrief = null,
 }) {
   const make = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -91,7 +92,7 @@ export function createDossier({
       tools.append(
         tool(
           'plus',
-          pinned ? 'PINNED' : 'PIN TO BOARD',
+          pinned ? 'PINNED' : 'PIN TO ANALYST',
           'Keep this country on the analyst board',
           () => {
             pin.toggle(model);
@@ -100,6 +101,15 @@ export function createDossier({
         ),
       );
     }
+    if (conflictBrief?.has(model))
+      tools.append(
+        tool(
+          'conflict',
+          'CONFLICT BRIEF',
+          'A model writes a brief of the conflict from current headlines naming this country. It is analysis, not reporting.',
+          () => conflictBrief.run(model),
+        ),
+      );
     tools.style.setProperty('--cols', String(tools.childElementCount));
     nodes.push(tools);
     if (loading)

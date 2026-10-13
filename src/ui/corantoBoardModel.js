@@ -354,7 +354,25 @@ function validAsset(value) {
     lat: Number.isFinite(value.lat) ? value.lat : null,
     lon: Number.isFinite(value.lon) ? value.lon : null,
     pinnedAt: Number.isFinite(value.pinnedAt) ? value.pinnedAt : 0,
+    ...(validGeo(value.geo) ? { geo: validGeo(value.geo) } : {}),
   };
+}
+
+/** The country or city facts kept with a pin: known fields, plain values. */
+const GEO_TEXT = ['name', 'iso2', 'country', 'icon_type'];
+const GEO_NUMBER = ['lat', 'lng', 'strategic_tier'];
+const GEO_FLAG = ['nuclear_armed', 'un_p5', 'nato_member', 'conflict_active'];
+function validGeo(value) {
+  if (!value || typeof value !== 'object') return null;
+  const out = {};
+  for (const field of GEO_TEXT) {
+    const text = clean(value[field], 120);
+    if (text) out[field] = text;
+  }
+  for (const field of GEO_NUMBER)
+    if (Number.isFinite(value[field])) out[field] = value[field];
+  for (const field of GEO_FLAG) if (value[field] === true) out[field] = true;
+  return out.name ? out : null;
 }
 
 /**
@@ -439,12 +457,12 @@ export function createBoardStore({
     saved: () =>
       saved.map((board) => ({ ...board, assets: [...board.assets] })),
     /** Save the board as it is now. Returns it, or null when it is empty. */
-    save() {
+    save(title = '') {
       if (!assets.length) return null;
       const at = now();
       const board = {
         id: `b${at.toString(36)}`,
-        title: boardTitle(assets),
+        title: clean(title, 120) || boardTitle(assets),
         savedAt: at,
         assets: assets.map((asset) => ({ ...asset })),
       };

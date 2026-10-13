@@ -15,6 +15,14 @@ import {
   liveConflictCodes,
 } from './corantoCountrySignals.js';
 import { cullBeyondHorizon } from './corantoHorizon.js';
+import { geoOf } from './corantoAnalystModel.js';
+
+/** Dead reckoning tiers, as the analyst board colours them. */
+const MOMENTUM_COLOURS = Object.freeze({
+  escalating: '#FF2D55',
+  active: '#FF9F0A',
+  stable: '#30D158',
+});
 
 /**
  * The atlas overlays brought over from AUSPEX as they were:
@@ -235,11 +243,22 @@ export function createAtlas({
           title: record.item.name,
           lat: record.item.lat,
           lon: record.item.lng,
+          // The facts the analyst board's tools read about the place.
+          geo: geoOf(
+            record.kind,
+            record.item,
+            record.kind === 'city'
+              ? (data.countries?.find(
+                  (country) => country.iso2 === record.item.iso2,
+                )?.name ?? '')
+              : '',
+          ),
         },
       });
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
 
+  let momentum = null;
   function drawBorders(viewer, borders) {
     const lines = new Cesium.PolylineCollection();
     const positions = (points) =>
@@ -282,8 +301,13 @@ export function createAtlas({
       const level = state.activity
         ? signals.activity.get(base.iso2)?.level
         : null;
+      // Dead reckoning, when the analyst board has it on, colours the name
+      // by how often the country is in the headlines.
       const { image, width, height } = countryImage(country, {
-        nameColour: ACTIVITY_COLOURS[level] ?? undefined,
+        nameColour:
+          MOMENTUM_COLOURS[momentum?.[base.iso2]] ??
+          ACTIVITY_COLOURS[level] ??
+          undefined,
       });
       const id = `atlas:country:${country.iso2}`;
       records.set(id, { kind: 'country', item: country });
@@ -397,6 +421,11 @@ export function createAtlas({
         .filter((type) => CITY_ICONS[type]);
     },
     /** Switch an overlay on or off. Resolves to whether it is now on. */
+    /** Dead reckoning tiers by country code, or null to clear them. */
+    async setMomentum(tiers) {
+      momentum = tiers;
+      if (state.countries) await redrawCountries();
+    },
     /** Recompute the country signals from the current headlines. */
     async setArticles(articles) {
       if (!data.countries) return;
