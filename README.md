@@ -2,7 +2,17 @@
 
 <img src="docs/media/coranto/coranto-banner.png" alt="Coranto: watch the world back" width="620"/>
 
-### Real news, from named sources, on a live globe.
+<p>
+  <strong>Real news from named sources, pinned to a live globe.</strong><br/>
+  <sub>Every headline links to its publisher &nbsp;·&nbsp; every signal is public &nbsp;·&nbsp; nothing on screen is invented</sub>
+</p>
+
+<p>
+  <a href="#quickstart"><strong>Quickstart</strong></a> &nbsp;·&nbsp;
+  <a href="#a-tour"><strong>Tour</strong></a> &nbsp;·&nbsp;
+  <a href="#everything-here-is-real"><strong>The rules</strong></a> &nbsp;·&nbsp;
+  <a href="#sources"><strong>Sources</strong></a>
+</p>
 
 <img alt="data" src="https://img.shields.io/badge/every_item-real_·_sourced_·_linked-B47CFF?style=for-the-badge&labelColor=04070b"/>
 <img alt="news sources" src="https://img.shields.io/badge/news_sources-35_named_·_6_languages-B47CFF?style=for-the-badge&labelColor=04070b"/>

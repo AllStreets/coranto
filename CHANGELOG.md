@@ -1,5 +1,11 @@
 # Changelog
 
+- Coranto: Settings is in Coranto's own look: bracket panels, mono label
+  strips, cut-corner tabs and buttons, the rail's switches. Choosing NEWS or
+  INSTRUMENTS under "Open in" takes you there when Settings closes. Focus
+  rings are violet throughout. The button that leaves Instruments is a
+  square bracketed panel that fills red under the cursor.
+
 - Coranto: the page opens straight in the news view; the control room's
   panels no longer show for a moment while it loads. The feed is titled
   NEWSFEED with its own mark, on one line with its switch, and its counts

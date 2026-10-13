@@ -899,7 +899,7 @@ export function createCorantoShell({
           icon: 'gear',
           keywords: 'settings preferences options api keys connections about',
           pinned: true,
-          run: () => settings.open(),
+          run: () => openSettings(),
         },
         {
           title: sides.isAway('rail')
@@ -2329,6 +2329,15 @@ export function createCorantoShell({
     win,
     store: settingsStore,
     readSources: readSettingsSources,
+    // Choosing NEWS or INSTRUMENTS under "Open in" takes you there as soon
+    // as Settings closes, without a reload.
+    onClose: () => {
+      const chosen = settingsStore.get('startView');
+      if (chosen !== openInWhenOpened && chosen !== 'last') {
+        board.close();
+        setMode(chosen);
+      }
+    },
     exportData: () => storedData(localStorageRef),
     resets: [
       {
@@ -3521,7 +3530,12 @@ export function createCorantoShell({
   guide.addEventListener('click', (event) => {
     if (event.target === guide) guide.hidden = true;
   });
-  settingsBtn.addEventListener('click', () => settings.open());
+  let openInWhenOpened = settingsStore.get('startView');
+  const openSettings = () => {
+    openInWhenOpened = settingsStore.get('startView');
+    settings.open();
+  };
+  settingsBtn.addEventListener('click', openSettings);
   /**
    * The globe is drawn at the screen's own resolution, capped at twice the
    * layout size. The engine's default is the layout size, which on a

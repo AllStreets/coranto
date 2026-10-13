@@ -91,6 +91,7 @@ export function createSettings({
   readSources,
   exportData,
   resets = [],
+  onClose = () => {},
 }) {
   const make = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -685,7 +686,9 @@ export function createSettings({
     tabButtons.get(tab)?.focus();
   }
   function closePanel() {
+    if (element.hidden) return;
     element.hidden = true;
+    onClose();
   }
   close.addEventListener('click', closePanel);
   element.addEventListener('pointerdown', (event) => {
