@@ -95,7 +95,8 @@ export function diseaseFamily(name) {
 }
 
 /** How strong each of the three levels is drawn: lighter to darker. */
-export const DISEASE_LEVEL_ALPHA = Object.freeze({ 1: 0.36, 2: 0.6, 3: 0.84 });
+/** As the fire grid: a floor that reads from orbit, deepening by level. */
+export const DISEASE_LEVEL_ALPHA = Object.freeze({ 1: 0.42, 2: 0.62, 3: 0.86 });
 export const DISEASE_LEVEL_LABEL = Object.freeze({
   1: 'WATCH',
   2: 'OUTBREAK',
@@ -221,7 +222,7 @@ export function outbreakAreas({
 }) {
   const nameOf = new Map(countries.map((c) => [c.iso2, c.name]));
   const areas = new Map();
-  const add = (iso2, disease, level, notice) => {
+  const add = (iso2, disease, level, notice, where = '') => {
     const keyword = diseaseKeyword(disease) || disease.toLowerCase();
     const key = `${iso2}|${keyword}`;
     const area = areas.get(key) ?? {
@@ -233,29 +234,39 @@ export function outbreakAreas({
       level: 0,
       headlines: 0,
       notices: [],
+      places: [],
     };
     area.level = Math.max(area.level, level);
-    area.notices.push(notice);
+    area.notices.push({ ...notice, where });
+    if (where) area.places.push({ text: where, level });
     areas.set(key, area);
   };
   for (const notice of notices)
     for (const iso2 of new Set(
       notice.places.flatMap((place) => countriesNamed(place, countries)),
     ))
-      add(iso2, notice.disease, Math.min(3, notice.level), {
-        source: 'CDC',
-        title: notice.title,
-        url: notice.url,
-        level: notice.level,
-      });
+      add(
+        iso2,
+        notice.disease,
+        Math.min(3, notice.level),
+        {
+          source: 'CDC',
+          title: notice.title,
+          url: notice.url,
+          level: notice.level,
+        },
+        notice.where,
+      );
   for (const item of who) {
     if (!(now - Date.parse(item.publishedAt) < WHO_FRESH_MS)) continue;
     for (const iso2 of countriesNamed(item.where, countries))
-      add(iso2, item.disease, 2, {
-        source: 'WHO',
-        title: item.title,
-        url: item.url,
-      });
+      add(
+        iso2,
+        item.disease,
+        2,
+        { source: 'WHO', title: item.title, url: item.url },
+        item.where,
+      );
   }
   const texts = articles.map((article) =>
     `${article.title ?? ''} ${article.summary ?? ''} ${article.place?.name ?? ''}`.toLowerCase(),
@@ -424,5 +435,187 @@ export function labelPoint(rings) {
   return {
     lon: Math.round(best.lon * 100) / 100,
     lat: Math.round(best.lat * 100) / 100,
+  };
+}
+
+/**
+ * The provinces or states of a country that a notice's place text names:
+ * "Ituri and Nord-Kivu Provinces of the Democratic Republic of the Congo"
+ * names two. Whole names only, and only regions of that country.
+ *
+ * @param {string} text
+ * @param {string} iso2
+ * @param {Record<string, {name: string, iso2: string}>} regions by id
+ * @returns {string[]} region ids
+ */
+export function regionsNamed(text, iso2, regions) {
+  const plain = (value) =>
+    String(value ?? '')
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  const hay = ` ${plain(text)} `;
+  const found = [];
+  for (const [id, region] of Object.entries(regions ?? {})) {
+    if (region.iso2 !== iso2) continue;
+    const name = plain(region.name);
+    if (name.length > 3 && hay.includes(` ${name} `)) found.push(id);
+  }
+  return found;
+}
+
+/**
+ * What the DISEASE layer draws, from the graded outbreaks.
+ *
+ * `cells` is the far view: one entry per grid square, as the fire layer
+ * draws heat. A country under a notice is covered at that notice's level;
+ * where a notice names provinces, those provinces carry its level and the
+ * rest of the country is drawn one step lighter, because the notice is not
+ * about the whole country.
+ *
+ * `spots` is the near view: one point per country or named province, at a
+ * point inside its outline, each with the outbreaks there.
+ *
+ * @param {object[]} areas from `outbreakAreas`
+ * @param {Record<string, {name: string, rings: number[][][]}>} countries
+ * @param {Record<string, {name: string, iso2: string, rings: number[][][]}>} regions
+ * @param {number} step grid size in degrees
+ */
+/** Words that say a notice is about part of a country. */
+const SUBNATIONAL =
+  /\b(provinces?|states?|regions?|districts?|departments?|governorates?|count(?:y|ies)|prefectures?|oblasts?|territor(?:y|ies))\b/i;
+
+export function diseaseDrawing(areas, countries, regions, step) {
+  const cells = new Map();
+  const spots = [];
+  const paint = (rings, level, family, owner) => {
+    for (const [lon, lat] of squaresOver(rings, step)) {
+      const key = `${lon},${lat}`;
+      const held = cells.get(key);
+      if (!held || level > held.level)
+        cells.set(key, { lon, lat, level, family, owner });
+    }
+  };
+  const byCountry = new Map();
+  for (const area of areas) {
+    if (!countries[area.iso2]) continue;
+    byCountry.set(area.iso2, [...(byCountry.get(area.iso2) ?? []), area]);
+  }
+  for (const [iso2, list] of byCountry) {
+    const shape = countries[iso2];
+    // Which provinces each outbreak's notices name, and at what level.
+    const local = new Map();
+    let wide = 0;
+    let wideFamily = list[0].family;
+    for (const area of list) {
+      let named = false;
+      for (const place of area.places ?? [])
+        for (const id of regionsNamed(place.text, iso2, regions)) {
+          named = true;
+          const held = local.get(id);
+          if (!held || place.level > held.level)
+            local.set(id, { level: place.level, areas: [area] });
+          else if (!held.areas.includes(area)) held.areas.push(area);
+        }
+      // The country as a whole carries the highest level among the notices
+      // that name no province. Where every notice names provinces, the rest
+      // of the country is drawn at the lowest level: it is under a notice,
+      // but the notice is not about all of it.
+      const places = area.places ?? [];
+      // A notice about provinces whose names are not on the map is still
+      // not about the whole country, and must not shade it as if it were.
+      const countryWide = places
+        .filter(
+          (place) =>
+            !regionsNamed(place.text, iso2, regions).length &&
+            !SUBNATIONAL.test(place.text),
+        )
+        .map((place) => place.level);
+      if (places.some((place) => SUBNATIONAL.test(place.text))) named = true;
+      const level = !places.length
+        ? area.level
+        : countryWide.length
+          ? Math.max(...countryWide)
+          : named
+            ? 1
+            : area.level;
+      if (level > wide) {
+        wide = level;
+        wideFamily = area.family;
+      }
+    }
+    paint(shape.rings, wide, wideFamily, `disease:${iso2}`);
+    const centre = labelPoint(shape.rings);
+    if (centre)
+      spots.push({
+        id: `disease:${iso2}`,
+        iso2,
+        name: shape.name,
+        country: shape.name,
+        ...centre,
+        level: wide,
+        family: wideFamily,
+        areas: list,
+        cdc: Math.max(
+          0,
+          ...list.flatMap((area) =>
+            area.notices
+              .filter(
+                (notice) =>
+                  !SUBNATIONAL.test(notice.where ?? '') &&
+                  !regionsNamed(notice.where, iso2, regions).length,
+              )
+              .map((notice) => Number(notice.level) || 0),
+          ),
+        ),
+      });
+    for (const [id, entry] of local) {
+      const region = regions[id];
+      const top = entry.areas[0];
+      paint(region.rings, entry.level, top.family, `disease:${iso2}/${id}`);
+      const point = labelPoint(region.rings);
+      if (point)
+        spots.push({
+          id: `disease:${iso2}/${id}`,
+          iso2,
+          name: region.name,
+          country: shape.name,
+          ...point,
+          level: entry.level,
+          family: top.family,
+          areas: entry.areas,
+          cdc: Math.max(
+            0,
+            ...entry.areas.flatMap((area) =>
+              area.notices
+                .filter((notice) =>
+                  regionsNamed(notice.where, iso2, regions).includes(id),
+                )
+                .map((notice) => Number(notice.level) || 0),
+            ),
+          ),
+        });
+    }
+  }
+  return { cells: [...cells.values()], spots };
+}
+
+/** The pop-up beside a disease point: the disease, then level and place. */
+export function diseaseCallout(spot) {
+  const top = [...spot.areas].sort((a, b) => b.level - a.level)[0];
+  const cdc = spot.cdc ?? 0;
+  return {
+    title: top.disease.toUpperCase(),
+    detail: [
+      DISEASE_LEVEL_LABEL[spot.level].toLowerCase(),
+      cdc
+        ? `CDC ${cdc}`
+        : top.notices.some((notice) => notice.source === 'WHO')
+          ? 'WHO'
+          : 'CDC',
+      spot.name,
+    ].join(' · '),
   };
 }

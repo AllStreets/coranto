@@ -257,8 +257,11 @@ connectivity and does not say why it fell; a place that has been dark for
 longer than IODA's baseline remembers will not show.
 
 **DISEASE** reads the World Health Organization's outbreak notices and the US
-CDC's travel health notices. Each country a notice names is covered in
-two-degree squares, as the fire layer is, coloured by how the disease
+CDC's travel health notices. It draws as the fire layer does: from afar,
+each country a notice names is covered in two-degree squares that meet edge
+to edge; from close up the squares give way to a glowing point on each
+country or named province, with a card beside it. Squares and points are
+coloured by how the disease
 spreads (haemorrhagic fever, mosquito or tick, air, water or food, contact)
 and shaded in three steps: the CDC's own level where there is one, a WHO
 notice in the last 75 days as the middle step, raised one step when five or

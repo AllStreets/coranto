@@ -1,5 +1,12 @@
 # Changelog
 
+- Coranto: DISEASE draws as FIRES does. From afar, a grid of squares that
+  meet edge to edge, in the colour of how the disease spreads and deeper for
+  a higher level. From close up, a glowing point on each country or named
+  province with a pop-up card beside it. A notice that names provinces
+  darkens those provinces, not the whole country. The search box's title
+  sits on the left with its glass. The globe's frame carries no caption.
+
 - Coranto: the feed's status is two lines: a signal mark with how many
   sources are live, then when it was read and what was left out. The same
   mark, green or red, is on every row of both source lists; the feed's list

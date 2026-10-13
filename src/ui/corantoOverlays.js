@@ -1,16 +1,27 @@
 import * as Cesium from 'cesium';
 import {
+  clearOverlaySource,
+  setOverlayEntries,
+  setOverlaySourceVisible,
+} from '../overlays/worldOverlay.js';
+import {
   DISEASE_LEVEL_ALPHA,
   SILENCE_STYLE,
+  diseaseCallout,
   diseaseCard,
+  diseaseDrawing,
   outbreakAreas,
   silenceCard,
-  squaresOver,
 } from './corantoOverlayModel.js';
 
 const REFRESH_MS = 10 * 60 * 1000;
 /** Disease squares, in degrees: large enough to read from orbit. */
 const SQUARE_DEG = 2;
+/** Below this camera height the grid gives way to points and cards. */
+const DISEASE_NEAR_M = 3_200_000;
+/** A point's glow, in pixels, by level. */
+const DISEASE_GLOW_PX = Object.freeze({ 1: 46, 2: 64, 3: 86 });
+const DISEASE_CARDS_ID = 'coranto-disease';
 
 /**
  * Coranto's SILENCE and DISEASE layers. Both are drawn on the ground itself,
@@ -38,7 +49,7 @@ export function createOverlays({
 }) {
   const on = { silence: false, disease: false };
   const status = { silence: null, disease: null };
-  const sources = { silence: null, disease: null };
+  const sources = { silence: null, disease: null, diseasePoints: null };
   const picked = new Map();
   let shapes = { countries: null, regions: null };
   let diseaseAreas = [];
@@ -134,19 +145,107 @@ export function createOverlays({
     };
   }
 
+  // DISEASE draws as FIRES does: a grid of heat from afar, and from close
+  // up a glowing point on each place with a card beside it.
+  let diseaseSpots = [];
+  let diseaseNear = null;
+  let stopWatchingZoom = null;
+  const glowCache = new Map();
+  /** A soft radial glow in the disease family's colour, as fires have. */
+  function glowImage(colour, size) {
+    const key = `${colour}:${size}`;
+    if (glowCache.has(key)) return glowCache.get(key);
+    const canvas = win.document.createElement('canvas');
+    canvas.width = size * 2;
+    canvas.height = size * 2;
+    const context = canvas.getContext('2d');
+    if (!context) return '';
+    const { red, green, blue } = Cesium.Color.fromCssColorString(colour);
+    const rgb = [red, green, blue].map((v) => Math.round(v * 255)).join(',');
+    const gradient = context.createRadialGradient(
+      size,
+      size,
+      0,
+      size,
+      size,
+      size,
+    );
+    gradient.addColorStop(0, 'rgba(255,255,245,0.95)');
+    gradient.addColorStop(0.22, `rgba(${rgb},0.92)`);
+    gradient.addColorStop(0.55, `rgba(${rgb},0.38)`);
+    gradient.addColorStop(1, `rgba(${rgb},0)`);
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, size * 2, size * 2);
+    const image = canvas.toDataURL('image/png');
+    glowCache.set(key, image);
+    return image;
+  }
+  /** Far: the grid. Near: the points and their cards. */
+  function applyDiseaseZoom(force = false) {
+    const viewer = getViewer();
+    if (!viewer || !sources.disease) return;
+    const near =
+      on.disease && viewer.camera.positionCartographic.height < DISEASE_NEAR_M;
+    if (!force && near === diseaseNear) return;
+    diseaseNear = near;
+    if (sources.disease) sources.disease.show = on.disease && !near;
+    if (sources.diseasePoints) sources.diseasePoints.show = on.disease && near;
+    setOverlaySourceVisible(DISEASE_CARDS_ID, on.disease && near);
+    if (on.disease && near)
+      setOverlayEntries(
+        DISEASE_CARDS_ID,
+        diseaseSpots.map((spot) => {
+          const callout = diseaseCallout(spot);
+          return {
+            id: spot.id,
+            position: Cesium.Cartesian3.fromDegrees(spot.lon, spot.lat),
+            title: callout.title,
+            details: [callout.detail],
+            accent: spot.family.colour,
+            priority: spot.level * 1000 + spot.areas.length,
+            selected: false,
+            variant: 'card',
+            cardStyle: 'tactical',
+            collisionGroup: 'ambient-card',
+            gapPx: 12 + DISEASE_GLOW_PX[spot.level] / 2,
+            leaderOffsetPx: 6,
+            verticalOnly: true,
+            viewportMargin: 4,
+            edgeFade: 'keyhole',
+            horizonCull: true,
+            terrainOcclusion: false,
+            interactive: true,
+            accessibilityLabel: `Open ${callout.title}, ${callout.detail}`,
+            activate: () => {
+              const detail = picked.get(spot.id)?.();
+              if (detail) showCard(detail);
+              return true;
+            },
+          };
+        }),
+        { cohortLimit: 24, collisionCapacity: 24, moving: false },
+      );
+    else clearOverlaySource(DISEASE_CARDS_ID);
+    viewer.scene.requestRender?.();
+  }
+
   async function drawDisease() {
     const source = sourceFor('disease');
-    if (!source) return;
+    const points = sourceFor('diseasePoints');
+    if (!source || !points) return;
     const [relief, cdc, countries] = await Promise.all([
       read('/api/relief').catch(() => null),
       read('/api/outbreaks').catch(() => null),
       loadShapes('countries'),
     ]);
     if (!on.disease) return;
-    clear('disease');
     if (!relief && !cdc) {
+      clear('disease');
+      points.entities.removeAll();
       status.disease = { ok: false, count: 0, families: [] };
       diseaseAreas = [];
+      diseaseSpots = [];
+      applyDiseaseZoom(true);
       return;
     }
     diseaseAreas = outbreakAreas({
@@ -158,47 +257,89 @@ export function createOverlays({
         name: shape.name,
       })),
     });
-    const byCountry = new Map();
-    for (const area of diseaseAreas) {
-      if (!countries[area.iso2]) continue;
-      byCountry.set(area.iso2, [...(byCountry.get(area.iso2) ?? []), area]);
-    }
-    for (const [iso2, areas] of byCountry) {
-      const id = `disease:${iso2}`;
-      picked.set(id, () => diseaseCard(areas[0].country, areas));
-      // One square per grid cell; a country with several outbreaks shows
-      // them side by side, square by square.
-      squaresOver(countries[iso2].rings, SQUARE_DEG).forEach(
-        ([lon, lat], index) => {
-          const area = areas[index % areas.length];
-          source.entities.add({
-            id: `${id}#${index}`,
-            rectangle: {
-              coordinates: Cesium.Rectangle.fromDegrees(
-                lon + 0.08,
-                lat + 0.08,
-                lon + SQUARE_DEG - 0.08,
-                lat + SQUARE_DEG - 0.08,
-              ),
-              material: Cesium.Color.fromCssColorString(
-                area.family.colour,
-              ).withAlpha(DISEASE_LEVEL_ALPHA[area.level]),
-              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-              zIndex: 1,
-            },
-          });
-        },
+    // Province outlines are read only when a notice names a province.
+    const wantsRegions = diseaseAreas.some((area) =>
+      (area.places ?? []).some((place) =>
+        /provinc|state|region|district|department|governorate|count|prefecture|oblast|territor/i.test(
+          place.text,
+        ),
+      ),
+    );
+    const regions = wantsRegions ? await loadShapes('regions') : {};
+    if (!on.disease) return;
+    const drawing = diseaseDrawing(
+      diseaseAreas,
+      countries,
+      regions,
+      SQUARE_DEG,
+    );
+    clear('disease');
+    points.entities.removeAll();
+    diseaseSpots = drawing.spots;
+    for (const spot of diseaseSpots) {
+      picked.set(spot.id, () =>
+        diseaseCard(
+          spot.name === spot.country
+            ? spot.country
+            : `${spot.name}, ${spot.country}`,
+          [...spot.areas].sort((a, b) => b.level - a.level),
+        ),
       );
+      const size = DISEASE_GLOW_PX[spot.level];
+      points.entities.add({
+        id: `${spot.id}#glow`,
+        position: Cesium.Cartesian3.fromDegrees(spot.lon, spot.lat),
+        billboard: {
+          image: glowImage(spot.family.colour, size),
+          width: size,
+          height: size,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: 50_000,
+        },
+      });
     }
+    // A country with no point of its own (one that spans the date line)
+    // still answers a click on its squares.
+    for (const cell of drawing.cells)
+      if (!picked.has(cell.owner)) {
+        const iso2 = cell.owner.slice('disease:'.length, 'disease:'.length + 2);
+        const areas = diseaseAreas.filter((area) => area.iso2 === iso2);
+        if (areas.length)
+          picked.set(cell.owner, () => diseaseCard(areas[0].country, areas));
+      }
+    // The grid: squares that meet edge to edge, as the fire grid's do, in
+    // the colour of how the disease spreads and deeper for a higher level.
+    drawing.cells.forEach((cell, index) => {
+      source.entities.add({
+        id: `${cell.owner}#${index}`,
+        rectangle: {
+          coordinates: Cesium.Rectangle.fromDegrees(
+            cell.lon,
+            cell.lat,
+            cell.lon + SQUARE_DEG,
+            cell.lat + SQUARE_DEG,
+          ),
+          material: Cesium.Color.fromCssColorString(
+            cell.family.colour,
+          ).withAlpha(DISEASE_LEVEL_ALPHA[cell.level]),
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          zIndex: 1,
+        },
+      });
+    });
     status.disease = {
       ok: Boolean(relief) && Boolean(cdc) && !relief.stale && !cdc.stale,
-      count: byCountry.size,
+      count: new Set(diseaseSpots.map((spot) => spot.iso2)).size,
       families: [
         ...new Map(
           diseaseAreas.map((area) => [area.family.id, area.family]),
         ).values(),
       ],
     };
+    stopWatchingZoom ??= getViewer()?.scene.preRender.addEventListener(() =>
+      applyDiseaseZoom(),
+    );
+    applyDiseaseZoom(true);
   }
 
   const DRAW = { silence: drawSilence, disease: drawDisease };
@@ -246,7 +387,7 @@ export function createOverlays({
       on[name] = Boolean(value);
       if (on[name]) {
         watchClicks();
-        if (sources[name]) sources[name].show = true;
+        if (sources[name] && name !== 'disease') sources[name].show = true;
         await refresh(name);
         if (!timer)
           timer = win.setInterval(() => {
@@ -257,6 +398,11 @@ export function createOverlays({
         clear(name);
         status[name] = null;
         if (sources[name]) sources[name].show = false;
+        if (name === 'disease') {
+          sources.diseasePoints?.entities.removeAll();
+          diseaseSpots = [];
+          applyDiseaseZoom(true);
+        }
         if (!on.silence && !on.disease) {
           win.clearInterval(timer);
           timer = 0;
@@ -273,8 +419,10 @@ export function createOverlays({
     destroy() {
       win.clearInterval(timer);
       clicks?.destroy();
+      stopWatchingZoom?.();
+      clearOverlaySource(DISEASE_CARDS_ID);
       const viewer = getViewer();
-      for (const name of ['silence', 'disease'])
+      for (const name of ['silence', 'disease', 'diseasePoints'])
         if (sources[name]) viewer?.dataSources.remove(sources[name], true);
     },
   };

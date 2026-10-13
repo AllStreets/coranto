@@ -5806,15 +5806,25 @@ body[data-coranto-mode='instruments'][data-coranto-frame='one']:is(
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-/* The search box's title: the header button's glass and word. */
-.coranto-palette-title {
+/* The search box's title: the glass, then the word, together on the left. */
+.coranto-palette-panel > .coranto-palette-title {
   display: flex;
   align-items: center;
-  gap: 7px;
+  justify-content: flex-start;
+  gap: 9px;
+  padding: 11px 14px;
+  color: var(--text-primary);
+  font: 600 10px var(--font-mono);
+  letter-spacing: 2.2px;
 }
 .coranto-palette-title img {
-  width: 12px;
-  height: 12px;
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+}
+/* The globe's frame carries no caption; the lens tabs say which lens is on. */
+.coranto-hud-lens {
+  display: none;
 }
 
 @supports selector(::-webkit-scrollbar) {

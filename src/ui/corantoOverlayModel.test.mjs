@@ -6,11 +6,14 @@ import { latestAlerts, silencePlaces } from '../sources/silence/records.js';
 import { PATH_NOTE } from './corantoLaunchIcons.js';
 import {
   countriesNamed,
+  diseaseCallout,
   diseaseCard,
+  diseaseDrawing,
   diseaseFamily,
   diseaseKeyword,
   labelPoint,
   outbreakAreas,
+  regionsNamed,
   silenceCard,
   squaresOver,
 } from './corantoOverlayModel.js';
@@ -233,4 +236,46 @@ test('the Moon’s card gives its distance and says where the map is from', asyn
   assert.match(card.meta, /384,400 km from the centre of the Earth/);
   assert.match(card.meta, /worked out from the date, not observed/);
   assert.equal(card.url, MOON_SOURCE.url);
+});
+
+test('a notice that names provinces darkens those, not the whole country', () => {
+  const square = (west, south, size) => [
+    [west, south],
+    [west + size, south],
+    [west + size, south + size],
+    [west, south + size],
+    [west, south],
+  ];
+  const countries = { CD: { name: 'DR Congo', rings: [square(0, 0, 8)] } };
+  const regions = {
+    7: { name: 'Ituri', iso2: 'CD', rings: [square(6, 6, 2)] },
+    8: { name: 'Ituri', iso2: 'UG', rings: [square(20, 20, 2)] },
+    9: { name: 'Nord-Kivu', iso2: 'CD', rings: [square(6, 4, 2)] },
+  };
+  assert.deepEqual(
+    regionsNamed(
+      'Ituri and Nord-Kivu Provinces of the Democratic Republic of the Congo',
+      'CD',
+      regions,
+    ),
+    ['7', '9'],
+  );
+  const areas = outbreakAreas({
+    notices: parseTravelNotices(FEED),
+    countries: COUNTRIES,
+    now: Date.UTC(2026, 9, 12),
+  }).filter((area) => area.iso2 === 'CD');
+  const { cells, spots } = diseaseDrawing(areas, countries, regions, 2);
+  assert.equal(cells.length, 16, 'the country is covered edge to edge');
+  const at = (lon, lat) => cells.find((c) => c.lon === lon && c.lat === lat);
+  assert.equal(at(6, 6).level, 3, 'Ituri carries the level 4 notice');
+  assert.equal(at(0, 0).level, 2, 'the rest carries the country-wide one');
+  assert.deepEqual(spots.map((spot) => `${spot.name}:${spot.level}`).sort(), [
+    'DR Congo:2',
+    'Ituri:3',
+    'Nord-Kivu:3',
+  ]);
+  const callout = diseaseCallout(spots.find((spot) => spot.name === 'Ituri'));
+  assert.equal(callout.title, 'EBOLA BUNDIBUGYO VIRUS DISEASE');
+  assert.equal(callout.detail, 'severe · CDC 4 · Ituri');
 });
