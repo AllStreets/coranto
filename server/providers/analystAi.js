@@ -11,7 +11,7 @@ export const ANALYST_MAX_TOKENS = 2500;
 const MAX_PROMPT_CHARS = 60_000;
 const UPSTREAM_TIMEOUT_MS = 55_000;
 /** Model tokens one visitor may use in a UTC day, when a database counts. */
-export const ANALYST_DAILY_TOKENS_DEFAULT = 200_000;
+export const ANALYST_DAILY_TOKENS_DEFAULT = 250_000;
 
 /**
  * `POST /api/ai` with `{ system, user, maxTokens }`, answering `{ content }`:

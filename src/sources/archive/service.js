@@ -124,16 +124,20 @@ export function createArchive({
     /** Keep what the feed holds. Rows already kept this run are skipped. */
     async store(articles) {
       if (!configured) return 0;
-      const rows = [];
+      // One row per id: the database refuses a batch that names a row twice.
+      const byId = new Map();
       for (const article of articles ?? []) {
         if (stored.has(article?.id)) continue;
         const row = toRow(article);
-        if (row) rows.push(row);
+        if (row) byId.set(row.id, row);
       }
+      const rows = [...byId.values()];
       let kept = 0;
-      try {
-        for (let at = 0; at < rows.length; at += BATCH) {
-          const batch = rows.slice(at, at + BATCH);
+      lastError = '';
+      // A batch that fails is tried again next time; the rest still go.
+      for (let at = 0; at < rows.length; at += BATCH) {
+        const batch = rows.slice(at, at + BATCH);
+        try {
           await call('articles?on_conflict=id', {
             method: 'POST',
             headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
@@ -141,9 +145,12 @@ export function createArchive({
           });
           for (const row of batch) stored.add(row.id);
           kept += batch.length;
+        } catch (error) {
+          lastError = String(error?.message ?? 'archive_failed');
         }
+      }
+      try {
         if (kept) lastStoredAt = new Date(now()).toISOString();
-        lastError = '';
         // Once a day, let go of what is older than the archive keeps.
         if (now() - lastPrune > 24 * 3_600_000) {
           lastPrune = now();
