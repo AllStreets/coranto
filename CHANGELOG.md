@@ -1,5 +1,14 @@
 # Changelog
 
+- Coranto: the analyst board exports PDFs, not HTML. EXPORT BRIEF writes one
+  document with the pinned stories, the synthesis (with its historical
+  context when the archive has any) and the consensus board's three rounds
+  when it has been run on the same pins; when it has not, the PDF says so.
+  The red team, playbook, daily and conflict brief exports are PDFs too.
+  They are drawn by a small writer of Coranto's own (`src/ui/corantoPdf.js`):
+  dark pages, the board's banners, cards with topic colours, real selectable
+  text in the fonts every reader has.
+
 - Coranto: a public mode, for hosting the site (Railway config included).
   When the server knows its public address (`RAILWAY_PUBLIC_DOMAIN`, or
   `CORANTO_PUBLIC_ORIGIN`) the routes that spend a key answer only pages of

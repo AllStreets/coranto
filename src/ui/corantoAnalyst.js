@@ -50,6 +50,7 @@ import {
   timelineFor,
   toStory,
 } from './corantoAnalystModel.js';
+import { buildPdf } from './corantoPdf.js';
 
 const VIOLET = '#b47cff';
 const AI_NOTE =
@@ -132,7 +133,7 @@ const SKELETON = `
     <span class="ca-pb-wordmark">${ic('chevronRight')}ADVERSARY PLAYBOOK</span>
     <span id="ca-pb-status" data-ref="pbStatus">READY · SELECT ASSETS AND GENERATE</span>
     <button type="button" class="ca-pb-act" data-act="playbook-generate">GENERATE PLAYBOOK</button>
-    <button type="button" class="ca-pb-act" data-ref="pbExport" data-act="playbook-export" style="display:none">EXPORT HTML</button>
+    <button type="button" class="ca-pb-act" data-ref="pbExport" data-act="playbook-export" style="display:none">EXPORT PDF</button>
     <button type="button" class="ca-pb-close-btn" data-act="playbook-exit">EXIT</button>
   </div>
   <div class="ca-pb-body"><div id="ca-pb-content" data-ref="pbContent"><div class="ca-pb-loading ca-pb-loading-anim">PIN ASSETS TO ANALYST BOARD · THEN GENERATE PLAYBOOK</div></div></div>
@@ -183,7 +184,7 @@ const SKELETON = `
     <span class="ca-rt-wordmark">${ic('diamond', '#ff1744')}CORANTO RED TEAM</span>
     <span id="ca-rt-status" data-ref="rtStatus">READY · SELECT ASSETS AND GENERATE</span>
     <button type="button" class="ca-rt-act" data-act="redteam-generate">GENERATE BRIEF</button>
-    <button type="button" class="ca-rt-act" data-ref="rtExport" data-act="redteam-export" style="display:none">EXPORT HTML</button>
+    <button type="button" class="ca-rt-act" data-ref="rtExport" data-act="redteam-export" style="display:none">EXPORT PDF</button>
     <button type="button" class="ca-rt-close-btn" data-act="redteam-exit">EXIT</button>
   </div>
   <div class="ca-rt-body">
@@ -206,7 +207,7 @@ const SKELETON = `
   <div class="ca-bm-body" data-ref="bmBody"><div class="ca-bm-loading">ASSEMBLING BRIEF…</div></div>
   <div class="ca-bm-footer">
     <span class="ca-bm-meta" data-ref="bmMeta"></span>
-    <button type="button" class="ca-bm-export-btn" data-act="brief-export">EXPORT HTML</button>
+    <button type="button" class="ca-bm-export-btn" data-act="brief-export">EXPORT PDF</button>
   </div>
 </div>`;
 
@@ -261,6 +262,18 @@ export function createAnalyst({
   let matrix = null;
   let briefTitle = 'Daily Situation Report';
   let runId = 0;
+  // What the tools last produced, kept as data so the exports can be built
+  // from it. `key` names the set of pins a result was made from.
+  let lastHistory = { key: '', stories: [] };
+  let lastConsensus = null;
+  let lastRedTeam = '';
+  let lastPlaybook = '';
+  let lastBriefBlocks = [];
+  const boardKey = (list) =>
+    list
+      .map((s) => s.title)
+      .sort()
+      .join('|');
 
   // ── The headlines, in the shape the tools read ───────────────────
   let newsFrom = null;
@@ -709,16 +722,19 @@ export function createAnalyst({
     postProcessBriefConfidence();
     // Older headlines in the same domains, from the archive when there is one.
     const run = runId;
+    const historyKey = boardKey(list);
+    lastHistory = { key: historyKey, stories: [] };
     relatedHistory([
       ...new Set(parts.cats.map((c) => TOPIC_OF[c]).filter(Boolean)),
     ]).then(
       (rows) => {
         if (run !== runId || !rows.length) return;
         const at = Date.now();
+        const past = rows.map((row) => articleToStory(row, at));
+        lastHistory = { key: historyKey, stories: past };
         const section = document.createElement('div');
         section.className = 'ca-am-brief-sec';
-        section.innerHTML = `${head('HISTORICAL CONTEXT', 'LAST 30 DAYS')}${rows
-          .map((row) => articleToStory(row, at))
+        section.innerHTML = `${head('HISTORICAL CONTEXT', 'LAST 30 DAYS')}${past
           .map(
             (s) =>
               `<div class="ca-bs-card ca-bs-past" style="--ac:${s.color}"><div class="ca-bs-strip"><span style="color:${s.color}">${esc(domainLabel(s.cat))}</span><span>${esc(s.src)}</span><span>${esc(s.time)}</span><span class="ca-bs-tag">ARCHIVE</span></div><p class="ca-am-brief-p ca-bs-headline">${esc(s.title)}</p></div>`,
@@ -732,69 +748,222 @@ export function createAnalyst({
     );
   }
 
-  function download(html, name) {
+  /** Hand the person a PDF built from `doc` (see `corantoPdf.js`). */
+  function downloadPdf(doc, name) {
     const url = win.URL.createObjectURL(
-      new win.Blob([html], { type: 'text/html' }),
+      new win.Blob([buildPdf(doc)], { type: 'application/pdf' }),
     );
     const a = document.createElement('a');
     a.href = url;
-    a.download = name;
+    a.download = `${name}.pdf`;
     document.body.append(a);
     a.click();
     a.remove();
     win.setTimeout(() => win.URL.revokeObjectURL(url), 1000);
   }
+  const stamp = () =>
+    new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+  const modelNote = (note = AI_NOTE) => ({ type: 'note', text: note });
+  /** A model's plain-text reply as headings and paragraphs. */
+  const replyBlocks = (text, isHeader) =>
+    replyLines(text, isHeader)
+      // A line of only dashes is a divider the model drew, not text.
+      .filter((l) => !/^[-_*\s]+$/.test(l.text))
+      .map((l) =>
+        l.header
+          ? { type: 'heading', text: l.text.replace(/:$/, '') }
+          : { type: 'para', text: l.text },
+      );
 
+  /** The synthesis, as the brief column shows it. */
+  function synthesisBlocks(list) {
+    const parts = synthesisParts(list);
+    const live = news();
+    const grade = (text) => ({
+      text: `CONFIDENCE ${confidenceFor(text, live).level}`,
+      colour: confidenceFor(text, live).colour,
+    });
+    const blocks = [
+      { type: 'heading', text: 'Synthesis · Executive summary' },
+      {
+        type: 'para',
+        text: `${parts.before}${parts.breaking ? `${parts.breaking}${parts.breakingTail}` : ''}${parts.after}`,
+      },
+      {
+        type: 'heading',
+        text: 'Key entities',
+        count: String(parts.entities.length + parts.regions.length),
+      },
+      {
+        type: 'chips',
+        items: [
+          ...parts.entities.map((text) => ({ text })),
+          ...parts.regions.map((text) => ({ text, colour: '#6b7797' })),
+        ],
+      },
+      { type: 'heading', text: 'Asset summaries', count: String(list.length) },
+      ...list.map((s) => ({
+        type: 'card',
+        colour: s.color,
+        strip: [
+          { text: domainLabel(s.cat), colour: s.color },
+          { text: s.src },
+          { text: s.time },
+          ...(s._hist ? [{ text: 'ARCHIVE', colour: '#b47cff' }] : []),
+          grade(s.summary || s.title),
+        ],
+        text: s.summary || s.title,
+      })),
+    ];
+    if (lastHistory.key === boardKey(list) && lastHistory.stories.length)
+      blocks.push(
+        { type: 'heading', text: 'Historical context', count: 'LAST 30 DAYS' },
+        ...lastHistory.stories.map((s) => ({
+          type: 'card',
+          colour: s.color,
+          strip: [
+            { text: domainLabel(s.cat), colour: s.color },
+            { text: s.src },
+            { text: s.time },
+            { text: 'ARCHIVE', colour: '#b47cff' },
+          ],
+          text: s.title,
+        })),
+      );
+    blocks.push(
+      { type: 'heading', text: 'Domains', count: String(parts.cats.length) },
+      {
+        type: 'chips',
+        items: parts.cats.map((c) => ({
+          text: domainLabel(c),
+          colour: domainColour(c),
+        })),
+      },
+    );
+    return blocks;
+  }
+
+  /** The consensus board's three rounds, when it was run on these pins. */
+  function consensusBlocks(list) {
+    const run = lastConsensus;
+    if (!run || run.key !== boardKey(list))
+      return [
+        { type: 'heading', text: 'Consensus' },
+        {
+          type: 'note',
+          text: run
+            ? 'The consensus board was last run on a different set of pins, so it is left out. Press CONSENSUS again, then export.'
+            : 'The consensus board has not been run on these pins. Press CONSENSUS, wait for round 3, then export to include it.',
+        },
+      ];
+    const { stats } = run;
+    return [
+      { type: 'heading', text: 'Consensus · Agentic board', count: run.at },
+      {
+        type: 'stats',
+        items: [
+          {
+            value: `${stats.mean}%`,
+            label: 'Escalation',
+            colour: stats.meanColour,
+          },
+          {
+            value: `${stats.agr}%`,
+            label: 'Agreement',
+            colour: stats.agrColour,
+          },
+          { value: `${stats.spread}pt`, label: 'Divergence' },
+        ],
+      },
+      { type: 'heading', text: 'Round 1 · Independent specialist analysis' },
+      ...run.analysts.flatMap((a) => [
+        {
+          type: 'meter',
+          label: a.name,
+          value: escalationOf(a),
+          colour: escalationColour(escalationOf(a)),
+        },
+        {
+          type: 'card',
+          colour: a.color,
+          strip: [
+            ...(a.keyFactor ? [{ text: `KEY: ${a.keyFactor}` }] : []),
+            ...(a.blindspot
+              ? [{ text: `BLIND SPOT: ${a.blindspot}`, colour: '#ff9f0a' }]
+              : []),
+          ],
+          text: a.assessment || '',
+        },
+      ]),
+      {
+        type: 'heading',
+        text: `Round 2 · Cross-examination · ${stats.hawk.name} vs ${stats.dove.name}`,
+      },
+      {
+        type: 'card',
+        colour: stats.hawk.color,
+        strip: [
+          {
+            text: `${stats.hawk.name} · CHALLENGING`,
+            colour: stats.hawk.color,
+          },
+        ],
+        text: run.hawkChallenge,
+      },
+      {
+        type: 'card',
+        colour: stats.dove.color,
+        strip: [
+          { text: `${stats.dove.name} · REBUTTAL`, colour: stats.dove.color },
+        ],
+        text: run.doveRebuttal,
+      },
+      { type: 'heading', text: 'Round 3 · Senior analyst synthesis' },
+      ...replyLines(run.synthesis, () => false).map((l) => ({
+        type: 'para',
+        text: l.text,
+      })),
+      modelNote(),
+    ];
+  }
+
+  /** EXPORT BRIEF: the pins, the synthesis and the consensus, as one PDF. */
   function exportBrief() {
     const list = pinned();
-    const now = new Date().toLocaleString();
-    const assetRows = list
-      .map(
-        (s) => `
-    <tr>
-      <td style="padding:6px 12px;border-bottom:1px solid #1a1f35;color:${s.color || '#8A93C8'};font-family:monospace;font-size:11px">${esc(domainLabel(s.cat).toUpperCase())}</td>
-      <td style="padding:6px 12px;border-bottom:1px solid #1a1f35;font-size:12px;color:#c8d0f0">${esc(s.title)}</td>
-      <td style="padding:6px 12px;border-bottom:1px solid #1a1f35;font-family:monospace;font-size:10px;color:#5a6480">${esc(s.src)} · ${esc(s.time)}</td>
-    </tr>`,
-      )
-      .join('');
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-<title>CORANTO BRIEF — ${esc(now)}</title>
-<style>
-  body{background:#030409;color:#c8d0f0;font-family:'IBM Plex Mono',monospace;margin:0;padding:0}
-  .banner{background:#C1121F;padding:10px 24px;font-size:9px;font-weight:700;letter-spacing:.3em;color:#fff;text-align:center}
-  .hdr{padding:24px 32px 16px;border-bottom:1px solid #1a1f35}
-  .wordmark{font-size:11px;letter-spacing:.32em;color:#b47cff;margin-bottom:6px}
-  .title{font-size:22px;font-weight:800;letter-spacing:.1em;color:#f0f2ff;font-family:Georgia,serif;margin-bottom:4px}
-  .meta{font-size:9px;color:#3C4470;letter-spacing:.12em}
-  .section{padding:20px 32px}
-  .sec-label{font-size:8px;letter-spacing:.22em;color:#3C4470;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #0d1020}
-  table{width:100%;border-collapse:collapse}
-  .brief-body{padding:0 32px 32px;font-size:12px;line-height:1.8;color:#8A93C8}
-  .brief-body p{margin-bottom:10px}
-  .brief-body img{width:11px;height:11px;margin-right:5px;vertical-align:-1px}
-  .brief-body button{display:none}
-  .ca-am-brief-sh,.ca-cb-round-hdr,.ca-cb-synthesis-hdr{font-size:9px;letter-spacing:.2em;color:#b47cff;margin:18px 0 8px}
-  .ca-am-ent,.ca-cb-tag{display:inline-block;margin:0 6px 6px 0;padding:2px 7px;border:1px solid #1a1f35;font-size:10px}
-  .ca-am-conf{display:inline-block;margin-right:6px;padding:0 4px;border:1px solid;font-size:9px}
-  .ca-bs-count{margin-left:10px;color:#5a6480}
-  .ca-bs-card{margin:0 0 10px;padding:8px 12px;border-left:2px solid var(--ac,#b47cff);background:#080a14}
-  .ca-bs-strip{font-size:9px;letter-spacing:.12em;color:#5a6480;margin-bottom:4px}
-  .ca-bs-strip span{margin-right:10px}
-  .ca-bs-breaking{color:#ff2d55}
-  .ca-cb-name{color:#f0f2ff;margin-top:14px}
-</style></head><body>
-<div class="banner">${MARKINGS.system} — ${esc(now)}</div>
-<div class="hdr">
-  <div class="wordmark">CORANTO INTELLIGENCE BRIEF</div>
-  <div class="title">INTELLIGENCE BRIEF</div>
-  <div class="meta">${esc(ref.briefMeta.textContent)}</div>
-</div>
-${list.length ? `<div class="section"><div class="sec-label">INTELLIGENCE ASSETS (${list.length})</div><table>${assetRows}</table></div>` : ''}
-<div class="section"><div class="sec-label">BRIEF</div></div>
-<div class="brief-body">${ref.briefScroll.innerHTML}</div>
-</body></html>`;
-    download(html, `coranto-brief-${Date.now()}.html`);
+    if (!list.length) {
+      setStatus('PIN AT LEAST ONE STORY · THEN EXPORT', 4000);
+      return;
+    }
+    downloadPdf(
+      {
+        kicker: 'CORANTO INTELLIGENCE BRIEF',
+        title: boardTitleFor(list) || 'Intelligence brief',
+        meta: `${list.length} ASSETS · ${new Date().toLocaleString()}`,
+        marking: MARKINGS.synthesis,
+        blocks: [
+          {
+            type: 'heading',
+            text: 'Intelligence assets',
+            count: String(list.length),
+          },
+          ...list.map((s) => ({
+            type: 'card',
+            colour: s.color,
+            strip: [
+              { text: domainLabel(s.cat), colour: s.color },
+              { text: s.src },
+              { text: s.time },
+              { text: s.region },
+            ],
+            text: s.title,
+          })),
+          ...synthesisBlocks(list),
+          ...consensusBlocks(list),
+        ],
+      },
+      `coranto-brief-${stamp()}`,
+    );
+    setStatus('BRIEF EXPORTED AS PDF', 4000);
   }
 
   // ── Consensus ───────────────────────────────────────────────────
@@ -812,6 +981,7 @@ ${list.length ? `<div class="section"><div class="sec-label">INTELLIGENCE ASSETS
     const stale = () => run !== runId;
     reckoningOn = false;
     syncReckoning();
+    lastConsensus = null;
     const context = buildAssetContext(list);
 
     setStatus('ROUND 1 · 5 SPECIALIST ANALYSTS ASSESSING IN PARALLEL…');
@@ -962,6 +1132,15 @@ ${list.length ? `<div class="section"><div class="sec-label">INTELLIGENCE ASSETS
       `CONSENSUS COMPLETE · 3 ROUNDS · ${analysts.filter((a) => a.ok).length}/5 ANALYSTS · ${esc(new Date().toLocaleString())}`,
     );
     ref.briefMeta.textContent = `5 ANALYSTS + CROSS-EXAM + SYNTHESIS · ${new Date().toLocaleString()}`;
+    lastConsensus = {
+      key: boardKey(list),
+      at: new Date().toLocaleString(),
+      analysts,
+      stats,
+      hawkChallenge,
+      doveRebuttal,
+      synthesis,
+    };
   }
 
   // ── Red team ────────────────────────────────────────────────────
@@ -986,6 +1165,7 @@ ${list.length ? `<div class="section"><div class="sec-label">INTELLIGENCE ASSETS
         prompt.user,
         prompt.maxTokens,
       );
+      lastRedTeam = brief;
       ref.rtStatus.textContent = 'ADVERSARIAL BRIEF GENERATED';
       ref.rtExport.style.display = '';
       const now = new Date().toLocaleString();
@@ -1008,35 +1188,16 @@ ${list.length ? `<div class="section"><div class="sec-label">INTELLIGENCE ASSETS
     }
   }
   function exportRedTeam() {
-    const now = new Date().toLocaleString();
-    download(
-      `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>CORANTO RED TEAM BRIEF — ${esc(now)}</title>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#0a0a0a;color:#e8e8e8;font-family:'Courier New',monospace;font-size:11px;line-height:1.7}
-  .rt-banner{background:#c1121f;color:#fff;font-family:'Courier New',monospace;font-size:9px;font-weight:700;letter-spacing:.25em;text-align:center;padding:10px 0;width:100%}
-  .rt-body{max-width:860px;margin:0 auto;padding:40px 32px}
-  .ca-rt-heading{font-size:15px;font-weight:700;letter-spacing:.2em;color:#ff1744;text-align:center;margin:28px 0 6px}
-  .ca-rt-date{font-size:8px;letter-spacing:.12em;color:rgba(255,255,255,.4);text-align:center;margin-bottom:28px}
-  .ca-rt-classify{background:#c1121f;color:#fff;font-family:'Courier New',monospace;font-size:9px;font-weight:700;letter-spacing:.25em;text-align:center;padding:10px 0}
-  .ca-rt-para{font-size:10.5px;color:rgba(232,232,232,.9);line-height:1.75;margin:6px 0}
-  .ca-rt-sec-hdr{color:rgba(255,100,100,.85) !important;margin:16px 0 4px !important}
-  .ca-ai-note{margin-top:24px;font-size:8px;letter-spacing:.1em;color:rgba(255,255,255,.45)}
-</style>
-</head>
-<body>
-<div class="rt-banner">${MARKINGS.redTeam}</div>
-<div class="rt-body">
-${ref.rtContent.innerHTML}
-</div>
-<div class="rt-banner">${MARKINGS.redTeam}</div>
-</body>
-</html>`,
-      `red-team-brief-${Date.now()}.html`,
+    if (!lastRedTeam) return;
+    downloadPdf(
+      {
+        kicker: 'CORANTO RED TEAM',
+        title: 'Adversarial opportunity assessment',
+        meta: `PREPARED ${new Date().toLocaleString()} · ${MARKINGS.system}`,
+        marking: MARKINGS.redTeam,
+        blocks: [...replyBlocks(lastRedTeam, isRedTeamHeader), modelNote()],
+      },
+      `coranto-red-team-${stamp()}`,
     );
   }
 
@@ -1061,6 +1222,7 @@ ${ref.rtContent.innerHTML}
         prompt.user,
         prompt.maxTokens,
       );
+      lastPlaybook = brief;
       ref.pbExport.style.display = '';
       ref.pbStatus.textContent = 'PLAYBOOK GENERATED';
       const now = new Date().toLocaleString();
@@ -1083,12 +1245,16 @@ ${ref.rtContent.innerHTML}
     }
   }
   function exportPlaybook() {
-    const now = new Date().toLocaleString();
-    download(
-      `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>ADVERSARY PLAYBOOK — ${esc(now)}</title>
-<style>*{box-sizing:border-box;margin:0;padding:0}body{background:#0a0303;color:#e8e8e8;font-family:'Courier New',monospace;font-size:11px;line-height:1.7}.pb-banner{background:#3d0a0a;border-top:1px solid #FF3B30;border-bottom:1px solid #FF3B30;color:#FF3B30;font-family:'Courier New',monospace;font-size:9px;font-weight:700;letter-spacing:.25em;text-align:center;padding:10px}.pb-body{max-width:860px;margin:0 auto;padding:40px 32px}.ca-pb-heading{font-size:15px;font-weight:700;letter-spacing:.2em;color:#FF3B30;text-align:center;margin:28px 0 6px}.ca-pb-date{font-size:8px;letter-spacing:.12em;color:rgba(255,255,255,.4);text-align:center;margin-bottom:28px}.ca-pb-classify{background:#3d0a0a;border:1px solid rgba(255,59,48,.4);color:#FF3B30;font-family:'Courier New',monospace;font-size:9px;font-weight:700;letter-spacing:.25em;text-align:center;padding:10px}.ca-pb-sec-hdr{font-size:8.5px;letter-spacing:.2em;color:rgba(255,59,48,.85);margin:16px 0 4px;padding-top:12px;border-top:1px solid rgba(255,59,48,.2)}.ca-pb-para{font-size:10.5px;color:rgba(232,232,232,.9);line-height:1.75;margin:5px 0}.ca-ai-note{margin-top:24px;font-size:8px;letter-spacing:.1em;color:rgba(255,255,255,.45)}</style>
-</head><body><div class="pb-banner">${MARKINGS.playbook}</div><div class="pb-body">${ref.pbContent.innerHTML}</div><div class="pb-banner">${MARKINGS.playbook}</div></body></html>`,
-      `adversary-playbook-${Date.now()}.html`,
+    if (!lastPlaybook) return;
+    downloadPdf(
+      {
+        kicker: 'CORANTO PLAYBOOK',
+        title: 'Adversary playbook',
+        meta: `PREPARED ${new Date().toLocaleString()} · ${MARKINGS.system}`,
+        marking: MARKINGS.playbook,
+        blocks: [...replyBlocks(lastPlaybook, isPlaybookHeader), modelNote()],
+      },
+      `coranto-adversary-playbook-${stamp()}`,
     );
   }
 
@@ -1299,6 +1465,7 @@ ${ref.rtContent.innerHTML}
 
   // ── Daily and conflict briefs ───────────────────────────────────
   function showBriefModal(title, loading) {
+    lastBriefBlocks = [];
     ref.bmTitle.textContent = title;
     ref.bmDate.textContent = new Date()
       .toUTCString()
@@ -1310,7 +1477,8 @@ ${ref.rtContent.innerHTML}
     ref.bmModal.classList.add('ca-on');
   }
   function fillBrief(html) {
-    ref.bmBody.innerHTML = `${briefBlocks(html)
+    lastBriefBlocks = briefBlocks(html);
+    ref.bmBody.innerHTML = `${lastBriefBlocks
       .map((block) => `<${block.tag}>${esc(block.text)}</${block.tag}>`)
       .join(
         '',
@@ -1351,15 +1519,34 @@ ${ref.rtContent.innerHTML}
     ref.bmModal.classList.remove('ca-on');
   };
   function exportDailyBrief() {
-    const date = new Date().toDateString();
+    if (!lastBriefBlocks.length) {
+      ref.bmMeta.textContent = 'NOTHING TO EXPORT YET';
+      return;
+    }
     const slug =
       briefTitle
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '') || 'brief';
-    download(
-      `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>CORANTO — ${esc(briefTitle)} — ${esc(date)}</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,'Times New Roman',serif;max-width:740px;margin:60px auto;padding:0 28px;background:#fafaf8;color:#1c1c2e;line-height:1.75}.masthead{border-bottom:2px solid #1c1c2e;padding-bottom:14px;margin-bottom:28px}.org{font-family:'Courier New',monospace;font-size:10px;letter-spacing:.2em;color:#666;margin-bottom:6px;text-transform:uppercase}h1{font-size:22px;font-weight:normal;letter-spacing:.04em;margin-bottom:4px}.dateline{font-family:'Courier New',monospace;font-size:10px;color:#888;letter-spacing:.1em}h3{font-family:'Courier New',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#555;margin:28px 0 10px;padding-bottom:5px;border-bottom:1px solid #e0e0d8}p{margin-bottom:15px;font-size:14.5px}.ca-ai-note,.footer{margin-top:40px;padding-top:12px;border-top:1px solid #e0e0d8;font-family:'Courier New',monospace;font-size:9px;color:#888;letter-spacing:.1em}</style></head><body><div class="masthead"><div class="org">Coranto Intelligence Network</div><h1>${esc(briefTitle)}</h1><div class="dateline">${esc(date)}</div></div>${ref.bmBody.innerHTML}<div class="footer">Generated by Coranto · ${esc(date)}</div></body></html>`,
-      `coranto-${slug}-${new Date().toISOString().slice(0, 10)}.html`,
+    downloadPdf(
+      {
+        kicker: 'CORANTO INTELLIGENCE NETWORK',
+        title: briefTitle,
+        meta: `${new Date().toDateString()} · ${ref.bmMeta.textContent}`,
+        marking: MARKINGS.system,
+        bannerColour: '#2a1a4a',
+        blocks: [
+          ...lastBriefBlocks.map((block) =>
+            block.tag === 'h3'
+              ? { type: 'heading', text: block.text }
+              : { type: 'para', text: block.text },
+          ),
+          modelNote(
+            AI_NOTE.replace('THE ITEMS PINNED', 'THE HEADLINES LISTED TO IT'),
+          ),
+        ],
+      },
+      `coranto-${slug}-${new Date().toISOString().slice(0, 10)}`,
     );
   }
 
