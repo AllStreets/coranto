@@ -2,8 +2,10 @@
 
 - Coranto: aircraft on a host OpenSky will not answer. When OpenSky cannot
   be reached at all, the flights layer stops waiting on it for ten minutes
-  and shows live ADS-B aircraft within 250 nautical miles of the view, from
-  adsb.lol or, if that refuses, adsb.fi; the layer names the source it used.
+  and shows every aircraft adsb.lol holds worldwide (one shared request,
+  refreshed every 15 seconds), or, if that fails, those within 250 nautical
+  miles of the view from adsb.lol or adsb.fi. The layer names the source it
+  used and what it covers.
   Locally, with OpenSky reachable, nothing changes. The header's default
   layout is now one button per layer (LAYER BUTTONS); the LAYERS list stays
   under Settings.
