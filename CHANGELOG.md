@@ -1,5 +1,11 @@
 # Changelog
 
+- Coranto: a story opens inside Instruments, with all its tools, from its
+  marker's card. Every drop-down in every view (the feed, the analyst board,
+  Scenes and the rest of the control room) is Coranto's own. Leaving
+  Instruments returns to the analyst board only when it was opened from
+  there. SCENES stays in reach under an open panel.
+
 - Coranto: Settings is in Coranto's own look: bracket panels, mono label
   strips, cut-corner tabs and buttons, the rail's switches. Choosing NEWS or
   INSTRUMENTS under "Open in" takes you there when Settings closes. Focus

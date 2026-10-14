@@ -190,6 +190,13 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
 
 ## Decisions (answered 2026-10-13)
 
+- Stories open inside Instruments (T17 done). Clicking a government
+  aircraft's marker opens its card (it already did; confirmed by a real
+  click). Every drop-down in every view is Coranto's own.
+- AUSPEX's "mirrors" tool is dropped for good: its scores are model opinion.
+- Instruments' X returns to the analyst board only when it was opened from
+  the board; from search, voice or Settings it returns to the news view.
+
 - SCENES is always visible in Instruments, as a header under an open panel.
 - Outlet "lean" labels stay out: AUSPEX gave no source for them.
 - SILENCE stays parked; DISEASE stays country and named-province level; the

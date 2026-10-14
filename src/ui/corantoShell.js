@@ -58,7 +58,7 @@ import { createSettings } from './corantoSettings.js';
 import { createMoon } from './corantoMoon.js';
 import { createOverlays } from './corantoOverlays.js';
 import { setSplitFlapText } from '../splitFlap.js';
-import { enhanceSelect } from './corantoSelect.js';
+import { enhanceAllSelects } from './corantoSelect.js';
 import { createSides } from './corantoSides.js';
 import {
   clearStored,
@@ -365,7 +365,10 @@ function placeCardMeta(place) {
 }
 
 function placeCardAction(count) {
-  return count === 1 ? 'Open this story' : `Read all ${count} in NEWS`;
+  return count === 1 ? 'Open this story' : 'Open the newest story';
+}
+function placeCardAll(count) {
+  return `Read all ${count} in NEWS`;
 }
 
 /** The button on an aircraft or ship card that leads to nearby stories. */
@@ -1770,6 +1773,8 @@ export function createCorantoShell({
     onInstruments: () => {
       board.close();
       setMode('instruments');
+      // Opened from the board, so its X leads back to the board.
+      instrumentsFromBoard = true;
     },
     onMomentum: (tiers) => atlas.setMomentum(tiers),
     onOpen: (asset) => {
@@ -2870,14 +2875,21 @@ export function createCorantoShell({
       kind: `STORIES · ${place.name.toUpperCase()} · ${place.precision.toUpperCase()}`,
       title: placeCardTitle(place),
       meta: placeCardMeta(place),
+      // The story opens here, over the control room, with all its tools.
       action: {
         label: placeCardAction(place.articles.length),
         run: () => {
-          const only = place.articles.length === 1 ? place.articles[0] : null;
-          setMode('news');
-          if (only) feed?.openStory(storyKeyFor(only.id));
+          showCard(null);
+          feed?.openStory(storyKeyFor(place.articles[0].id));
         },
       },
+      pin:
+        place.articles.length > 1
+          ? {
+              label: placeCardAll(place.articles.length),
+              run: () => setMode('news'),
+            }
+          : undefined,
       onClose: () => layer.selectPlace(null),
     });
   }
@@ -2930,8 +2942,13 @@ export function createCorantoShell({
     },
     el(document, 'img', { src: iconImage('close', '#e9e4f5'), alt: '' }),
   );
+  // Opened from the analyst board, the X returns to the board. Opened any
+  // other way (search, voice, Settings), it returns to the news view.
+  let instrumentsFromBoard = false;
   instrumentsExit.addEventListener('click', () => {
+    const toBoard = instrumentsFromBoard;
     setMode('news');
+    if (!toBoard) return;
     loadAtlasPlaces();
     board.open();
   });
@@ -3227,6 +3244,11 @@ export function createCorantoShell({
 
   function setMode(mode, { remember = true } = {}) {
     const next = mode === 'instruments' ? 'instruments' : 'news';
+    // Each visit to Instruments starts as "not from the board"; the board's
+    // own button says otherwise straight after.
+    instrumentsFromBoard = false;
+    instrumentsExit.title =
+      'Close Instruments and go back to where you opened it from';
     body.dataset.corantoMode = next;
     // A launch click opens a card in the news view and the engine's mission
     // view in the control room. Automated browsers keep the engine's way.
@@ -3360,8 +3382,6 @@ export function createCorantoShell({
   }
 
   function onModel(model) {
-    // The feed's drop-downs show what the feed has just chosen.
-    win.setTimeout(() => feedSelects.forEach((entry) => entry.refresh()), 0);
     if (sharedView) {
       // Deferred: applying it re-enters this render.
       win.setTimeout(applySharedView, 0);
@@ -3658,8 +3678,7 @@ export function createCorantoShell({
     writeStored(sessionStorageRef, FIRST_RUN_SESSION_KEY, 'dismissed');
   }
 
-  // The feed's three drop-downs, drawn in Coranto's own style for people.
-  let feedSelects = [];
+  let stopSelects = () => {};
   feed = createNewsFeed({
     document,
     body: feedBody,
@@ -3710,10 +3729,10 @@ export function createCorantoShell({
       },
     },
   });
-  if (!win.navigator?.webdriver && win.MutationObserver)
-    feedSelects = [...feedBody.querySelectorAll('select.news-select')].map(
-      (select) => enhanceSelect(select, { document, win }),
-    );
+  // Every drop-down, in every view, is Coranto's own for people. Automated
+  // browsers keep the plain ones their gates drive.
+  if (!win.navigator?.webdriver)
+    stopSelects = enhanceAllSelects({ document, win });
   // First visit: open the guide once. Automated browsers are left alone.
   if (
     body.dataset.corantoMode === 'news' &&
@@ -3817,7 +3836,7 @@ export function createCorantoShell({
       board.destroy();
       document.removeEventListener('pointerdown', onOutside);
       unsubscribeHazards?.();
-      feedSelects.forEach((entry) => entry.destroy());
+      stopSelects();
       feed?.destroy();
       for (const node of [
         header,

@@ -41,6 +41,7 @@ export function enhanceSelect(select, { document, win }) {
 
   function refresh() {
     wrap.hidden = select.hidden;
+    button.disabled = select.disabled;
     const chosen = select.options[select.selectedIndex];
     label.replaceChildren(chosen?.textContent ?? '');
     const name = select.getAttribute('aria-label') ?? '';
@@ -151,12 +152,20 @@ export function enhanceSelect(select, { document, win }) {
   observer?.observe(select, {
     childList: true,
     attributes: true,
-    attributeFilter: ['hidden', 'title', 'aria-label'],
+    attributeFilter: ['hidden', 'title', 'aria-label', 'disabled'],
   });
   refresh();
 
   return {
     element: wrap,
+    select,
+    /** The label, when code has set the value without a change event. */
+    sync() {
+      const chosen = select.options[select.selectedIndex];
+      const text = chosen?.textContent ?? '';
+      if (label.textContent !== text || wrap.hidden !== select.hidden)
+        refresh();
+    },
     refresh,
     close,
     destroy() {
@@ -166,5 +175,56 @@ export function enhanceSelect(select, { document, win }) {
       win.removeEventListener('resize', close);
       menu.remove();
     },
+  };
+}
+
+/**
+ * Every drop-down on the page, now and later, in Coranto's style: the news
+ * view's, the analyst board's and the control room's alike. The engine
+ * builds and rebuilds its panels as it goes, so new ones are picked up as
+ * they appear and ones that have gone are cleaned up.
+ *
+ * @param {object} options
+ * @param {Document} options.document
+ * @param {Window} options.win
+ * @returns {() => void} Stop, and put nothing back.
+ */
+export function enhanceAllSelects({ document, win }) {
+  if (!win.MutationObserver) return () => {};
+  const live = new Map();
+  const adopt = (root) => {
+    const found =
+      root.tagName === 'SELECT'
+        ? [root]
+        : [...(root.querySelectorAll?.('select') ?? [])];
+    for (const select of found) {
+      // A list box (several rows shown, or several choices) is left alone.
+      if (live.has(select) || select.multiple || select.size > 1) continue;
+      live.set(select, enhanceSelect(select, { document, win }));
+    }
+  };
+  adopt(document.body);
+  const observer = new win.MutationObserver((records) => {
+    for (const record of records)
+      for (const node of record.addedNodes)
+        if (node.nodeType === 1 && !node.classList?.contains('coranto-select'))
+          adopt(node);
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  // Code sets a select's value without telling anyone; keep labels true, and
+  // let go of selects the page has thrown away.
+  const timer = win.setInterval(() => {
+    for (const [select, entry] of live) {
+      if (!select.isConnected) {
+        entry.destroy();
+        live.delete(select);
+      } else entry.sync();
+    }
+  }, 600);
+  return () => {
+    observer.disconnect();
+    win.clearInterval(timer);
+    for (const entry of live.values()) entry.destroy();
+    live.clear();
   };
 }

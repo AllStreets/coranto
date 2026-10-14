@@ -2706,8 +2706,11 @@ body[data-coranto-frame='classic'] #coranto-hud {
   border-left: 0;
   border-top: 0;
 }
+/* In Instruments a story opens centred over the control room. */
 body[data-coranto-mode='instruments'] #coranto-story {
-  display: none;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 420;
 }
 @media (max-width: 1100px) {
   #coranto-story {
@@ -6645,6 +6648,33 @@ body[data-coranto-frame='one'][data-coranto-mode='instruments']
   > [data-panel-id].collapsed {
   display: block !important;
   flex: 0 0 auto;
+}
+
+/* Drop-downs outside the feed (the analyst board, the control room) take
+   the room their plain ones had. */
+.coranto-select {
+  flex: 1 1 auto;
+}
+.news-filters .coranto-select {
+  flex: 1 1 120px;
+}
+.coranto-select-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.ca-am-hist-bar .coranto-select {
+  flex: 0 0 118px;
+}
+.ca-am-hist-bar .coranto-select-button {
+  height: 100%;
+  padding: 6px 8px;
+  font-size: 8px;
+}
+
+/* The scene picker shares its row with NEW and DEL, as it did. */
+#scene-panel .scene-controls > .coranto-select {
+  flex: 1 1 0;
+  min-width: 90px;
 }
 
 @supports selector(::-webkit-scrollbar) {
