@@ -20,7 +20,7 @@ import {
   NewsUnavailableError,
   createNewsService,
 } from '../../src/sources/news/service.js';
-import { sharedArchive } from './archive.js';
+import { createAiBudget, sharedArchive } from './archive.js';
 import { readRequestBody } from './common/request.js';
 import { sameSiteGated } from './common/same-site.js';
 import { OPENAI_HUD_SUMMARY_MODEL_DEFAULT } from './openai/constants.js';
@@ -80,6 +80,7 @@ export function newsProxy({
   briefKey = () => process.env.OPENAI_API_KEY ?? '',
   gateBrief = true,
   archive = () => sharedArchive(),
+  budget = createAiBudget(),
 } = {}) {
   const briefCache = new Map();
   let servicePromise = null;
@@ -219,6 +220,11 @@ export function newsProxy({
         (cached.value.supported ? BRIEF_CACHE_TTL_MS : BRIEF_EMPTY_TTL_MS)
     )
       return json(200, cached.value);
+    // A fresh reply spends the visitor's shared daily allowance.
+    if (gateBrief && (await budget.spent(req))) {
+      res.setHeader?.('Retry-After', '86400');
+      return json(429, { error: 'daily_limit' });
+    }
     const model =
       process.env.CORANTO_BRIEF_MODEL ||
       process.env.OPENAI_HUD_SUMMARY_MODEL ||
@@ -262,7 +268,9 @@ export function newsProxy({
           console.warn(`[news] brief upstream HTTP ${response.status}`);
           return json(502, { error: 'brief_failed' });
         }
-        text = openAiText(await response.json());
+        const reply = await response.json();
+        budget.spend(req, reply?.usage?.total_tokens ?? 2000);
+        text = openAiText(reply);
       } catch {
         console.warn('[news] brief request failed');
         return json(502, { error: 'brief_failed' });
@@ -348,6 +356,11 @@ export function newsProxy({
         (cached.value.supported ? BRIEF_CACHE_TTL_MS : BRIEF_EMPTY_TTL_MS)
     )
       return json(200, cached.value);
+    // A fresh reply spends the visitor's shared daily allowance.
+    if (gateBrief && (await budget.spent(req))) {
+      res.setHeader?.('Retry-After', '86400');
+      return json(429, { error: 'daily_limit' });
+    }
     const model =
       process.env.CORANTO_BRIEF_MODEL ||
       process.env.OPENAI_HUD_SUMMARY_MODEL ||
@@ -385,7 +398,9 @@ export function newsProxy({
           console.warn(`[news] translate upstream HTTP ${response.status}`);
           return json(502, { error: 'translate_failed' });
         }
-        checked = checkTranslation(openAiText(await response.json()), article);
+        const reply = await response.json();
+        budget.spend(req, reply?.usage?.total_tokens ?? 2000);
+        checked = checkTranslation(openAiText(reply), article);
       } catch {
         console.warn('[news] translate request failed');
         return json(502, { error: 'translate_failed' });

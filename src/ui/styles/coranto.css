@@ -6677,6 +6677,13 @@ body[data-coranto-frame='one'][data-coranto-mode='instruments']
   min-width: 90px;
 }
 
+/* A public site has no voice control (see server/providers/openai.js): the
+   microphone dock and everything it opens are not drawn at all. */
+:root[data-coranto-voice='off'] [id^='gev-voice'],
+:root[data-coranto-voice='off'] .gev-voice-card {
+  display: none !important;
+}
+
 @supports selector(::-webkit-scrollbar) {
   #coranto-rail,
   #coranto-feed-body,

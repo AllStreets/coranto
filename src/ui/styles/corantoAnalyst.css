@@ -2216,3 +2216,150 @@ button.ca-mx-cell:focus-visible,
 #ca-am-canvas {
   min-height: 0;
 }
+
+/* ── The synthesis column, in Coranto's shared look ──────────────────
+   Section labels are the same mono strips the panels use, each asset and
+   each archived headline is a card with its topic colour down the left edge
+   (as on the asset board), and chips carry the cut corner. */
+.ca-am-brief-sh {
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 9px;
+  padding-bottom: 6px;
+  color: #cfc8e6;
+  letter-spacing: 0.22em;
+  border-bottom: 1px solid rgba(180, 124, 255, 0.14);
+  position: relative;
+}
+.ca-am-brief-sh::after {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  flex: none;
+  width: 26px;
+  height: 1px;
+  background: #b47cff;
+}
+.ca-bs-count {
+  font-size: 7px;
+  letter-spacing: 0.16em;
+  color: #5d6a8c;
+  white-space: nowrap;
+}
+.ca-bs-lead {
+  position: relative;
+  padding: 11px 13px;
+  background: rgba(180, 124, 255, 0.035);
+  border: 1px solid rgba(180, 124, 255, 0.12);
+}
+.ca-bs-lead::before,
+.ca-bs-lead::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1px solid #b47cff;
+  pointer-events: none;
+}
+.ca-bs-lead::before {
+  left: -1px;
+  top: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.ca-bs-lead::after {
+  right: -1px;
+  bottom: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+.ca-bs-breaking {
+  color: #ff2d55;
+  font-weight: 600;
+}
+.ca-am-brief-p {
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 0;
+}
+.ca-bs-card {
+  position: relative;
+  margin-bottom: 7px;
+  padding: 9px 12px 10px 14px;
+  background: #080a14;
+  border: 1px solid #111830;
+  transition: border-color 0.18s;
+}
+.ca-bs-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--ac, #b47cff);
+}
+.ca-bs-card:hover {
+  border-color: rgba(180, 124, 255, 0.3);
+}
+.ca-bs-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 9px;
+  margin-bottom: 5px;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.12em;
+  color: #5d6a8c;
+  text-transform: uppercase;
+}
+.ca-bs-strip {
+  position: relative;
+  min-height: 14px;
+  padding-right: 26px;
+}
+.ca-bs-strip .ca-am-conf {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+}
+.ca-bs-tag {
+  padding: 1px 5px;
+  border: 1px solid rgba(180, 124, 255, 0.3);
+  color: #b47cff;
+  font-size: 6.5px;
+  letter-spacing: 0.14em;
+}
+.ca-bs-past {
+  background: transparent;
+  border-style: dashed;
+}
+.ca-bs-past::before {
+  opacity: 0.55;
+}
+.ca-bs-headline {
+  font-family: var(--font-head);
+  font-size: 12px;
+  line-height: 1.4;
+  color: #8f9bb8;
+}
+.ca-am-ent {
+  padding: 3px 11px 3px 8px;
+  border-radius: 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+}
+.ca-am-ent.ca-hi {
+  color: #cdb4ff;
+  border-color: rgba(180, 124, 255, 0.35);
+  background: rgba(180, 124, 255, 0.07);
+}
+.ca-am-ent.ca-dom {
+  color: var(--ac);
+  border-color: color-mix(in srgb, var(--ac) 35%, transparent);
+  background: color-mix(in srgb, var(--ac) 7%, transparent);
+  box-shadow: inset 0 -1px 0 var(--ac);
+}

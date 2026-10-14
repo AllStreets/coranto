@@ -152,3 +152,70 @@ export function admitSameSiteRequest({
   }
   return { ok: true };
 }
+
+/**
+ * The origins a deliberately public deployment answers on, or none when the
+ * server is a local one. `CORANTO_PUBLIC_ORIGIN` is a comma list of origins or
+ * bare host names; a Railway deployment also names its own generated domain in
+ * `RAILWAY_PUBLIC_DOMAIN`. Public sites are always https.
+ * @param {Record<string, string|undefined>} [env]
+ * @returns {string[]}
+ */
+export function publicOrigins(env = {}) {
+  const origins = [];
+  for (const raw of [
+    ...String(env.CORANTO_PUBLIC_ORIGIN ?? '').split(','),
+    String(env.RAILWAY_PUBLIC_DOMAIN ?? ''),
+  ]) {
+    const text = raw.trim().toLowerCase();
+    if (!text || /[\s*@]/.test(text)) continue;
+    try {
+      const url = new URL(text.includes('://') ? text : `https://${text}`);
+      if (url.protocol !== 'https:' || url.pathname !== '/') continue;
+      if (!origins.includes(url.origin)) origins.push(url.origin);
+    } catch {
+      // Not an origin: left out.
+    }
+  }
+  return origins;
+}
+
+/** Whether this server has been set up as a public site. */
+export function isPublicSite(env = {}) {
+  return publicOrigins(env).length > 0;
+}
+
+/**
+ * The same-site gate for a public deployment, which sits behind its host's
+ * proxy: forwarding headers are expected there, so the local rule cannot
+ * apply. Instead the request must be addressed to one of the site's own
+ * origins and must come from a page of that same origin. The browser says so
+ * itself (`Sec-Fetch-Site: same-origin`, or an `Origin` equal to the site), so
+ * another site's page cannot spend this one's keys. A program that forges
+ * those headers still meets the per-address rate limit and the daily cap.
+ *
+ * @param {{hostHeader?: string, origin?: string, secFetchSite?: string, origins?: string[]}} req
+ * @returns {{ok: true} | {ok: false, status: 403, error: string}}
+ */
+export function admitPublicRequest({
+  hostHeader,
+  origin,
+  secFetchSite,
+  origins = [],
+} = {}) {
+  const refuse = (error) => ({ ok: false, status: 403, error });
+  const authority = requestAuthority(hostHeader, 'https:');
+  if (!authority || !origins.includes(authority))
+    return refuse('This address is not served here');
+  const site = String(secFetchSite || '')
+    .trim()
+    .toLowerCase();
+  if (site !== '' && site !== 'same-origin')
+    return refuse('Cross-site requests are not accepted');
+  const from = String(origin ?? '').trim();
+  if (from !== '' && from !== authority)
+    return refuse('Cross-origin requests are not accepted');
+  if (site === '' && from === '')
+    return refuse('Requests must come from the site itself');
+  return { ok: true };
+}

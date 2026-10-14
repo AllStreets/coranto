@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { isPublicSite } from '../../src/localRequestGate.mjs';
 
 /**
  * `/api/coranto/health`: whether the server is up, its version, and which
@@ -43,6 +44,9 @@ export function corantoHealthProxy({
     json(200, {
       status: 'ok',
       version,
+      // A public site has voice control switched off (see openai.js).
+      public: isPublicSite(env),
+      voice: !isPublicSite(env),
       checkedAt: new Date(now()).toISOString(),
       keys: Object.fromEntries(
         Object.entries(KEYS).map(([name, vars]) => [
@@ -52,13 +56,33 @@ export function corantoHealthProxy({
       ),
     });
   }
+  /**
+   * `/coranto-env.js`: a one-line script the page runs before it draws, so a
+   * public site never shows a voice control it does not offer. Locally it is
+   * an empty script.
+   */
+  function envScript(_req, res) {
+    res.writeHead(200, {
+      'Content-Type': 'text/javascript; charset=utf-8',
+      'Cache-Control': 'no-store',
+    });
+    res.end(
+      isPublicSite(env)
+        ? "document.documentElement.dataset.corantoVoice='off';\n"
+        : '',
+    );
+  }
+  function install(middlewares) {
+    middlewares.use('/api/coranto/health', handler);
+    middlewares.use('/coranto-env.js', envScript);
+  }
   return {
     name: 'coranto-health',
     configureServer({ middlewares }) {
-      middlewares.use('/api/coranto/health', handler);
+      install(middlewares);
     },
     configurePreviewServer({ middlewares }) {
-      middlewares.use('/api/coranto/health', handler);
+      install(middlewares);
     },
   };
 }

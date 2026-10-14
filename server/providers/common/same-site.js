@@ -1,4 +1,8 @@
-import { admitSameSiteRequest } from '../../../src/localRequestGate.mjs';
+import {
+  admitPublicRequest,
+  admitSameSiteRequest,
+  publicOrigins,
+} from '../../../src/localRequestGate.mjs';
 
 /**
  * Cross-site request gate for cost-bearing and log endpoints. Feeds the
@@ -13,13 +17,23 @@ import { admitSameSiteRequest } from '../../../src/localRequestGate.mjs';
  * @returns {boolean} True when a 403 was sent.
  */
 export function admitSameSite(req, res) {
-  const verdict = admitSameSiteRequest({
-    hostHeader: req.headers?.host,
-    protocol: req.socket?.encrypted ? 'https:' : 'http:',
-    origin: req.headers?.origin,
-    secFetchSite: req.headers?.['sec-fetch-site'],
-    proxyHeaders: req.headers || {},
-  });
+  // A public deployment (CORANTO_PUBLIC_ORIGIN, or Railway's own domain) sits
+  // behind its host's proxy, so it is judged by its own rule.
+  const origins = publicOrigins(process.env);
+  const verdict = origins.length
+    ? admitPublicRequest({
+        hostHeader: req.headers?.host,
+        origin: req.headers?.origin,
+        secFetchSite: req.headers?.['sec-fetch-site'],
+        origins,
+      })
+    : admitSameSiteRequest({
+        hostHeader: req.headers?.host,
+        protocol: req.socket?.encrypted ? 'https:' : 'http:',
+        origin: req.headers?.origin,
+        secFetchSite: req.headers?.['sec-fetch-site'],
+        proxyHeaders: req.headers || {},
+      });
   if (verdict.ok) return false;
   res.statusCode = verdict.status;
   res.setHeader('Content-Type', 'application/json');

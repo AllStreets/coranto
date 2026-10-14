@@ -279,6 +279,41 @@ Connections shows which are set.
 | `CESIUM_ION_TOKEN` or `GOOGLE_MAPS_API_KEY`  | Photoreal 3D cities                                                                       |
 | `OPENAI_API_KEY`                             | Checked AI briefs, translation, the analyst board's model-written tools and voice control |
 
+### Putting it on the web
+
+Coranto is a server as well as a page: the server holds the keys and fetches
+the feeds, so it needs a host that runs a Node process (the repo carries a
+`railway.json` for [Railway](https://railway.com)). A plain static host will
+not do.
+
+1. Create a Railway project from this repository. It builds with
+   `npm run build` and starts with `npm run start`.
+2. Under Variables, paste only the keys you want the public to use through
+   your site. A sensible set: `NEWS_API_KEY`, `FEC_API_KEY`,
+   `AISSTREAM_API_KEY`, `OPENSKY_CLIENT_ID`, `OPENSKY_CLIENT_SECRET`,
+   `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and a
+   `CORANTO_VISITOR_SALT` of your own (any long random text).
+3. Under Networking, generate a domain. Railway tells the server its own
+   name (`RAILWAY_PUBLIC_DOMAIN`), which switches public mode on. For a
+   domain of your own, also set `CORANTO_PUBLIC_ORIGIN=https://your.domain`.
+
+In public mode:
+
+- The routes that spend a key answer only pages of the site's own origin.
+  Another site's page cannot use them.
+- Every visitor is rate limited per minute, and everything a model writes
+  (analyst tools, story briefs, translation) counts against one daily
+  allowance per visitor, 250,000 tokens unless `CORANTO_AI_DAILY_TOKENS`
+  says otherwise. The count needs the Supabase keys; without them only the
+  per-minute limits apply.
+- Voice control is off and is not shown. A voice session bills by the minute
+  and cannot be counted against the allowance.
+- The key-setup panel and the local MCP server do not exist there. Keys are
+  never sent to the browser, in any mode.
+
+Set a spending limit with each provider as well. The limits above slow abuse;
+only the provider can cap a bill.
+
 ---
 
 ## How to use it
@@ -408,9 +443,10 @@ npm run build
 | **3. Lenses and your own feed**  | Built: saved watches, My Briefing, notices, the Power, Votes, Markets and Relief lenses, government aircraft, campaign money                                                                                                   |
 | **4. One product**               | Built: one frame and one look, icons everywhere, stories that open in the app, live TV, the atlas, country sheets, search over everything, the analyst board with Instruments inside it, the Disease layer, the Moon, Settings |
 | **5. Depth**                     | Next: an archive beyond a week of stories and search across it, sub-national outbreak data, the internet-outage layer (built, held back until it is useful)                                                                    |
-| **6. Public site**               | A hosted version anyone can open                                                                                                                                                                                               |
+| **6. Public site**               | Built: a public mode for hosting (Railway); the hosted site itself is next                                                                                                                                                     |
 
-Coranto currently runs on your own machine. There is no hosted version yet.
+Coranto runs on your own machine, and can be put on the web with the steps
+under [Putting it on the web](#putting-it-on-the-web).
 
 ---
 

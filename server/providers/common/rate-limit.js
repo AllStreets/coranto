@@ -52,11 +52,27 @@ export function makeCostRateLimiter(envValue, defaultPerMin) {
 }
 
 /**
- * Client key for rate limiting. Uses the real socket peer address only — we do
- * NOT trust X-Forwarded-For (client-controlled; a rotating value would mint fresh
- * quota and grow the limiter map). This is a localhost dev proxy, so the socket
- * address is the real client.
+ * Client key for rate limiting. Locally this is the real socket peer address
+ * only: X-Forwarded-For is client-controlled there, and a rotating value would
+ * mint fresh quota and grow the limiter map.
+ *
+ * A public deployment (CORANTO_PUBLIC_ORIGIN, or Railway's own domain) is
+ * reached only through its host's proxy, so the socket peer is the proxy for
+ * everyone. There the visitor is the address the proxy reports: `X-Real-IP`,
+ * else the last (proxy-appended) entry of `X-Forwarded-For`. Earlier entries
+ * of that list are whatever the caller sent and are never used.
  */
 export function clientKey(req) {
-  return String(req.socket?.remoteAddress || 'local');
+  const socket = String(req.socket?.remoteAddress || 'local');
+  if (
+    !String(process.env.CORANTO_PUBLIC_ORIGIN ?? '').trim() &&
+    !String(process.env.RAILWAY_PUBLIC_DOMAIN ?? '').trim()
+  )
+    return socket;
+  const real = String(req.headers?.['x-real-ip'] ?? '').trim();
+  const forwarded = String(req.headers?.['x-forwarded-for'] ?? '')
+    .split(',')
+    .pop()
+    .trim();
+  return (real || forwarded || socket).slice(0, 64);
 }

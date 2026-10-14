@@ -17,8 +17,12 @@ Status: `[x]` done, `[~]` partly done, `[ ]` open.
       one by clicking its marker on the globe (rows work).
 - [x] **P3 Stories wrongly chained together.** A headline must match a third
       of a story's headlines to join it.
-- [ ] **P4 Vercel deployment and public site.** After the overhaul. The AIS
-      websocket and on-disk caches need a hosting answer.
+- [ ] **P4 Public site, on Railway** (decided 2026-10-13; Vercel dropped: the
+      server must stay running for the AIS websocket and caches). Public mode
+      is built (`publicOrigins` in `src/localRequestGate.mjs`, `railway.json`,
+      README "Putting it on the web"); voice is off there. Waiting on Connor:
+      rotate the OpenAI key, create the Railway project, paste the keys,
+      generate the domain.
 
 ## Quick fixes
 

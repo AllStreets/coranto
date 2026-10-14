@@ -7,7 +7,13 @@ import { corantoHealthProxy } from '../server/providers/corantoHealth.js';
 function call(env, method = 'GET') {
   let handler;
   corantoHealthProxy({ env, now: () => Date.UTC(2026, 9, 12) }).configureServer(
-    { middlewares: { use: (_path, fn) => (handler = fn) } },
+    {
+      middlewares: {
+        use: (path, fn) => {
+          if (path === '/api/coranto/health') handler = fn;
+        },
+      },
+    },
   );
   const out = {};
   handler(
@@ -194,4 +200,116 @@ test('the archive stores valid rows once and searches by whole words', async () 
   assert.doesNotMatch(read, /category=/, 'a malformed topic is not passed on');
   assert.equal(found[0].archived, true);
   assert.equal(found[0].place.name, 'Kyiv');
+});
+
+test('a public site is named by its own origin or Railway domain', async () => {
+  const { publicOrigins, isPublicSite, admitPublicRequest } =
+    await import('./localRequestGate.mjs');
+  assert.deepEqual(publicOrigins({}), []);
+  assert.equal(isPublicSite({}), false);
+  assert.deepEqual(
+    publicOrigins({
+      CORANTO_PUBLIC_ORIGIN:
+        'https://Coranto.example, news.example, *.bad, http://plain.example, https://a.example/path',
+      RAILWAY_PUBLIC_DOMAIN: 'coranto.up.railway.app',
+    }),
+    [
+      'https://coranto.example',
+      'https://news.example',
+      'https://coranto.up.railway.app',
+    ],
+  );
+  const origins = ['https://coranto.example'];
+  const ask = (req) => admitPublicRequest({ origins, ...req });
+  assert.equal(
+    ask({ hostHeader: 'coranto.example', secFetchSite: 'same-origin' }).ok,
+    true,
+  );
+  assert.equal(
+    ask({ hostHeader: 'coranto.example', origin: 'https://coranto.example' })
+      .ok,
+    true,
+  );
+  for (const refused of [
+    { hostHeader: 'other.example', secFetchSite: 'same-origin' },
+    { hostHeader: 'coranto.example', secFetchSite: 'cross-site' },
+    { hostHeader: 'coranto.example', secFetchSite: 'none' },
+    { hostHeader: 'coranto.example', origin: 'https://evil.example' },
+    { hostHeader: 'coranto.example', origin: 'null' },
+    { hostHeader: 'coranto.example' },
+    { hostHeader: '', secFetchSite: 'same-origin' },
+  ])
+    assert.equal(ask(refused).status, 403, JSON.stringify(refused));
+});
+
+test('a public site counts visitors by the address its proxy reports', async () => {
+  const { clientKey } =
+    await import('../server/providers/common/rate-limit.js');
+  const req = {
+    socket: { remoteAddress: '10.0.0.9' },
+    headers: { 'x-forwarded-for': '6.6.6.6, 203.0.113.7' },
+  };
+  const before = process.env.CORANTO_PUBLIC_ORIGIN;
+  const railway = process.env.RAILWAY_PUBLIC_DOMAIN;
+  delete process.env.CORANTO_PUBLIC_ORIGIN;
+  delete process.env.RAILWAY_PUBLIC_DOMAIN;
+  try {
+    assert.equal(clientKey(req), '10.0.0.9', 'locally only the socket counts');
+    process.env.CORANTO_PUBLIC_ORIGIN = 'https://coranto.example';
+    assert.equal(clientKey(req), '203.0.113.7', 'never the caller-sent entry');
+    req.headers['x-real-ip'] = '198.51.100.4';
+    assert.equal(clientKey(req), '198.51.100.4');
+  } finally {
+    if (before === undefined) delete process.env.CORANTO_PUBLIC_ORIGIN;
+    else process.env.CORANTO_PUBLIC_ORIGIN = before;
+    if (railway !== undefined) process.env.RAILWAY_PUBLIC_DOMAIN = railway;
+  }
+});
+
+test('a public site says voice is off, and its page script hides it', () => {
+  const routes = {};
+  const install = (env) =>
+    corantoHealthProxy({ env }).configureServer({
+      middlewares: { use: (path, fn) => (routes[path] = fn) },
+    });
+  const read = (path, method = 'GET') => {
+    let text = '';
+    routes[path]({ method }, { writeHead() {}, end: (out) => (text = out) });
+    return text;
+  };
+  install({});
+  assert.equal(JSON.parse(read('/api/coranto/health')).voice, true);
+  assert.equal(read('/coranto-env.js'), '');
+  install({ RAILWAY_PUBLIC_DOMAIN: 'coranto.up.railway.app' });
+  const health = JSON.parse(read('/api/coranto/health'));
+  assert.equal(health.public, true);
+  assert.equal(health.voice, false);
+  assert.match(read('/coranto-env.js'), /corantoVoice='off'/);
+});
+
+test('the daily AI allowance is shared and counted per visitor', async () => {
+  const { createAiBudget } = await import('../server/providers/archive.js');
+  const used = new Map();
+  const counter = {
+    configured: true,
+    usageAdd: async (visitor, tokens) => {
+      used.set(visitor, (used.get(visitor) ?? 0) + tokens);
+      return used.get(visitor);
+    },
+  };
+  const budget = createAiBudget({
+    usage: () => counter,
+    dailyTokens: () => 1000,
+    salt: () => 's',
+  });
+  const one = { socket: { remoteAddress: '192.0.2.1' }, headers: {} };
+  const two = { socket: { remoteAddress: '192.0.2.2' }, headers: {} };
+  assert.equal(await budget.spent(one), false);
+  budget.spend(one, 1000);
+  await new Promise((resolve) => setTimeout(resolve, 5));
+  assert.equal(await budget.spent(one), true);
+  assert.equal(await budget.spent(two), false, 'another visitor is unaffected');
+  assert.ok(![...used.keys()].some((key) => key.includes('192.0.2')));
+  const none = createAiBudget({ usage: () => ({ configured: false }) });
+  assert.equal(await none.spent(one), false);
 });

@@ -1,5 +1,21 @@
 # Changelog
 
+- Coranto: a public mode, for hosting the site (Railway config included).
+  When the server knows its public address (`RAILWAY_PUBLIC_DOMAIN`, or
+  `CORANTO_PUBLIC_ORIGIN`) the routes that spend a key answer only pages of
+  that origin, visitors are counted by the address the host's proxy reports,
+  and story briefs and translation share the analyst tools' daily allowance.
+  Voice control is switched off there and none of its controls are drawn; the
+  guide and search no longer mention it on such a site. Locally nothing
+  changes. `/api/archive` is rate limited.
+
+- Coranto: the analyst board's INTELLIGENCE BRIEF column is in the shared
+  look. Section labels are mono strips with the short violet rule and a
+  count, the summary sits in a bracket-corner panel, every asset and every
+  HISTORICAL CONTEXT headline is a card with its topic colour down the edge
+  (as on the asset board), archived rows carry an ARCHIVE tag, and entity and
+  domain chips have the cut corner.
+
 - Coranto: an optional archive in Supabase. With `SUPABASE_URL` and
   `SUPABASE_SERVICE_ROLE_KEY` set, every headline the feed holds is kept for
   90 days; the analyst board's search reaches into it (rows marked ARCHIVE),

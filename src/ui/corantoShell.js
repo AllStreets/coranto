@@ -185,6 +185,19 @@ const CATEGORIES = [
   ['technology', 'TECHNOLOGY'],
 ];
 
+/** Whether this site has voice control switched off (a public deployment). */
+const voiceOff = (document) =>
+  document.documentElement?.dataset?.corantoVoice === 'off';
+
+/** The guide, without the voice entries on a site that has no voice. */
+const guideFor = (document) =>
+  voiceOff(document)
+    ? GUIDE.filter(([title]) => title !== 'Talk to it').map(([title, text]) => [
+        title,
+        text.replace(', voice control and share links', ' and share links'),
+      ])
+    : GUIDE;
+
 const GUIDE = [
   [
     'Read',
@@ -1158,15 +1171,19 @@ export function createCorantoShell({
             pressEngine("#control-panel-toggle[aria-expanded='false']"),
           ),
         },
-        {
-          title: 'Voice control',
-          detail:
-            'Start or stop listening. Needs a microphone and an OpenAI key',
-          kind: 'START / STOP',
-          icon: 'speaker',
-          keywords: 'voice speak talk microphone',
-          run: inTools(() => pressEngine('#gev-voice-button')),
-        },
+        ...(voiceOff(document)
+          ? []
+          : [
+              {
+                title: 'Voice control',
+                detail:
+                  'Start or stop listening. Needs a microphone and an OpenAI key',
+                kind: 'START / STOP',
+                icon: 'speaker',
+                keywords: 'voice speak talk microphone',
+                run: inTools(() => pressEngine('#gev-voice-button')),
+              },
+            ]),
         {
           title: 'Find a street address or landmark',
           detail: 'The engine’s own location search',
@@ -1500,8 +1517,9 @@ export function createCorantoShell({
   const modeTools = el(document, 'button', {
     type: 'button',
     text: 'INSTRUMENTS',
-    title:
-      'The full control room: tracking, cameras, weather, styles and voice',
+    title: voiceOff(document)
+      ? 'The full control room: tracking, cameras, weather and styles'
+      : 'The full control room: tracking, cameras, weather, styles and voice',
   });
   const modeSwitch = el(
     document,
@@ -2630,7 +2648,7 @@ export function createCorantoShell({
         document,
         'ol',
         {},
-        ...GUIDE.map(([title, text]) =>
+        ...guideFor(document).map(([title, text]) =>
           el(
             document,
             'li',

@@ -7,6 +7,7 @@ import {
   createRealtimeTokenHandler,
 } from './openai/realtime.js';
 import { sameSiteGated } from './common/same-site.js';
+import { isPublicSite } from '../../src/localRequestGate.mjs';
 import { createCodexOAuthLogin } from './openai/codex-auth.js';
 
 /**
@@ -21,7 +22,23 @@ function openAiRealtimeProxy({
   realtime = {},
 } = {}) {
   const oauthLogin = createCodexOAuthLogin(realtime);
+  /** Answer for a route a public site does not offer. */
+  function notOffered(_req, res) {
+    res.statusCode = 404;
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Cache-Control', 'no-store');
+    res.end(JSON.stringify({ error: 'Not offered on the public site' }));
+  }
   function install(middlewares) {
+    // A public site (see `publicOrigins`) has no voice: a Realtime session
+    // bills by the minute to the site's key and no daily allowance can count
+    // it. The HUD summary and the voice debug log go with it. Nothing below
+    // is installed there.
+    if (isPublicSite(process.env)) {
+      for (const path of ['/api/openai/hud-summary', '/api/realtime'])
+        middlewares.use(path, notOffered);
+      return;
+    }
     // Cost-bearing and log endpoints refuse cross-site browser requests
     // (see server/providers/common/same-site.js and SECURITY.md).
     middlewares.use('/api/openai/hud-summary', sameSiteGated(handleHudSummary));

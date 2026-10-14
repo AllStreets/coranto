@@ -667,7 +667,10 @@ export function createAnalyst({
       badge.style.cssText = `color:${conf.colour};border-color:${conf.colour}33`;
       badge.title = conf.title;
       badge.append(conf.level);
-      p.prepend(badge);
+      // On a card the grade sits at the end of the card's own label strip.
+      const strip = p.closest('.ca-bs-card')?.querySelector('.ca-bs-strip');
+      if (strip) strip.append(badge);
+      else p.prepend(badge);
     }
   }
   function synthesizeBrief() {
@@ -681,23 +684,25 @@ export function createAnalyst({
       dateStyle: 'medium',
       timeStyle: 'short',
     });
+    const head = (label, count = '') =>
+      `<div class="ca-am-brief-sh"><span>${label}</span>${count ? `<span class="ca-bs-count">${esc(count)}</span>` : ''}</div>`;
     ref.briefScroll.innerHTML = `
     <div class="ca-am-classify">${MARKINGS.synthesis} · ${esc(now)}</div>
     <div class="ca-am-brief-sec">
-      <div class="ca-am-brief-sh">EXECUTIVE SUMMARY</div>
-      <p class="ca-am-brief-p">${esc(parts.before)}${parts.breaking ? `<strong style="color:#FF2D55">${esc(parts.breaking)}</strong>${esc(parts.breakingTail)}` : ''}${esc(parts.after)}</p>
+      ${head('EXECUTIVE SUMMARY')}
+      <div class="ca-bs-lead"><p class="ca-am-brief-p">${esc(parts.before)}${parts.breaking ? `<strong class="ca-bs-breaking">${esc(parts.breaking)}</strong>${esc(parts.breakingTail)}` : ''}${esc(parts.after)}</p></div>
     </div>
     <div class="ca-am-brief-sec">
-      <div class="ca-am-brief-sh">KEY ENTITIES</div>
+      ${head('KEY ENTITIES', String(parts.entities.length + parts.regions.length))}
       <div class="ca-am-entities">${parts.entities.map((e) => `<span class="ca-am-ent ca-hi">${esc(e)}</span>`).join('')}${parts.regions.map((r) => `<span class="ca-am-ent">${esc(r)}</span>`).join('')}</div>
     </div>
     <div class="ca-am-brief-sec">
-      <div class="ca-am-brief-sh">ASSET SUMMARIES</div>
-      ${list.map((s) => `<p class="ca-am-brief-p" style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #0a0c18"><span style="color:${s.color};font-family:var(--font-mono);font-size:7.5px;letter-spacing:.1em">${esc(domainLabel(s.cat))} · ${esc(s.src)}${s._hist ? ' · ARCHIVE' : ''}</span><br>${esc(s.summary || s.title)}</p>`).join('')}
+      ${head('ASSET SUMMARIES', String(list.length))}
+      ${list.map((s) => `<div class="ca-bs-card" style="--ac:${s.color}"><div class="ca-bs-strip"><span style="color:${s.color}">${esc(domainLabel(s.cat))}</span><span>${esc(s.src)}</span>${s._hist ? '<span class="ca-bs-tag">ARCHIVE</span>' : ''}</div><p class="ca-am-brief-p">${esc(s.summary || s.title)}</p></div>`).join('')}
     </div>
     <div class="ca-am-brief-sec">
-      <div class="ca-am-brief-sh">DOMAINS</div>
-      <div class="ca-am-entities">${parts.cats.map((c) => `<span class="ca-am-ent ca-hi" style="border-color:${domainColour(c)}44;color:${domainColour(c)}">${esc(domainLabel(c))}</span>`).join('')}</div>
+      ${head('DOMAINS', String(parts.cats.length))}
+      <div class="ca-am-entities">${parts.cats.map((c) => `<span class="ca-am-ent ca-dom" style="--ac:${domainColour(c)}">${esc(domainLabel(c))}</span>`).join('')}</div>
     </div>`;
     ref.briefScroll.scrollTop = 0;
     ref.briefMeta.textContent = `${list.length} ASSETS · ${now}`;
@@ -712,11 +717,11 @@ export function createAnalyst({
         const at = Date.now();
         const section = document.createElement('div');
         section.className = 'ca-am-brief-sec';
-        section.innerHTML = `<div class="ca-am-brief-sh">HISTORICAL CONTEXT <span style="font-size:7px;opacity:.5">(LAST 30 DAYS)</span></div>${rows
+        section.innerHTML = `${head('HISTORICAL CONTEXT', 'LAST 30 DAYS')}${rows
           .map((row) => articleToStory(row, at))
           .map(
             (s) =>
-              `<p class="ca-am-brief-p" style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #0a0c18;opacity:.75"><span style="color:${s.color};font-family:var(--font-mono);font-size:7px;letter-spacing:.1em">${esc(domainLabel(s.cat))} · ${esc(s.src)} · ${esc(s.time)}</span><br>${esc(s.title)}</p>`,
+              `<div class="ca-bs-card ca-bs-past" style="--ac:${s.color}"><div class="ca-bs-strip"><span style="color:${s.color}">${esc(domainLabel(s.cat))}</span><span>${esc(s.src)}</span><span>${esc(s.time)}</span><span class="ca-bs-tag">ARCHIVE</span></div><p class="ca-am-brief-p ca-bs-headline">${esc(s.title)}</p></div>`,
           )
           .join('')}`;
         const sections = ref.briefScroll.querySelectorAll('.ca-am-brief-sec');
@@ -772,6 +777,11 @@ export function createAnalyst({
   .ca-am-brief-sh,.ca-cb-round-hdr,.ca-cb-synthesis-hdr{font-size:9px;letter-spacing:.2em;color:#b47cff;margin:18px 0 8px}
   .ca-am-ent,.ca-cb-tag{display:inline-block;margin:0 6px 6px 0;padding:2px 7px;border:1px solid #1a1f35;font-size:10px}
   .ca-am-conf{display:inline-block;margin-right:6px;padding:0 4px;border:1px solid;font-size:9px}
+  .ca-bs-count{margin-left:10px;color:#5a6480}
+  .ca-bs-card{margin:0 0 10px;padding:8px 12px;border-left:2px solid var(--ac,#b47cff);background:#080a14}
+  .ca-bs-strip{font-size:9px;letter-spacing:.12em;color:#5a6480;margin-bottom:4px}
+  .ca-bs-strip span{margin-right:10px}
+  .ca-bs-breaking{color:#ff2d55}
   .ca-cb-name{color:#f0f2ff;margin-top:14px}
 </style></head><body>
 <div class="banner">${MARKINGS.system} — ${esc(now)}</div>

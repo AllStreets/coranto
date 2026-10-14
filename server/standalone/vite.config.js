@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv } from 'vite';
 import { resolveAllowedHosts } from '../../build/allowedHosts.js';
+import { publicOrigins } from '../../src/localRequestGate.mjs';
 import { createBrowserViteConfig } from '../../build/vite.js';
 import { corantoThemePlugin } from '../../build/corantoTheme.js';
 import { localProviderPlugins } from '../providers/local.js';
@@ -28,7 +29,19 @@ export default defineConfig(({ command, mode }) => {
     mapillaryToken: process.env.MAPILLARY_CLIENT_TOKEN,
     host: process.env.HOST,
     port: process.env.PORT,
-    allowedHosts: resolveAllowedHosts(process.env.GEV_ALLOWED_HOSTS),
+    // A public site answers on its own names, and on the name its host's
+    // health check calls it by.
+    allowedHosts: resolveAllowedHosts(
+      [
+        process.env.GEV_ALLOWED_HOSTS ?? '',
+        ...publicOrigins(process.env).map((origin) => new URL(origin).host),
+        ...(process.env.RAILWAY_ENVIRONMENT_NAME ||
+        process.env.RAILWAY_ENVIRONMENT ||
+        process.env.RAILWAY_PUBLIC_DOMAIN
+          ? ['healthcheck.railway.app']
+          : []),
+      ].join(','),
+    ),
     command,
   });
 });
