@@ -102,6 +102,11 @@ export function clearStored(storage, keys = null) {
 /** The keys the server can be given, and what each one unlocks. */
 export const CONNECTION_KEYS = Object.freeze([
   ['openai', 'OpenAI', 'AI briefs, the analyst tools, translation and voice'],
+  [
+    'supabase',
+    'Supabase',
+    'The archive: 90 days of headlines, history on the analyst board, a daily AI cap',
+  ],
   ['newsapi', 'NewsAPI', 'More headline sources in the feed'],
   ['fec', 'FEC', 'Campaign money in the Elections lens'],
   ['opensky', 'OpenSky', 'A second source for live aircraft'],

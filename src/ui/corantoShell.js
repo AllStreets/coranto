@@ -1735,6 +1735,13 @@ export function createCorantoShell({
     },
     flyTo: (lat, lon, height) => flyTo(lat, lon, height),
   });
+  async function readArchive(query) {
+    const response = await win.fetch(`/api/archive${query}`, {
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) return [];
+    return (await response.json()).articles ?? [];
+  }
   // The analyst tools that a model writes go through one server route.
   async function callAnalystModel(system, user, maxTokens = 420) {
     const controller = new AbortController();
@@ -1769,6 +1776,15 @@ export function createCorantoShell({
     getStories: () => layer.getView().snapshot?.stories ?? [],
     getCountries: () => atlasCountries,
     callModel: callAnalystModel,
+    // The archive: headlines kept past the feed's week, when one is connected.
+    searchArchive: (query, topic) =>
+      readArchive(
+        `?q=${encodeURIComponent(query)}&cat=${encodeURIComponent(topic)}`,
+      ),
+    relatedHistory: (topics) =>
+      topics.length
+        ? readArchive(`?related=${encodeURIComponent(topics.join(','))}`)
+        : Promise.resolve([]),
     // INSTRUMENTS on the board's bar: the engine's control room, as a tool.
     onInstruments: () => {
       board.close();

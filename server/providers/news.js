@@ -20,6 +20,7 @@ import {
   NewsUnavailableError,
   createNewsService,
 } from '../../src/sources/news/service.js';
+import { sharedArchive } from './archive.js';
 import { readRequestBody } from './common/request.js';
 import { sameSiteGated } from './common/same-site.js';
 import { OPENAI_HUD_SUMMARY_MODEL_DEFAULT } from './openai/constants.js';
@@ -78,6 +79,7 @@ export function newsProxy({
   briefFetch = (...args) => fetch(...args),
   briefKey = () => process.env.OPENAI_API_KEY ?? '',
   gateBrief = true,
+  archive = () => sharedArchive(),
 } = {}) {
   const briefCache = new Map();
   let servicePromise = null;
@@ -95,6 +97,7 @@ export function newsProxy({
     }
   }
 
+  let archivedFetchedAt = null;
   async function saveState(service, payload) {
     if (!cachePath || payload.stale || payload.fetchedAt === savedFetchedAt)
       return;
@@ -137,6 +140,11 @@ export function newsProxy({
     try {
       const payload = await news.getPayload();
       void saveState(news, payload);
+      // Keep what the feed holds in the archive, when one is connected.
+      if (!payload.stale && payload.fetchedAt !== archivedFetchedAt) {
+        archivedFetchedAt = payload.fetchedAt;
+        void archive().store(payload.articles);
+      }
       json(200, payload);
     } catch (error) {
       if (!(error instanceof NewsUnavailableError)) {

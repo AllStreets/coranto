@@ -122,3 +122,76 @@ test('the analyst route never relays the provider’s own error text', async () 
   assert.equal(status, 502);
   assert.deepEqual(body, { error: 'ai_failed' });
 });
+
+// ── The archive ────────────────────────────────────────────────────
+
+test('the archive is off without its keys, and never pretends otherwise', async () => {
+  const { createArchive } = await import('./sources/archive/service.js');
+  const off = createArchive({ url: '', key: '' });
+  assert.equal(off.configured, false);
+  assert.equal(await off.store([{ id: 'a' }]), 0);
+  assert.deepEqual(await off.search({ query: 'ukraine' }), []);
+});
+
+test('the archive stores valid rows once and searches by whole words', async () => {
+  const { createArchive, searchTerms, toRow } =
+    await import('./sources/archive/service.js');
+  const calls = [];
+  const archive = createArchive({
+    url: 'https://example.supabase.co',
+    key: 'secret-key-that-is-long-enough',
+    now: () => Date.UTC(2026, 9, 13),
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      return {
+        ok: true,
+        status: url.includes('select=') ? 200 : 204,
+        json: async () => [
+          {
+            id: 'x',
+            title: 'Old headline',
+            publisher: 'BBC',
+            url: 'https://bbc.co.uk/x',
+            published_at: '2026-09-20T00:00:00Z',
+            place_name: 'Kyiv',
+            place_lat: 50.4,
+            place_lon: 30.5,
+            place_precision: 'city',
+          },
+        ],
+      };
+    },
+  });
+  const article = {
+    id: 'a1',
+    title: 'Headline',
+    publisher: 'BBC',
+    url: 'https://bbc.co.uk/a1',
+    publishedAt: '2026-10-12T10:00:00Z',
+    category: 'geopolitics',
+    place: { name: 'Kyiv', lat: 50.4, lon: 30.5, precision: 'city' },
+  };
+  assert.equal(toRow({ ...article, url: 'javascript:alert(1)' }), null);
+  assert.equal(await archive.store([article, { id: 'bad' }]), 1);
+  assert.equal(await archive.store([article]), 0, 'not sent twice');
+  const write = calls.find((call) => call.init.method === 'POST');
+  assert.match(write.url, /\/rest\/v1\/articles\?on_conflict=id$/);
+  assert.equal(write.init.headers.apikey, 'secret-key-that-is-long-enough');
+  assert.equal(JSON.parse(write.init.body)[0].place_name, 'Kyiv');
+
+  assert.deepEqual(searchTerms("Ukraine's grid; DROP TABLE"), [
+    'ukraine',
+    'grid',
+    'drop',
+    'table',
+  ]);
+  const found = await archive.search({
+    query: 'ukraine grid',
+    category: 'x;y',
+  });
+  const read = calls.at(-1).url;
+  assert.match(read, /fts=plfts\(simple\)\.ukraine%20grid/);
+  assert.doesNotMatch(read, /category=/, 'a malformed topic is not passed on');
+  assert.equal(found[0].archived, true);
+  assert.equal(found[0].place.name, 'Kyiv');
+});

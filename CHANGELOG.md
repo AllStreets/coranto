@@ -1,5 +1,13 @@
 # Changelog
 
+- Coranto: an optional archive in Supabase. With `SUPABASE_URL` and
+  `SUPABASE_SERVICE_ROLE_KEY` set, every headline the feed holds is kept for
+  90 days; the analyst board's search reaches into it (rows marked ARCHIVE),
+  SYNTHESIZE gains AUSPEX's HISTORICAL CONTEXT section, and the model route
+  enforces a daily token cap per visitor. Only the server talks to the
+  database; row level security is on with no policies. Without the keys the
+  archive is off and says so.
+
 - Coranto: a story opens inside Instruments, with all its tools, from its
   marker's card. Every drop-down in every view (the feed, the analyst board,
   Scenes and the rest of the control room) is Coranto's own. Leaving

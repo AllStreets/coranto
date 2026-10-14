@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import { sharedArchive } from './archive.js';
 import { readRequestBody } from './common/request.js';
 import { sameSiteGated } from './common/same-site.js';
 import { enforceRateLimit, openAiRateLimiter } from './openai/rate-limit.js';
@@ -8,6 +10,8 @@ export const ANALYST_MODEL_DEFAULT = 'gpt-5.4-mini';
 export const ANALYST_MAX_TOKENS = 2500;
 const MAX_PROMPT_CHARS = 60_000;
 const UPSTREAM_TIMEOUT_MS = 55_000;
+/** Model tokens one visitor may use in a UTC day, when a database counts. */
+export const ANALYST_DAILY_TOKENS_DEFAULT = 200_000;
 
 /**
  * `POST /api/ai` with `{ system, user, maxTokens }`, answering `{ content }`:
@@ -28,7 +32,25 @@ export function analystAiProxy({
   aiKey = () => process.env.OPENAI_API_KEY ?? '',
   aiModel = () => process.env.CORANTO_ANALYST_MODEL || ANALYST_MODEL_DEFAULT,
   gate = true,
+  usage = () => sharedArchive(),
+  dailyTokens = () =>
+    Number(process.env.CORANTO_AI_DAILY_TOKENS) || ANALYST_DAILY_TOKENS_DEFAULT,
+  salt = () => process.env.CORANTO_VISITOR_SALT || 'coranto',
 } = {}) {
+  /** A visitor, as a salted hash of their address. The address is not kept. */
+  const visitorOf = (req) =>
+    createHash('sha256')
+      .update(
+        `${
+          String(req.headers?.['x-forwarded-for'] ?? '')
+            .split(',')[0]
+            .trim() ||
+          req.socket?.remoteAddress ||
+          'unknown'
+        }:${salt()}`,
+      )
+      .digest('hex')
+      .slice(0, 40);
   async function handler(req, res) {
     const json = (status, value) => {
       res.writeHead(status, {
@@ -52,6 +74,21 @@ export function analystAiProxy({
     const user = typeof body?.user === 'string' ? body.user : '';
     if (!user.trim() || system.length + user.length > MAX_PROMPT_CHARS)
       return json(400, { error: 'Invalid request' });
+    // The daily cap, when a database is connected to count against. If the
+    // count cannot be read the request is served: the per-minute limit above
+    // still applies.
+    const counter = usage();
+    const visitor = counter.configured ? visitorOf(req) : '';
+    if (counter.configured) {
+      try {
+        if ((await counter.usageAdd(visitor, 0)) >= dailyTokens()) {
+          res.setHeader?.('Retry-After', '86400');
+          return json(429, { error: 'Daily AI limit reached' });
+        }
+      } catch {
+        console.warn('[analyst] usage read failed');
+      }
+    }
     const asked = Number(body.maxTokens);
     const maxTokens = Number.isFinite(asked)
       ? Math.max(1, Math.min(ANALYST_MAX_TOKENS, Math.round(asked)))
@@ -83,6 +120,10 @@ export function analystAiProxy({
         return json(502, { error: 'ai_failed' });
       }
       const data = await response.json();
+      if (counter.configured)
+        counter
+          .usageAdd(visitor, data?.usage?.total_tokens ?? maxTokens)
+          .catch(() => console.warn('[analyst] usage write failed'));
       const content = data?.choices?.[0]?.message?.content;
       return json(200, { content: typeof content === 'string' ? content : '' });
     } catch {

@@ -16,6 +16,7 @@ import {
   MARKINGS,
   MATRIX_COLOURS,
   MATRIX_DOMAINS,
+  TOPIC_OF,
   PROMPTS,
   articleToStory,
   boardTitleFor,
@@ -237,6 +238,8 @@ export function createAnalyst({
   onChange = () => {},
   onMomentum = () => {},
   onInstruments = () => {},
+  searchArchive = async () => [],
+  relatedHistory = async () => [],
 }) {
   const element = document.createElement('div');
   element.id = 'coranto-analyst';
@@ -350,7 +353,12 @@ export function createAnalyst({
       return;
     }
     ref.histResults.style.display = 'block';
-    const results = searchStories(query, cat, news());
+    const results = [
+      ...searchStories(query, cat, news()),
+      ...archiveHits.filter(
+        (hit) => !news().some((live) => live.title === hit.title),
+      ),
+    ].slice(0, 40);
     if (!results.length) {
       ref.histResults.innerHTML =
         '<div class="ca-am-hist-loading">NO RESULTS FOUND</div>';
@@ -360,14 +368,38 @@ export function createAnalyst({
       .map((s) => {
         const on = store.has(s.id);
         return `<div class="ca-am-hist-item${on ? ' ca-pinned' : ''}">
-      <div class="ca-am-hist-meta"><span style="color:${s.color}">${esc(domainLabel(s.cat))}</span><span>${esc(s.time)}</span></div>
+      <div class="ca-am-hist-meta"><span style="color:${s.color}">${esc(domainLabel(s.cat))}</span><span>${esc(s.time)}${s._hist ? ' · ARCHIVE' : ''}</span></div>
       <div class="ca-am-hist-title">${esc(s.title)}</div>
       <button type="button" class="ca-am-hist-pin${on ? ' ca-on' : ''}" data-act="hist-pin" data-key="${esc(s.id)}">${on ? 'PINNED' : '+ PIN'}</button>
     </div>`;
       })
       .join('');
   }
+  // The archive is asked alongside the headlines held; its rows join the
+  // list when they arrive, marked ARCHIVE.
+  let archiveHits = [];
+  let archiveAsk = 0;
+  async function askArchive() {
+    const ask = (archiveAsk += 1);
+    const query = ref.histInput.value;
+    const cat = ref.histCat.value;
+    archiveHits = [];
+    if (!query.trim() && !cat) return;
+    try {
+      const rows = await searchArchive(query, TOPIC_OF[cat] ?? '');
+      if (ask !== archiveAsk) return;
+      const now = Date.now();
+      archiveHits = rows.map((row) => ({
+        ...articleToStory(row, now),
+        _hist: true,
+      }));
+      runHistSearch();
+    } catch {
+      // The headlines held are still searched.
+    }
+  }
   function debounceHistSearch() {
+    askArchive();
     win.clearTimeout(histTimer);
     ref.histResults.style.display = 'block';
     ref.histResults.innerHTML =
@@ -670,6 +702,29 @@ export function createAnalyst({
     ref.briefScroll.scrollTop = 0;
     ref.briefMeta.textContent = `${list.length} ASSETS · ${now}`;
     postProcessBriefConfidence();
+    // Older headlines in the same domains, from the archive when there is one.
+    const run = runId;
+    relatedHistory([
+      ...new Set(parts.cats.map((c) => TOPIC_OF[c]).filter(Boolean)),
+    ]).then(
+      (rows) => {
+        if (run !== runId || !rows.length) return;
+        const at = Date.now();
+        const section = document.createElement('div');
+        section.className = 'ca-am-brief-sec';
+        section.innerHTML = `<div class="ca-am-brief-sh">HISTORICAL CONTEXT <span style="font-size:7px;opacity:.5">(LAST 30 DAYS)</span></div>${rows
+          .map((row) => articleToStory(row, at))
+          .map(
+            (s) =>
+              `<p class="ca-am-brief-p" style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #0a0c18;opacity:.75"><span style="color:${s.color};font-family:var(--font-mono);font-size:7px;letter-spacing:.1em">${esc(domainLabel(s.cat))} · ${esc(s.src)} · ${esc(s.time)}</span><br>${esc(s.title)}</p>`,
+          )
+          .join('')}`;
+        const sections = ref.briefScroll.querySelectorAll('.ca-am-brief-sec');
+        sections[sections.length - 1]?.before(section);
+        postProcessBriefConfidence();
+      },
+      () => {},
+    );
   }
 
   function download(html, name) {
@@ -1357,7 +1412,8 @@ ${ref.rtContent.innerHTML}
   }
 
   const pinLive = (key) => {
-    const story = news().find((s) => s.id === key);
+    const story =
+      news().find((s) => s.id === key) ?? archiveHits.find((s) => s.id === key);
     if (story) store.toggle(storyPin(story));
   };
   const ACTIONS = {

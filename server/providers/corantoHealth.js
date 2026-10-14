@@ -15,6 +15,7 @@ const KEYS = Object.freeze({
   tomtom: ['TOMTOM_API_KEY'],
   googleMaps: ['GOOGLE_MAPS_API_KEY'],
   cesiumIon: ['CESIUM_ION_TOKEN'],
+  supabase: ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'],
 });
 
 let version = '';

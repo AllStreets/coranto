@@ -21,7 +21,8 @@ export const DOMAIN_OF = Object.freeze({
   finance: 'finance',
   climate: 'climate',
 });
-const TOPIC_OF = Object.freeze({
+/** AUSPEX domain id -> Coranto topic. */
+export const TOPIC_OF = Object.freeze({
   geo: 'geopolitics',
   tech: 'technology',
   military: 'military',
