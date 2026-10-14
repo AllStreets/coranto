@@ -26,6 +26,9 @@
     }
     document.body.dataset.corantoMode = view;
     document.body.dataset.corantoFrame = 'one';
+    // The opening shot is close to the ground, so it starts without the
+    // keyhole shading; the shell keeps this in step with the camera.
+    document.body.dataset.corantoNear = 'true';
     if (view !== 'news') return;
     // The frame of the news view, drawn at once: the header with the mark,
     // the banner, and the two side panels as outlines. It is replaced by

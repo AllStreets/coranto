@@ -342,6 +342,9 @@ function hudLensLine(lens, view) {
     : `STORIES · ${range} · ${places} PLACES`;
 }
 
+/** Below this camera height (metres) the news view is "near the ground". */
+const NEAR_GROUND_M = 6_000_000;
+
 /** Where the view is centred and how high, from the camera. */
 function hudWhereLine(at) {
   const deg = (radians) => (radians * 180) / Math.PI;
@@ -1576,6 +1579,9 @@ export function createCorantoShell({
     ),
   );
   const header = el(document, 'header', { id: 'coranto-header' });
+  // In the LAYERS-list layout, LIVE, LAYERS and SEARCH sit together in the
+  // middle of the header.
+  const headerCentre = el(document, 'div', { class: 'coranto-header-centre' });
   /**
    * The header in one of two layouts. 'menu' keeps the layers in the LAYERS
    * list. 'chips' puts SEARCH beside LIVE and gives every layer its own
@@ -1585,12 +1591,14 @@ export function createCorantoShell({
     const chips = settingsStore.get('headerLayout') === 'chips';
     body.dataset.corantoHeader = chips ? 'chips' : 'menu';
     if (chips) setLayersMenu(false);
+    if (chips) headerCentre.replaceChildren();
+    else headerCentre.replaceChildren(liveBtn, menuBtn, layersBtn, searchBtn);
     header.replaceChildren(
       brand,
-      liveBtn,
+      ...(chips ? [liveBtn] : []),
       ...(chips
         ? [searchBtn, menuBtn, layersBtn, layerNav]
-        : [menuBtn, layersBtn, searchBtn, headerGap]),
+        : [headerCentre, headerGap]),
       count,
       clock,
       // NEWS is the product; the control room is opened from the analyst
@@ -2961,6 +2969,9 @@ export function createCorantoShell({
     hudLens.textContent = hudLensLine(lens, view);
     const at = dataManager?.viewer?.camera?.positionCartographic;
     hudWhere.textContent = at ? hudWhereLine(at) : '';
+    // Close to the ground the news view drops the keyhole shading, so a
+    // city fills the frame instead of sitting in a porthole.
+    if (at) body.dataset.corantoNear = String(at.height < NEAR_GROUND_M);
   }
 
   // The way back out of the control room: to the analyst board it was
@@ -3374,7 +3385,7 @@ export function createCorantoShell({
     });
   }
 
-  function wholeEarth() {
+  function wholeEarth(duration = 1.6) {
     const camera = dataManager?.viewer?.camera;
     if (!camera) return;
     // Centre on the viewer's own longitude, taken from the clock offset.
@@ -3394,7 +3405,7 @@ export function createCorantoShell({
           position,
         ),
       orientation: { heading: 0, pitch: -Math.PI / 2, roll: 0 },
-      duration: 1.6,
+      duration,
     });
   }
 
@@ -3841,15 +3852,28 @@ export function createCorantoShell({
         timers.push(setTimeout(ensureNewsOn, 1500));
         return;
       }
-      // A fresh visit in news mode: headlines on, whole Earth in view.
-      timers.push(
-        setTimeout(() => {
+      // A fresh visit in news mode: headlines on, then out from the opening
+      // shot over Chicago to the whole Earth, once that shot has been drawn
+      // (its imagery loaded) and seen for a moment, or after six seconds.
+      const openedAt = Date.now();
+      let drawnAt = 0;
+      const pullOut = () => {
+        const globe = dataManager.viewer?.scene?.globe;
+        if (globe?.tilesLoaded && !drawnAt) drawnAt = Date.now();
+        const waited = Date.now() - openedAt;
+        if (
+          (drawnAt && Date.now() - drawnAt >= 1400 && waited >= 1800) ||
+          waited >= 6000
+        ) {
           for (const id of ['news', 'hazards'])
             if (dataManager.layers?.has(id) && !dataManager.isEnabled(id))
               Promise.resolve(dataManager.setEnabled(id, true)).catch(() => {});
-          wholeEarth();
-        }, 1500),
-      );
+          wholeEarth(3.4);
+          return;
+        }
+        timers.push(setTimeout(pullOut, 150));
+      };
+      timers.push(setTimeout(pullOut, 300));
     },
     destroy() {
       for (const timer of timers) {

@@ -6684,6 +6684,58 @@ body[data-coranto-frame='one'][data-coranto-mode='instruments']
   display: none !important;
 }
 
+/* LAYERS-list header: LIVE, LAYERS and SEARCH in the middle of the screen,
+   so the header reads as balanced; on a window too narrow for that they
+   follow the brand as before. */
+.coranto-header-centre {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+@media (min-width: 1240px) {
+  body[data-coranto-header='menu'] .coranto-header-centre {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+@media (max-width: 1320px) {
+  .coranto-header-centre {
+    gap: 12px;
+  }
+}
+@media (max-width: 1000px) {
+  .coranto-header-centre {
+    gap: 10px;
+  }
+}
+
+/* The two header-layout cards line up: both pictures are the same height,
+   the row of layer buttons sits in the middle of its picture, and so the
+   names and notes under them start on the same line. */
+.coranto-settings-layout-sample,
+.coranto-settings-layout-sample[data-kind='menu'] {
+  box-sizing: border-box;
+  height: 132px;
+  flex: 0 0 132px;
+}
+.coranto-settings-layout-sample[data-kind='chips'] {
+  align-items: center;
+}
+.coranto-settings-layout-sample[data-kind='menu'] {
+  justify-content: center;
+}
+
+/* Near the ground the news view is full-bleed: the keyhole shading that
+   frames the whole Earth would make a city a porthole. The control room
+   keeps its scope. */
+body[data-coranto-mode='news'][data-coranto-near='true'] #scope-mask {
+  opacity: 0 !important;
+}
+
 @supports selector(::-webkit-scrollbar) {
   #coranto-rail,
   #coranto-feed-body,

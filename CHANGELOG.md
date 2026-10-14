@@ -1,5 +1,12 @@
 # Changelog
 
+- Coranto: the globe opens over Lake Michigan looking at Chicago, glides
+  in, and, once that view has drawn, pulls out to the whole Earth (Austin
+  was the engine's start). Near the ground the news view drops the keyhole
+  shading, so a city fills the frame instead of a porthole; the control room
+  keeps its scope. In the LAYERS-list header, LIVE, LAYERS and SEARCH sit in
+  the middle of the screen. The two header cards in Settings line up.
+
 - Coranto: aircraft on a host OpenSky will not answer. When OpenSky cannot
   be reached at all, the flights layer stops waiting on it for ten minutes
   and shows every aircraft adsb.lol holds worldwide (one shared request,
