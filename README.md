@@ -296,6 +296,11 @@ not do.
 3. Under Networking, generate a domain. Railway tells the server its own
    name (`RAILWAY_PUBLIC_DOMAIN`), which switches public mode on. For a
    domain of your own, also set `CORANTO_PUBLIC_ORIGIN=https://your.domain`.
+   If Railway asks for a port, use the one its deploy log prints
+   (`Local: http://localhost:8080/`).
+4. Deploy once more after the domain exists. A deployment that started
+   before it answers "Blocked request. This host is not allowed", because it
+   does not yet know its own name.
 
 In public mode:
 
