@@ -313,3 +313,21 @@ test('the daily AI allowance is shared and counted per visitor', async () => {
   const none = createAiBudget({ usage: () => ({ configured: false }) });
   assert.equal(await none.spent(one), false);
 });
+
+test('OpenSky is paused only when it cannot be reached at all', async () => {
+  const { openSkyUnreachable } =
+    await import('../server/providers/aircraft/opensky.js');
+  const cause = (code) =>
+    Object.assign(new Error('fetch failed'), { cause: { code } });
+  assert.equal(openSkyUnreachable(cause('UND_ERR_CONNECT_TIMEOUT')), true);
+  assert.equal(openSkyUnreachable(cause('ECONNREFUSED')), true);
+  assert.equal(
+    openSkyUnreachable(Object.assign(new Error('t'), { name: 'TimeoutError' })),
+    true,
+  );
+  assert.equal(
+    openSkyUnreachable(new Error('Unexpected token < in JSON')),
+    false,
+  );
+  assert.equal(openSkyUnreachable(undefined), false);
+});

@@ -250,14 +250,14 @@ export function createSettings({
     const layout = make('div', 'coranto-settings-layouts');
     const options = [
       [
-        'menu',
-        'LAYERS LIST',
-        'One LAYERS button opens a list of every layer, each with what it is and a switch. The header stays short.',
-      ],
-      [
         'chips',
         'LAYER BUTTONS',
         'SEARCH sits beside LIVE and every layer is its own button in one row you scroll sideways: one click on, one click off.',
+      ],
+      [
+        'menu',
+        'LAYERS LIST',
+        'One LAYERS button opens a list of every layer, each with what it is and a switch. The header stays short.',
       ],
     ];
     const chipRow = (words, lit = []) => {

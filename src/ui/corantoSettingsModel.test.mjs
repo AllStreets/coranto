@@ -37,18 +37,18 @@ test('a setting is saved at once and told to subscribers', () => {
   const store = createSettingsStore({ storage });
   const seen = [];
   store.subscribe((values) => seen.push(values.headerLayout));
-  assert.equal(store.set('headerLayout', 'chips'), true);
-  assert.equal(store.set('headerLayout', 'chips'), false);
+  assert.equal(store.set('headerLayout', 'menu'), true);
+  assert.equal(store.set('headerLayout', 'menu'), false);
   assert.equal(store.set('headerLayout', 'nonsense'), false);
-  assert.deepEqual(seen, ['chips']);
-  assert.equal(JSON.parse(storage.getItem(SETTINGS_KEY)).headerLayout, 'chips');
+  assert.deepEqual(seen, ['menu']);
+  assert.equal(JSON.parse(storage.getItem(SETTINGS_KEY)).headerLayout, 'menu');
   assert.equal(
     createSettingsStore({ storage }).get('headerLayout'),
-    'chips',
+    'menu',
     'read back on the next visit',
   );
   store.reset();
-  assert.equal(store.get('headerLayout'), 'menu');
+  assert.equal(store.get('headerLayout'), 'chips');
 });
 
 test('a broken stored value does not stop the app', () => {

@@ -6,7 +6,7 @@ export const SETTINGS_KEY = 'coranto.settings.v1';
 
 /** id -> the values it accepts; the first is the default. */
 export const SETTING_CHOICES = Object.freeze({
-  headerLayout: ['menu', 'chips'],
+  headerLayout: ['chips', 'menu'],
   startView: ['last', 'news', 'instruments'],
   clock: ['utc', 'local'],
   ticker: [true, false],

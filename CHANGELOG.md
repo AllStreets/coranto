@@ -1,5 +1,13 @@
 # Changelog
 
+- Coranto: aircraft on a host OpenSky will not answer. When OpenSky cannot
+  be reached at all, the flights layer stops waiting on it for ten minutes
+  and shows live ADS-B aircraft within 250 nautical miles of the view, from
+  adsb.lol or, if that refuses, adsb.fi; the layer names the source it used.
+  Locally, with OpenSky reachable, nothing changes. The header's default
+  layout is now one button per layer (LAYER BUTTONS); the LAYERS list stays
+  under Settings.
+
 - Coranto: the analyst board exports PDFs, not HTML. EXPORT BRIEF writes one
   document with the pinned stories, the synthesis (with its historical
   context when the archive has any) and the consensus board's three rounds

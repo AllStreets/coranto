@@ -27,6 +27,12 @@ let _openskyCacheSourceEpochMs = null;
 const OPENSKY_CACHE_MS = 9000;
 /** Per-attempt limit for the global snapshot; it normally arrives in ~1.5 s. */
 const OPENSKY_ATTEMPT_TIMEOUT_MS = 10_000;
+/**
+ * How long OpenSky is left alone after it could not be reached at all (no
+ * HTTP answer). Some hosts' addresses are refused by OpenSky outright; without
+ * this every request would wait out the timeouts before the ADS-B fallback.
+ */
+const OPENSKY_UNREACHABLE_COOLDOWN_MS = 10 * 60_000;
 const OPENSKY_STATES_URL =
   'https://opensky-network.org/api/states/all?extended=1';
 
@@ -286,26 +292,51 @@ async function fetchAdsbLolPointFallback(req) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       try {
-        const upstream = await fetch(
-          `https://api.adsb.lol/v2/lat/${roundedLat}/lon/${roundedLon}/dist/${ADSBLOL_POINT_RADIUS_NM}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              'User-Agent': 'gods-eye-view-adsblol-regional-fallback/1.0',
-            },
-            signal: controller.signal,
-          },
-        );
-        if (!upstream.ok) throw new Error(`upstream HTTP ${upstream.status}`);
-        const payload = await readResponseJsonCapped(
-          upstream,
-          ADSBLOL_POINT_MAX_RESPONSE_BYTES,
-        );
+        // adsb.lol first; adsb.fi (the same readsb format, its list named
+        // `aircraft`) when adsb.lol refuses or fails.
+        const sources = [
+          [
+            'adsb.lol',
+            `https://api.adsb.lol/v2/lat/${roundedLat}/lon/${roundedLon}/dist/${ADSBLOL_POINT_RADIUS_NM}`,
+          ],
+          [
+            'adsb.fi',
+            `https://opendata.adsb.fi/api/v2/lat/${roundedLat}/lon/${roundedLon}/dist/${ADSBLOL_POINT_RADIUS_NM}`,
+          ],
+        ];
+        let payload = null;
+        let source = '';
+        let lastError = null;
+        for (const [name, url] of sources) {
+          try {
+            const upstream = await fetch(url, {
+              headers: {
+                Accept: 'application/json',
+                'User-Agent': 'gods-eye-view-adsblol-regional-fallback/1.0',
+              },
+              signal: controller.signal,
+            });
+            if (!upstream.ok)
+              throw new Error(`${name} upstream HTTP ${upstream.status}`);
+            const body = await readResponseJsonCapped(
+              upstream,
+              ADSBLOL_POINT_MAX_RESPONSE_BYTES,
+            );
+            payload = { ...body, ac: body?.ac ?? body?.aircraft ?? [] };
+            source = name;
+            break;
+          } catch (error) {
+            lastError = error;
+            if (error?.name === 'AbortError') break;
+          }
+        }
+        if (!payload) throw lastError ?? new Error('no ADS-B source answered');
         const normalized = normalizeAdsbLolPointResponse(payload);
         const record = {
           body: JSON.stringify(normalized),
           cachedAt: Date.now(),
           count: normalized.states.length,
+          source,
         };
         _adsbLolPointCache.delete(cacheKey);
         _adsbLolPointCache.set(cacheKey, record);
@@ -339,12 +370,28 @@ async function serveAdsbLolPointFallback(req, res, requestedMode, reason) {
       usedMode: 'adsblol-regional',
       reason,
     }),
-    'X-Flight-Source': 'adsb.lol',
+    'X-Flight-Source': fallback.source || 'adsb.lol',
     'X-Flight-Coverage': `${ADSBLOL_POINT_RADIUS_NM}nm regional fallback`,
     'X-Flight-Count': String(fallback.count),
   });
   res.end(fallback.body);
   return true;
+}
+
+/** Whether an error means OpenSky could not be reached, not that it said no. */
+export function openSkyUnreachable(error) {
+  const code = error?.cause?.code ?? error?.code ?? '';
+  return (
+    [
+      'UND_ERR_CONNECT_TIMEOUT',
+      'ECONNREFUSED',
+      'ECONNRESET',
+      'ENETUNREACH',
+      'EHOSTUNREACH',
+      'ENOTFOUND',
+      'EAI_AGAIN',
+    ].includes(code) || error?.name === 'TimeoutError'
+  );
 }
 
 function openSkySourceEpochMs(body) {
@@ -699,6 +746,13 @@ export function openSkyProxy() {
         const requestedMode = normalizeOpenSkyAuthMode(
           process.env.OPENSKY_AUTH_MODE,
         );
+        // No answer at all: leave OpenSky alone for a while, so the next
+        // requests go straight to the ADS-B fallback.
+        if (openSkyUnreachable(e))
+          _openskyCooldownUntil = Math.max(
+            _openskyCooldownUntil,
+            Date.now() + OPENSKY_UNREACHABLE_COOLDOWN_MS,
+          );
         if (
           await serveAdsbLolPointFallback(
             req,
