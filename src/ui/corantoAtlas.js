@@ -43,7 +43,6 @@ export const ATLAS_OVERLAYS = Object.freeze([
   ['borders', 'Borders and front lines', 'borders'],
   ['countries', 'Countries', 'flag'],
   ['cities', 'Cities', 'skyline'],
-  ['activity', 'Headline activity', 'pulse'],
 ]);
 
 const dataUri = (svg) => `data:image/svg+xml,${encodeURIComponent(svg)}`;
@@ -242,7 +241,9 @@ export function createAtlas({
     borders: false,
     countries: false,
     cities: false,
-    activity: false,
+    // Country names are always coloured by how often current headlines name
+    // the country; it is part of the Countries overlay, not a switch.
+    activity: true,
   };
   // What the current headlines say about countries; see corantoCountrySignals.
   let signals = { conflict: new Set(), activity: new Map(), key: '' };

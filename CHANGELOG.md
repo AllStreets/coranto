@@ -1,5 +1,11 @@
 # Changelog
 
+- Coranto: Headline activity is no longer its own switch. Country names,
+  under Countries, are always coloured by how often current headlines name
+  them, and the map key explains the colours. Nuclear-armed states are
+  marked inside their own borders (at the point their name uses), not beside
+  a story marker, so none sits off the coast or past the edge of the globe.
+
 - Coranto: the globe opens over Lake Michigan looking at Chicago, glides
   in, and, once that view has drawn, pulls out to the whole Earth (Austin
   was the engine's start). Near the ground the news view drops the keyhole

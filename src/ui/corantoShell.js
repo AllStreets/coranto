@@ -86,7 +86,6 @@ const ATLAS_DEFAULTS = {
   borders: true,
   countries: false,
   cities: false,
-  activity: false,
 };
 const WELCOME_KEY = 'coranto.welcomed.v1';
 const FIRST_RUN_SESSION_KEY = 'gev:first-run-mission-session:v1';
@@ -2167,11 +2166,6 @@ export function createCorantoShell({
   const atlasList = el(document, 'div', { class: 'coranto-switches' });
   async function setAtlas(name, on, { remember = true } = {}) {
     atlasWanted[name] = Boolean(on);
-    // Headline activity colours country names, so it brings them with it.
-    if (name === 'activity' && on && !atlas.isOn('countries'))
-      await setAtlas('countries', true, { remember });
-    if (name === 'countries' && !on && atlas.isOn('activity'))
-      await setAtlas('activity', false, { remember });
     if (remember)
       writeStored(localStorageRef, ATLAS_KEY, JSON.stringify(atlasWanted));
     const button = atlasButtons.get(name);
@@ -2248,7 +2242,8 @@ export function createCorantoShell({
       disease: overlays.status('disease'),
       borders: atlas.isOn('borders'),
       countries: atlas.isOn('countries'),
-      activity: atlas.isOn('activity'),
+      // Country names carry their headline activity whenever they are on.
+      activity: atlas.isOn('countries'),
       cityTypes: atlas.cityTypes(),
       otherLayers: HEADER_LAYERS.filter(
         ([id]) => !KEYED_LAYERS.has(id) && on(id),

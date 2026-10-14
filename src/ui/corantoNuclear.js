@@ -2,6 +2,7 @@ import * as Cesium from 'cesium';
 import { markerImage } from '../data/corantoIcons.js';
 import { cullBeyondHorizon } from './corantoHorizon.js';
 import { NEWS_COUNTRIES } from '../sources/news/countries.js';
+import { labelPoint } from './corantoOverlayModel.js';
 
 /**
  * Nuclear-armed states, marked on the globe as in AUSPEX.
@@ -63,8 +64,36 @@ const PREFIX = 'nuclear:';
  * @param {() => object|null} options.getViewer
  * @param {(detail: object|null) => void} options.showCard
  */
-export function createNuclearMarks({ getViewer, showCard }) {
+export function createNuclearMarks({
+  getViewer,
+  showCard,
+  fetchImpl = (...args) => globalThis.fetch(...args),
+}) {
   let marks = null;
+  /** Each state's point inside its own outline, once the outlines load. */
+  const inside = new Map();
+  async function loadInsidePoints() {
+    if (inside.size) return;
+    try {
+      const response = await fetchImpl('/coranto-atlas/shapes-countries.json');
+      if (!response.ok) return;
+      const { shapes } = await response.json();
+      for (const code of CODES) {
+        const point = shapes?.[code] ? labelPoint(shapes[code].rings) : null;
+        if (point) inside.set(code, point);
+      }
+    } catch {
+      // Without outlines the marks stay on the listed points.
+    }
+  }
+  const positionOf = (state) => {
+    const at = inside.get(state.code);
+    return Cesium.Cartesian3.fromDegrees(
+      at?.lon ?? state.lon,
+      at?.lat ?? state.lat,
+      2500,
+    );
+  };
   let handler = null;
   let stopCulling = null;
   return {
@@ -79,14 +108,26 @@ export function createNuclearMarks({ getViewer, showCard }) {
       for (const state of NUCLEAR_STATES)
         marks.add({
           id: PREFIX + state.code,
-          position: Cesium.Cartesian3.fromDegrees(state.lon, state.lat, 2500),
+          // On the country itself, at the same inside point its name uses.
+          position: positionOf(state),
           image,
           width: 22,
           height: 22,
-          // Beside the country's story marker, which shares this point.
-          pixelOffset: new Cesium.Cartesian2(19, -19),
           disableDepthTestDistance: 50_000,
         });
+      // The outlines arrive after the first draw; the marks then move onto
+      // them.
+      loadInsidePoints().then(() => {
+        if (!marks) return;
+        for (let i = 0; i < marks.length; i++) {
+          const mark = marks.get(i);
+          const state = NUCLEAR_STATES.find(
+            (entry) => PREFIX + entry.code === mark.id,
+          );
+          if (state) mark.position = positionOf(state);
+        }
+        viewer.scene.requestRender?.();
+      });
       viewer.scene.primitives.add(marks);
       stopCulling = cullBeyondHorizon(viewer, marks);
       handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);

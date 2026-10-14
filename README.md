@@ -340,7 +340,7 @@ same instructions.
 | Look further back         | Use the time range above the feed: last 24 hours, 3 days or 7 days.                                                     |
 | Follow something          | Set a search, place or topic, then **SAVE THIS VIEW**. **MY BRIEFING** gathers the latest for all your watches.         |
 | Be shown the day          | **TOUR** flies through the places with the most stories. **REPLAY** steps back through the week.                        |
-| Turn on the atlas         | Under **MAP OVERLAYS**: borders, countries, cities, headline activity.                                                  |
+| Turn on the atlas         | Under **MAP OVERLAYS**: borders, countries (names coloured by how often the headlines name them), cities.               |
 | Open a country            | Click its name with Countries on, then **Open the country sheet**.                                                      |
 | Watch a newsroom live     | **LIVE TV**, then pick a channel.                                                                                       |
 | Build a picture           | Press the pin on a feed card, or **PIN TO ANALYST** on a story, country, city, aircraft or ship. Open **ANALYST**.      |
