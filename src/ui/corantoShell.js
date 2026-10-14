@@ -640,7 +640,9 @@ export function createCorantoShell({
       }
       const next = !dataManager.isEnabled(id);
       button.dataset.busy = 'true';
-      Promise.resolve(dataManager.setEnabled(id, next))
+      // A person's own switch: the engine remembers it for the next visit,
+      // off as well as on (it only stores choices marked as the user's).
+      Promise.resolve(dataManager.setEnabled(id, next, { origin: 'user' }))
         .catch(() => {})
         .finally(() => {
           delete button.dataset.busy;
@@ -1228,7 +1230,9 @@ export function createCorantoShell({
                   if (header) layerButtons.get(id)?.click();
                   else
                     Promise.resolve(
-                      dataManager.setEnabled(id, !dataManager.isEnabled(id)),
+                      dataManager.setEnabled(id, !dataManager.isEnabled(id), {
+                        origin: 'user',
+                      }),
                     )
                       .catch(() => {})
                       .finally(syncLayers);
@@ -3757,7 +3761,7 @@ export function createCorantoShell({
         }),
       flyTo: (lat, lon) => flyTo(lat, lon, 350_000),
       switchOn: (id) => {
-        Promise.resolve(dataManager?.setEnabled(id, true))
+        Promise.resolve(dataManager?.setEnabled(id, true, { origin: 'user' }))
           .catch(() => {})
           .finally(() => {
             syncLayers();

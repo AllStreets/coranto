@@ -1,5 +1,12 @@
 # Changelog
 
+- Coranto: a layer switched off from the header, the LAYERS list, search or
+  AROUND HERE stays off on the next visit. The engine remembers only changes
+  marked as the person's own, and Coranto's switches did not mark theirs, so
+  a layer once switched on in the control room (flights, for one) came back
+  at every load. `docs/coranto/HANDOFF.md` describes where the project stands
+  for the next session.
+
 - Coranto: Headline activity is no longer its own switch. Country names,
   under Countries, are always coloured by how often current headlines name
   them, and the map key explains the colours. Nuclear-armed states are
