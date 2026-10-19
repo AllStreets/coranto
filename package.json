@@ -2,17 +2,21 @@
   "name": "gods-eye-view",
   "private": true,
   "version": "0.2.1",
-  "description": "A real-time intelligence console for planet Earth — photorealistic 3D globe, live aircraft/ships/satellites/earthquakes/CCTV, and hands-free voice control. Runs in a browser.",
+  "description": "Coranto: real, sourced news on a live globe. Built on God's Eye View by Bilawal Sidhu. The package keeps the upstream name because the code imports itself by it.",
   "type": "module",
   "license": "Apache-2.0 AND MIT",
-  "author": "Bilawal Sidhu",
-  "homepage": "https://github.com/bilawalsidhu/gods-eye-view#readme",
+  "author": "Connor Evans",
+  "contributors": [
+    "Bilawal Sidhu (God's Eye View, https://github.com/bilawalsidhu/gods-eye-view)",
+    "Sameh Khamis and the God's Eye View contributors"
+  ],
+  "homepage": "https://github.com/AllStreets/coranto#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bilawalsidhu/gods-eye-view.git"
+    "url": "https://github.com/AllStreets/coranto.git"
   },
   "bugs": {
-    "url": "https://github.com/bilawalsidhu/gods-eye-view/issues"
+    "url": "https://github.com/AllStreets/coranto/issues"
   },
   "engines": {
     "node": ">=24.14.0 <25 || >=26 <27"

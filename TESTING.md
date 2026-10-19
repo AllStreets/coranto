@@ -1,4 +1,8 @@
-# God's Eye View — Testing Guide (voice map-annotation whiteboard + live tracking)
+# Testing guide: voice whiteboard and live tracking
+
+This guide comes from God's Eye View, the project Coranto is built on, and covers its
+voice map-annotation whiteboard and live tracking. Coranto's own news, brief and layer
+tests run with `npm test` alongside the rest.
 
 > [!NOTE]
 > This is a **manual field-test scenario script** for the June-2026 whiteboard +

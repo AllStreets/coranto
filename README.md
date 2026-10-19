@@ -23,10 +23,35 @@
 <br/>
 <img alt="globe" src="https://img.shields.io/badge/globe-CesiumJS_·_photoreal_3D-6b7382?style=flat-square&labelColor=04070b"/>
 <img alt="feeds" src="https://img.shields.io/badge/feeds-RSS_·_GDELT_·_GDACS_·_NASA_·_USGS_·_ADS--B_·_AIS_·_NOAA_·_WHO_·_UNHCR-6b7382?style=flat-square&labelColor=04070b"/>
-<img alt="tests" src="https://img.shields.io/badge/tests-6,400+_unit_·_3_browser_gates-6b7382?style=flat-square&labelColor=04070b"/>
+<img alt="tests" src="https://img.shields.io/badge/tests-6,400+_unit,_most_from_God's_Eye_View-6b7382?style=flat-square&labelColor=04070b"/>
 <img alt="built on" src="https://img.shields.io/badge/built_on-God's_Eye_View_+_AUSPEX-6b7382?style=flat-square&labelColor=04070b"/>
 
 </div>
+
+### Who built what
+
+Coranto is built on **[God's Eye View](https://github.com/bilawalsidhu/gods-eye-view)**
+by Bilawal Sidhu, Sameh Khamis and its other contributors. They wrote the 3D
+globe engine, the live aircraft, ship, satellite, weather and CCTV layers, the
+control room, street level, voice control and most of the test suite. 817 of
+this repository's 931 commits are theirs.
+
+Connor Evans built the Coranto layer on top of it in 114 commits, October 10
+to 13, 2026:
+
+- the news pipeline: reading the feeds, grouping one story across outlets,
+  and placing each story from its own text (`src/sources/news/`, `server/providers/news.js`)
+- grounded briefs, where any model-written sentence whose figures or names
+  aren't in the cited articles is deleted, and the page says how many were
+  (`src/sources/news/brief.js`)
+- the hazards, elections, markets, relief, outbreaks, campaign finance and
+  government aircraft sources and layers
+- the Coranto shell, newsfeed, watches and visual identity, and the public
+  mode it runs in on Railway
+- the analyst board, carried over from his earlier project
+  [AUSPEX](https://github.com/AllStreets/AUSPEX)
+
+Full credits and licences are [at the bottom](#credits) and in [NOTICE](NOTICE).
 
 ---
 
