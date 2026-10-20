@@ -59,7 +59,7 @@ const SFO_ELLIPSOIDAL_M = -15;
  */
 function installHudEnvironment() {
   const elements = new Map(
-    ['hud-alt', 'hud-summary', 'hud-mgrs', 'hud-latlon', 'hud-bottom-line', 'hud-gsd', 'hud-coll', 'hud-ona', 'hud-mode']
+    ['hud-alt', 'hud-summary', 'hud-latlon', 'hud-bottom-line', 'hud-gsd', 'hud-ona', 'hud-mode']
       .map((id) => [id, { textContent: '' }]),
   );
   const previousDocument = globalThis.document;
@@ -153,7 +153,7 @@ test('the summary ALT tag agrees with the corner readout', () => {
 });
 
 test('the sensor model keeps the ellipsoidal height it was tuned against', () => {
-  // GSD/NIIRS and the STREET/CITY/METRO view band are camera-geometry math,
+  // Ground detail and the STREET/CITY/METRO view band are camera-geometry math,
   // not readouts. Re-datuming them would silently move their thresholds, so
   // altM stays and altMslM is purely additive.
   assert.equal(

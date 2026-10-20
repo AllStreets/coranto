@@ -186,7 +186,7 @@ button.sl-status:focus-visible {
 /* ── Errors ──────────────────────────────────────────────────────────────── */
 .sl-error {
   font-family: var(--font-sans);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   line-height: 1.4;
   color: #ff8a80;
 }
@@ -553,7 +553,7 @@ button.sl-status:focus-visible {
 }
 
 .sl-viewer-wrap-expanded .sl-image-meta {
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   padding: 10px 14px;
 }
 
@@ -563,7 +563,7 @@ button.sl-status:focus-visible {
 
 .sl-viewer-wrap-expanded .sl-viewer-tools .scene-btn {
   padding: 8px 14px;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   color: var(--text-primary);
   border-color: rgba(0, 212, 255, 0.6);

@@ -935,7 +935,7 @@ function installWireHarness(picked, stateOverrides = {}) {
   const record = makeRecord();
   const trail = makeTrailSpy();
   const hud = {
-    textContent: `AIS: ${record.name}`,
+    textContent: `VESSEL: ${record.name}`,
     classList: makeClassList('active'),
   };
 
@@ -1063,7 +1063,7 @@ test('vessel interaction wire: id-less 3D Tiles pick deselects and resets the HU
     harness.handler.click({ position: { x: 10, y: 20 } });
 
     assert.equal(aisLiveVesselsLayer.getSelectedInfo(), null);
-    assert.equal(harness.hud.textContent, 'AIS: --');
+    assert.equal(harness.hud.textContent, 'VESSEL: --');
     assert.equal(harness.hud.classList.contains('active'), false);
     // Clicking away is a deliberate deselect, not the vessel aging out of the
     // feed. Consumers that keep a readout on screen (the Cockpit Contact
@@ -1091,7 +1091,7 @@ test('vessel interaction wire: empty pick deselects and emits gev:entity-selecti
     harness.handler.click({ position: { x: 10, y: 20 } });
 
     assert.equal(aisLiveVesselsLayer.getSelectedInfo(), null);
-    assert.equal(harness.hud.textContent, 'AIS: --');
+    assert.equal(harness.hud.textContent, 'VESSEL: --');
     assert.equal(harness.hud.classList.contains('active'), false);
     // Empty pick is a deliberate deselect — see the note above.
     assert.deepEqual(cleared, [{ layerId: 'ais-live-vessels', reason: 'deliberate' }]);
@@ -1105,7 +1105,7 @@ test('vessel interaction wire: Escape deselects the selected vessel', () => {
   try {
     harness.keyTarget.dispatch({ key: 'Escape' });
     assert.equal(aisLiveVesselsLayer.getSelectedInfo(), null);
-    assert.equal(harness.hud.textContent, 'AIS: --');
+    assert.equal(harness.hud.textContent, 'VESSEL: --');
     assert.equal(harness.hud.classList.contains('active'), false);
   } finally {
     harness.cleanup();

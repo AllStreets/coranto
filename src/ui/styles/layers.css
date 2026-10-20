@@ -112,7 +112,7 @@
   padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-secondary);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 1.4px;
   text-transform: uppercase;
@@ -399,18 +399,18 @@
 }
 #space-mission-panel-host .space-mission-roster-header strong {
   color: #8fcfff;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.16em;
 }
 #space-mission-panel-host .space-mission-roster-header span {
   color: rgba(190, 230, 230, 0.46);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.1em;
 }
 #space-mission-panel-host .space-mission-roster-header output {
   flex: 0 0 auto;
   color: #22e6e6;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.08em;
 }
 #space-mission-panel-host .space-mission-roster-list {
@@ -500,13 +500,13 @@
 }
 #space-mission-panel-host .space-mission-roster-copy strong {
   color: #d8ffff;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.07em;
 }
 #space-mission-panel-host .space-mission-roster-copy small {
   color: rgba(190, 230, 230, 0.48);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.035em;
 }
 #space-mission-panel-host .space-mission-roster-chevron {
@@ -518,7 +518,7 @@
   padding: 18px 10px;
   color: rgba(190, 230, 230, 0.48);
   font:
-    8px/1.5 'JetBrains Mono',
+    11px/1.5 'JetBrains Mono',
     monospace;
   letter-spacing: 0.09em;
   text-align: center;
@@ -528,7 +528,7 @@
   padding: 3px;
   color: rgba(190, 230, 230, 0.58);
   font:
-    7px/1.4 'JetBrains Mono',
+    11px/1.4 'JetBrains Mono',
     monospace;
   letter-spacing: 0.08em;
   text-align: center;
@@ -541,7 +541,7 @@
   border-top: 1px solid rgba(34, 230, 230, 0.18);
   color: rgba(190, 230, 230, 0.58);
   font:
-    8px 'JetBrains Mono',
+    11px 'JetBrains Mono',
     monospace;
   letter-spacing: 0.18em;
 }
@@ -564,7 +564,7 @@
   padding: 12px 0;
   color: var(--hud-cyan, #22e6e6);
   font:
-    11px 'JetBrains Mono',
+    12px 'JetBrains Mono',
     monospace;
   letter-spacing: 0.08em;
 }
@@ -587,7 +587,7 @@
   margin: 0 0 6px;
   color: #22e6e6;
   font:
-    10px 'JetBrains Mono',
+    12px 'JetBrains Mono',
     monospace;
   letter-spacing: 0.17em;
 }
@@ -600,7 +600,7 @@
   table-layout: fixed;
   color: #d8ffff;
   font:
-    9px 'JetBrains Mono',
+    11px 'JetBrains Mono',
     monospace;
   letter-spacing: 0.025em;
 }
@@ -629,7 +629,7 @@
   display: block;
   margin-top: 3px;
   color: rgba(190, 230, 230, 0.56);
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.35;
 }
 #space-mission-panel .mission-table-empty {
@@ -654,7 +654,7 @@
   justify-content: space-between;
   color: rgba(190, 230, 230, 0.68);
   font:
-    8px 'JetBrains Mono',
+    11px 'JetBrains Mono',
     monospace;
   letter-spacing: 0.16em;
 }
@@ -670,7 +670,7 @@
   justify-content: space-between;
   color: rgba(190, 230, 230, 0.42);
   font:
-    7px 'JetBrains Mono',
+    11px 'JetBrains Mono',
     monospace;
   letter-spacing: 0.08em;
 }
@@ -694,7 +694,7 @@
     rgba(34, 230, 230, 0.08)
   );
   font:
-    9px 'JetBrains Mono',
+    11px 'JetBrains Mono',
     monospace;
   letter-spacing: 0.16em;
   cursor: pointer;
@@ -797,7 +797,7 @@
   background: rgba(8, 34, 42, 0.72);
   color: #22e6e6;
   font:
-    11px 'JetBrains Mono',
+    12px 'JetBrains Mono',
     monospace;
   letter-spacing: 0.12em;
   cursor: pointer;
@@ -824,7 +824,7 @@
   text-align: center;
   color: #d8ffff;
   font:
-    11px 'JetBrains Mono',
+    12px 'JetBrains Mono',
     monospace;
   letter-spacing: 0.1em;
 }
@@ -940,7 +940,7 @@
   min-width: 188px;
   color: #fff;
   font:
-    9px/1.38 'JetBrains Mono',
+    11px/1.38 'JetBrains Mono',
     monospace;
   letter-spacing: 0.075em;
   text-shadow:
@@ -956,7 +956,7 @@
 
 .mission-replay-overlay-callout strong {
   color: #22e6e6;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
 }
 
@@ -1091,7 +1091,7 @@
   gap: 8px;
   align-items: center;
   color: #65f7ff;
-  font: 7px/1.2 var(--font-mono);
+  font: 11px/1.2 var(--font-mono);
   letter-spacing: 0.12em;
 }
 .context-radio-mini-heading button {
@@ -1125,7 +1125,7 @@
 .context-radio-mini-heading strong {
   overflow: hidden;
   color: #e8feff;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 500;
   text-align: right;
   text-overflow: ellipsis;
@@ -1143,7 +1143,7 @@
   border-radius: 5px;
   color: #8feaf2;
   background: rgba(14, 69, 78, 0.16);
-  font: 8px/1 var(--font-mono);
+  font: 11px/1 var(--font-mono);
   cursor: pointer;
 }
 .context-radio-mini-transport button:hover:not(:disabled),
@@ -1163,7 +1163,7 @@
   gap: 7px;
   align-items: center;
   color: var(--text-dim);
-  font: 7px/1 var(--font-mono);
+  font: 11px/1 var(--font-mono);
   letter-spacing: 0.08em;
 }
 .context-radio-mini-volume input {
@@ -1252,7 +1252,7 @@
   border-radius: 6px;
   color: #8fcfff;
   background: rgba(42, 113, 171, 0.09);
-  font: 8px/1.15 var(--font-mono);
+  font: 11px/1.15 var(--font-mono);
   letter-spacing: 0.09em;
   cursor: pointer;
   transition:
@@ -1302,12 +1302,12 @@
   border-radius: 7px;
   color: rgba(190, 230, 230, 0.5);
   text-align: center;
-  font: 8px/1.45 var(--font-mono);
+  font: 11px/1.45 var(--font-mono);
   letter-spacing: 0.1em;
 }
 .context-mode-standby strong {
   color: #8fcfff;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.16em;
 }
 .context-mode-view {
@@ -1327,7 +1327,7 @@
   border-radius: 5px;
   color: #8fcfff;
   background: rgba(42, 113, 171, 0.12);
-  font: 7px/1.1 var(--font-mono);
+  font: 11px/1.1 var(--font-mono);
   letter-spacing: 0.1em;
   cursor: pointer;
 }
@@ -1351,7 +1351,7 @@
   width: 100%;
   min-height: 30px;
   padding: 6px 8px;
-  font-size: 8px;
+  font-size: 11px;
 }
 #global-context-panel #cockpit-entry {
   position: static;
@@ -1361,7 +1361,7 @@
   padding: 5px 8px;
   border-radius: 5px;
   justify-content: center;
-  font-size: 8px;
+  font-size: 11px;
   box-shadow: none;
 }
 #global-context-panel #cockpit-entry .material-symbols-outlined {

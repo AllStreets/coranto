@@ -71,7 +71,7 @@
   right: 36px;
   z-index: 100;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 2px;
   color: var(--accent);
   text-shadow: 0 0 12px var(--accent-glow);
@@ -134,7 +134,7 @@
   border: 1px solid var(--hud-border);
   background: rgba(0, 0, 0, 0.34);
   padding: 4px 10px;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 1.4px;
   justify-content: space-between;
   align-items: center;
@@ -236,7 +236,7 @@
 }
 
 .hud-summary-label {
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 1.8px;
   opacity: 0.55;
 }
@@ -244,7 +244,7 @@
 .hud-summary {
   margin-top: 2px;
   min-height: 16px;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 1.2px;
   opacity: 0.88;
   white-space: nowrap;
@@ -273,7 +273,7 @@
 /* Edge annotations (vertical text) */
 .hud-edge {
   position: absolute;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 1.5px;
   opacity: 0.5;
 }

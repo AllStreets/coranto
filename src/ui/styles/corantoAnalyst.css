@@ -31,7 +31,7 @@
 }
 .ca-am-wordmark {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.32em;
   color: #b47cff;
   font-weight: 500;
@@ -39,7 +39,7 @@
 }
 .ca-am-status-line {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   color: #5a7898;
   letter-spacing: 0.15em;
   flex: 1;
@@ -55,7 +55,7 @@
   background: none;
   color: #6a8898;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -77,7 +77,7 @@
   background: none;
   color: rgba(255, 80, 80, 0.7);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.15em;
   cursor: pointer;
   border-radius: 2px;
@@ -116,13 +116,13 @@
 }
 .ca-am-col-title {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   color: #b47cff;
 }
 .ca-am-col-meta {
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   color: #1a2030;
   margin-left: auto;
 }
@@ -142,7 +142,7 @@
   border-radius: 2px;
   padding: 5px 8px;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   color: var(--text-secondary);
   letter-spacing: 0.06em;
   outline: none;
@@ -160,7 +160,7 @@
   border-radius: 2px;
   padding: 5px 6px;
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   color: var(--text-dim);
   outline: none;
   cursor: pointer;
@@ -177,7 +177,7 @@
 .ca-am-hist-loading {
   padding: 12px 14px;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   color: var(--text-dim);
   letter-spacing: 0.1em;
 }
@@ -197,14 +197,14 @@
   display: flex;
   gap: 8px;
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   color: var(--text-dim);
   margin-bottom: 3px;
 }
 .ca-am-hist-title {
   font-family: var(--font-brand);
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.35;
   padding-right: 52px;
@@ -219,7 +219,7 @@
   border: 1px solid rgba(180, 124, 255, 0.2);
   border-radius: 2px;
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   color: rgba(180, 124, 255, 0.6);
   cursor: pointer;
   letter-spacing: 0.08em;
@@ -252,7 +252,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
-  font-size: 8.5px;
+  font-size: 11px;
   color: #0e1020;
   letter-spacing: 0.18em;
   border: 1px dashed #0a0c18;
@@ -285,7 +285,7 @@
 }
 .ca-am-card-cat {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   margin-bottom: 5px;
 }
@@ -298,7 +298,7 @@
 }
 .ca-am-card-meta {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   color: #1e2840;
   display: flex;
   gap: 8px;
@@ -346,7 +346,7 @@
   justify-content: center;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 8.5px;
+  font-size: 11px;
   color: #1e3050;
   letter-spacing: 0.18em;
   pointer-events: none;
@@ -362,7 +362,7 @@
   border: 1px solid rgba(180, 124, 255, 0.18);
   border-radius: 2px;
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   color: rgba(180, 124, 255, 0.6);
   cursor: pointer;
@@ -384,9 +384,9 @@
 }
 .ca-am-classify {
   font-family: var(--font-mono);
-  font-size: 7px;
-  letter-spacing: 0.2em;
-  color: rgba(255, 23, 68, 0.6);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: rgba(196, 160, 255, 0.78);
   margin-bottom: 14px;
   display: flex;
   align-items: center;
@@ -397,14 +397,14 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 23, 68, 0.12);
+  background: rgba(180, 124, 255, 0.18);
 }
 .ca-am-brief-sec {
   margin-bottom: 16px;
 }
 .ca-am-brief-sh {
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: #b47cff;
   margin-bottom: 8px;
@@ -420,7 +420,7 @@
 }
 .ca-am-brief-p {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.85;
   color: #a8bad0;
 }
@@ -435,7 +435,7 @@
   border: 1px solid #0e1020;
   border-radius: 2px;
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   color: #1e2840;
   background: #060810;
 }
@@ -452,7 +452,7 @@
   text-align: center;
   color: #3a5870;
   font-family: var(--font-mono);
-  font-size: 8.5px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   line-height: 2.5;
   padding: 20px;
@@ -464,7 +464,7 @@
   background: none;
   color: rgba(180, 124, 255, 0.6);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.15em;
   cursor: pointer;
   border-radius: 2px;
@@ -483,7 +483,7 @@
   background: none;
   color: rgba(255, 255, 255, 0.75);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -504,7 +504,7 @@
   background: none;
   color: rgba(255, 159, 10, 0.7);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -525,7 +525,7 @@
   background: none;
   color: rgba(180, 124, 255, 0.7);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -564,7 +564,7 @@
 }
 .ca-cb-stat-l {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   color: var(--text-dim);
   letter-spacing: 0.15em;
 }
@@ -587,7 +587,7 @@
 }
 .ca-cb-name {
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   color: var(--ac);
   margin-bottom: 7px;
@@ -596,11 +596,11 @@
   gap: 6px;
 }
 .ca-cb-icon {
-  font-size: 11px;
+  font-size: 12px;
 }
 .ca-cb-loading {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   color: var(--text-dim);
   letter-spacing: 0.12em;
   padding: 4px 0;
@@ -624,13 +624,13 @@
   top: 50%;
   transform: translateY(-50%);
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   font-weight: 700;
   line-height: 1;
 }
 .ca-cb-text {
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.65;
   color: #8ca0c3;
   margin-bottom: 4px;
@@ -641,7 +641,7 @@
   border: 1px solid rgba(180, 124, 255, 0.12);
   border-radius: 2px;
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   color: #00a0c0;
   margin: 2px 2px 0 0;
 }
@@ -664,7 +664,7 @@
 }
 .ca-cb-round-hdr {
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   color: var(--text-dim);
   padding: 10px 12px 6px;
@@ -695,14 +695,14 @@
 }
 .ca-cb-debate-who {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   margin-bottom: 4px;
   color: var(--ac, #8a93c8);
 }
 .ca-cb-debate-body {
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
   color: #8ca0c3;
 }
@@ -717,7 +717,7 @@
 }
 .ca-cb-synthesis-hdr {
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: #b47cff;
   margin-bottom: 8px;
@@ -733,7 +733,7 @@
 }
 .ca-cb-synthesis-body {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.72;
   color: #7a8ea8;
 }
@@ -772,14 +772,14 @@
 }
 .ca-rt-wordmark {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.32em;
   color: #ff1744;
   flex-shrink: 0;
 }
 #ca-rt-status {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   color: rgba(255, 100, 100, 0.6);
   letter-spacing: 0.15em;
   flex: 1;
@@ -790,7 +790,7 @@
   background: none;
   color: #804050;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -808,7 +808,7 @@
   background: none;
   color: rgba(255, 90, 90, 0.75);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.15em;
   cursor: pointer;
   border-radius: 2px;
@@ -841,18 +841,19 @@
   padding: 60px;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: rgba(255, 80, 80, 0.4);
   letter-spacing: 0.22em;
 }
 .ca-rt-classify {
   padding: 11px 24px;
-  background: rgba(193, 18, 31, 0.88);
+  background: rgba(180, 124, 255, 0.14);
+  border-bottom: 1px solid rgba(180, 124, 255, 0.24);
   font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.25em;
-  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: #d9c6ff;
   text-align: center;
 }
 .ca-rt-heading {
@@ -866,7 +867,7 @@
 .ca-rt-date {
   padding: 0 24px 16px;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   color: rgba(255, 100, 100, 0.65);
   letter-spacing: 0.1em;
   border-bottom: 1px solid rgba(255, 23, 68, 0.15);
@@ -944,7 +945,7 @@
 }
 .ca-bm-eyebrow {
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.24em;
   color: var(--text-dim);
   margin-bottom: 5px;
@@ -958,7 +959,7 @@
 }
 .ca-bm-date {
   font-family: var(--font-mono);
-  font-size: 8.5px;
+  font-size: 11px;
   color: var(--text-dim);
   margin-top: 5px;
   letter-spacing: 0.1em;
@@ -999,7 +1000,7 @@
 }
 .ca-bm-body h3 {
   font-family: var(--font-mono);
-  font-size: 8.5px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   color: var(--text-dim);
   margin: 22px 0 8px;
@@ -1009,7 +1010,7 @@
 }
 .ca-bm-loading {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.16em;
   color: var(--text-dim);
   text-align: center;
@@ -1028,7 +1029,7 @@
 .ca-bm-error {
   color: var(--cat-geopolitics);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.1em;
 }
 .ca-bm-footer {
@@ -1041,7 +1042,7 @@
 }
 .ca-bm-meta {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   color: var(--text-dim);
   letter-spacing: 0.1em;
 }
@@ -1051,7 +1052,7 @@
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 2px;
   font-family: var(--font-mono);
-  font-size: 8.5px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   color: var(--text-secondary);
   cursor: pointer;
@@ -1089,7 +1090,7 @@
   background: none;
   color: rgba(180, 124, 255, 0.65);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -1117,7 +1118,7 @@
   background: none;
   color: rgba(150, 110, 80, 0.65);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -1155,7 +1156,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   color: rgba(180, 185, 215, 0.65);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   text-align: left;
@@ -1185,7 +1186,7 @@
 
 /* ── Trajectory badges on asset cards ── */
 .ca-am-traj {
-  font-size: 8px;
+  font-size: 11px;
   margin-left: 5px;
   opacity: 0.8;
   font-family: var(--font-mono);
@@ -1204,7 +1205,7 @@
 .ca-am-conf {
   display: inline-block;
   font-family: var(--font-mono);
-  font-size: 6.5px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   padding: 1px 4px;
   border: 1px solid;
@@ -1219,7 +1220,7 @@
   color: #ff1744;
   animation: ca-blink-alert 0.7s step-start infinite;
   letter-spacing: 0.1em;
-  font-size: 8px;
+  font-size: 11px;
 }
 @keyframes ca-blink-alert {
   0%,
@@ -1237,7 +1238,7 @@
   border: none;
   color: rgba(180, 124, 255, 0.4);
   cursor: pointer;
-  font-size: 9px;
+  font-size: 11px;
   padding: 0 2px;
   transition: color 0.14s;
   line-height: 1;
@@ -1273,14 +1274,14 @@
 }
 .ca-pb-wordmark {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.32em;
   color: #b47cff;
   flex-shrink: 0;
 }
 #ca-pb-status {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   color: rgba(180, 124, 255, 0.55);
   letter-spacing: 0.15em;
   flex: 1;
@@ -1291,7 +1292,7 @@
   background: none;
   color: rgba(180, 124, 255, 0.6);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -1309,7 +1310,7 @@
   background: none;
   color: rgba(180, 124, 255, 0.6);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.15em;
   cursor: pointer;
   border-radius: 2px;
@@ -1342,7 +1343,7 @@
   padding: 60px;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: rgba(180, 124, 255, 0.35);
   letter-spacing: 0.22em;
 }
@@ -1351,15 +1352,15 @@
 }
 .ca-pb-classify {
   padding: 11px 24px;
-  background: rgba(61, 10, 10, 0.9);
+  background: rgba(255, 255, 255, 0.04);
   font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.25em;
-  color: #ff3b30;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: rgba(226, 222, 238, 0.82);
   text-align: center;
-  border-top: 1px solid rgba(255, 59, 48, 0.25);
-  border-bottom: 1px solid rgba(255, 59, 48, 0.25);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .ca-pb-heading {
   font-family: var(--font-mono);
@@ -1372,7 +1373,7 @@
 }
 .ca-pb-date {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   color: rgba(255, 59, 48, 0.45);
   text-align: center;
   letter-spacing: 0.1em;
@@ -1380,7 +1381,7 @@
 }
 .ca-pb-sec-hdr {
   font-family: var(--font-mono);
-  font-size: 8.5px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: rgba(255, 59, 48, 0.75);
   margin: 14px 24px 3px;
@@ -1388,7 +1389,7 @@
   border-top: 1px solid rgba(255, 59, 48, 0.15);
 }
 .ca-pb-para {
-  font-size: 11px;
+  font-size: 12px;
   color: rgba(226, 218, 238, 0.88);
   line-height: 1.75;
   margin: 4px 24px;
@@ -1440,7 +1441,7 @@
 }
 .ca-sb-wordmark {
   font-family: var(--font-mono);
-  font-size: 8.5px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: var(--text-secondary);
   flex: 1;
@@ -1451,7 +1452,7 @@
   background: none;
   color: var(--text-dim);
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -1470,7 +1471,7 @@
 }
 .ca-sb-empty {
   font-family: var(--font-mono);
-  font-size: 8.5px;
+  font-size: 11px;
   color: var(--text-dim);
   letter-spacing: 0.14em;
   text-align: center;
@@ -1496,14 +1497,14 @@
 }
 .ca-sb-item-title {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   color: var(--text-primary);
   margin-bottom: 4px;
 }
 .ca-sb-item-meta {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   color: var(--text-dim);
   letter-spacing: 0.1em;
   margin-bottom: 5px;
@@ -1514,7 +1515,7 @@
   gap: 2px;
 }
 .ca-sb-story-preview {
-  font-size: 10px;
+  font-size: 12px;
   color: rgba(180, 190, 210, 0.6);
   white-space: nowrap;
   overflow: hidden;
@@ -1527,7 +1528,7 @@
   background: none;
   color: rgba(255, 80, 80, 0.5);
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   cursor: pointer;
   border-radius: 2px;
@@ -1585,7 +1586,7 @@
 }
 .ca-mx-wordmark {
   font-family: var(--font-mono);
-  font-size: 8.5px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: var(--text-secondary);
   flex: 1;
@@ -1596,7 +1597,7 @@
   background: none;
   color: var(--text-dim);
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -1612,7 +1613,7 @@
   background: none;
   color: var(--text-dim);
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -1644,7 +1645,7 @@
 }
 .ca-mx-hdr {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   font-weight: 700;
   height: 28px;
@@ -1667,13 +1668,13 @@
 }
 .ca-mx-risk {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   color: rgba(255, 255, 255, 0.85);
 }
 .ca-mx-score {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: rgba(255, 255, 255, 0.55);
 }
 .ca-mx-legend {
@@ -1682,7 +1683,7 @@
   flex-wrap: wrap;
   gap: 10px;
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   padding-top: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -1692,7 +1693,7 @@
 }
 .ca-mx-leg-note {
   color: var(--text-dim);
-  font-size: 7px;
+  font-size: 11px;
   flex: 1;
 }
 /* Matrix story picker panel */
@@ -1706,14 +1707,14 @@
 }
 .ca-mx-sp-hdr {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   color: var(--text-secondary);
   margin-bottom: 6px;
 }
 .ca-mx-sp-empty {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   color: var(--text-dim);
   padding: 8px 0;
 }
@@ -1739,13 +1740,13 @@
 }
 .ca-mx-sp-cat {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   font-weight: 700;
 }
 .ca-mx-sp-title {
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1753,7 +1754,7 @@
 }
 .ca-mx-sp-src {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   color: var(--text-dim);
   text-align: right;
   overflow: hidden;
@@ -1808,14 +1809,14 @@
 }
 .ca-tl-wordmark {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.24em;
   color: var(--text-secondary);
   flex-shrink: 0;
 }
 #ca-tl-status {
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   color: var(--text-dim);
   letter-spacing: 0.1em;
   flex: 1;
@@ -1829,7 +1830,7 @@
   background: none;
   color: var(--text-dim);
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -1851,7 +1852,7 @@
   padding: 40px;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-dim);
   letter-spacing: 0.14em;
 }
@@ -1860,7 +1861,7 @@
 }
 .ca-tl-day-lbl {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: var(--text-dim);
   padding: 8px 18px 4px;
@@ -1890,18 +1891,18 @@
 }
 .ca-tl-item-cat {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   margin-bottom: 2px;
 }
 .ca-tl-item-title {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-primary);
   line-height: 1.45;
 }
 .ca-tl-item-meta {
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   color: var(--text-dim);
   margin-top: 3px;
   letter-spacing: 0.06em;
@@ -1916,14 +1917,14 @@
 }
 .ca-dr-hdr {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   color: rgba(180, 124, 255, 0.8);
   margin-bottom: 3px;
 }
 .ca-dr-sub {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   color: var(--text-dim);
   letter-spacing: 0.08em;
   margin-bottom: 10px;
@@ -1947,7 +1948,7 @@
 }
 .ca-dr-country {
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--text-secondary);
   grid-column: 1;
@@ -1976,12 +1977,12 @@
 }
 .ca-dr-tier {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.1em;
 }
 .ca-dr-n {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 11px;
   color: var(--text-dim);
 }
 .ca-dr-domains {
@@ -1993,7 +1994,7 @@
 }
 .ca-dr-domain {
   font-family: var(--font-mono);
-  font-size: 6.5px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   opacity: 0.75;
 }
@@ -2030,7 +2031,7 @@
   padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   color: var(--text-dim);
-  font: 8px/1.6 var(--font-mono);
+  font: 11px/1.6 var(--font-mono);
   letter-spacing: 0.08em;
 }
 .ca-rt-body .ca-ai-note,
@@ -2182,7 +2183,7 @@ button.ca-mx-cell:focus-visible,
   background: rgba(10, 132, 255, 0.08);
   color: #4da3ff;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   cursor: pointer;
   border-radius: 2px;
@@ -2241,7 +2242,7 @@ button.ca-mx-cell:focus-visible,
   background: #b47cff;
 }
 .ca-bs-count {
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   color: #5d6a8c;
   white-space: nowrap;
@@ -2278,7 +2279,7 @@ button.ca-mx-cell:focus-visible,
   font-weight: 600;
 }
 .ca-am-brief-p {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.7;
   margin: 0;
 }
@@ -2309,7 +2310,7 @@ button.ca-mx-cell:focus-visible,
   gap: 4px 9px;
   margin-bottom: 5px;
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   color: #5d6a8c;
   text-transform: uppercase;
@@ -2329,7 +2330,7 @@ button.ca-mx-cell:focus-visible,
   padding: 1px 5px;
   border: 1px solid rgba(180, 124, 255, 0.3);
   color: #b47cff;
-  font-size: 6.5px;
+  font-size: 11px;
   letter-spacing: 0.14em;
 }
 .ca-bs-past {

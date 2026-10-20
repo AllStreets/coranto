@@ -57,7 +57,7 @@
     top: 52px;
     left: 20px;
     margin: 0;
-    font-size: 10px;
+    font-size: 12px;
     line-height: 12px;
   }
 
@@ -107,7 +107,7 @@
 
   .hud-top-bar {
     top: 54px;
-    font-size: 9px;
+    font-size: 11px;
   }
 
   #intel-hud[data-variant='operator'] .hud-top-bar {
@@ -119,7 +119,7 @@
 
   .hud-bottom-bar {
     bottom: 90px;
-    font-size: 9px;
+    font-size: 11px;
   }
 
   #data-panel {

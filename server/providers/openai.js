@@ -8,6 +8,7 @@ import {
 } from './openai/realtime.js';
 import { sameSiteGated } from './common/same-site.js';
 import { isPublicSite } from '../../src/localRequestGate.mjs';
+import { keylessHudSummaryResponse } from '../../src/hudSummaryResponse.js';
 import { createCodexOAuthLogin } from './openai/codex-auth.js';
 
 /**
@@ -35,8 +36,23 @@ function openAiRealtimeProxy({
     // it. The HUD summary and the voice debug log go with it. Nothing below
     // is installed there.
     if (isPublicSite(process.env)) {
-      for (const path of ['/api/openai/hud-summary', '/api/realtime'])
-        middlewares.use(path, notOffered);
+      // The HUD asks for a summary on every tick. Answer with the same
+      // "not configured" shape a keyless boot gets, so the HUD settles on its
+      // plain fallback line instead of logging a failure and retrying.
+      middlewares.use('/api/openai/hud-summary', (_req, res) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control', 'no-store');
+        res.end(JSON.stringify(keylessHudSummaryResponse('').payload));
+      });
+      // Voice diagnostics are posted by the client; with no voice here there
+      // is nothing to keep, so accept and discard rather than 404.
+      middlewares.use('/api/realtime/debug-log', (_req, res) => {
+        res.statusCode = 204;
+        res.setHeader('Cache-Control', 'no-store');
+        res.end();
+      });
+      middlewares.use('/api/realtime', notOffered);
       return;
     }
     // Cost-bearing and log endpoints refuse cross-site browser requests

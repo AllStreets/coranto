@@ -108,9 +108,9 @@ tests that fail the build when it is broken.
 | **AI text in the feed is optional, cited and checked** | If you ask for an AI brief of a story or place, every sentence must cite the articles it rests on, and code removes any sentence whose figures or names are not in those articles.                                         |
 | **Analysis is kept apart from reporting**              | The analyst board has tools that a model writes freely from what you pinned. They appear only there, only when you ask, and each says underneath that a model wrote it. Nothing they produce enters the feed or the globe. |
 
-One thing on screen is style and not fact, and Coranto says so in Settings:
-the analyst board stamps its briefs `TOP SECRET`, as its predecessor did.
-Nothing here is classified. Every item is from a public source.
+Nothing on screen pretends to be classified. The analyst board's briefs are
+labelled as model-written from the stories you pinned, and every item comes
+from a public source.
 
 <table>
 <tr>

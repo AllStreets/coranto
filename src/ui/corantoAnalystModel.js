@@ -46,15 +46,15 @@ export function domainColour(cat) {
 }
 
 /**
- * The stamps on the board's output, as AUSPEX had them. They are styling:
- * nothing here is classified, and everything is from public sources.
- * Settings says so, under About.
+ * The labels on the board's output. They say what each one is: text a model
+ * wrote from the stories you pinned. Nothing here is classified, so nothing
+ * is stamped as if it were.
  */
 export const MARKINGS = Object.freeze({
-  synthesis: 'TOP SECRET / NOFORN',
-  redTeam: 'TOP SECRET // SI // NOFORN',
-  playbook: 'TOP SECRET // HCS-P // REL TO FVEY',
-  system: 'CORANTO INTELLIGENCE SYSTEM',
+  synthesis: 'MODEL-WRITTEN SYNTHESIS · FROM YOUR PINNED STORIES',
+  redTeam: 'MODEL-WRITTEN RED TEAM · FROM YOUR PINNED STORIES',
+  playbook: 'MODEL-WRITTEN PLAYBOOK · FROM YOUR PINNED STORIES',
+  system: 'CORANTO ANALYST BOARD',
 });
 
 const BREAKING_MS = 25 * 60 * 1000;

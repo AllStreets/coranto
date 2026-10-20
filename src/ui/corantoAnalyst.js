@@ -1172,7 +1172,7 @@ export function createAnalyst({
       ref.rtContent.innerHTML = `
       <div class="ca-rt-classify">${MARKINGS.redTeam}</div>
       <div class="ca-rt-heading">ADVERSARIAL OPPORTUNITY ASSESSMENT</div>
-      <div class="ca-rt-date">PREPARED: ${esc(now)} &nbsp;·&nbsp; ${MARKINGS.system} &nbsp;·&nbsp; NOT FOR DISTRIBUTION</div>
+      <div class="ca-rt-date">PREPARED: ${esc(now)} &nbsp;·&nbsp; ${MARKINGS.system} &nbsp;·&nbsp; PUBLIC SOURCES ONLY</div>
       <div>${replyLines(brief, isRedTeamHeader)
         .map((l) =>
           l.header
@@ -1229,7 +1229,7 @@ export function createAnalyst({
       ref.pbContent.innerHTML = `
       <div class="ca-pb-classify">${MARKINGS.playbook}</div>
       <div class="ca-pb-heading">ADVERSARY PLAYBOOK</div>
-      <div class="ca-pb-date">PREPARED: ${esc(now)} · ${MARKINGS.system} · NOT FOR DISTRIBUTION</div>
+      <div class="ca-pb-date">PREPARED: ${esc(now)} · ${MARKINGS.system} · PUBLIC SOURCES ONLY</div>
       <div>${replyLines(brief, isPlaybookHeader)
         .map((l) =>
           l.header

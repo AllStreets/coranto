@@ -114,7 +114,8 @@ test('real dev and built-preview servers serve provider JSON and terminate unkno
         ['/api/mapillary/status', 200],
         ['/api/mapillary/tiles/coverage/14/1/2', 503],
         ['/api/radio/unknown', 404],
-        ['/api/setup/status', isPreview ? 404 : 200],
+        // an optional probe: "not here" is 204, so public visits log no errors
+        ['/api/setup/status', isPreview ? 204 : 200],
         ['/api/setup/update', 404],
         ['/api/does-not-exist', 404],
         ['/api', 404],
@@ -125,6 +126,7 @@ test('real dev and built-preview servers serve provider JSON and terminate unkno
           status,
           `${isPreview ? 'preview' : 'dev'} ${route}`,
         );
+        if (status === 204) continue;   // no body by design
         assert.match(
           response.headers.get('content-type'),
           /application\/json/,

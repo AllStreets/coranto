@@ -440,16 +440,13 @@ test('a saved board is named by place, then domain, then headline', () => {
   assert.equal(boardTitleFor([]), 'UNTITLED BOARD');
 });
 
-test('the stamps are AUSPEX’s, and Settings says they are decoration', () => {
-  assert.equal(MARKINGS.synthesis, 'TOP SECRET / NOFORN');
-  assert.equal(MARKINGS.redTeam, 'TOP SECRET // SI // NOFORN');
-  assert.equal(MARKINGS.playbook, 'TOP SECRET // HCS-P // REL TO FVEY');
-  const settings = fs.readFileSync(
-    new URL('./corantoSettings.js', import.meta.url),
-    'utf8',
-  );
-  assert.match(settings, /Those stamps are decoration/);
-  assert.match(settings, /Nothing in Coranto is classified/);
+test('the board labels its output as model-written, with no classification stamps', () => {
+  for (const key of ['synthesis', 'redTeam', 'playbook']) {
+    assert.match(MARKINGS[key], /^MODEL-WRITTEN /);
+    assert.doesNotMatch(MARKINGS[key], /SECRET|NOFORN|FVEY|HCS|\bSI\b/);
+  }
+  const board = fs.readFileSync(new URL('./corantoAnalyst.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(board, /NOT FOR DISTRIBUTION/);
 });
 
 test('the network has depth: turning and turning back is the same point', () => {

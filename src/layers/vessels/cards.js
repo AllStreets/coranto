@@ -20,7 +20,7 @@ export function createCards({
     const stale = (record.missedRefreshes || 0) > 0;
     el.classList.add('active');
     el.textContent = [
-      `AIS: ${trimHudValue(record.name, 32)}`,
+      `VESSEL: ${trimHudValue(record.name, 32)}`,
       `${trimHudValue(record.type || 'VESSEL', 24)}  SPD: ${formatSpeed(record.speed)}  HDG: ${formatHeading(record.heading ?? record.course)}`,
       `MMSI: ${record.mmsi || '--'}  ${formatPositionTime(record)}${stale ? '  · STALE' : ''}`,
     ].join('\n');
@@ -30,7 +30,7 @@ export function createCards({
     const el = document.getElementById('hud-ais-vessel');
     if (!el) return;
     el.classList.remove('active');
-    el.textContent = 'AIS: --';
+    el.textContent = 'VESSEL: --';
   }
 
   function trimHudValue(value, maxLength) {

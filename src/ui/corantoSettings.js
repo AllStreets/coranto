@@ -611,14 +611,6 @@ export function createSettings({
           'Coranto shows what public sources report, where they report it, and who said it. Nothing on the globe or in the feed is invented or simulated. Where a model wrote something, it is labelled as written by a model.',
         ),
       ),
-      card(
-        'ONE THING THAT IS STYLE, NOT FACT',
-        make(
-          'p',
-          'coranto-settings-foot',
-          'The analyst board stamps its briefs TOP SECRET, NOFORN and REL TO FVEY, as AUSPEX did. Those stamps are decoration. Nothing in Coranto is classified: every item comes from a public source, and the board’s written briefs come from a model. It is the only thing on screen that is not literally true, and it is kept for the look.',
-        ),
-      ),
       privacy(),
       keys,
       links,
