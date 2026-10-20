@@ -349,8 +349,7 @@ export class IntelHUD {
     // camera altitude.
     const gsd = Math.max(0.01, altM * 0.000375);
     const gsdEl = document.getElementById('hud-gsd');
-    if (gsdEl)
-      gsdEl.textContent = `DETAIL: ${gsd.toFixed(2)} M/PX`;
+    if (gsdEl) gsdEl.textContent = `DETAIL: ${gsd.toFixed(2)} M/PX`;
 
     // Altitude — reported as height above MEAN SEA LEVEL. `altM` is the raw
     // ellipsoidal camera height, which reads far below zero wherever the geoid
@@ -407,7 +406,6 @@ export class IntelHUD {
       this._setSummaryText(this._composeSummary(), false);
     }
   }
-
 
   /**
    * Convert a decimal-degree value to a degrees-minutes-seconds string.

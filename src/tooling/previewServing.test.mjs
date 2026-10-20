@@ -126,7 +126,7 @@ test('real dev and built-preview servers serve provider JSON and terminate unkno
           status,
           `${isPreview ? 'preview' : 'dev'} ${route}`,
         );
-        if (status === 204) continue;   // no body by design
+        if (status === 204) continue; // no body by design
         assert.match(
           response.headers.get('content-type'),
           /application\/json/,

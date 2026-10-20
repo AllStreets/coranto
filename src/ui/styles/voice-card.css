@@ -77,7 +77,7 @@
 .gev-voice-card-who,
 .gev-voice-card-notes summary {
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.46rem;
   font-weight: 600;
   letter-spacing: 0.1rem;
 }
@@ -103,7 +103,7 @@
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(54, 220, 255, 0.24);
   border-radius: 0.2rem;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   line-height: 1;
   cursor: pointer;
   transition:
@@ -122,7 +122,7 @@
   gap: 0.45rem;
   margin: 0;
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   line-height: 1.38;
 }
 
@@ -147,7 +147,7 @@
   gap: 0.45rem;
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.58rem;
   letter-spacing: 0.03rem;
 }
 
@@ -186,7 +186,7 @@
   grid-template-columns: 0.9rem 1fr;
   column-gap: 0.3rem;
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.58rem;
   line-height: 1.4;
   letter-spacing: 0.02rem;
 }
@@ -215,7 +215,7 @@
 .gev-voice-card-step-detail {
   grid-column: 2;
   color: var(--text-dim);
-  font-size: 0.6875rem;
+  font-size: 0.52rem;
 }
 
 .gev-voice-card-result {
@@ -245,7 +245,7 @@
   border: 1px solid rgba(54, 220, 255, 0.3);
   border-radius: 0.18rem;
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.44rem;
   letter-spacing: 0.06rem;
   text-transform: uppercase;
 }
@@ -268,7 +268,7 @@
 .gev-voice-card-lines li,
 .gev-voice-card-referents li {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: 0.66rem;
   line-height: 1.4;
   color: rgba(223, 245, 250, 0.82);
 }
@@ -288,7 +288,7 @@
   margin-right: 0.3rem;
   color: rgba(54, 220, 255, 0.72);
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.52rem;
 }
 
 .gev-voice-card-notes summary {

@@ -5,7 +5,10 @@
  * instead of 404, so a visit to the public site doesn't log errors for
  * features it was never meant to have. Only GET, only these exact paths.
  */
-const OPTIONAL_PROBES = new Set(['/api/setup/status', '/api/google/tiles-token']);
+const OPTIONAL_PROBES = new Set([
+  '/api/setup/status',
+  '/api/google/tiles-token',
+]);
 
 /** Finish unmatched API requests before Vite's HTML fallback. Install last. */
 export function apiNotFoundPlugin() {
