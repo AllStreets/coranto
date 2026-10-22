@@ -1141,14 +1141,15 @@ export function createNewsFeed({
     healthBtn.setAttribute('aria-expanded', String(sourcesOpen));
     // "33 of 35 sources live" on the first line; when it was read on the next.
     const [headline, ...rest] = String(model.health ?? '').split(' · ');
-    // The bar is narrow: "33/35 live · 4m ago". The full sentence is the
-    // button's title.
+    // The bar is narrow: "33/35 live · 4m ago", or "now" in the first
+    // minute. The full sentence is the button's title.
     healthText.textContent = headline
       .replace(/ sources live$/, ' live')
       .replace(/^(\d+) of (\d+) /, '$1/$2 ');
     fetchedText.textContent = rest
       .join(' · ')
       .replace(/^fetched /, '')
+      .replace(/^just (now)$/, '$1')
       .replace(/(\d+) min\b/, '$1m')
       .replace(/(\d+) hr\b/, '$1h');
     healthBtn.title = `${model.health}. Show every source and whether it answered.`;
