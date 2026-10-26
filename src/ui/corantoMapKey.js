@@ -5,6 +5,7 @@ import {
   satelliteImage,
   iconImage,
   markerImage,
+  glyphImage,
 } from '../data/corantoIcons.js';
 import {
   CITY_COLOURS,
@@ -30,8 +31,13 @@ const TOPICS = [
   ['news', 'General news'],
 ];
 
+// Stories keep their ringed marker; everything else is a bare glyph on a
+// halo, as on the globe.
 const marker = (icon, colour, extra = {}) => ({
   image: markerImage({ icon, colour, ...extra }),
+});
+const glyph = (icon, colour, extra = {}) => ({
+  image: glyphImage({ icon, colour, ...extra }),
 });
 
 /**
@@ -110,7 +116,7 @@ export function buildMapKeyModel(state) {
       if (seen.has(look)) continue;
       seen.add(look);
       rows.push({
-        ...marker(hazardIcon(kind), hazardKindColour(kind)),
+        ...glyph(hazardIcon(kind), hazardKindColour(kind)),
         label: kinds
           .filter(
             (other) =>
@@ -123,7 +129,7 @@ export function buildMapKeyModel(state) {
     sections.push({ heading: 'NATURAL HAZARDS', rows });
     const sample = kinds.includes('cyclone') ? 'cyclone' : kinds[0];
     const ringed = (alert) =>
-      marker(hazardIcon(sample), hazardKindColour(sample), { alert });
+      glyph(hazardIcon(sample), hazardKindColour(sample), { alert });
     sections.push({
       heading: 'HAZARD ALERT LEVEL',
       rows: [
@@ -219,13 +225,13 @@ export function buildMapKeyModel(state) {
     });
   if (state.nuclear)
     more.push({
-      ...marker('nuclear', '#ff9f0a'),
+      ...glyph('nuclear', '#ff9f0a'),
       label:
         'Nuclear-armed state (nine, as listed by the Federation of American Scientists)',
     });
   if (state.outbreaks)
     more.push({
-      ...marker('outbreak', '#ff74a8'),
+      ...glyph('outbreak', '#ff74a8'),
       label: 'Disease outbreak notice from the World Health Organization',
     });
   if (state.broadcasts)
@@ -236,15 +242,15 @@ export function buildMapKeyModel(state) {
   if (state.quakes)
     more.push(
       {
-        ...marker('earthquake', '#ff4d5e'),
+        ...glyph('earthquake', '#ff4d5e'),
         label: 'Earthquake of magnitude 6 or more (USGS, last 24 hours)',
       },
       {
-        ...marker('earthquake', '#fb923c'),
+        ...glyph('earthquake', '#fb923c'),
         label: 'Earthquake of magnitude 4.5 to 5.9',
       },
       {
-        ...marker('earthquake', '#f2c14e'),
+        ...glyph('earthquake', '#f2c14e'),
         label:
           'Smaller earthquake. The circle on the ground under each is its true scale.',
       },
@@ -252,11 +258,11 @@ export function buildMapKeyModel(state) {
   if (state.launches)
     more.push(
       {
-        ...marker('launch', '#4fd8ff'),
+        ...glyph('launch', '#4fd8ff'),
         label: 'Launch site with a launch still to come',
       },
       {
-        ...marker('launch', '#9fb3c4'),
+        ...glyph('launch', '#9fb3c4'),
         label: 'Launch site whose listed launches have flown',
       },
       {

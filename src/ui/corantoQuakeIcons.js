@@ -1,5 +1,5 @@
 import * as Cesium from 'cesium';
-import { markerImage } from '../data/corantoIcons.js';
+import { glyphImage } from '../data/corantoIcons.js';
 import { cullBeyondHorizon } from './corantoHorizon.js';
 
 /**
@@ -18,7 +18,7 @@ export function quakeStyle(magnitude) {
   if (magnitude >= 6) return { size: 32, colour: '#ff4d5e', tier: 'major' };
   if (magnitude >= 4.5)
     return { size: 26, colour: '#fb923c', tier: 'moderate' };
-  return { size: 20, colour: '#f2c14e', tier: 'minor' };
+  return { size: 24, colour: '#f2c14e', tier: 'minor' };
 }
 
 /** The card for one quake. The link is to USGS's own page for the event. */
@@ -91,7 +91,7 @@ export function createQuakeIcons({ getManager, showCard }) {
       icons.add({
         id: PREFIX + row.id,
         position: Cesium.Cartesian3.fromDegrees(row.lon, row.lat, 1500),
-        image: markerImage({ icon: 'earthquake', colour: style.colour }),
+        image: glyphImage({ icon: 'earthquake', colour: style.colour }),
         width: style.size,
         height: style.size,
         disableDepthTestDistance: 50_000,

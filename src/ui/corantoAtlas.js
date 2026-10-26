@@ -149,13 +149,19 @@ export function countryMarksImage(country) {
   };
 }
 
-/** A city icon as an image, with a dark edge behind it. */
+/**
+ * A city icon as an image: the glyph on a soft halo that fades to nothing,
+ * with no disc edge, like the other non-story markers. The 2% disc keeps the
+ * whole icon clickable, since Cesium skips fully transparent pixels.
+ */
 export function cityImage(type) {
   const body = CITY_ICONS[type] ?? CITY_ICONS.city;
   const colour = CITY_COLOURS[type] ?? CITY_COLOURS.city;
   return dataUri(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.5 -1.5 15 15" width="${15 * SCALE * 2}" height="${15 * SCALE * 2}">` +
-      `<circle cx="6" cy="6" r="7" fill="#04050a" fill-opacity="0.55"/>` +
+      `<defs><radialGradient id="h"><stop offset="0" stop-color="#04050a" stop-opacity="0.62"/><stop offset="0.75" stop-color="#04050a" stop-opacity="0"/></radialGradient></defs>` +
+      `<circle cx="6" cy="6" r="7.4" fill="#04050a" fill-opacity="0.02"/>` +
+      `<circle cx="6" cy="6" r="7.5" fill="url(#h)"/>` +
       `${body.replaceAll('currentColor', colour)}</svg>`,
   );
 }

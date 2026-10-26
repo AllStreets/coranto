@@ -1,5 +1,5 @@
 import * as Cesium from 'cesium';
-import { markerImage } from '../data/corantoIcons.js';
+import { glyphImage } from '../data/corantoIcons.js';
 import { cullBeyondHorizon } from './corantoHorizon.js';
 import { NEWS_COUNTRIES } from '../sources/news/countries.js';
 import { labelPoint } from './corantoOverlayModel.js';
@@ -103,7 +103,7 @@ export function createNuclearMarks({
     show() {
       const viewer = getViewer();
       if (!viewer || marks) return;
-      const image = markerImage({ icon: 'nuclear', colour: NUCLEAR_COLOUR });
+      const image = glyphImage({ icon: 'nuclear', colour: NUCLEAR_COLOUR });
       marks = new Cesium.BillboardCollection({ scene: viewer.scene });
       for (const state of NUCLEAR_STATES)
         marks.add({
