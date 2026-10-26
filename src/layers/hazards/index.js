@@ -1,6 +1,6 @@
 import * as Cesium from 'cesium';
 import { cullEntitiesBeyondHorizon } from '../../data/corantoHorizonCull.js';
-import { hazardIcon, markerImage } from '../../data/corantoIcons.js';
+import { hazardIcon, glyphImage } from '../../data/corantoIcons.js';
 import {
   HAZARD_OVERLAY_COHORT_LIMIT,
   HAZARD_OVERLAY_SOURCE_ID,
@@ -63,7 +63,7 @@ export function createHazardsLayer({
         id: ENTITY_PREFIX + item.id,
         position,
         billboard: {
-          image: markerImage({
+          image: glyphImage({
             icon: hazardIcon(item.kind),
             colour: hazardColor(item),
             alert: item.alert,

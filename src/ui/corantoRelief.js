@@ -1,5 +1,5 @@
 import * as Cesium from 'cesium';
-import { iconImage, markerImage } from '../data/corantoIcons.js';
+import { iconImage, glyphImage } from '../data/corantoIcons.js';
 import { formatPeople } from '../sources/relief/format.js';
 import { cullBeyondHorizon } from './corantoHorizon.js';
 
@@ -203,7 +203,7 @@ export function createReliefLens({
     if (!viewer || !active) return;
     marks = new Cesium.BillboardCollection({ scene: viewer.scene });
     const seen = new Set();
-    const image = markerImage({ icon: 'outbreak', colour: OUTBREAK_COLOUR });
+    const image = glyphImage({ icon: 'outbreak', colour: OUTBREAK_COLOUR });
     for (const item of outbreaks) {
       // One mark per place: the newest notice there.
       if (!item.place || seen.has(item.place.name)) continue;

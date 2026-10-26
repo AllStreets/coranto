@@ -1,5 +1,5 @@
 import * as Cesium from 'cesium';
-import { markerImage, satelliteImage } from '../data/corantoIcons.js';
+import { glyphImage, satelliteImage } from '../data/corantoIcons.js';
 import { cullBeyondHorizon } from './corantoHorizon.js';
 
 /**
@@ -185,7 +185,7 @@ export function createLaunchIcons({
       icons.add({
         id: PREFIX + site.key,
         position: Cesium.Cartesian3.fromDegrees(site.lon, site.lat, 1500),
-        image: markerImage({
+        image: glyphImage({
           icon: 'launch',
           colour: site.upcoming ? LAUNCH_UPCOMING : LAUNCH_FLOWN,
         }),

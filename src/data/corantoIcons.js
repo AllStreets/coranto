@@ -475,6 +475,39 @@ export function markerImage({
   );
 }
 
+/**
+ * A marker with no disc and no ring, as AUSPEX draws them: the glyph alone,
+ * larger, with a thin dark edge and a soft halo that fades to nothing, so it
+ * reads on bright Blue Marble ground and on the night side alike. Stories
+ * keep `markerImage`, whose solid or dashed ring says how a story was placed.
+ *
+ * Cesium does not pick fully transparent billboard pixels, so a disc at 2%
+ * opacity keeps the whole marker clickable, not just the glyph's strokes.
+ * A Red or Orange alert is a small dot at the top right instead of a ring.
+ */
+export function glyphImage({ icon, colour, selected = false, alert = null }) {
+  const [attrs, body] = ICONS[icon] ?? ICONS.hazard;
+  const glyph = liftColour(colour, 0.45);
+  const pip = ALERT_RING_COLOURS[alert];
+  return dataUri(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">` +
+      `<defs>` +
+      `<radialGradient id="h"><stop offset="0" stop-color="#050912" stop-opacity="0.6"/><stop offset="0.72" stop-color="#050912" stop-opacity="0"/></radialGradient>` +
+      `<filter id="e" x="-20%" y="-20%" width="140%" height="140%"><feMorphology in="SourceAlpha" operator="dilate" radius="1.8" result="d"/><feFlood flood-color="#050912" flood-opacity="0.55"/><feComposite in2="d" operator="in" result="s"/><feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge></filter>` +
+      `</defs>` +
+      `<circle cx="32" cy="32" r="31" fill="#050912" fill-opacity="0.02"/>` +
+      `<circle cx="32" cy="32" r="32" fill="url(#h)"/>` +
+      (selected
+        ? `<circle cx="32" cy="32" r="30.5" fill="none" stroke="#ffffff" stroke-width="1.5"/>`
+        : '') +
+      `<g filter="url(#e)"><g transform="translate(6.4 6.4) scale(2.133)" ${attrs.replaceAll('currentColor', glyph)}>${body.replaceAll('currentColor', glyph)}</g></g>` +
+      (pip
+        ? `<circle cx="52" cy="12" r="6" fill="${pip}" stroke="#050912" stroke-width="2"/>`
+        : '') +
+      `</svg>`,
+  );
+}
+
 /** The icon each engine layer shows in the layer list, by layer id. */
 export const LAYER_ICONS = Object.freeze({
   news: 'news',
