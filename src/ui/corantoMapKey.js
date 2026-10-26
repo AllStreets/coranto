@@ -220,7 +220,7 @@ export function buildMapKeyModel(state) {
   const more = [];
   if (state.elections)
     more.push({
-      swatch: ELECTION_COLOR,
+      ...glyph('election', ELECTION_COLOR),
       label: 'Polling day in the next 120 days',
     });
   if (state.nuclear)

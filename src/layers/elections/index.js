@@ -1,5 +1,6 @@
 import * as Cesium from 'cesium';
 import { cullEntitiesBeyondHorizon } from '../../data/corantoHorizonCull.js';
+import { glyphImage } from '../../data/corantoIcons.js';
 import {
   ELECTION_COLOR,
   ELECTION_OVERLAY_SOURCE_ID,
@@ -37,7 +38,15 @@ export function createElectionsLayer({
   let _error = null;
   let _selectedKey = null;
   const _listeners = new Set();
-  const color = Cesium.Color.fromCssColorString(ELECTION_COLOR);
+  // The ballot glyph on a halo, like the other non-story markers; built once.
+  const markerImages = {
+    plain: glyphImage({ icon: 'election', colour: ELECTION_COLOR }),
+    selected: glyphImage({
+      icon: 'election',
+      colour: ELECTION_COLOR,
+      selected: true,
+    }),
+  };
 
   function emit() {
     for (const listener of [..._listeners]) {
@@ -63,11 +72,10 @@ export function createElectionsLayer({
       _dataSource.entities.add({
         id: ENTITY_PREFIX + group.key,
         position,
-        point: {
-          pixelSize: electionMarkerSize(group) + (selected ? 4 : 0),
-          color: color.withAlpha(0.2),
-          outlineColor: selected ? Cesium.Color.WHITE : color,
-          outlineWidth: 2,
+        billboard: {
+          image: selected ? markerImages.selected : markerImages.plain,
+          width: electionMarkerSize(group) + (selected ? 6 : 0),
+          height: electionMarkerSize(group) + (selected ? 6 : 0),
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           disableDepthTestDistance: 50_000,
         },
