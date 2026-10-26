@@ -56,9 +56,9 @@ Full credits and licences are [at the bottom](#credits) and in [NOTICE](NOTICE).
 ---
 
 <p align="center">
-  <img src="docs/media/coranto/hero.png" alt="Coranto: current headlines pinned to the places they name, with the newsfeed on the right" width="100%"/>
+  <img src="docs/media/coranto/hero.png" alt="Coranto: current headlines pinned to the places they name on a sunlit globe, one story open, with the newsfeed on the right" width="100%"/>
 </p>
-<p align="center"><em>749 current stories from 33 answering sources, each pinned to the place its own text names. Every card is the publisher's headline and opens the original. Nothing on this screen is sample data.</em></p>
+<p align="center"><em>278 current stories from 32 answering sources, each pinned to the place its own text names. The open card is the publisher's headline, with the words that placed it and a link to the original. Nothing on this screen is sample data.</em></p>
 
 <p align="center">
 <a href="#everything-here-is-real">Everything here is real</a> ·
@@ -137,6 +137,34 @@ from a public source.
 Either side of the news view slides away from a small button on its edge, and
 comes back from an arrow at that edge of the screen. The header's layer
 buttons switch each live layer with one click.
+
+### Day and night
+
+<p align="center">
+  <img src="docs/media/coranto/day-night.webp" alt="EARTH pulling out from Chicago at night to the whole Earth, with city lights across North America and daylight on the western limb" width="100%"/>
+</p>
+<p align="center"><em><strong>EARTH</strong> pulls out from the opening shot over Chicago to the whole planet. Full mp4s: <a href="docs/media/coranto/pullout.mp4">the pull-out</a> and <a href="docs/media/coranto/drift.mp4">a turn across the dawn line</a>.</em></p>
+
+The globe is lit from where the sun is right now, with NASA's city lights on
+the night side. From orbit the day side is NASA's Blue Marble, which fades
+into the full-detail map as you come in, and the night shading fades with it
+so cities stay sharp up close. Both can be switched off in Settings.
+
+<p align="center">
+  <img src="docs/media/coranto/day-night.png" alt="The whole Earth with dawn crossing India: Asia in daylight, the Middle East, Africa and Europe under city lights, stories and quakes marked on both sides" width="100%"/>
+</p>
+<p align="center"><em>Dawn crossing India. Stories keep their rings: solid when a story names a city, dashed when it names only a country. Hazards, quakes, nuclear sites, launches, outbreaks and cities are bare glyphs on a soft halo, so they read on daylight and on city lights alike.</em></p>
+
+<table>
+<tr>
+<td width="50%"><img src="docs/media/coranto/markers.png" alt="Southeast Asia and the western Pacific in Blue Marble daylight with ringed story markers and quake magnitudes" width="100%"/></td>
+<td width="50%"><img src="docs/media/coranto/close-up.png" alt="Tokyo Bay up close in full-detail imagery" width="100%"/></td>
+</tr>
+<tr>
+<td><em>Southeast Asia by day with the QUAKES layer on. Each quake carries its magnitude from USGS.</em></td>
+<td><em>Five kilometres over Tokyo Bay, where the Blue Marble has given way to the full-detail map.</em></td>
+</tr>
+</table>
 
 ### The atlas
 
@@ -255,6 +283,7 @@ five or more current headlines name the disease and the country.
 
   the globe
   ├─ stories .......... one marker per place the stories name; rings where approximate
+  ├─ day and night .... lit from where the sun is now; Blue Marble from orbit, city lights at night
   ├─ atlas ............ borders, front lines, countries, a thousand cities
   ├─ hazards .......... cyclones, floods, volcanoes, quakes, fires (GDACS, NASA, USGS)
   ├─ disease .......... official outbreak notices, by country and province (WHO, CDC)
