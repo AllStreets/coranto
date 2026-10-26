@@ -30,10 +30,11 @@ export function electionCountdown(daysUntil) {
 }
 
 /** Marker diameter: nearer elections are larger. */
+/** Billboard size in px: nearer polling days are larger, never under 24. */
 export function electionMarkerSize(group) {
-  if (group.daysUntil <= 14) return 15;
-  if (group.daysUntil <= 45) return 11;
-  return 8;
+  if (group.daysUntil <= 14) return 34;
+  if (group.daysUntil <= 45) return 28;
+  return 24;
 }
 
 /** Elections within 45 days are labelled on the globe. */

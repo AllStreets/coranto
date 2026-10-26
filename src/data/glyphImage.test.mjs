@@ -63,3 +63,16 @@ test('stories keep their solid or dashed ring', () => {
   assert.doesNotMatch(solid, /stroke-dasharray/);
   assert.match(dashed, /stroke-dasharray="5 4"/);
 });
+
+test('an election is the ballot glyph on a halo, never under 24 px', async () => {
+  const { electionMarkerSize } = await import('../layers/elections/model.js');
+  const s = svg(glyphImage({ icon: 'election', colour: '#6e8aff' }));
+  assert.match(s, /<radialGradient id="h">/);
+  assert.doesNotMatch(s, /stroke="#6e8aff"/);
+  for (const daysUntil of [3, 30, 100])
+    assert.ok(electionMarkerSize({ daysUntil }) >= 24);
+  assert.ok(
+    electionMarkerSize({ daysUntil: 3 }) >
+      electionMarkerSize({ daysUntil: 100 }),
+  );
+});
