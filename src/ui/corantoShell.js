@@ -6,6 +6,7 @@ import {
 import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
 import * as Cesium from 'cesium';
 import { createDayNight } from '../app/dayNight.js';
+import { createBlueMarble } from '../app/blueMarble.js';
 import { getContextStore } from '../data/contextStore.js';
 import {
   ALERT_KEY,
@@ -3632,10 +3633,22 @@ export function createCorantoShell({
     dayNight ??= createDayNight(viewer, { Cesium, win });
     dayNight.setEnabled(settingsStore.get('dayNight') === true);
   }
+  /**
+   * The Blue Marble globe from orbit, fading into the full-detail map from
+   * continent scale down. People only, like the moon.
+   */
+  let blueMarble = null;
+  function applyBlueMarble() {
+    const viewer = dataManager?.viewer;
+    if (!viewer || win.navigator?.webdriver) return;
+    blueMarble ??= createBlueMarble(viewer, { Cesium, win });
+    blueMarble.setEnabled(settingsStore.get('blueMarble') === true);
+  }
   const applySettings = () => {
     applyHeaderLayout();
     applySharpGlobe();
     applyDayNight();
+    applyBlueMarble();
     syncLayers();
     body.dataset.corantoTicker = settingsStore.get('ticker') ? 'on' : 'off';
     tick();
@@ -3821,6 +3834,7 @@ export function createCorantoShell({
       }
       applySharpGlobe();
       applyDayNight();
+      applyBlueMarble();
       if (!win.navigator?.webdriver) moon.install();
       // SILENCE and DISEASE come back as they were left.
       try {
@@ -3901,6 +3915,7 @@ export function createCorantoShell({
       satelliteIcons.stop();
       sceneRestore?.destroy();
       dayNight?.destroy();
+      blueMarble?.destroy();
       delete win.__corantoRunCommand;
       win.clearInterval(outbreakTimer);
       notices.clear();
