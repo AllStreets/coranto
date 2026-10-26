@@ -12,6 +12,7 @@ export const SETTING_CHOICES = Object.freeze({
   ticker: [true, false],
   sharpGlobe: [true, false],
   dayNight: [true, false],
+  blueMarble: [true, false],
   noticeWatches: [true, false],
   noticeHazards: [true, false],
   noticeOutbreaks: [true, false],

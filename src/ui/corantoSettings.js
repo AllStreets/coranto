@@ -374,6 +374,11 @@ export function createSettings({
           toggle('dayNight', 'Real day and night'),
         ),
         row(
+          'Blue Marble globe',
+          'Show NASA’s Blue Marble when the whole Earth is in view. It fades into the full-detail map as you zoom in.',
+          toggle('blueMarble', 'Blue Marble globe'),
+        ),
+        row(
           'Headline ticker',
           'The moving line of latest headlines under the header.',
           toggle('ticker', 'Headline ticker'),

@@ -19,6 +19,8 @@
  * @module app/dayNight
  */
 
+import { placeOverBase, tagLayer } from './globeStack.js';
+
 /** Below this camera height the globe is plain daylight imagery (metres). */
 export const DAY_NIGHT_CLEAR_BELOW = 3_000_000;
 /** Above this height day and night show at full strength (metres). */
@@ -95,7 +97,7 @@ function createCityLightsLayer(Cesium) {
     alpha: 0,
     brightness: CITY_LIGHTS_BRIGHTNESS,
   });
-  return layer;
+  return tagLayer(layer, 'city-lights');
 }
 
 /**
@@ -132,16 +134,10 @@ export function createDayNight(
     requestRender();
   };
 
-  /** Keep the city lights directly above the base map, under every overlay. */
+  /** Keep the city lights just above the base map, under every overlay. */
   function placeLayer() {
-    const layers = viewer.imageryLayers;
-    if (!layer || !layers.contains(layer)) return;
-    const base = layers.length > 1 ? layers.get(0) : null;
-    if (base === layer) {
-      layers.raise(layer);
-      return;
-    }
-    while (layers.indexOf(layer) > 1) layers.lower(layer);
+    if (layer && viewer.imageryLayers.contains(layer))
+      placeOverBase(viewer.imageryLayers);
   }
 
   function updateSun() {
