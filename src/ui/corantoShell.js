@@ -3390,6 +3390,9 @@ export function createCorantoShell({
   function wholeEarth(duration = 1.6) {
     const camera = dataManager?.viewer?.camera;
     if (!camera) return;
+    // A duration that is not a number would make every step of the flight
+    // NaN, and Cesium stops rendering for good.
+    if (!Number.isFinite(duration) || duration < 0) duration = 1.6;
     // Centre on the viewer's own longitude, taken from the clock offset.
     const lon = Math.max(
       -180,
@@ -3715,7 +3718,9 @@ export function createCorantoShell({
   };
   document.addEventListener('pointerdown', onOutside);
   sourcesBtn.addEventListener('click', showSources);
-  homeBtn.addEventListener('click', wholeEarth);
+  // Not addEventListener('click', wholeEarth): the click event would arrive
+  // as the flight duration and stop the renderer with a NaN.
+  homeBtn.addEventListener('click', () => wholeEarth());
 
   const storedMode = readStored(localStorageRef, MODE_KEY);
   // Automated browsers get the control room: the engine's own browser gates
