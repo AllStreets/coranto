@@ -56,6 +56,11 @@ Full credits and licences are [at the bottom](#credits) and in [NOTICE](NOTICE).
 ---
 
 <p align="center">
+  <a href="docs/media/coranto/story-zoom.mp4"><img src="docs/media/coranto/story-zoom.webp" alt="The whole Coranto window: the globe turns from Africa and Europe under city lights across the dawn line into daylight over Asia, a click on the Hong Kong story marker narrows the newsfeed to Hong Kong's stories, and the camera flies down to a low, tilted view over Kowloon, Victoria Harbour and the Peak" width="100%"/></a>
+</p>
+<p align="center"><em>The globe turns across the dawn line, one click on the Hong Kong story marker narrows the newsfeed to the stories that name it, and the camera comes down over Victoria Harbour in full-detail imagery. One continuous take of the live app. <a href="docs/media/coranto/story-zoom.mp4">Full quality mp4</a>.</em></p>
+
+<p align="center">
   <img src="docs/media/coranto/hero.png" alt="Coranto: current headlines pinned to the places they name on a sunlit globe, one story open, with the newsfeed on the right" width="100%"/>
 </p>
 <p align="center"><em>278 current stories from 32 answering sources, each pinned to the place its own text names. The open card is the publisher's headline, with the words that placed it and a link to the original. Nothing on this screen is sample data.</em></p>
@@ -140,10 +145,7 @@ buttons switch each live layer with one click.
 
 ### Day and night
 
-<p align="center">
-  <img src="docs/media/coranto/day-night.webp" alt="EARTH pulling out from Chicago at night to the whole Earth, with city lights across North America and daylight on the western limb" width="100%"/>
-</p>
-<p align="center"><em><strong>EARTH</strong> pulls out from the opening shot over Chicago to the whole planet. Full mp4s: <a href="docs/media/coranto/pullout.mp4">the pull-out</a> and <a href="docs/media/coranto/drift.mp4">a turn across the dawn line</a>.</em></p>
+<p align="center"><em>The video at the top crosses the dawn line on its way to Hong Kong. Two more takes: <a href="docs/media/coranto/pullout.mp4"><strong>EARTH</strong> pulling out from Chicago at night</a> and <a href="docs/media/coranto/drift.mp4">a slow turn across the dawn line</a>.</em></p>
 
 The globe is lit from where the sun is right now, with NASA's city lights on
 the night side. From orbit the day side is NASA's Blue Marble, which fades
