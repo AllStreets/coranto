@@ -369,6 +369,11 @@ export function createSettings({
           toggle('sharpGlobe', 'Sharp globe'),
         ),
         row(
+          'Real day and night',
+          'Light the globe from where the sun is right now, with city lights on the night side. It fades out as you zoom in, so cities stay sharp.',
+          toggle('dayNight', 'Real day and night'),
+        ),
+        row(
           'Headline ticker',
           'The moving line of latest headlines under the header.',
           toggle('ticker', 'Headline ticker'),

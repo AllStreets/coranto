@@ -4,6 +4,8 @@ import {
   createNewsFeed,
 } from './newsPanel.js';
 import { ELECTION_TERMS, createElectionsLens } from './corantoElections.js';
+import * as Cesium from 'cesium';
+import { createDayNight } from '../app/dayNight.js';
 import { getContextStore } from '../data/contextStore.js';
 import {
   ALERT_KEY,
@@ -3618,9 +3620,22 @@ export function createCorantoShell({
     viewer.resolutionScale = sharp ? Math.min(2, density) / density : 1;
     viewer.scene.requestRender?.();
   }
+  /**
+   * Real day and night: the globe lit by the sun where it is this minute,
+   * with city lights on the night side. Up close it fades away, so a city
+   * is always the full-detail imagery. People only, like the moon.
+   */
+  let dayNight = null;
+  function applyDayNight() {
+    const viewer = dataManager?.viewer;
+    if (!viewer || win.navigator?.webdriver) return;
+    dayNight ??= createDayNight(viewer, { Cesium, win });
+    dayNight.setEnabled(settingsStore.get('dayNight') === true);
+  }
   const applySettings = () => {
     applyHeaderLayout();
     applySharpGlobe();
+    applyDayNight();
     syncLayers();
     body.dataset.corantoTicker = settingsStore.get('ticker') ? 'on' : 'off';
     tick();
@@ -3805,6 +3820,7 @@ export function createCorantoShell({
           if (atlasWanted[name]) setAtlas(name, true, { remember: false });
       }
       applySharpGlobe();
+      applyDayNight();
       if (!win.navigator?.webdriver) moon.install();
       // SILENCE and DISEASE come back as they were left.
       try {
@@ -3884,6 +3900,7 @@ export function createCorantoShell({
       unsubscribePlace?.();
       satelliteIcons.stop();
       sceneRestore?.destroy();
+      dayNight?.destroy();
       delete win.__corantoRunCommand;
       win.clearInterval(outbreakTimer);
       notices.clear();
