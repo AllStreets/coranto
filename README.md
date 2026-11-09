@@ -1,11 +1,6 @@
 <div align="center">
 
-<img src="docs/media/coranto/coranto-banner.png" alt="Coranto: watch the world back" width="620"/>
-
-<p>
-  <strong>Real news from named sources, pinned to a live globe.</strong><br/>
-  <sub>Every headline links to its publisher &nbsp;·&nbsp; every signal is public &nbsp;·&nbsp; nothing on screen is invented</sub>
-</p>
+<a href="https://coranto-production.up.railway.app"><img src=".github/assets/banner.jpg" alt="Coranto: the logo and the CORANTO wordmark in raised violet letters beside a night-and-day Earth, with headline pins in London, Doha, Chennai, Hong Kong and Singapore, each labelled with its publisher" width="100%"/></a>
 
 <p>
   <a href="#quickstart"><strong>Quickstart</strong></a> &nbsp;·&nbsp;
