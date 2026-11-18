@@ -50,7 +50,9 @@ test('city lights are gone up close and full from orbit', () => {
 
 const tileLayer = () =>
   new Cesium.ImageryLayer(
-    new Cesium.UrlTemplateImageryProvider({ url: 'https://example.test/{z}/{x}/{y}.png' }),
+    new Cesium.UrlTemplateImageryProvider({
+      url: 'https://example.test/{z}/{x}/{y}.png',
+    }),
   );
 
 function fakeViewer(height) {
@@ -127,10 +129,18 @@ test('switching on lights the globe and adds city lights above the base map', ()
   const lon = Cesium.Math.toDegrees(Math.atan2(toSun.y, toSun.x));
   near(lon, -90, 1.5, 'light longitude');
 
-  assert.equal(viewer.imageryLayers.length, 3);
+  // City lights, then its north and south polar caps, then the overlay.
+  assert.equal(viewer.imageryLayers.length, 5);
   assert.equal(viewer.imageryLayers.get(0), base);
   const lights = viewer.imageryLayers.get(1);
-  assert.equal(viewer.imageryLayers.get(2), overlay);
+  const caps = [viewer.imageryLayers.get(2), viewer.imageryLayers.get(3)];
+  assert.equal(viewer.imageryLayers.get(4), overlay);
+  for (const cap of caps) {
+    assert.equal(cap.corantoRole, 'polar-lights');
+    assert.equal(cap.dayAlpha, 0);
+    assert.equal(cap.nightAlpha, 1);
+    assert.equal(cap.alpha, 1);
+  }
   assert.equal(lights.dayAlpha, 0);
   assert.equal(lights.nightAlpha, 1);
   assert.equal(lights.alpha, 1);
@@ -141,6 +151,7 @@ test('switching on lights the globe and adds city lights above the base map', ()
   viewer.camera.positionCartographic.height = 5_500;
   viewer.scene.preRender.raiseEvent();
   assert.equal(lights.alpha, 0);
+  for (const cap of caps) assert.equal(cap.alpha, 0);
 });
 
 test('a new base map keeps the city lights just above it', () => {
@@ -155,9 +166,7 @@ test('a new base map keeps the city lights just above it', () => {
   viewer.imageryLayers.remove(first, true);
   const next = tileLayer();
   viewer.imageryLayers.add(next, 0);
-  viewer.imageryLayers.add(
-    tileLayer(),
-  );
+  viewer.imageryLayers.add(tileLayer());
   win.listeners.get('gev:map-stack-changed')();
   assert.equal(viewer.imageryLayers.get(0), next);
   assert.equal(viewer.imageryLayers.get(1), lights);

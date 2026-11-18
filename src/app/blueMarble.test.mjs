@@ -7,6 +7,8 @@ import {
   BLUE_MARBLE_GONE_BELOW,
   blueMarbleAlpha,
   createBlueMarble,
+  POLAR_CAP_TO_BASE,
+  polarCapTone,
 } from './blueMarble.js';
 import { createDayNight } from './dayNight.js';
 import { placeOverBase, tagLayer } from './globeStack.js';
@@ -105,9 +107,18 @@ test('base map, then Blue Marble, then city lights, then overlays', () => {
   const roles = [];
   for (let i = 0; i < viewer.imageryLayers.length; i++)
     roles.push(viewer.imageryLayers.get(i).corantoRole ?? 'other');
-  assert.deepEqual(roles, ['other', 'blue-marble', 'city-lights', 'other']);
+  assert.deepEqual(roles, [
+    'other',
+    'blue-marble',
+    'polar-marble',
+    'polar-marble',
+    'city-lights',
+    'polar-lights',
+    'polar-lights',
+    'other',
+  ]);
   assert.equal(viewer.imageryLayers.get(0), base);
-  assert.equal(viewer.imageryLayers.get(3), overlay);
+  assert.equal(viewer.imageryLayers.get(7), overlay);
 });
 
 test('the order survives the base map being swapped', () => {
@@ -141,4 +152,13 @@ test('switching off removes it and its listeners', () => {
   assert.equal(viewer.scene.preRender.numberOfListeners, 0);
   assert.equal(win.listeners.size, 0);
   assert.equal(bm.isEnabled(), false);
+});
+
+test('polar caps are untouched at globe scale and toned to the base map up close', () => {
+  assert.deepEqual(polarCapTone(1), { hue: 0, saturation: 1, brightness: 1 });
+  assert.deepEqual(polarCapTone(0), { ...POLAR_CAP_TO_BASE });
+  const half = polarCapTone(0.5);
+  assert.ok(
+    half.brightness > 1 && half.brightness < POLAR_CAP_TO_BASE.brightness,
+  );
 });

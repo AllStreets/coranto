@@ -13,7 +13,7 @@
  * @module app/blueMarble
  */
 
-import { placeOverBase, tagLayer } from './globeStack.js';
+import { createPolarCaps, placeOverBase, tagLayer } from './globeStack.js';
 import { smoothRamp } from './dayNight.js';
 
 /** Below this camera height only the base map shows (metres). */
@@ -42,6 +42,43 @@ function createBlueMarbleLayer(Cesium) {
 }
 
 /**
+ * Esri's ocean beside the cap is teal, Blue Marble's is navy. As Blue Marble
+ * fades out the caps take on Esri's tone, so they meet the base map without
+ * an edge at every height: untouched at globe scale, matched up close.
+ * Measured on the Arctic Ocean at 85 degrees north.
+ */
+export const POLAR_CAP_TO_BASE = Object.freeze({
+  hue: 0.28,
+  saturation: 0.7,
+  brightness: 1.6,
+});
+
+/** Colour adjustments for the polar caps at a Blue Marble alpha. */
+export function polarCapTone(alpha) {
+  const t = 1 - Math.min(1, Math.max(0, Number(alpha) || 0));
+  return {
+    hue: POLAR_CAP_TO_BASE.hue * t,
+    saturation: 1 + (POLAR_CAP_TO_BASE.saturation - 1) * t,
+    brightness: 1 + (POLAR_CAP_TO_BASE.brightness - 1) * t,
+  };
+}
+
+/**
+ * Blue Marble over the polar caps, past the Mercator edge. Always at full
+ * strength while Blue Marble is on: at globe scale it matches the layer
+ * beside it, and closer in there is no other imagery of the poles to show,
+ * so it is toned to the base map instead (polarCapTone).
+ */
+function createBlueMarbleCaps(Cesium) {
+  return createPolarCaps(Cesium, {
+    gibsLayer: 'BlueMarble_ShadedRelief_Bathymetry',
+    format: 'image/jpeg',
+    role: 'polar-marble',
+    credit: BLUE_MARBLE_CREDIT,
+  });
+}
+
+/**
  * Switch the Blue Marble globe on or off for a viewer.
  *
  * @param {object} viewer A Cesium Viewer.
@@ -61,6 +98,7 @@ export function createBlueMarble(
 ) {
   const scene = viewer.scene;
   let layer = null;
+  let caps = [];
   let removeListener = null;
 
   const onStackChanged = () => {
@@ -76,11 +114,15 @@ export function createBlueMarble(
     if (layer.alpha !== alpha) layer.alpha = alpha;
     const show = alpha > 0;
     if (layer.show !== show) layer.show = show;
+    const tone = polarCapTone(alpha);
+    for (const cap of caps) Object.assign(cap, tone);
   }
 
   function enable() {
     layer = createBlueMarbleLayer(Cesium);
     viewer.imageryLayers.add(layer);
+    caps = createBlueMarbleCaps(Cesium);
+    for (const cap of caps) viewer.imageryLayers.add(cap);
     placeOverBase(viewer.imageryLayers);
     updateAlpha();
     // Every drawn frame, before it draws: a height check, nothing more.
@@ -93,9 +135,11 @@ export function createBlueMarble(
     win.removeEventListener?.('gev:map-stack-changed', onStackChanged);
     removeListener?.();
     removeListener = null;
-    if (layer && viewer.imageryLayers.contains(layer))
-      viewer.imageryLayers.remove(layer, true);
+    for (const each of [layer, ...caps])
+      if (each && viewer.imageryLayers.contains(each))
+        viewer.imageryLayers.remove(each, true);
     layer = null;
+    caps = [];
     requestRender();
   }
 

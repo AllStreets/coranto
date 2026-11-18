@@ -19,7 +19,7 @@
  * @module app/dayNight
  */
 
-import { placeOverBase, tagLayer } from './globeStack.js';
+import { createPolarCaps, placeOverBase, tagLayer } from './globeStack.js';
 
 /** Below this camera height the globe is plain daylight imagery (metres). */
 export const DAY_NIGHT_CLEAR_BELOW = 3_000_000;
@@ -82,6 +82,13 @@ export function subsolarPoint(Cesium, date = new Date()) {
   };
 }
 
+const CITY_LIGHTS_LAYER_OPTIONS = Object.freeze({
+  dayAlpha: 0,
+  nightAlpha: 1,
+  alpha: 0,
+  brightness: CITY_LIGHTS_BRIGHTNESS,
+});
+
 function createCityLightsLayer(Cesium) {
   const provider = new Cesium.UrlTemplateImageryProvider({
     url: CITY_LIGHTS_URL,
@@ -91,13 +98,19 @@ function createCityLightsLayer(Cesium) {
   // Cesium leaves the night side at 30% light, which would dim the lights
   // to almost nothing; the layer's own brightness makes up for it. Unlit
   // ground stays black, since only lit pixels get brighter.
-  const layer = new Cesium.ImageryLayer(provider, {
-    dayAlpha: 0,
-    nightAlpha: 1,
-    alpha: 0,
-    brightness: CITY_LIGHTS_BRIGHTNESS,
-  });
+  const layer = new Cesium.ImageryLayer(provider, CITY_LIGHTS_LAYER_OPTIONS);
   return tagLayer(layer, 'city-lights');
+}
+
+/** Black Marble over the polar caps, past the Mercator edge. */
+function createCityLightsCaps(Cesium) {
+  return createPolarCaps(Cesium, {
+    gibsLayer: 'VIIRS_Black_Marble',
+    format: 'image/png',
+    role: 'polar-lights',
+    credit: CITY_LIGHTS_CREDIT,
+    layerOptions: CITY_LIGHTS_LAYER_OPTIONS,
+  });
 }
 
 /**
@@ -126,6 +139,7 @@ export function createDayNight(
   let enabled = false;
   let saved = null;
   let layer = null;
+  let caps = [];
   let timer = null;
   let removeCameraListener = null;
 
@@ -153,7 +167,8 @@ export function createDayNight(
     if (!layer) return;
     const height = viewer.camera.positionCartographic?.height;
     const alpha = cityLightsAlpha(height);
-    if (layer.alpha !== alpha) layer.alpha = alpha;
+    for (const each of [layer, ...caps])
+      if (each.alpha !== alpha) each.alpha = alpha;
   }
 
   function enable() {
@@ -184,6 +199,8 @@ export function createDayNight(
 
     layer = createCityLightsLayer(Cesium);
     viewer.imageryLayers.add(layer);
+    caps = createCityLightsCaps(Cesium);
+    for (const cap of caps) viewer.imageryLayers.add(cap);
     placeLayer();
     updateLightsAlpha();
     // Every drawn frame, before it draws: a height check, nothing more.
@@ -203,9 +220,11 @@ export function createDayNight(
     win.removeEventListener?.('gev:map-stack-changed', onStackChanged);
     removeCameraListener?.();
     removeCameraListener = null;
-    if (layer && viewer.imageryLayers.contains(layer))
-      viewer.imageryLayers.remove(layer, true);
+    for (const each of [layer, ...caps])
+      if (each && viewer.imageryLayers.contains(each))
+        viewer.imageryLayers.remove(each, true);
     layer = null;
+    caps = [];
     if (saved) {
       scene.light = saved.light;
       globe.enableLighting = saved.enableLighting;
