@@ -141,3 +141,51 @@ export function installPolarUnderlay(viewer, Cesium) {
       layers.remove(layer, true);
   };
 }
+
+/**
+ * Paint over a dark column at the dateline edge of a Web Mercator layer.
+ *
+ * NASA's Black Marble tiles from GIBS (EPSG:3857) carry a darker first
+ * column at -180 degrees and a darker last column at +180; where the two
+ * meet the globe shows a thin dark line down the 180th meridian. Only the
+ * tiles touching the dateline are touched: each of their edge columns is
+ * replaced by its neighbour, so the layer reads continuously across it.
+ * Every other tile passes through untouched.
+ *
+ * @param {object} provider A Cesium imagery provider (Web Mercator tiling).
+ * @param {object} [options]
+ * @param {Document} [options.document]
+ * @returns {object} The same provider.
+ */
+export function repairDatelineEdges(
+  provider,
+  { document: doc = globalThis.document } = {},
+) {
+  const request = provider.requestImage.bind(provider);
+  provider.requestImage = (x, y, level, req) => {
+    const pending = request(x, y, level, req);
+    if (!pending || !doc?.createElement) return pending;
+    const last = provider.tilingScheme.getNumberOfXTilesAtLevel(level) - 1;
+    if (x !== 0 && x !== last) return pending;
+    return Promise.resolve(pending).then((image) =>
+      copyEdgeColumns(doc, image, x === 0, x === last),
+    );
+  };
+  return provider;
+}
+
+function copyEdgeColumns(doc, image, left, right) {
+  const width = image?.width;
+  const height = image?.height;
+  if (!(width > 2) || !(height > 0)) return image;
+  const canvas = doc.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext('2d');
+  if (!context) return image;
+  context.drawImage(image, 0, 0);
+  if (left) context.drawImage(canvas, 1, 0, 1, height, 0, 0, 1, height);
+  if (right)
+    context.drawImage(canvas, width - 2, 0, 1, height, width - 1, 0, 1, height);
+  return canvas;
+}

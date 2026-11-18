@@ -5,6 +5,7 @@ import {
   POLAR_UNDERLAY_ROLE,
   installPolarUnderlay,
   placeOverBase,
+  repairDatelineEdges,
   tagLayer,
 } from './globeStack.js';
 
@@ -87,4 +88,42 @@ test('with no base map, globe layers start just above the underlay', () => {
     [0, 1, 2].map((i) => layers.get(i)),
     [underlay, marble, lights],
   );
+});
+
+test('only tiles at the dateline are repaired', async () => {
+  const calls = [];
+  const provider = {
+    tilingScheme: new Cesium.WebMercatorTilingScheme(),
+    requestImage: (x, y, level) => {
+      calls.push([x, y, level]);
+      return Promise.resolve({ width: 256, height: 256, tag: `${x}` });
+    },
+  };
+  const drawn = [];
+  const doc = {
+    createElement: () => ({
+      getContext: () => ({ drawImage: (...args) => drawn.push(args.length) }),
+    }),
+  };
+  repairDatelineEdges(provider, { document: doc });
+  const middle = await provider.requestImage(1, 0, 2);
+  assert.equal(middle.tag, '1');
+  assert.equal(drawn.length, 0);
+  const west = await provider.requestImage(0, 0, 2);
+  assert.notEqual(west.tag, '0');
+  assert.equal(drawn.length, 2);
+  const east = await provider.requestImage(3, 1, 2);
+  assert.equal(east.width, 256);
+  assert.equal(drawn.length, 4);
+  assert.equal(provider.requestImage(0, 0, 2, null) instanceof Promise, true);
+  assert.deepEqual(calls[0], [1, 0, 2]);
+});
+
+test('a throttled request stays undefined', () => {
+  const provider = {
+    tilingScheme: new Cesium.WebMercatorTilingScheme(),
+    requestImage: () => undefined,
+  };
+  repairDatelineEdges(provider, { document: { createElement: () => ({}) } });
+  assert.equal(provider.requestImage(0, 0, 1), undefined);
 });

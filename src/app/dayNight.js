@@ -19,7 +19,12 @@
  * @module app/dayNight
  */
 
-import { createPolarCaps, placeOverBase, tagLayer } from './globeStack.js';
+import {
+  createPolarCaps,
+  placeOverBase,
+  repairDatelineEdges,
+  tagLayer,
+} from './globeStack.js';
 
 /** Below this camera height the globe is plain daylight imagery (metres). */
 export const DAY_NIGHT_CLEAR_BELOW = 3_000_000;
@@ -90,11 +95,14 @@ const CITY_LIGHTS_LAYER_OPTIONS = Object.freeze({
 });
 
 function createCityLightsLayer(Cesium) {
-  const provider = new Cesium.UrlTemplateImageryProvider({
-    url: CITY_LIGHTS_URL,
-    maximumLevel: 8,
-    credit: CITY_LIGHTS_CREDIT,
-  });
+  // Its tiles are darker at the dateline edge; see repairDatelineEdges.
+  const provider = repairDatelineEdges(
+    new Cesium.UrlTemplateImageryProvider({
+      url: CITY_LIGHTS_URL,
+      maximumLevel: 8,
+      credit: CITY_LIGHTS_CREDIT,
+    }),
+  );
   // Cesium leaves the night side at 30% light, which would dim the lights
   // to almost nothing; the layer's own brightness makes up for it. Unlit
   // ground stays black, since only lit pixels get brighter.
