@@ -12,7 +12,7 @@
 const BUCKETS = [
   [
     'medical',
-    /\b(cure[sd]?|vaccine (approved|rollout|success|breakthrough)|new vaccine|breakthrough treatment|clinical trial success|fda approv\w+|drug approv\w+|remission|gene therapy|first transplant|transplant first|eradicat\w+|(polio|malaria|measles)-free)\b/i,
+    /\b(cure[sd]?|vaccine (approved|rollout|success|breakthrough)|new vaccine|breakthrough treatment|clinical trial success|fda approv\w+|drug approv\w+|remission|gene therapy (approved|approval|success\w*|works|restores?|cures?)|first transplant|transplant first|eradicat\w+|(polio|malaria|measles)-free)\b/i,
   ],
   [
     'science',
@@ -29,8 +29,11 @@ const BUCKETS = [
 ];
 
 // A headline that also reads as a peril is never tagged as good news.
+// Compounds count too ("cyberattack"), and so do losses, failures and
+// appeals for help, which share words with progress ("measles-free",
+// "gene therapy") but report the opposite.
 const PERIL_RE =
-  /\b(war|death|deaths|dead|attack|attacks|crisis|killed|kills|crash|collapse|scandal|dies|deadly|massacre|bomb|bombing|shooting|outbreak|famine|fraud|arrested|lawsuit|recall|warns?|fears?|threat|threatens|sanctions?|snub|fumes|criticiz\w+|criticis\w+|condemn\w+|unacceptable|bans?|banned|crackdown|protests?)\b/i;
+  /\b(war|death|deaths|dead|\w*attacks?|hack(s|ed|ers?|ing)?|breach(es|ed)?|ransomware|malware|spyware|los(e|es|t|ing)|setbacks?|fail(s|ed|ing|ure)?|revok\w+|stripped|seeks?|appeals? for|fundrais\w+|crowdfund\w+|desperate|struck|stifl\w+|crisis|killed|kills|crash|collapse|scandal|dies|deadly|massacre|bomb|bombing|shooting|outbreak|famine|fraud|arrested|lawsuit|recall|warns?|fears?|threat|threatens|sanctions?|snub|fumes|criticiz\w+|criticis\w+|condemn\w+|unacceptable|bans?|banned|crackdown|protests?)\b/i;
 
 export const NEWS_PROGRESS_KINDS = Object.freeze(BUCKETS.map(([kind]) => kind));
 
@@ -41,6 +44,8 @@ export const NEWS_PROGRESS_KINDS = Object.freeze(BUCKETS.map(([kind]) => kind));
 export function detectProgress(title) {
   if (typeof title !== 'string' || !title) return null;
   if (PERIL_RE.test(title)) return null;
+  // A question reports no result ("Is X stifling discovery?").
+  if (/\?\s*$/.test(title)) return null;
   for (const [kind, pattern] of BUCKETS) if (pattern.test(title)) return kind;
   return null;
 }

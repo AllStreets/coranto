@@ -1938,6 +1938,28 @@ export function createCorantoShell({
       'Step back through the week of headlines Coranto holds, to see what was being reported at each moment',
     'aria-pressed': 'false',
   });
+  // A story or country sheet opens on the left of the globe. A place the
+  // camera flies to lands in the middle of the globe left beside it, not
+  // under it. In Instruments the story is centred, so nothing moves.
+  layer.setFocusOffset?.(() => {
+    if (body.dataset.corantoMode === 'instruments') return 0;
+    const popup = ['coranto-story', 'coranto-dossier']
+      .map((id) => document.getElementById(id))
+      .find((node) => node && !node.hidden && node.offsetWidth > 0);
+    const canvas = document.querySelector('#cesiumContainer canvas');
+    if (!popup || !canvas) return 0;
+    const box = popup.getBoundingClientRect();
+    const view = canvas.getBoundingClientRect();
+    const feedPanel = document.getElementById('coranto-feed');
+    const feedBox = feedPanel?.offsetWidth
+      ? feedPanel.getBoundingClientRect()
+      : null;
+    const right = Math.min(view.right, feedBox ? feedBox.left : view.right);
+    // Too little room beside it: leave the place in the middle.
+    if (right - box.right < 160) return 0;
+    return (box.right + right) / 2 - (view.left + view.width / 2);
+  });
+
   const transport = createTransport({
     document,
     win,

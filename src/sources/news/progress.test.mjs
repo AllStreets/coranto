@@ -9,6 +9,7 @@ test('progress headlines are tagged by kind', () => {
     ['A quantum prediction from 1931 just came to life', 'science'],
     ['FDA approves first gene therapy for rare blindness', 'medical'],
     ['Country declared malaria-free after decades of work', 'medical'],
+    ['Gene therapy restores hearing in children born deaf', 'medical'],
     ['Probe lands on the Moon after week-long transit', 'space'],
     ['Navi Pillay wins Nobel Peace Prize', 'humanity'],
     ['Hostages released after months of talks', 'humanity'],
@@ -25,6 +26,12 @@ test('a headline with a peril or dispute word is never good news', () => {
     'Vaccine rollout stalls as outbreak spreads',
     'Breakthrough in talks fails to end war',
     'Rover team warns of budget collapse',
+    'Google says Russian speakers pulled off first-ever fully automated AI cyberattack - POLITICO.eu',
+    'US and Mexico lose measles-free status',
+    'Indian-origin family in Canada seeks $5.5 million for US gene therapy they hope will help their toddler with rare genetic disorder',
+    'Is academia’s risk-averse culture stifling scientific discovery?',
+    'Crew rescued from gas carrier struck in Black Sea off Bulgaria',
+    'Hackers claim breach of first-ever quantum network',
   ])
     assert.equal(detectProgress(title), null, title);
 });

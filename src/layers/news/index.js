@@ -38,6 +38,7 @@ export function createNewsLayer({
     throw new TypeError('News requires a snapshot source');
   if (!overlayHost) throw new TypeError('News requires an overlay host');
   let _viewer = null;
+  let _focusOffsetPx = () => 0;
   let _request = null;
   let _dataSource = null;
   let _clickHandler = null;
@@ -364,6 +365,15 @@ export function createNewsLayer({
       emit();
     },
 
+    /**
+     * How far right of the screen centre (CSS pixels) a focused place should
+     * land, so a pop-up open over the globe does not cover it.
+     * @param {() => number} fn
+     */
+    setFocusOffset(fn) {
+      _focusOffsetPx = typeof fn === 'function' ? fn : () => 0;
+    },
+
     /** Select a place (or null to clear), optionally flying the camera to it. */
     selectPlace(key, { focus = false } = {}) {
       const group = key ? _groups.find((g) => g.key === key) : null;
@@ -372,11 +382,26 @@ export function createNewsLayer({
       emit();
       if (group && focus && _viewer?.camera) {
         _viewer.camera.cancelFlight?.();
+        const height =
+          NEWS_FOCUS_HEIGHT_M[group.precision] ?? NEWS_FOCUS_HEIGHT_M.country;
+        let offsetPx = 0;
+        try {
+          offsetPx = Number(_focusOffsetPx()) || 0;
+        } catch {
+          offsetPx = 0;
+        }
+        const shift = focusLongitudeShift({
+          lat: group.lat,
+          height,
+          offsetPx,
+          viewportHeightPx: _viewer.scene?.canvas?.clientHeight,
+          fovy: _viewer.camera.frustum?.fovy,
+        });
         _viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(
-            group.lon,
+            group.lon - shift,
             group.lat,
-            NEWS_FOCUS_HEIGHT_M[group.precision] ?? NEWS_FOCUS_HEIGHT_M.country,
+            height,
           ),
           duration: 1.8,
         });
@@ -385,4 +410,32 @@ export function createNewsLayer({
     },
   };
   return layer;
+}
+
+/**
+ * Degrees of longitude to move the camera west of a place so that, looking
+ * straight down from `height`, the place shows `offsetPx` right of the
+ * screen centre. Exact on a sphere for a ray `offsetPx` from the centre.
+ *
+ * @returns {number} Degrees; 0 when there is nothing to shift.
+ */
+export function focusLongitudeShift({
+  lat,
+  height,
+  offsetPx,
+  viewportHeightPx,
+  fovy,
+}) {
+  if (!offsetPx || !(viewportHeightPx > 0) || !(fovy > 0) || !(height > 0))
+    return 0;
+  const R = 6_371_000;
+  const D = R + height;
+  const theta = Math.atan(
+    (offsetPx / (viewportHeightPx / 2)) * Math.tan(fovy / 2),
+  );
+  const s = (D / R) * Math.sin(Math.abs(theta));
+  // A ray past the horizon misses the Earth: stop at the horizon.
+  const central = (s >= 1 ? Math.PI / 2 : Math.asin(s)) - Math.abs(theta);
+  const cosLat = Math.max(0.2, Math.cos((lat * Math.PI) / 180));
+  return (Math.sign(theta) * ((central / cosLat) * 180)) / Math.PI;
 }

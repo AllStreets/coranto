@@ -4059,6 +4059,56 @@ body:not([data-coranto-mode='news']) #coranto-transport {
   display: none;
 }
 
+/* A story or a country sheet opened during a tour or replay. On a wide
+   screen the bar moves to the middle of the globe left beside it, as the
+   voice control does; on a narrower one the sheet opens below the bar.
+   Neither covers the other. */
+@media (min-width: 1400px) {
+  body[data-coranto-mode='news']:is(
+      :has(#coranto-story:not([hidden])),
+      :has(#coranto-dossier:not([hidden]))
+    )
+    #coranto-transport {
+    --coranto-popup-w: min(
+      430px,
+      calc(100vw - var(--coranto-rail-w) - var(--coranto-feed-w) - 52px)
+    );
+    --coranto-beside-w: calc(
+      100vw - var(--coranto-rail-w) - var(--coranto-feed-w) - 26px -
+        var(--coranto-popup-w)
+    );
+    left: calc(
+      var(--coranto-rail-w) + 26px + var(--coranto-popup-w) +
+        var(--coranto-beside-w) / 2
+    );
+    width: min(560px, calc(var(--coranto-beside-w) - 40px));
+  }
+}
+@media (min-width: 1400px) and (max-width: 1679px) {
+  body[data-coranto-mode='news']:is(
+      :has(#coranto-story:not([hidden])),
+      :has(#coranto-dossier:not([hidden]))
+    )
+    #coranto-transport {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 1399px) {
+  body[data-coranto-mode='news']:is(
+      [data-coranto-transport='tour'],
+      [data-coranto-transport='replay']
+    )
+    :is(#coranto-story, #coranto-dossier) {
+    top: calc(var(--coranto-header-h) + var(--coranto-ticker-h) + 140px);
+    max-height: calc(
+      100vh - var(--coranto-header-h) - var(--coranto-ticker-h) - 200px
+    );
+    max-height: calc(
+      100dvh - var(--coranto-header-h) - var(--coranto-ticker-h) - 200px
+    );
+  }
+}
+
 /* Notices: something arrived */
 #coranto-notices {
   position: fixed;
@@ -6156,15 +6206,22 @@ body[data-coranto-mode='instruments'][data-coranto-frame='one']:is(
   white-space: nowrap;
 }
 
-/* The status bar's two figures both fit: tighter type, nothing cut off. */
+/* The status bar's two figures both fit: tighter type, and the age stays
+   inside its own button. On the narrowest panel it ends in an ellipsis
+   rather than running under LEFT OUT; the button's title has it in full. */
 .news-status-bar > :is(.news-health, .news-dropped) {
-  gap: 6px;
-  padding: 8px 8px 8px 9px;
-  letter-spacing: 1px;
+  gap: 4px;
+  padding: 8px 7px 8px 8px;
+  letter-spacing: 0.5px;
+}
+.news-status-bar > .news-health {
+  overflow: hidden;
 }
 .news-fetched {
-  flex: 0 0 auto;
-  overflow: visible;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .news-status-bar > .news-health .news-status-chevron {
   margin-left: auto;
